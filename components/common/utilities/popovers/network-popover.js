@@ -11,6 +11,7 @@ import {
 	usePolkadotApi,
 	useSelectedNetwork,
 	useValidatorData,
+	useNomMinStake,
 	useOverviewData,
 } from "@lib/store";
 import { setCookie } from "nookies";
@@ -45,6 +46,7 @@ const NetworkPopover = ({ isExpanded, hasBorder }) => {
 		setAccountInfoLoading,
 	} = useAccounts();
 	const { selectedNetwork, setSelectedNetwork } = useSelectedNetwork();
+	const { setNomMinStake } = useNomMinStake();
 	const networkInfo = getNetworkInfo(selectedNetwork);
 	const [isNetworkOpen, setIsNetworkOpen] = useState(false);
 	return (
@@ -116,6 +118,7 @@ const NetworkPopover = ({ isExpanded, hasBorder }) => {
 								setAccounts(null);
 								setAccountsWithBalances(null);
 								setAccountInfoLoading(false);
+								setNomMinStake(null);
 								setSelectedNetwork("Kusama");
 							}
 							setIsNetworkOpen(!isNetworkOpen);
@@ -157,6 +160,7 @@ const NetworkPopover = ({ isExpanded, hasBorder }) => {
 								setAccounts(null);
 								setAccountsWithBalances(null);
 								setAccountInfoLoading(false);
+								setNomMinStake(null);
 								setSelectedNetwork("Polkadot");
 							}
 							setIsNetworkOpen(!isNetworkOpen);
