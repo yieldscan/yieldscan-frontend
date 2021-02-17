@@ -138,7 +138,7 @@ const withDashboardLayout = (children) => {
 								}
 
 								bondedAmount = Number(
-									parseInt(total) / 10 ** networkInfo.decimalPlaces
+									parseInt(active) / 10 ** networkInfo.decimalPlaces
 								);
 								bondedAmountInSubCurrency = await convertCurrency(
 									bondedAmount,
