@@ -8,6 +8,7 @@ import {
 	useValidatorData,
 	useTransactionHash,
 	useNominatorsData,
+	useNomMinStake,
 	useOverviewData,
 	useCouncil,
 } from "@lib/store";
@@ -88,6 +89,8 @@ const Header = ({ isBase }) => {
 		onClose: closeEditControllerModal,
 		onToggle: toggleEditControllerModal,
 	} = useDisclosure();
+
+	const { setNomMinStake } = useNomMinStake();
 
 	const [accountsWithoutCurrent, setAccountsWithoutCurrent] = useState([]);
 
@@ -611,6 +614,7 @@ const Header = ({ isBase }) => {
 													setAccounts(null);
 													setAccountsWithBalances(null);
 													setAccountInfoLoading(false);
+													setNomMinStake(null);
 													setSelectedNetwork("Kusama");
 												}
 												setIsNetworkOpen(!isNetworkOpen);
@@ -653,6 +657,7 @@ const Header = ({ isBase }) => {
 													setAccounts(null);
 													setAccountsWithBalances(null);
 													setAccountInfoLoading(false);
+													setNomMinStake(null);
 													setSelectedNetwork("Polkadot");
 												}
 												setIsNetworkOpen(!isNetworkOpen);
