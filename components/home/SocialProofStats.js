@@ -1,6 +1,7 @@
 import React from "react";
 import { Spinner } from "@chakra-ui/core";
 import axios from "@lib/axios";
+import { useNomMinStake } from "@lib/store";
 import convertCurrency from "@lib/convert-currency";
 import formatCurrency from "@lib/format-currency";
 import millify from "millify";
@@ -20,6 +21,7 @@ const SocialProofStats = ({ networkName, networkDenom, networkUrl }) => {
 	const [error, setError] = React.useState(false);
 	const [loading, setLoading] = React.useState(true);
 	const [nominatorsData, setNominatorsData] = React.useState([]);
+	const { setNomMinStake } = useNomMinStake();
 	const [
 		totalAmountStakedSubCurrency,
 		setTotalAmountStakedSubCurrency,
@@ -36,6 +38,7 @@ const SocialProofStats = ({ networkName, networkDenom, networkUrl }) => {
 			.get(`/${networkUrl}/actors/nominator/stats`)
 			.then(({ data }) => {
 				setNominatorsData(data);
+				setNomMinStake(data.stats.nomMinStake);
 			})
 			.catch(() => {
 				setError(true);
@@ -58,18 +61,14 @@ const SocialProofStats = ({ networkName, networkDenom, networkUrl }) => {
 		}
 	}, [nominatorsData, networkDenom]);
 
-	if (error) {
-		return (
-			<div className="flex-center flex-col mt-40">
-				<div className="text-4xl">🧐</div>
-				<h3>
-					Sorry, something went wrong while fetching! We'll surely look into
-					this.
-				</h3>
-			</div>
-		);
-	}
-	return (
+	return error ? (
+		<div className="flex-center flex-col mt-40">
+			<div className="text-4xl">🧐</div>
+			<h3>
+				Sorry, something went wrong while fetching! We'll surely look into this.
+			</h3>
+		</div>
+	) : (
 		<div className="flex w-full max-w-65-rem mt-32 flex-wrap justify-between">
 			<StatCard
 				stat={
