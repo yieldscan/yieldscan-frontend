@@ -17,6 +17,7 @@ export const networks = [
 		erasPerDay: 1,
 		lockUpPeriod: 28,
 		minAmount: 1,
+		recommendedAdditionalAmount: 50,
 		about: "Polkadot is a heterogeneous multi‑chain technology.",
 	},
 	{
@@ -31,6 +32,7 @@ export const networks = [
 		erasPerDay: 4,
 		lockUpPeriod: 7,
 		minAmount: 0.1,
+		recommendedAdditionalAmount: 0.5,
 		about: "Kusama is an early, unaudited, and unrefined release of Polkadot.",
 	},
 	{

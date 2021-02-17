@@ -6,6 +6,7 @@ import AmountInput from "./AmountInput";
 import TimePeriodInput from "./TimePeriodInput";
 import ExpectedReturnsCard from "./ExpectedReturnsCard";
 import CompoundRewardSlider from "./CompoundRewardSlider";
+import LowBalanceAlert from "./LowBalanceAlert";
 import { useWalletConnect } from "@components/wallet-connect";
 import {
 	useAccounts,
@@ -16,6 +17,7 @@ import {
 	useNetworkElection,
 	useTransactionHash,
 	useValidatorData,
+	useNomMinStake,
 } from "@lib/store";
 import { PaymentPopover } from "@components/new-payment";
 import { get, isNil, mapValues, keyBy, cloneDeep, debounce } from "lodash";
@@ -44,7 +46,7 @@ import { trackEvent, Events } from "@lib/analytics";
 import convertCurrency from "@lib/convert-currency";
 import { getNetworkInfo } from "yieldscan.config";
 import { HelpCircle } from "react-feather";
-import formatCurrency from "@lib/format-currency";
+import MinStakeAlert from "./MinStakeAlert";
 
 const trackRewardCalculatedEvent = debounce((eventData) => {
 	trackEvent(Events.REWARD_CALCULATED, eventData);
@@ -83,6 +85,7 @@ const RewardCalculatorPage = () => {
 	const { isPaymentPopoverOpen, closePaymentPopover } = usePaymentPopover();
 
 	const [loading, setLoading] = useState(false);
+	const [loadingNomMinStake, setLoadingNomMinStake] = useState(true);
 	const [amount, setAmount] = useState(transactionState.stakingAmount || 1000);
 	const [subCurrency, setSubCurrency] = useState(0);
 	const [risk, setRisk] = useState(transactionState.riskPreference || "Medium");
@@ -98,6 +101,7 @@ const RewardCalculatorPage = () => {
 	const [selectedValidators, setSelectedValidators] = useState({});
 
 	const { validatorRiskSets, setValidatorRiskSets } = useValidatorData();
+	const { nomMinStake, setNomMinStake } = useNomMinStake();
 	const [result, setResult] = useState({});
 
 	useEffect(() => {
@@ -170,6 +174,22 @@ const RewardCalculatorPage = () => {
 		bondedAmount,
 		selectedValidators,
 	]);
+	useEffect(() => {
+		if (isNil(nomMinStake)) {
+			setLoadingNomMinStake(true);
+			axios
+				.get(`/${networkInfo.coinGeckoDenom}/actors/nominator/stats`)
+				.then(({ data }) => {
+					setNomMinStake(data.stats.nomMinStake);
+				})
+				.catch(() => {
+					console.error("Unable to fetch minimum amount staked");
+				})
+				.finally(() => {
+					setLoadingNomMinStake(false);
+				});
+		} else setLoadingNomMinStake(false);
+	}, [networkInfo]);
 
 	const updateTransactionState = (eventType = "") => {
 		let _returns = get(result, "returns"),
@@ -290,117 +310,27 @@ const RewardCalculatorPage = () => {
 								{!accountInfoLoading ? (
 									stashAccount &&
 									(amount > totalBalance - networkInfo.minAmount ||
-										get(freeAmount, "currency", 0) < networkInfo.minAmount) && (
-										<Alert
-											status={
-												get(freeAmount, "currency", 0) < networkInfo.minAmount
-													? amount > get(bondedAmount, "currency", 0)
-														? "error"
-														: get(freeAmount, "currency", 0) >
-														  networkInfo.minAmount / 2
-														? "warning"
-														: "error"
-													: "error"
-											}
-											rounded="md"
-											flex
-											flexDirection="column"
-											alignItems="start"
-											my={4}
-										>
-											<AlertTitle
-												color={
-													get(freeAmount, "currency", 0) < networkInfo.minAmount
-														? amount > get(bondedAmount, "currency", 0)
-															? "red.500"
-															: get(freeAmount, "currency", 0) >
-															  networkInfo.minAmount / 2
-															? "#FDB808"
-															: "red.500"
-														: "red.500"
-												}
-											>
-												{get(freeAmount, "currency", 0) < networkInfo.minAmount
-													? amount > get(bondedAmount, "currency", 0)
-														? "Insufficient Balance"
-														: get(freeAmount, "currency", 0) >
-														  networkInfo.minAmount / 2
-														? "Low Balance"
-														: "Insufficient Balance"
-													: "Insufficient Balance"}
-											</AlertTitle>
-											<AlertDescription
-												color={
-													get(freeAmount, "currency", 0) < networkInfo.minAmount
-														? amount > get(bondedAmount, "currency", 0)
-															? "red.500"
-															: get(freeAmount, "currency", 0) >
-															  networkInfo.minAmount / 2
-															? "#FDB808"
-															: "red.500"
-														: "red.500"
-												}
-											>
-												{get(freeAmount, "currency", 0) < networkInfo.minAmount
-													? amount > get(bondedAmount, "currency", 0)
-														? `You need an additional of ${formatCurrency.methods.formatAmount(
-																Math.trunc(
-																	Number(
-																		amount -
-																			(totalBalance - networkInfo.minAmount)
-																	) *
-																		10 ** networkInfo.decimalPlaces
-																),
-																networkInfo
-														  )} to proceed further.`
-														: get(freeAmount, "currency", 0) >
-														  networkInfo.minAmount / 2
-														? `Your available balance is low, we recommend to add more ${networkInfo.denom}'s`
-														: `You need an additional of ${formatCurrency.methods.formatAmount(
-																Math.trunc(
-																	Number(
-																		amount -
-																			(totalBalance - networkInfo.minAmount)
-																	) *
-																		10 ** networkInfo.decimalPlaces
-																),
-																networkInfo
-														  )} to proceed further.`
-													: `You need an additional of ${formatCurrency.methods.formatAmount(
-															Math.trunc(
-																Number(
-																	amount -
-																		(totalBalance - networkInfo.minAmount)
-																) *
-																	10 ** networkInfo.decimalPlaces
-															),
-															networkInfo
-													  )} to proceed further.`}{" "}
-												<Popover trigger="hover" usePortal>
-													<PopoverTrigger>
-														<span className="underline cursor-help">Why?</span>
-													</PopoverTrigger>
-													<PopoverContent
-														zIndex={50}
-														_focus={{ outline: "none" }}
-														bg="gray.600"
-														border="none"
-													>
-														<PopoverArrow />
-														<PopoverBody>
-															<span className="text-white text-xs">
-																{get(freeAmount, "currency", 0) <
-																networkInfo.minAmount
-																	? amount > get(bondedAmount, "currency", 0)
-																		? "This is to ensure that you have a decent amount of funds in your account to pay transaction fees for claiming rewards, unbonding funds, changing on-chain staking preferences, etc."
-																		: "This is to ensure that you have a decent amount of funds in your account to pay transaction fees for claiming rewards, unbonding funds, changing on-chain staking preferences, etc."
-																	: "This is to ensure that you have a decent amount of funds in your account to pay transaction fees for claiming rewards, unbonding funds, changing on-chain staking preferences, etc."}
-															</span>
-														</PopoverBody>
-													</PopoverContent>
-												</Popover>
-											</AlertDescription>
-										</Alert>
+										get(freeAmount, "currency", 0) < networkInfo.minAmount) ? (
+										<LowBalanceAlert
+											amount={amount}
+											freeAmount={freeAmount}
+											networkInfo={networkInfo}
+											bondedAmount={bondedAmount}
+											totalBalance={totalBalance}
+										/>
+									) : (
+										stashAccount &&
+										amount <
+											nomMinStake + networkInfo.recommendedAdditionalAmount && (
+											<MinStakeAlert
+												amount={amount}
+												nomMinStake={nomMinStake}
+												freeAmount={freeAmount}
+												networkInfo={networkInfo}
+												bondedAmount={bondedAmount}
+												totalBalance={totalBalance}
+											/>
+										)
 									)
 								) : (
 									<></>
