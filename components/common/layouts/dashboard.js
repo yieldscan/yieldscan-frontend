@@ -6,6 +6,7 @@ import {
 	useTransaction,
 	useSelectedNetwork,
 	useBetaInfo,
+	useEraProgress,
 } from "@lib/store";
 import createPolkadotAPIInstance from "@lib/polkadot-api";
 import convertCurrency from "@lib/convert-currency";
@@ -39,16 +40,19 @@ const withDashboardLayout = (children) => {
 		stashAccount,
 		setAccountInfoLoading,
 		setAccountState,
+		bondedAmount,
+		setBondedAmount,
+		unbondingBalances,
+		setUnbondingBalances,
+		activeStake,
+		setActiveStake,
+		redeemableBalance,
+		setRedeemableBalance,
+		freeAmount,
+		setFreeAmount,
 		accountsWithBalances,
-	} = useAccounts((state) =>
-		pick(state, [
-			"accounts",
-			"setAccountsWithBalances",
-			"stashAccount",
-			"setAccountInfoLoading",
-			"setAccountState",
-		])
-	);
+	} = useAccounts();
+	const { setEraLength, setEraProgress } = useEraProgress();
 	const { stakingAmount, setTransactionState } = useTransaction((state) =>
 		pick(state, ["stakingAmount", "setTransactionState"])
 	);
@@ -77,6 +81,10 @@ const withDashboardLayout = (children) => {
 						})
 					);
 					setAccountsWithBalances(accountsWithBalances);
+					await api.derive.session.progress((data) => {
+						setEraLength(parseInt(data.eraLength));
+						setEraProgress(parseInt(data.eraProgress));
+					});
 				})
 				.catch((err) => {
 					throw err;
@@ -95,116 +103,97 @@ const withDashboardLayout = (children) => {
 
 					const { address } = stashAccount;
 
-					api.queryMulti(
-						[
-							[api.query.staking.bonded, address], // check if `stashAccount` already has bonded on some controller
-							[api.query.system.account, address],
-						],
-						async ([controller, accountQueryResult]) => {
-							let isController = false;
-							const {
-								data: { free: freeBalance, miscFrozen: lockedBalance },
-							} = accountQueryResult;
-							const unlockingBalances = [];
-
-							let bondedAmount = 0,
-								bondedAmountInSubCurrency = 0,
-								freeAmount = 0,
-								freeAmountInSubCurrency = 0,
-								activeStake = 0,
-								activeStakeInSubCurrency = 0;
-
-							if (controller.isNone) {
-								const ledgerQueryResult = await api.query.staking.ledger(
-									address
-								);
-								if (ledgerQueryResult.isSome) isController = true;
-							}
-							if (controller.isSome) {
-								const ledgerQueryResult = await api.query.staking.ledger(
-									controller.toString()
-								);
-								const {
-									value: { unlocking, total, active },
-								} = ledgerQueryResult;
-								if (unlocking && !unlocking.isEmpty && unlocking.length > 0) {
-									unlocking.forEach((unlockingBalance) => {
-										const { era, value } = unlockingBalance;
-										unlockingBalances.push({
-											era: Number(era.toString()),
-											value: Number(value.toString()),
-										});
-									});
-								}
-
-								bondedAmount = Number(
-									parseInt(active) / 10 ** networkInfo.decimalPlaces
-								);
-								bondedAmountInSubCurrency = await convertCurrency(
-									bondedAmount,
-									networkInfo.denom
-								);
-								activeStake = Number(
-									parseInt(active) / 10 ** networkInfo.decimalPlaces
-								);
-								activeStakeInSubCurrency = await convertCurrency(
-									activeStake,
-									networkInfo.denom
-								);
-							}
-
-							if (freeBalance) {
-								/**
-								 * `freeBalance` here includes `locked` balance also - that's how polkadot API is currently working
-								 *  so we need to subtract the `bondedBalance``
-								 */
-								freeAmount = Number(
-									parseInt(freeBalance) / 10 ** networkInfo.decimalPlaces -
-										bondedAmount
-								);
-								freeAmountInSubCurrency = await convertCurrency(
-									freeAmount,
-									networkInfo.denom
-								);
-							}
-
-							const setStateAndTrack = (details) => {
-								setUserProperties({
-									stashId: address,
-									bondedAmount: `${get(details, "bondedAmount.currency")} ${get(
-										networkInfo,
-										"denom"
-									)} ($${get(details, "bondedAmount.subCurrency")})`,
-									accounts: accountsWithBalances,
-								});
-								setAccountState(details);
-							};
-
-							setStateAndTrack({
-								isController,
-								ledgerExists: !!controller,
-								bondedAmount: {
-									currency: bondedAmount,
-									subCurrency: bondedAmountInSubCurrency,
-								},
-								freeAmount: {
-									currency: freeAmount,
-									subCurrency: freeAmountInSubCurrency,
-								},
-								activeStake: {
-									currency: activeStake,
-									subCurrency: activeStakeInSubCurrency,
-								},
-								unlockingBalances,
-								accountInfoLoading: false,
-							});
-							setAccountInfoLoading(false);
+					await api.derive.staking.account(address, async (info) => {
+						if (!isNil(info.redeemable)) {
+							const redeemable = Number(parseInt(info.redeemable));
+							setRedeemableBalance(redeemable);
 						}
-					);
+						if (!isNil(info.stakingLedger)) {
+							const bondedAmount = Number(
+								parseInt(info.stakingLedger.active) /
+									10 ** networkInfo.decimalPlaces
+							);
+							const bondedAmountInSubCurrency = await convertCurrency(
+								bondedAmount,
+								networkInfo.denom
+							);
+							setBondedAmount({
+								currency: bondedAmount,
+								subCurrency: bondedAmountInSubCurrency,
+							});
+							const activeStake = Number(
+								parseInt(info.stakingLedger.active) /
+									10 ** networkInfo.decimalPlaces
+							);
+							const activeStakeInSubCurrency = await convertCurrency(
+								activeStake,
+								networkInfo.denom
+							);
+							setActiveStake({
+								currency: activeStake,
+								subCurrency: activeStakeInSubCurrency,
+							});
+						}
+						if (!isNil(info.unlocking)) {
+							const unbondingBalancesArr = [];
+							info.unlocking.forEach((unbondingBalance) => {
+								const { remainingEras, value } = unbondingBalance;
+								unbondingBalancesArr.push({
+									remainingEras: Number(parseInt(remainingEras)),
+									value: Number(
+										parseInt(value) / 10 ** networkInfo.decimalPlaces
+									),
+								});
+							});
+							setUnbondingBalances(unbondingBalancesArr);
+						}
+					});
+					await api.derive.balances.all(address, async (info) => {
+						const freeAmount = Number(
+							parseInt(info.availableBalance) / 10 ** networkInfo.decimalPlaces
+						);
+						const freeAmountInSubCurrency = await convertCurrency(
+							freeAmount,
+							networkInfo.denom
+						);
+						setFreeAmount({
+							currency: freeAmount,
+							subCurrency: freeAmountInSubCurrency,
+						});
+					});
+
+					const setStateAndTrack = (details) => {
+						setUserProperties({
+							stashId: address,
+							bondedAmount: `${get(details, "bondedAmount.currency")} ${get(
+								networkInfo,
+								"denom"
+							)} ($${get(details, "bondedAmount.subCurrency")})`,
+							accounts: accountsWithBalances,
+						});
+						// setAccountState(details);
+					};
 				}
 			);
 		}
 	}, [stashAccount]);
+
+	useEffect(() => {
+		if (stashAccount) {
+			setAccountInfoLoading(true);
+			if (!isNil(bondedAmount) && !isNil(activeStake) && !isNil(freeAmount)) {
+				setAccountInfoLoading(false);
+				// setStateAndTrack({
+				// 	bondedAmount: bondedAmount,
+				// 	freeAmount: freeAmount,
+				// 	activeStake: activeStake,
+				// 	redeemableBalance: redeemableBalance,
+				// 	unbondingBalances: unbondingBalances,
+				// 	accountInfoLoading: false,
+				// });
+			}
+		}
+	}, [freeAmount, bondedAmount, activeStake]);
 
 	return () => (
 		<div>
