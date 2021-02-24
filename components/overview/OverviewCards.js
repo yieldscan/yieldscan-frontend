@@ -15,6 +15,7 @@ const OverviewCards = ({
 	validators,
 	redeemableBalance,
 	openUnbondingListModal,
+	toggleRedeemUnbonded,
 	unbondingBalances,
 	unlockingBalances = [],
 	openRewardDestinationModal = noop,
@@ -200,7 +201,7 @@ const OverviewCards = ({
 							</div>
 							<button
 								className={`text-teal-500 p-1`}
-								onClick={unbondFunds}
+								onClick={toggleRedeemUnbonded}
 								disabled={isInElection}
 							>
 								REDEEM
