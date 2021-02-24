@@ -16,6 +16,7 @@ import {
 	usePolkadotApi,
 	useSelectedNetwork,
 	useOverviewData,
+	useEraProgress,
 	useValidatorData,
 } from "@lib/store";
 import { useWalletConnect } from "@components/wallet-connect";
@@ -24,6 +25,7 @@ import { decodeAddress, encodeAddress } from "@polkadot/util-crypto";
 import RewardDestinationModal from "./RewardDestinationModal";
 import EditControllerModal from "./EditControllerModal";
 import FundsUpdate from "./FundsUpdate";
+import UnbondingList from "./UnbondingList";
 import EditValidators from "./EditValidators";
 import ChillAlert from "./ChillAlert";
 import Routes from "@lib/routes";
@@ -52,6 +54,8 @@ const Overview = () => {
 		activeStake,
 		setFreeAmount,
 		unlockingBalances,
+		redeemableBalance,
+		unbondingBalances,
 		accountInfoLoading,
 	} = useAccounts();
 	const toast = useToast();
@@ -65,6 +69,7 @@ const Overview = () => {
 		setAllNominations,
 	} = useOverviewData();
 	const { validators, setValidators } = useValidatorData();
+	const { eraLength, eraProgress } = useEraProgress();
 	const [showValidators, setShowValidators] = useState(false);
 	const [validatorsLoading, setValidatorsLoading] = useState(true);
 	const [fundsUpdateModalType, setFundsUpdateModalType] = useState();
@@ -86,9 +91,9 @@ const Overview = () => {
 		onClose: closeFundsUpdateModal,
 	} = useDisclosure();
 	const {
-		isOpen: editValidatorModalOpen,
-		onToggle: toggleEditValidatorsModal,
-		onClose: closeEditValidatorsModal,
+		isOpen: openUnbondingList,
+		onToggle: toggleUnbondingList,
+		onClose: closeUnbondingList,
 	} = useDisclosure();
 	const {
 		isOpen: chillAlertOpen,
@@ -239,6 +244,10 @@ const Overview = () => {
 		toggleFundsUpdateModal();
 	};
 
+	const openUnbondingListModal = (type) => {
+		toggleUnbondingList();
+	};
+
 	return !stashAccount ? (
 		<div className="flex-center w-full h-full">
 			<div className="flex-center flex-col">
@@ -254,7 +263,10 @@ const Overview = () => {
 				</button>
 			</div>
 		</div>
-	) : isNil(bondedAmount) || nominationsLoading || loading ? (
+	) : isNil(bondedAmount) ||
+	  isNil(activeStake) ||
+	  nominationsLoading ||
+	  loading ? (
 		<div className="flex-center w-full h-full">
 			<div className="flex-center flex-col">
 				<Spinner size="xl" color="teal.500" thickness="4px" />
@@ -331,6 +343,15 @@ const Overview = () => {
 				bondedAmount={bondedAmount}
 				networkInfo={networkInfo}
 			/>
+			<UnbondingList
+				isOpen={openUnbondingList}
+				close={closeUnbondingList}
+				toggle={toggleUnbondingList}
+				unbondingBalances={unbondingBalances}
+				eraLength={eraLength}
+				eraProgress={eraProgress}
+				networkInfo={networkInfo}
+			/>
 			{/* <EditValidators
 				isOpen={editValidatorModalOpen}
 				close={closeEditValidatorsModal}
@@ -353,8 +374,11 @@ const Overview = () => {
 						activeStake={activeStake}
 						validators={isNil(userData) ? null : userData.validatorsInfo}
 						unlockingBalances={unlockingBalances}
+						unbondingBalances={unbondingBalances}
+						redeemableBalance={redeemableBalance}
 						bondFunds={() => openFundsUpdateModal("bond")}
 						unbondFunds={() => openFundsUpdateModal("unbond")}
+						openUnbondingListModal={openUnbondingListModal}
 						openRewardDestinationModal={toggleRewardDestinationModal}
 						networkInfo={networkInfo}
 					/>

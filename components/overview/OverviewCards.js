@@ -1,5 +1,6 @@
 import React from "react";
 import { noop, get, isNil } from "lodash";
+import { FormLabel } from "@chakra-ui/core";
 import formatCurrency from "@lib/format-currency";
 import convertCurrency from "@lib/convert-currency";
 import { useAccounts, usePolkadotApi, useNetworkElection } from "@lib/store";
@@ -12,6 +13,9 @@ const OverviewCards = ({
 	activeStake,
 	address,
 	validators,
+	redeemableBalance,
+	openUnbondingListModal,
+	unbondingBalances,
 	unlockingBalances = [],
 	openRewardDestinationModal = noop,
 	bondFunds = noop,
@@ -43,6 +47,9 @@ const OverviewCards = ({
 	const [earningsFiat, setEarningsFiat] = React.useState();
 	const [estimatedRewardsFiat, setEstimatedRewardsFiat] = React.useState();
 	const [expectedAPR, setExpectedAPR] = React.useState(0);
+	const [redeemableBalanceFiat, setRedeemableBalanceFiat] = React.useState();
+	const [totalUnbonding, setTotalUnbonding] = React.useState();
+	const [totalUnbondingFiat, setTotalUnbondingFiat] = React.useState();
 
 	React.useEffect(() => {
 		if (!isNil(apiInstance)) {
@@ -85,6 +92,25 @@ const OverviewCards = ({
 			);
 		}
 	}, [stats, compounding]);
+
+	React.useEffect(() => {
+		if (redeemableBalance) {
+			convertCurrency(
+				redeemableBalance / 10 ** networkInfo.decimalPlaces,
+				networkInfo.denom
+			).then((value) => setRedeemableBalanceFiat(value));
+		}
+	}, [stats, redeemableBalance]);
+
+	React.useEffect(() => {
+		if (!isNil(unbondingBalances) && unbondingBalances.length > 0) {
+			const total = unbondingBalances.reduce((a, b) => a + b.value, 0);
+			setTotalUnbonding(total);
+			convertCurrency(total, networkInfo.denom).then((value) =>
+				setTotalUnbondingFiat(value)
+			);
+		}
+	}, [stats, unbondingBalances]);
 
 	return (
 		<div className="flex justify-between items-center h-auto w-full max-w-lg text-gray-700">
@@ -149,6 +175,79 @@ const OverviewCards = ({
 							Withdraw
 						</button>
 					</div>
+					{!isNil(redeemableBalance) && redeemableBalance !== 0 && (
+						<div className="flex justify-between w-full">
+							<div className="flex flex-col">
+								<FormLabel fontSize="sm" className="font-medium text-gray-700">
+									Redeemable Withdrawn Amount
+								</FormLabel>
+								<h2 className="text-xl text-gray-700 font-bold">
+									<div className="flex">
+										{formatCurrency.methods.formatAmount(
+											redeemableBalance,
+											networkInfo
+										)}
+									</div>
+									{redeemableBalanceFiat && (
+										<div className="flex text-sm font-medium text-teal-500">
+											$
+											{formatCurrency.methods.formatNumber(
+												redeemableBalanceFiat.toFixed(2)
+											)}
+										</div>
+									)}
+								</h2>
+							</div>
+							<button
+								className={`text-teal-500 p-1`}
+								onClick={unbondFunds}
+								disabled={isInElection}
+							>
+								REDEEM
+							</button>
+						</div>
+					)}
+					{!isNil(totalUnbonding) && (
+						<div className="flex justify-between w-full">
+							<div className="flex flex-col mt-4 mb-4">
+								<FormLabel fontSize="sm" className="font-medium text-gray-700">
+									Unbonding Amount
+								</FormLabel>
+								<h2 className="text-xl text-gray-700 font-bold">
+									<div className="flex">
+										{formatCurrency.methods.formatAmount(
+											totalUnbonding * 10 ** networkInfo.decimalPlaces,
+											networkInfo
+										)}
+									</div>
+									{!isNil(totalUnbondingFiat) && (
+										<div className="flex text-sm font-medium text-teal-500">
+											$
+											{formatCurrency.methods.formatNumber(
+												totalUnbondingFiat.toFixed(2)
+											)}
+										</div>
+									)}
+								</h2>
+							</div>
+							<div className="flex">
+								<button
+									className={`text-teal-500 p-1 mr-2`}
+									onClick={unbondFunds}
+									disabled={isInElection}
+								>
+									Rebond
+								</button>
+								<button
+									className={`text-teal-500 p-1`}
+									onClick={openUnbondingListModal}
+									disabled={isInElection}
+								>
+									View All
+								</button>
+							</div>
+						</div>
+					)}
 				</div>
 			</div>
 		</div>
