@@ -249,8 +249,6 @@ const Overview = () => {
 		toggleUnbondingList();
 	};
 
-	console.log(stashAccount);
-
 	return !stashAccount ? (
 		<div className="flex-center w-full h-full">
 			<div className="flex-center flex-col">
