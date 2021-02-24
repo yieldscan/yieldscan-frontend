@@ -35,6 +35,7 @@ import { getNetworkInfo } from "yieldscan.config";
 import EarningsOutput from "./EarningsOutput";
 import { Events, trackEvent } from "@lib/analytics";
 import ProgressiveImage from "react-progressive-image";
+import RedeemUnbonded from "./RedeemUnbonded";
 
 const Tabs = {
 	ACTIVE_VALIDATORS: "validators",
@@ -96,9 +97,9 @@ const Overview = () => {
 		onClose: closeUnbondingList,
 	} = useDisclosure();
 	const {
-		isOpen: chillAlertOpen,
-		onToggle: toggleChillAlert,
-		onClose: closeChillAlert,
+		isOpen: openRedeemUnbonded,
+		onToggle: toggleRedeemUnbonded,
+		onClose: closeRedeemUnbonded,
 	} = useDisclosure();
 
 	useEffect(() => {
@@ -248,6 +249,8 @@ const Overview = () => {
 		toggleUnbondingList();
 	};
 
+	console.log(stashAccount);
+
 	return !stashAccount ? (
 		<div className="flex-center w-full h-full">
 			<div className="flex-center flex-col">
@@ -352,6 +355,15 @@ const Overview = () => {
 				eraProgress={eraProgress}
 				networkInfo={networkInfo}
 			/>
+			<RedeemUnbonded
+				isOpen={openRedeemUnbonded}
+				close={closeRedeemUnbonded}
+				api={apiInstance}
+				toggle={toggleRedeemUnbonded}
+				redeemableBalance={redeemableBalance}
+				stashAccount={stashAccount}
+				networkInfo={networkInfo}
+			/>
 			{/* <EditValidators
 				isOpen={editValidatorModalOpen}
 				close={closeEditValidatorsModal}
@@ -378,6 +390,7 @@ const Overview = () => {
 						redeemableBalance={redeemableBalance}
 						bondFunds={() => openFundsUpdateModal("bond")}
 						unbondFunds={() => openFundsUpdateModal("unbond")}
+						toggleRedeemUnbonded={toggleRedeemUnbonded}
 						openUnbondingListModal={openUnbondingListModal}
 						openRewardDestinationModal={toggleRewardDestinationModal}
 						networkInfo={networkInfo}
