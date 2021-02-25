@@ -4,6 +4,7 @@ import formatCurrency from "@lib/format-currency";
 import convertCurrency from "@lib/convert-currency";
 import { useEffect, useState } from "react";
 import getUpdateFundsTransactionFee from "@lib/getUpdateFundsTransactionFee";
+import { isNil } from "lodash";
 const AmountConfirmation = ({
 	stashId,
 	amount,
@@ -17,8 +18,8 @@ const AmountConfirmation = ({
 	networkInfo,
 	onConfirm,
 }) => {
-	const [transactionFee, setTransactionFee] = useState(0);
-	const [subFeeCurrency, setSubFeeCurrency] = useState(0);
+	const [transactionFee, setTransactionFee] = useState();
+	const [subFeeCurrency, setSubFeeCurrency] = useState();
 	const [totalAmount, setTotalAmount] = useState(0);
 	const [totalAmountFiat, setTotalAmountFiat] = useState(0);
 	useEffect(() => {
@@ -59,7 +60,7 @@ const AmountConfirmation = ({
 
 	useEffect(() => {
 		if (!totalAmount) {
-			type === "bond"
+			type === "bond" || type == "rebond"
 				? setTotalAmount(amount + bondedAmount.currency)
 				: setTotalAmount(bondedAmount.currency - amount);
 		}
@@ -119,7 +120,7 @@ const AmountConfirmation = ({
 					<p className="text-gray-700 text-xs">Additional Investment Amount</p>
 					<div className="flex flex-col">
 						<p className="text-sm text-right">
-							{type === "bond"
+							{type === "bond" || type == "rebond"
 								? formatCurrency.methods.formatAmount(
 										Math.trunc(amount * 10 ** networkInfo.decimalPlaces),
 										networkInfo
@@ -135,7 +136,7 @@ const AmountConfirmation = ({
 					<p className="text-gray-700 text-xs">Transaction Fee</p>
 
 					<div className="flex flex-col">
-						{transactionFee !== 0 ? (
+						{!isNil(transactionFee) ? (
 							<div>
 								<p className="text-sm text-right">
 									{formatCurrency.methods.formatAmount(
@@ -143,9 +144,11 @@ const AmountConfirmation = ({
 										networkInfo
 									)}
 								</p>
-								<p className="text-xs text-right text-gray-600">
-									${subFeeCurrency.toFixed(2)}
-								</p>
+								{!isNil(subFeeCurrency) && (
+									<p className="text-xs text-right text-gray-600">
+										${subFeeCurrency.toFixed(2)}
+									</p>
+								)}
 							</div>
 						) : (
 							<Spinner />
@@ -155,26 +158,30 @@ const AmountConfirmation = ({
 				<Divider my={6} />
 				<div className="flex justify-between">
 					<p className="text-gray-700 text-sm font-semibold">Total Amount</p>
-					<div className="flex flex-col">
-						<p className="text-lg text-right font-bold">
-							{type === "bond"
-								? formatCurrency.methods.formatAmount(
-										Math.trunc(amount * 10 ** networkInfo.decimalPlaces) +
-											transactionFee,
-										networkInfo
-								  )
-								: formatCurrency.methods.formatAmount(
-										Math.trunc(transactionFee),
-										networkInfo
-								  )}
-						</p>
-						<p className="text-sm text-right text-gray-600 font-medium">
-							$
-							{type === "bond"
-								? (subCurrency + subFeeCurrency).toFixed(2)
-								: subFeeCurrency.toFixed(2)}
-						</p>
-					</div>
+					{!isNil(transactionFee) && (
+						<div className="flex flex-col">
+							<p className="text-lg text-right font-bold">
+								{type === "bond" || type == "rebond"
+									? formatCurrency.methods.formatAmount(
+											Math.trunc(amount * 10 ** networkInfo.decimalPlaces) +
+												transactionFee,
+											networkInfo
+									  )
+									: formatCurrency.methods.formatAmount(
+											Math.trunc(transactionFee),
+											networkInfo
+									  )}
+							</p>
+							{!isNil(subFeeCurrency) && (
+								<p className="text-sm text-right text-gray-600 font-medium">
+									$
+									{type === "bond" || type == "rebond"
+										? (subCurrency + subFeeCurrency).toFixed(2)
+										: subFeeCurrency.toFixed(2)}
+								</p>
+							)}
+						</div>
+					)}
 				</div>
 			</div>
 			<div className="w-full flex-center">

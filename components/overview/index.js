@@ -341,6 +341,7 @@ const Overview = () => {
 				close={closeFundsUpdateModal}
 				type={fundsUpdateModalType}
 				nominations={allNominationsData}
+				unbondingBalances={unbondingBalances}
 				bondedAmount={bondedAmount}
 				networkInfo={networkInfo}
 			/>
@@ -388,6 +389,7 @@ const Overview = () => {
 						redeemableBalance={redeemableBalance}
 						bondFunds={() => openFundsUpdateModal("bond")}
 						unbondFunds={() => openFundsUpdateModal("unbond")}
+						rebondFunds={() => openFundsUpdateModal("rebond")}
 						toggleRedeemUnbonded={toggleRedeemUnbonded}
 						openUnbondingListModal={openUnbondingListModal}
 						openRewardDestinationModal={toggleRewardDestinationModal}

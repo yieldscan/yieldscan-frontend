@@ -21,6 +21,7 @@ const OverviewCards = ({
 	openRewardDestinationModal = noop,
 	bondFunds = noop,
 	unbondFunds = noop,
+	rebondFunds = noop,
 	networkInfo,
 }) => {
 	const totalUnlockingBalance = formatCurrency.methods.formatAmount(
@@ -104,12 +105,15 @@ const OverviewCards = ({
 	}, [stats, redeemableBalance]);
 
 	React.useEffect(() => {
-		if (!isNil(unbondingBalances) && unbondingBalances.length > 0) {
+		if (unbondingBalances.length > 0) {
 			const total = unbondingBalances.reduce((a, b) => a + b.value, 0);
 			setTotalUnbonding(total);
 			convertCurrency(total, networkInfo.denom).then((value) =>
 				setTotalUnbondingFiat(value)
 			);
+		} else {
+			setTotalUnbonding(null);
+			setTotalUnbondingFiat(null);
 		}
 	}, [stats, unbondingBalances]);
 
@@ -234,7 +238,7 @@ const OverviewCards = ({
 							<div className="flex">
 								<button
 									className={`text-teal-500 p-1 mr-2`}
-									onClick={unbondFunds}
+									onClick={rebondFunds}
 									disabled={isInElection}
 								>
 									Rebond
