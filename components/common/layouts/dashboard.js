@@ -146,7 +146,7 @@ const withDashboardLayout = (children) => {
 								});
 							});
 							setUnbondingBalances(unbondingBalancesArr);
-						}
+						} else setUnbondingBalances([]);
 					});
 					await api.derive.balances.all(address, async (info) => {
 						const freeAmount = Number(

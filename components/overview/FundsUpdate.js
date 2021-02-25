@@ -13,7 +13,7 @@ import {
 } from "@chakra-ui/core";
 import withSlideIn from "@components/common/withSlideIn";
 import RiskTag from "@components/reward-calculator/RiskTag";
-import { random, get, noop } from "lodash";
+import { random, get, noop, isNil } from "lodash";
 import calculateReward from "@lib/calculate-reward";
 import formatCurrency from "@lib/format-currency";
 import updateFunds from "@lib/polkadot/update-funds";
@@ -29,7 +29,15 @@ import AmountConfirmation from "./AmountConfirmation";
 import convertCurrency from "@lib/convert-currency";
 
 const FundsUpdate = withSlideIn(
-	({ styles, type, close, nominations, bondedAmount, networkInfo }) => {
+	({
+		styles,
+		type,
+		close,
+		nominations,
+		bondedAmount,
+		unbondingBalances,
+		networkInfo,
+	}) => {
 		const toast = useToast();
 		const { stashAccount, freeAmount } = useAccounts();
 		const { apiInstance } = usePolkadotApi();
@@ -43,6 +51,8 @@ const FundsUpdate = withSlideIn(
 		const [stakingEvent, setStakingEvent] = useState();
 		const [processComplete, setProcessComplete] = useState(false);
 		const [chainError, setChainError] = useState(false);
+		const [totalUnbonding, setTotalUnbonding] = useState();
+		const [totalUnbondingFiat, setTotalUnbondingFiat] = useState();
 		const [transactionHash, setTransactionHash] = useState();
 		const [closeOnOverlayClick, setCloseOnOverlayClick] = useState(true);
 		const [calculationDisabled, setCalculationDisabled] = useState(true);
@@ -53,11 +63,15 @@ const FundsUpdate = withSlideIn(
 		const [totalStakingAmountFiat, setTotalStakingAmountFiat] = useState(0);
 		const [validatorsLoading, setValidatorsLoading] = useState(true);
 		const [errMessage, setErrMessage] = useState();
-		const title = `${type === "bond" ? "Invest more" : "Withdraw"}`;
+		const title = `${
+			type === "bond" ? "Invest more" : type == "unbond" ? "Withdraw" : "Rebond"
+		}`;
 		const subTitle = `${
 			type === "bond"
 				? "I want to invest additional funds of"
-				: "I want to withdraw"
+				: type === "unbond"
+				? "I want to withdraw"
+				: "I want to rebond"
 		}`;
 
 		const updateTransactionData = (
@@ -164,10 +178,25 @@ const FundsUpdate = withSlideIn(
 				amount > get(freeAmount, "currency", 0) - networkInfo.minAmount
 			) {
 				setCalculationDisabled(true);
+			} else if (type === "rebond" && amount > totalUnbonding) {
+				setCalculationDisabled(true);
 			} else if (amount === 0 || amount === undefined || amount === "") {
 				setCalculationDisabled(true);
 			} else setCalculationDisabled(false);
 		}, [amount]);
+
+		useEffect(() => {
+			if (unbondingBalances.length > 0) {
+				const total = unbondingBalances.reduce((a, b) => a + b.value, 0);
+				setTotalUnbonding(total);
+				convertCurrency(total, networkInfo.denom).then((value) =>
+					setTotalUnbondingFiat(value)
+				);
+			} else {
+				setTotalUnbonding(null);
+				setTotalUnbondingFiat(null);
+			}
+		}, [unbondingBalances]);
 
 		const onConfirm = () => {
 			setUpdatingFunds(true);
@@ -207,7 +236,7 @@ const FundsUpdate = withSlideIn(
 							stashAccount.address,
 							networkInfo.coinGeckoDenom,
 							get(bondedAmount, "currency", 0),
-							type == "bond"
+							type == "bond" || type == "rebond"
 								? get(bondedAmount, "currency", 0) + amount
 								: get(bondedAmount, "currency", 0) - amount,
 							tranHash,
@@ -225,7 +254,7 @@ const FundsUpdate = withSlideIn(
 								stashAccount.address,
 								networkInfo.coinGeckoDenom,
 								get(bondedAmount, "currency", 0),
-								type == "bond"
+								type == "bond" || type == "rebond"
 									? get(bondedAmount, "currency", 0) + amount
 									: get(bondedAmount, "currency", 0) - amount,
 								tranHash,
@@ -304,17 +333,23 @@ const FundsUpdate = withSlideIn(
 															!calculationDisabled || !amount || amount == 0
 														}
 													>
-														<span hidden={type === "bond"}>
+														<span hidden={type === "bond" || type === "rebond"}>
 															You cannot withdraw this amount since it either
 															exceeds your current investment value or doesn’t
 															leave enough funds in your account for paying the
 															transaction fees.{" "}
 														</span>
-														<span hidden={type === "unbond"}>
+														<span
+															hidden={type === "unbond" || type == "rebond"}
+														>
 															We cannot stake this amount since you need to
 															maintain a minimum balance of{" "}
 															{networkInfo.minAmount} {networkInfo.denom} in
 															your account at all times.{" "}
+														</span>
+														<span hidden={type === "unbond" || type == "bond"}>
+															We cannot rebond this amount since its greater
+															than unbonding amount {networkInfo.minAmount}{" "}
 														</span>
 													</div>
 													<div className="flex justify-between">
@@ -323,7 +358,7 @@ const FundsUpdate = withSlideIn(
 														</span>
 														<span
 															className="text-gray-700 text-xxs mt-2"
-															hidden={type === "unbond"}
+															hidden={type === "unbond" || type == "rebond"}
 														>
 															Available Balance:{" "}
 															{formatCurrency.methods.formatAmount(
@@ -338,13 +373,28 @@ const FundsUpdate = withSlideIn(
 														</span>
 														<span
 															className="text-gray-700 text-xxs mt-2"
-															hidden={type === "bond"}
+															hidden={type === "bond" || type == "rebond"}
 														>
 															Current Investment:{" "}
 															{formatCurrency.methods.formatAmount(
 																Math.trunc(
 																	Number(
 																		(get(bondedAmount, "currency", 0) || 0) *
+																			10 ** networkInfo.decimalPlaces
+																	)
+																),
+																networkInfo
+															)}
+														</span>
+														<span
+															className="text-gray-700 text-xxs mt-2"
+															hidden={type === "bond" || type == "unbond"}
+														>
+															Unbonding Amount:{" "}
+															{formatCurrency.methods.formatAmount(
+																Math.trunc(
+																	Number(
+																		(totalUnbonding || 0) *
 																			10 ** networkInfo.decimalPlaces
 																	)
 																),
@@ -360,6 +410,8 @@ const FundsUpdate = withSlideIn(
 																subCurrency: subCurrency,
 															}}
 															networkInfo={networkInfo}
+															totalUnbonding={totalUnbonding}
+															totalUnbondingFiat={totalUnbondingFiat}
 															type={type}
 															onChange={setAmount}
 														/>

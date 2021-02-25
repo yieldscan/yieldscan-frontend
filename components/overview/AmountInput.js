@@ -4,7 +4,15 @@ import { useAccounts } from "@lib/store";
 import { get } from "lodash";
 import { useState, useEffect } from "react";
 
-const AmountInputDefault = ({ bonded, type, value, onChange, networkInfo }) => {
+const AmountInputDefault = ({
+	bonded,
+	type,
+	value,
+	totalUnbonding,
+	totalUnbondingFiat,
+	onChange,
+	networkInfo,
+}) => {
 	const { freeAmount, stashAccount } = useAccounts();
 	const [inputValue, setInputValue] = useState(value.currency);
 	const maxAmount =
@@ -12,7 +20,9 @@ const AmountInputDefault = ({ bonded, type, value, onChange, networkInfo }) => {
 			? get(freeAmount, "currency") - networkInfo.minAmount < 0
 				? 0
 				: get(freeAmount, "currency") - networkInfo.minAmount
-			: bonded;
+			: type === "unbond"
+			? bonded
+			: totalUnbonding;
 
 	// useEffect(() => {
 	// 	if (bonded) {
@@ -133,13 +143,23 @@ const AmountInputAlreadyBonded = ({ value, bonded, total, onChange }) => (
 	</div>
 );
 
-const AmountInput = ({ value, bonded, type, networkInfo, onChange }) => {
+const AmountInput = ({
+	value,
+	bonded,
+	type,
+	totalUnbonding,
+	totalUnbondingFiat,
+	networkInfo,
+	onChange,
+}) => {
 	return (
 		<AmountInputDefault
 			value={value}
 			bonded={bonded}
 			type={type}
 			onChange={onChange}
+			totalUnbonding={totalUnbonding}
+			totalUnbondingFiat={totalUnbondingFiat}
 			networkInfo={networkInfo}
 		/>
 	);
