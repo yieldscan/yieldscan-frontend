@@ -5,6 +5,7 @@ import {
 	ModalContent,
 	ModalBody,
 	ModalCloseButton,
+	CircularProgress,
 } from "@chakra-ui/core";
 import withSlideIn from "@components/common/withSlideIn";
 import convertRemainingErasToSecs from "@lib/convertRemainingErasToTime";
@@ -15,22 +16,30 @@ const UnbondingAmountCard = ({
 	remainingEras,
 	eraLength,
 	eraProgress,
+	networkInfo,
 }) => {
-	const timeRemainingInSecs = moment
-		.duration(
-			convertRemainingErasToSecs(eraLength, eraProgress, remainingEras),
-			"seconds"
-		)
+	const timeRemainingInSecs = convertRemainingErasToSecs(
+		eraLength,
+		eraProgress,
+		remainingEras
+	);
+
+	const humanizeTimeRemaining = moment
+		.duration(timeRemainingInSecs, "seconds")
 		.humanize();
+
+	const lockUpPeriodInSecs = networkInfo.lockUpPeriod * 24 * 60 * 60;
+	const progressInPercentage =
+		((lockUpPeriodInSecs - timeRemainingInSecs) / lockUpPeriodInSecs) * 100;
 	return (
 		<div className="flex items-center justify-between rounded-lg border border-gray-200 py-2 w-full mb-2">
 			<div className="flex items-center ml-4">
-				{/* <Identicon address={stashId} size="32" /> */}
+				<CircularProgress value={progressInPercentage} size={32} />
 				<div className="text-gray-700 ml-2">
 					<span className="text-md">{value}</span>
 					<div className="flex items-center">
 						<span className="text-xs mr-2">
-							Unbonding in {timeRemainingInSecs}
+							Unbonding in {humanizeTimeRemaining}
 						</span>
 					</div>
 				</div>
@@ -85,6 +94,7 @@ const UnbondingList = withSlideIn(
 										remainingEras={data.remainingEras}
 										eraLength={eraLength}
 										eraProgress={eraProgress}
+										networkInfo={networkInfo}
 									/>
 								))}
 							</div>
