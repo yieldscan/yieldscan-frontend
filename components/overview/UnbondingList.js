@@ -9,6 +9,7 @@ import {
 } from "@chakra-ui/core";
 import withSlideIn from "@components/common/withSlideIn";
 import convertRemainingErasToSecs from "@lib/convertRemainingErasToTime";
+import formatCurrency from "@lib/format-currency";
 import moment from "moment";
 
 const UnbondingAmountCard = ({
@@ -34,9 +35,14 @@ const UnbondingAmountCard = ({
 	return (
 		<div className="flex items-center justify-between rounded-lg border border-gray-200 py-2 w-full mb-2">
 			<div className="flex items-center ml-4">
-				<CircularProgress value={progressInPercentage} size={32} />
+				<CircularProgress value={progressInPercentage} size={40} color="teal" />
 				<div className="text-gray-700 ml-2">
-					<span className="text-md">{value}</span>
+					<span className="text-md">
+						{formatCurrency.methods.formatAmount(
+							Math.trunc(value * 10 ** networkInfo.decimalPlaces),
+							networkInfo
+						)}
+					</span>
 					<div className="flex items-center">
 						<span className="text-xs mr-2">
 							Unbonding in {humanizeTimeRemaining}
