@@ -280,9 +280,9 @@ const Overview = () => {
 		</div>
 	) : isNil(allNominationsData) &&
 	  isNil(userData) &&
-	  unbondingBalances.length == 0 &&
+	  unbondingBalances.length === 0 &&
 	  isNil(unlockingBalances) &&
-	  redeemableBalance == 0 ? (
+	  redeemableBalance === 0 ? (
 		<div className="flex items-center flex-col pt-24">
 			<ProgressiveImage
 				src="/images/unicorn-sweat/unicorn-sweat.png"
