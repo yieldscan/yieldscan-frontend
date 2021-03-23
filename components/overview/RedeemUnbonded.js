@@ -200,7 +200,7 @@ const RedeemUnbonded = withSlideIn(
 											<div className="flex flex-col">
 												<p className="text-sm text-right">
 													{formatCurrency.methods.formatAmount(
-														redeemableBalance,
+														Math.trunc(redeemableBalance),
 														networkInfo
 													)}
 												</p>
