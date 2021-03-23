@@ -189,7 +189,7 @@ const OverviewCards = ({
 								<h2 className="text-xl text-gray-700 font-bold">
 									<div className="flex">
 										{formatCurrency.methods.formatAmount(
-											redeemableBalance,
+											Math.trunc(redeemableBalance),
 											networkInfo
 										)}
 									</div>
@@ -221,7 +221,9 @@ const OverviewCards = ({
 								<h2 className="text-xl text-gray-700 font-bold">
 									<div className="flex">
 										{formatCurrency.methods.formatAmount(
-											totalUnbonding * 10 ** networkInfo.decimalPlaces,
+											Math.trunc(
+												Number(totalUnbonding * 10 ** networkInfo.decimalPlaces)
+											),
 											networkInfo
 										)}
 									</div>
