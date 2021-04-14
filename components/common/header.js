@@ -51,9 +51,6 @@ import SideMenu from "./sidemenu";
 import SideMenuFooter from "./side-menu-footer";
 import ProgressiveImage from "react-progressive-image";
 
-// TODO: replace this with actual global state
-const currentNetwork = "Not Kusama";
-
 const Header = ({ isBase }) => {
 	const cookies = parseCookies();
 	const { selectedNetwork, setSelectedNetwork } = useSelectedNetwork();
@@ -107,6 +104,34 @@ const Header = ({ isBase }) => {
 	} = useDisclosure();
 	const btnRef = React.useRef();
 
+	const switchNetwork = (from, to) => {
+		if (from !== to) {
+			setApiInstance(null);
+			setValidatorMap(undefined);
+			setValidatorRiskSets(undefined);
+			setValidators(undefined);
+			setUserData(null);
+			setAllNominations(null);
+			// setNominatorsData(undefined);
+			setNomLoading(true);
+			setCookie(null, "networkName", to, {
+				maxAge: 7 * 24 * 60 * 60,
+			});
+			setCouncilMembers(undefined);
+			setTransactionHash(null);
+			setCouncilLoading(true);
+			setStashAccount(null);
+			setFreeAmount(null);
+			setBondedAmount(null);
+			setAccounts(null);
+			setAccountsWithBalances(null);
+			setAccountInfoLoading(false);
+			setNomMinStake(null);
+			setSelectedNetwork(to);
+		}
+		setIsNetworkOpen(!isNetworkOpen);
+	};
+
 	useEffect(() => {
 		if (accounts) {
 			const accountsWithoutCurrent =
@@ -144,50 +169,31 @@ const Header = ({ isBase }) => {
 
 	useEffect(() => {
 		if (accountsWithBalances && stashAccount) {
-			selectedNetwork == "Kusama"
-				? accountsWithBalances
-						.filter((account) => account.address == cookies.kusamaDefault)
-						.map((account) => {
-							setStashAccount(account);
-							if (account.balances) {
-								/**
-								 * `freeBalance` here includes `locked` balance also - that's how polkadot API is currently working
-								 *  so we need to subtract the `bondedBalance``
-								 */
-								const freeAmount = Number(
-									parseInt(account.balances.availableBalance) /
-										Math.pow(10, networkInfo.decimalPlaces)
-								);
-								setFreeAmount({ currency: freeAmount });
-								convertCurrency(freeAmount, networkInfo.denom).then((value) => {
-									setFreeAmount({
-										currency: freeAmount,
-										subCurrency: value,
-									});
-								});
-							}
-						})
-				: accountsWithBalances
-						.filter((account) => account.address == cookies.polkadotDefault)
-						.map((account) => {
-							setStashAccount(account);
-							if (account.balances) {
-								/**
-								 * `freeBalance` here includes `locked` balance also - that's how polkadot API is currently working
-								 *  so we need to subtract the `bondedBalance``
-								 */
-								const freeAmount = Number(
-									parseInt(account.balances.availableBalance) /
-										Math.pow(10, networkInfo.decimalPlaces)
-								);
-								convertCurrency(freeAmount, networkInfo.denom).then((value) => {
-									setFreeAmount({
-										currency: freeAmount,
-										subCurrency: value,
-									});
-								});
-							}
+			accountsWithBalances
+				.filter(
+					(account) =>
+						account.address == get(cookies, networkInfo.network + "Default")
+				)
+				.map((account) => {
+					setStashAccount(account);
+					if (account.balances) {
+						/**
+						 * `freeBalance` here includes `locked` balance also - that's how polkadot API is currently working
+						 *  so we need to subtract the `bondedBalance``
+						 */
+						const freeAmount = Number(
+							parseInt(account.balances.availableBalance) /
+								Math.pow(10, networkInfo.decimalPlaces)
+						);
+						setFreeAmount({ currency: freeAmount });
+						convertCurrency(freeAmount, networkInfo.denom).then((value) => {
+							setFreeAmount({
+								currency: freeAmount,
+								subCurrency: value,
+							});
 						});
+					}
+				});
 		}
 	}, [stashAccount]);
 
@@ -373,19 +379,12 @@ const Header = ({ isBase }) => {
 													className="flex items-center rounded px-4 py-2 w-full bg-gray-800 hover:bg-gray-700 hover:text-gray-200"
 													onClick={() => {
 														setStashAccount(account);
-														selectedNetwork == "Kusama"
-															? setCookie(
-																	null,
-																	"kusamaDefault",
-																	account.address,
-																	{ maxAge: 7 * 24 * 60 * 60 }
-															  )
-															: setCookie(
-																	null,
-																	"polkadotDefault",
-																	account.address,
-																	{ maxAge: 7 * 24 * 60 * 60 }
-															  );
+														setCookie(
+															null,
+															networkInfo.network + "Default",
+															account.address,
+															{ maxAge: 7 * 24 * 60 * 60 }
+														);
 														setIsStashPopoverOpen(false);
 													}}
 												>
@@ -492,19 +491,12 @@ const Header = ({ isBase }) => {
 														setBondedAmount(null);
 														setStashAccount(account);
 														setTransactionHash(null);
-														selectedNetwork == "Kusama"
-															? setCookie(
-																	null,
-																	"kusamaDefault",
-																	account.address,
-																	{ maxAge: 7 * 24 * 60 * 60 }
-															  )
-															: setCookie(
-																	null,
-																	"polkadotDefault",
-																	account.address,
-																	{ maxAge: 7 * 24 * 60 * 60 }
-															  );
+														setCookie(
+															null,
+															networkInfo.network + "Default",
+															account.address,
+															{ maxAge: 7 * 24 * 60 * 60 }
+														);
 														setIsStashPopoverOpen(false);
 													}}
 												>
@@ -587,38 +579,12 @@ const Header = ({ isBase }) => {
 									>
 										<button
 											className={`flex items-center px-4 py-2 text-white text-sm leading-5 ${
-												currentNetwork === "Kusama"
+												selectedNetwork === "Kusama"
 													? "cursor-default bg-gray-600"
 													: "hover:bg-gray-700 focus:bg-gray-700"
 											}  focus:outline-none w-full`}
 											role="menuitem"
-											onClick={() => {
-												if (selectedNetwork !== "Kusama") {
-													setApiInstance(null);
-													setValidatorMap(undefined);
-													setValidatorRiskSets(undefined);
-													setValidators(undefined);
-													setUserData(null);
-													setAllNominations(null);
-													// setNominatorsData(undefined);
-													setNomLoading(true);
-													setCookie(null, "networkName", "Kusama", {
-														maxAge: 7 * 24 * 60 * 60,
-													});
-													setCouncilMembers(undefined);
-													setTransactionHash(null);
-													setCouncilLoading(true);
-													setStashAccount(null);
-													setFreeAmount(null);
-													setBondedAmount(null);
-													setAccounts(null);
-													setAccountsWithBalances(null);
-													setAccountInfoLoading(false);
-													setNomMinStake(null);
-													setSelectedNetwork("Kusama");
-												}
-												setIsNetworkOpen(!isNetworkOpen);
-											}}
+											onClick={() => switchNetwork(selectedNetwork, "Kusama")}
 										>
 											<Avatar
 												name="Kusama"
@@ -630,38 +596,12 @@ const Header = ({ isBase }) => {
 										</button>
 										<button
 											className={`flex items-center px-4 py-2 text-white text-sm leading-5 ${
-												currentNetwork === "Polkadot"
+												selectedNetwork === "Polkadot"
 													? "cursor-default bg-gray-600"
 													: "hover:bg-gray-700 focus:bg-gray-700"
 											}  focus:outline-none w-full`}
 											role="menuitem"
-											onClick={() => {
-												if (selectedNetwork !== "Polkadot") {
-													setApiInstance(null);
-													setValidatorMap(undefined);
-													setValidatorRiskSets(undefined);
-													setValidators(undefined);
-													setUserData(null);
-													setAllNominations(null);
-													// setNominatorsData(undefined);
-													setNomLoading(true);
-													setCookie(null, "networkName", "Polkadot", {
-														maxAge: 7 * 24 * 60 * 60,
-													});
-													setCouncilMembers(undefined);
-													setTransactionHash(null);
-													setCouncilLoading(true);
-													setStashAccount(null);
-													setFreeAmount(null);
-													setBondedAmount(null);
-													setAccounts(null);
-													setAccountsWithBalances(null);
-													setAccountInfoLoading(false);
-													setNomMinStake(null);
-													setSelectedNetwork("Polkadot");
-												}
-												setIsNetworkOpen(!isNetworkOpen);
-											}}
+											onClick={() => switchNetwork(selectedNetwork, "Polkadot")}
 										>
 											<Avatar
 												name="Polkadot"
@@ -675,106 +615,6 @@ const Header = ({ isBase }) => {
 								</PopoverContent>
 							</Popover>
 						</div>
-
-						{/* <div className="relative">
-							<button
-								className="relative flex items-center rounded-full border border-gray-300 p-2 px-4 font-semibold text-gray-800 z-20"
-								onClick={() => {
-									setIsNetworkOpen(!isNetworkOpen);
-								}}
-							>
-								<img
-									src="/images/kusama-logo.png"
-									alt="kusama-logo"
-									className="mr-2 w-6"
-								/>
-								<ChevronDown size="20px" />
-							</button>
-
-							<button
-								onClick={() => {
-									setIsNetworkOpen(false);
-								}}
-								className="fixed top-0 right-0 bottom-0 left-0 h-full w-full cursor-default z-10"
-								tabIndex={-1}
-								hidden={!isNetworkOpen}
-							></button>
-							<div
-								className="origin-top-right absolute right-0 mt-2 w-40 rounded-md shadow-lg z-20"
-								hidden={!isNetworkOpen}
-							>
-								<div className="rounded-md bg-gray-800 shadow-xs">
-									<p className="text-white text-xxs tracking-widest pt-2 pl-2">
-										NETWORK
-									</p>
-									<div
-										className="py-1"
-										role="menu"
-										aria-orientation="vertical"
-										aria-labelledby="options-menu"
-									>
-										<button
-											className={`flex items-center px-4 py-2 text-white text-sm leading-5 ${
-												currentNetwork === "Kusama"
-													? "cursor-default bg-gray-600"
-													: "hover:bg-gray-700 focus:bg-gray-700"
-											}  focus:outline-none w-full`}
-											role="menuitem"
-											onClick={() => {
-												setIsNetworkOpen(!isNetworkOpen);
-											}}
-										>
-											<Avatar
-												name="Kusama"
-												src="/images/kusama-logo.png"
-												size="sm"
-												mr={2}
-											/>
-											<span>Kusama</span>
-										</button>
-									</div>
-									<p className="text-white text-xxs tracking-widest pt-2 pl-2">
-										COMING SOON
-									</p>
-									<div
-										className="py-1"
-										role="menu"
-										aria-orientation="vertical"
-										aria-labelledby="options-menu"
-									>
-										<button
-											className="flex items-center px-4 py-2 text-white text-sm leading-5 bg-gray-900 focus:outline-none cursor-default w-full"
-											role="menuitem"
-										>
-											<Avatar
-												name="Polkadot"
-												src="/images/polkadot-logo.png"
-												size="sm"
-												mr={2}
-											/>
-											<span>Polkadot</span>
-										</button>
-									</div>
-								</div>
-							</div>
-						</div> */}
-
-						{/* <Popover placement="bottom-start">
-					<PopoverTrigger>
-						<button className="flex items-center rounded-full border border-gray-300 p-2 px-4 font-semibold text-gray-800">
-							<img src="/images/kusama-logo.png" alt="kusama-logo" className="mr-2 w-6" />
-							<ChevronDown size="20px" />
-						</button>
-					</PopoverTrigger>
-					<PopoverContent zIndex={50}>
-						<div className="text-white bg-gray-800 text-sm p-4">
-							<div className="flex items-center justify-between">
-								<p>Current Network: <b>Kusama</b></p>
-							</div>
-						</div>
-					</PopoverContent>
-				</Popover> */}
-
 						{!isNil(stashAccount) && isBonded && (
 							<Popover trigger="click">
 								<PopoverTrigger>

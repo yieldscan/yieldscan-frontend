@@ -8,6 +8,7 @@ export const networks = [
 	{
 		id: "polkadot-cc1",
 		name: "Polkadot",
+		network: "polkadot",
 		denom: "DOT",
 		coinGeckoDenom: "polkadot",
 		decimalPlaces: 10,
@@ -23,6 +24,7 @@ export const networks = [
 	{
 		id: "kusama-cc3",
 		name: "Kusama",
+		network: "kusama",
 		denom: "KSM",
 		twitterUrl: "@kusamanetwork",
 		coinGeckoDenom: "kusama",
@@ -38,6 +40,7 @@ export const networks = [
 	{
 		id: "westend",
 		name: "Westend",
+		network: "westend",
 		denom: "WND",
 		coinGeckoDenom: undefined,
 		decimalPlaces: 12,
