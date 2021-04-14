@@ -56,14 +56,14 @@ const RedeemUnbonded = withSlideIn(
 			if (transactionFee) {
 				convertCurrency(
 					transactionFee / Math.pow(10, networkInfo.decimalPlaces),
-					networkInfo.denom
+					networkInfo.coinGeckoDenom
 				).then((data) => setSubFeeCurrency(data));
 			}
 		}, [transactionFee]);
 
 		useEffect(() => {
 			if (totalAmount) {
-				convertCurrency(totalAmount, networkInfo.denom).then((data) =>
+				convertCurrency(totalAmount, networkInfo.coinGeckoDenom).then((data) =>
 					setTotalAmountFiat(data)
 				);
 			}
@@ -73,7 +73,7 @@ const RedeemUnbonded = withSlideIn(
 			if (redeemableBalance) {
 				convertCurrency(
 					redeemableBalance / 10 ** networkInfo.decimalPlaces,
-					networkInfo.denom
+					networkInfo.coinGeckoDenom
 				).then((value) => setRedeemableBalanceFiat(value));
 			}
 		}, [redeemableBalance]);

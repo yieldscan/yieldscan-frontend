@@ -115,7 +115,7 @@ const withDashboardLayout = (children) => {
 							);
 							const bondedAmountInSubCurrency = await convertCurrency(
 								bondedAmount,
-								networkInfo.denom
+								networkInfo.coinGeckoDenom
 							);
 							setBondedAmount({
 								currency: bondedAmount,
@@ -127,7 +127,7 @@ const withDashboardLayout = (children) => {
 							);
 							const activeStakeInSubCurrency = await convertCurrency(
 								activeStake,
-								networkInfo.denom
+								networkInfo.coinGeckoDenom
 							);
 							setActiveStake({
 								currency: activeStake,
@@ -154,7 +154,7 @@ const withDashboardLayout = (children) => {
 						);
 						const freeAmountInSubCurrency = await convertCurrency(
 							freeAmount,
-							networkInfo.denom
+							networkInfo.coinGeckoDenom
 						);
 						setFreeAmount({
 							currency: freeAmount,

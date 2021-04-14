@@ -133,14 +133,14 @@ const withBaseLayout = (children) => {
 								);
 								bondedAmountInSubCurrency = await convertCurrency(
 									bondedAmount,
-									networkInfo.denom
+									networkInfo.coinGeckoDenom
 								);
 								activeStake = Number(
 									parseInt(active) / 10 ** networkInfo.decimalPlaces
 								);
 								activeStakeInSubCurrency = await convertCurrency(
 									activeStake,
-									networkInfo.denom
+									networkInfo.coinGeckoDenom
 								);
 							}
 
@@ -155,7 +155,7 @@ const withBaseLayout = (children) => {
 								);
 								freeAmountInSubCurrency = await convertCurrency(
 									freeAmount,
-									networkInfo.denom
+									networkInfo.coinGeckoDenom
 								);
 							}
 

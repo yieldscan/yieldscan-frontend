@@ -186,12 +186,14 @@ const Header = ({ isBase }) => {
 								Math.pow(10, networkInfo.decimalPlaces)
 						);
 						setFreeAmount({ currency: freeAmount });
-						convertCurrency(freeAmount, networkInfo.denom).then((value) => {
-							setFreeAmount({
-								currency: freeAmount,
-								subCurrency: value,
-							});
-						});
+						convertCurrency(freeAmount, networkInfo.coinGeckoDenom).then(
+							(value) => {
+								setFreeAmount({
+									currency: freeAmount,
+									subCurrency: value,
+								});
+							}
+						);
 					}
 				});
 		}

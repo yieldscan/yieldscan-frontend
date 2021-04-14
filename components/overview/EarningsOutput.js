@@ -100,7 +100,7 @@ const EarningsOutput = ({
 					.reduce((a, b) => a + parseInt(b.amount), 0);
 				convertCurrency(
 					oneDayEarnings / Math.pow(10, networkInfo.decimalPlaces),
-					networkInfo.denom
+					networkInfo.coinGeckoDenom
 				)
 					.then((value) =>
 						setDailyEarnings({
@@ -116,7 +116,7 @@ const EarningsOutput = ({
 					.reduce((a, b) => a + parseInt(b.amount), 0);
 				convertCurrency(
 					weekEarnings / Math.pow(10, networkInfo.decimalPlaces),
-					networkInfo.denom
+					networkInfo.coinGeckoDenom
 				)
 					.then((value) =>
 						setWeeklyEarnings({
@@ -130,7 +130,7 @@ const EarningsOutput = ({
 				const total = data.reduce((a, b) => a + parseInt(b.amount), 0);
 				convertCurrency(
 					total / Math.pow(10, networkInfo.decimalPlaces),
-					networkInfo.denom
+					networkInfo.coinGeckoDenom
 				)
 					.then((value) =>
 						setTotalEarnings({
