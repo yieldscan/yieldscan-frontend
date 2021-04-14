@@ -90,6 +90,7 @@ const NetworkPopover = ({ isExpanded, hasBorder }) => {
 					aria-orientation="vertical"
 					aria-labelledby="options-menu"
 				>
+					{/* TODO: use the function "switchNetwork" that handles the switching networks onClick from header.js file  */}
 					<button
 						className={`flex items-center px-4 py-2 text-white text-sm leading-5 ${
 							currentNetwork === "Kusama"
