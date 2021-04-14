@@ -10,6 +10,7 @@ import {
 	useNominatorsData,
 	usePolkadotApi,
 	useSelectedNetwork,
+	useTransactionHash,
 	useValidatorData,
 	useNomMinStake,
 	useOverviewData,
@@ -19,9 +20,6 @@ import { useState } from "react";
 import { ChevronDown } from "react-feather";
 import { getNetworkInfo } from "yieldscan.config";
 
-// TODO: replace this with actual global state
-const currentNetwork = "Not Kusama";
-
 const NetworkPopover = ({ isExpanded, hasBorder }) => {
 	const { setApiInstance } = usePolkadotApi();
 	const {
@@ -30,6 +28,7 @@ const NetworkPopover = ({ isExpanded, hasBorder }) => {
 		setValidatorRiskSets,
 	} = useValidatorData();
 	const { setUserData, setAllNominations } = useOverviewData();
+	const { setTransactionHash } = useTransactionHash();
 	const { setNominatorsData, setNomLoading } = useNominatorsData();
 	const { setCouncilMembers, setCouncilLoading } = useCouncil();
 	const {
@@ -49,6 +48,34 @@ const NetworkPopover = ({ isExpanded, hasBorder }) => {
 	const { setNomMinStake } = useNomMinStake();
 	const networkInfo = getNetworkInfo(selectedNetwork);
 	const [isNetworkOpen, setIsNetworkOpen] = useState(false);
+
+	const switchNetwork = (from, to) => {
+		if (from !== to) {
+			setApiInstance(null);
+			setValidatorMap(undefined);
+			setValidatorRiskSets(undefined);
+			setValidators(undefined);
+			setUserData(null);
+			setAllNominations(null);
+			// setNominatorsData(undefined);
+			setNomLoading(true);
+			setCookie(null, "networkName", to, {
+				maxAge: 7 * 24 * 60 * 60,
+			});
+			setCouncilMembers(undefined);
+			setTransactionHash(null);
+			setCouncilLoading(true);
+			setStashAccount(null);
+			setFreeAmount(null);
+			setBondedAmount(null);
+			setAccounts(null);
+			setAccountsWithBalances(null);
+			setAccountInfoLoading(false);
+			setNomMinStake(null);
+			setSelectedNetwork(to);
+		}
+		setIsNetworkOpen(!isNetworkOpen);
+	};
 	return (
 		<Popover
 			isOpen={isNetworkOpen}
@@ -90,40 +117,14 @@ const NetworkPopover = ({ isExpanded, hasBorder }) => {
 					aria-orientation="vertical"
 					aria-labelledby="options-menu"
 				>
-					{/* TODO: use the function "switchNetwork" that handles the switching networks onClick from header.js file  */}
 					<button
 						className={`flex items-center px-4 py-2 text-white text-sm leading-5 ${
-							currentNetwork === "Kusama"
+							selectedNetwork === "Kusama"
 								? "cursor-default bg-gray-600"
 								: "hover:bg-gray-700 focus:bg-gray-700"
 						}  focus:outline-none w-full`}
 						role="menuitem"
-						onClick={() => {
-							if (selectedNetwork !== "Kusama") {
-								setApiInstance(null);
-								setValidatorMap(undefined);
-								setValidatorRiskSets(undefined);
-								setValidators(undefined);
-								setUserData(null);
-								setAllNominations(null);
-								// setNominatorsData(undefined);
-								setNomLoading(true);
-								setCookie(null, "networkName", "Kusama", {
-									maxAge: 7 * 24 * 60 * 60,
-								});
-								setCouncilMembers(undefined);
-								setCouncilLoading(true);
-								setStashAccount(null);
-								setFreeAmount(null);
-								setBondedAmount(null);
-								setAccounts(null);
-								setAccountsWithBalances(null);
-								setAccountInfoLoading(false);
-								setNomMinStake(null);
-								setSelectedNetwork("Kusama");
-							}
-							setIsNetworkOpen(!isNetworkOpen);
-						}}
+						onClick={() => switchNetwork(selectedNetwork, "Kusama")}
 					>
 						<Avatar
 							name="Kusama"
@@ -135,37 +136,12 @@ const NetworkPopover = ({ isExpanded, hasBorder }) => {
 					</button>
 					<button
 						className={`flex items-center px-4 py-2 text-white text-sm leading-5 ${
-							currentNetwork === "Polkadot"
+							selectedNetwork === "Polkadot"
 								? "cursor-default bg-gray-600"
 								: "hover:bg-gray-700 focus:bg-gray-700"
 						}  focus:outline-none w-full`}
 						role="menuitem"
-						onClick={() => {
-							if (selectedNetwork !== "Polkadot") {
-								setApiInstance(null);
-								setValidatorMap(undefined);
-								setValidatorRiskSets(undefined);
-								setValidators(undefined);
-								setUserData(null);
-								setAllNominations(null);
-								// setNominatorsData(undefined);
-								setNomLoading(true);
-								setCookie(null, "networkName", "Polkadot", {
-									maxAge: 7 * 24 * 60 * 60,
-								});
-								setCouncilMembers(undefined);
-								setCouncilLoading(true);
-								setStashAccount(null);
-								setFreeAmount(null);
-								setBondedAmount(null);
-								setAccounts(null);
-								setAccountsWithBalances(null);
-								setAccountInfoLoading(false);
-								setNomMinStake(null);
-								setSelectedNetwork("Polkadot");
-							}
-							setIsNetworkOpen(!isNetworkOpen);
-						}}
+						onClick={() => switchNetwork(selectedNetwork, "Polkadot")}
 					>
 						<Avatar
 							name="Polkadot"
