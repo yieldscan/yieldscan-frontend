@@ -7,14 +7,16 @@ const ValidatorKeyStats = ({ stats, networkInfo }) => {
 	const [otherStakeSubCurrency, setOtherStakeSubCurrency] = useState();
 	useEffect(() => {
 		if (stats.ownStake) {
-			convertCurrency(stats.ownStake, networkInfo.denom).then((value) =>
-				setOwnStakeSubCurrency(value)
-			);
+			convertCurrency(
+				stats.ownStake,
+				networkInfo.coinGeckoDenom
+			).then((value) => setOwnStakeSubCurrency(value));
 		}
 		if (stats.othersStake) {
-			convertCurrency(stats.othersStake, networkInfo.denom).then((value) =>
-				setOtherStakeSubCurrency(value)
-			);
+			convertCurrency(
+				stats.othersStake,
+				networkInfo.coinGeckoDenom
+			).then((value) => setOtherStakeSubCurrency(value));
 		}
 	}, [stats]);
 	return (

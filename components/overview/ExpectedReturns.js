@@ -1,6 +1,5 @@
 import React from "react";
 import { isNil } from "lodash";
-import convertCurrency from "@lib/convert-currency";
 import formatCurrency from "@lib/format-currency";
 import calculateReward from "@lib/calculate-reward";
 import { usePolkadotApi, useAccounts } from "@lib/store";

@@ -158,12 +158,12 @@ const FundsUpdate = withSlideIn(
 		}, [amount]);
 
 		useEffect(() => {
-			convertCurrency(amount || 0, networkInfo.denom).then(
+			convertCurrency(amount || 0, networkInfo.coinGeckoDenom).then(
 				(convertedAmount) => {
 					setSubCurrency(convertedAmount);
 				}
 			);
-			convertCurrency(totalStakingAmount || 0, networkInfo.denom).then(
+			convertCurrency(totalStakingAmount || 0, networkInfo.coinGeckoDenom).then(
 				(convertedAmount) => {
 					setTotalStakingAmountFiat(convertedAmount);
 				}
@@ -189,7 +189,7 @@ const FundsUpdate = withSlideIn(
 			if (unbondingBalances.length > 0) {
 				const total = unbondingBalances.reduce((a, b) => a + b.value, 0);
 				setTotalUnbonding(total);
-				convertCurrency(total, networkInfo.denom).then((value) =>
+				convertCurrency(total, networkInfo.coinGeckoDenom).then((value) =>
 					setTotalUnbondingFiat(value)
 				);
 			} else {

@@ -52,11 +52,11 @@ const SocialProofStats = ({ networkName, networkDenom, networkUrl }) => {
 		if (nominatorsData.stats) {
 			convertCurrency(
 				nominatorsData.stats.totalAmountStaked,
-				networkDenom
+				networkUrl
 			).then((value) => setTotalAmountStakedSubCurrency(value));
 			convertCurrency(
 				nominatorsData.stats.totalRewards,
-				networkDenom
+				networkUrl
 			).then((value) => setTotalRewardsSubCurrency(value));
 		}
 	}, [nominatorsData, networkDenom]);

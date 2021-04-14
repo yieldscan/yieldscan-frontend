@@ -182,9 +182,11 @@ const Validators = () => {
 	}, [bondedAmount]);
 
 	useEffect(() => {
-		convertCurrency(amount || 0, networkInfo.denom).then((convertedAmount) => {
-			setSubCurrency(convertedAmount);
-		});
+		convertCurrency(amount || 0, networkInfo.coinGeckoDenom).then(
+			(convertedAmount) => {
+				setSubCurrency(convertedAmount);
+			}
+		);
 	}, [amount]);
 
 	useEffect(() => {

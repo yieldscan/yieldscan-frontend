@@ -43,11 +43,11 @@ const Nominators = () => {
 		if (nominatorsData) {
 			convertCurrency(
 				nominatorsData.stats.totalAmountStaked,
-				networkInfo.denom
+				networkInfo.coinGeckoDenom
 			).then((value) => setTotalAmountStakedSubCurrency(value));
 			convertCurrency(
 				nominatorsData.stats.totalRewards,
-				networkInfo.denom
+				networkInfo.coinGeckoDenom
 			).then((value) => setTotalRewardsSubCurrency(value));
 		}
 	}, [nominatorsData]);
