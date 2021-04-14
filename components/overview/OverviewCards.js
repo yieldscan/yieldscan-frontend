@@ -67,14 +67,15 @@ const OverviewCards = ({
 		if (stats) {
 			convertCurrency(
 				stats.totalAmountStaked,
-				networkInfo.denom
+				networkInfo.coinGeckoDenom
 			).then((value) => setTotalAmountStakedFiat(value));
 		}
 
 		if (stats) {
-			convertCurrency(stats.estimatedRewards, networkInfo.denom).then((value) =>
-				setEstimatedRewardsFiat(value)
-			);
+			convertCurrency(
+				stats.estimatedRewards,
+				networkInfo.coinGeckoDenom
+			).then((value) => setEstimatedRewardsFiat(value));
 		}
 
 		if (validators) {
@@ -89,9 +90,10 @@ const OverviewCards = ({
 		}
 
 		if (stats) {
-			convertCurrency(stats.earnings, networkInfo.denom).then((value) =>
-				setEarningsFiat(value)
-			);
+			convertCurrency(
+				stats.earnings,
+				networkInfo.coinGeckoDenom
+			).then((value) => setEarningsFiat(value));
 		}
 	}, [stats, compounding]);
 
@@ -99,7 +101,7 @@ const OverviewCards = ({
 		if (redeemableBalance) {
 			convertCurrency(
 				redeemableBalance / 10 ** networkInfo.decimalPlaces,
-				networkInfo.denom
+				networkInfo.coinGeckoDenom
 			).then((value) => setRedeemableBalanceFiat(value));
 		}
 	}, [stats, redeemableBalance]);
@@ -108,7 +110,7 @@ const OverviewCards = ({
 		if (unbondingBalances.length > 0) {
 			const total = unbondingBalances.reduce((a, b) => a + b.value, 0);
 			setTotalUnbonding(total);
-			convertCurrency(total, networkInfo.denom).then((value) =>
+			convertCurrency(total, networkInfo.coinGeckoDenom).then((value) =>
 				setTotalUnbondingFiat(value)
 			);
 		} else {

@@ -200,7 +200,7 @@ const Confirmation = ({
 	};
 
 	useEffect(() => {
-		convertCurrency(stakingAmount, networkInfo.denom).then(
+		convertCurrency(stakingAmount, networkInfo.coinGeckoDenom).then(
 			(convertedAmount) => {
 				setSubCurrency(convertedAmount);
 			}
@@ -210,7 +210,7 @@ const Confirmation = ({
 	useEffect(() => {
 		convertCurrency(
 			transactionFee / Math.pow(10, networkInfo.decimalPlaces),
-			networkInfo.denom
+			networkInfo.coinGeckoDenom
 		).then((convertedAmount) => {
 			setFeeSubCurrency(convertedAmount);
 		});

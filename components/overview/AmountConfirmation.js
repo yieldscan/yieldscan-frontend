@@ -45,14 +45,14 @@ const AmountConfirmation = ({
 		if (transactionFee) {
 			convertCurrency(
 				transactionFee / Math.pow(10, networkInfo.decimalPlaces),
-				networkInfo.denom
+				networkInfo.coinGeckoDenom
 			).then((data) => setSubFeeCurrency(data));
 		}
 	}, [transactionFee]);
 
 	useEffect(() => {
 		if (totalAmount) {
-			convertCurrency(totalAmount, networkInfo.denom).then((data) =>
+			convertCurrency(totalAmount, networkInfo.coinGeckoDenom).then((data) =>
 				setTotalAmountFiat(data)
 			);
 		}

@@ -43,7 +43,7 @@ const EditAmountModal = withSlideIn(
 		};
 
 		useEffect(() => {
-			convertCurrency(stakingAmount || 0, networkInfo.denom).then(
+			convertCurrency(stakingAmount || 0, networkInfo.coinGeckoDenom).then(
 				(convertedAmount) => {
 					setSubCurrency(convertedAmount);
 				}
