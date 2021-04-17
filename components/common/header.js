@@ -45,7 +45,7 @@ import convertCurrency from "@lib/convert-currency";
 import Routes from "@lib/routes";
 import Link from "next/link";
 import createPolkadotAPIInstance from "@lib/polkadot-api";
-import { getNetworkInfo } from "yieldscan.config";
+import { getNetworkInfo, getAllNetworksInfo } from "yieldscan.config";
 import { setCookie, parseCookies } from "nookies";
 import SideMenu from "./sidemenu";
 import SideMenuFooter from "./side-menu-footer";
@@ -64,6 +64,7 @@ const Header = ({ isBase }) => {
 	const { setNominatorsData, setNomLoading } = useNominatorsData();
 	const { setCouncilMembers, setCouncilLoading } = useCouncil();
 	const networkInfo = getNetworkInfo(selectedNetwork);
+	const supportedNetworksInfo = getAllNetworksInfo();
 	const { apiInstance, setApiInstance } = usePolkadotApi();
 	const { isOpen, toggle } = useWalletConnect();
 	const { setIsInElection } = useNetworkElection();
@@ -559,57 +560,34 @@ const Header = ({ isBase }) => {
 										aria-orientation="vertical"
 										aria-labelledby="options-menu"
 									>
-										<button
-											className={`flex items-center px-4 py-2 text-white text-sm leading-5 ${
-												selectedNetwork === "Kusama"
-													? "cursor-default bg-gray-600"
-													: "hover:bg-gray-700 focus:bg-gray-700"
-											}  focus:outline-none w-full`}
-											role="menuitem"
-											onClick={() => switchNetwork(selectedNetwork, "Kusama")}
-										>
-											<Avatar
-												name="Kusama"
-												src="/images/kusama-logo.png"
-												size="sm"
-												mr={2}
-											/>
-											<span>Kusama</span>
-										</button>
-										<button
-											className={`flex items-center px-4 py-2 text-white text-sm leading-5 ${
-												selectedNetwork === "Polkadot"
-													? "cursor-default bg-gray-600"
-													: "hover:bg-gray-700 focus:bg-gray-700"
-											}  focus:outline-none w-full`}
-											role="menuitem"
-											onClick={() => switchNetwork(selectedNetwork, "Polkadot")}
-										>
-											<Avatar
-												name="Polkadot"
-												src="/images/polkadot-logo.png"
-												size="sm"
-												mr={2}
-											/>
-											<span>Polkadot</span>
-										</button>
-										<button
-											className={`flex items-center px-4 py-2 text-white text-sm leading-5 ${
-												selectedNetwork === "Westend"
-													? "cursor-default bg-gray-600"
-													: "hover:bg-gray-700 focus:bg-gray-700"
-											}  focus:outline-none w-full`}
-											role="menuitem"
-											onClick={() => switchNetwork(selectedNetwork, "Westend")}
-										>
-											<Avatar
-												name="Westend"
-												src="/images/westend-logo.png"
-												size="sm"
-												mr={2}
-											/>
-											<span>Westend</span>
-										</button>
+										{supportedNetworksInfo.map((x) => {
+											if (
+												process.env.NODE_ENV !== "production" ||
+												!x.isTestNetwork
+											) {
+												return (
+													<button
+														className={`flex items-center px-4 py-2 text-white text-sm leading-5 ${
+															selectedNetwork === x.name
+																? "cursor-default bg-gray-600"
+																: "hover:bg-gray-700 focus:bg-gray-700"
+														}  focus:outline-none w-full`}
+														role="menuitem"
+														onClick={() =>
+															switchNetwork(selectedNetwork, x.name)
+														}
+													>
+														<Avatar
+															name={x.name}
+															src={`/images/${x.network}-logo.png`}
+															size="sm"
+															mr={2}
+														/>
+														<span>{x.name}</span>
+													</button>
+												);
+											} else return <></>;
+										})}
 									</div>
 								</PopoverContent>
 							</Popover>
