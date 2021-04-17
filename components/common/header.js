@@ -146,27 +146,6 @@ const Header = ({ isBase }) => {
 		}
 	}, [stashAccount, networkInfo]);
 
-	// Moved the below section to walletConnectPopover
-	// useEffect(() => {
-	// 	if (
-	// 		(!isNil(cookies.kusamaDefault) || !isNil(cookies.polkadotDefault)) &&
-	// 		!stashAccount &&
-	// 		accounts
-	// 	) {
-	// 		selectedNetwork == "Kusama"
-	// 			? accounts
-	// 					.filter((account) => account.address == cookies.kusamaDefault)
-	// 					.map((account) => {
-	// 						setStashAccount(account);
-	// 					})
-	// 			: accounts
-	// 					.filter((account) => account.address == cookies.polkadotDefault)
-	// 					.map((account) => {
-	// 						setStashAccount(account);
-	// 					});
-	// 	}
-	// }, [accounts]);
-
 	useEffect(() => {
 		if (accountsWithBalances && stashAccount) {
 			accountsWithBalances
@@ -201,7 +180,7 @@ const Header = ({ isBase }) => {
 
 	useEffect(() => {
 		if (stashAccount) {
-			createPolkadotAPIInstance(networkInfo.name, apiInstance).then((api) => {
+			createPolkadotAPIInstance(networkInfo, apiInstance).then((api) => {
 				setApiInstance(api);
 				api.query.staking
 					.bonded(stashAccount.address)
@@ -211,9 +190,10 @@ const Header = ({ isBase }) => {
 					.catch((error) => {
 						alert("Something went wrong, please reload!");
 					});
-				api.query.staking.eraElectionStatus().then((data) => {
-					setIsInElection(data.isOpen);
-				});
+				networkInfo.network !== "westend" &&
+					api.query.staking.eraElectionStatus().then((data) => {
+						setIsInElection(data.isOpen);
+					});
 			});
 		}
 	}, [stashAccount, networkInfo]);
@@ -556,8 +536,8 @@ const Header = ({ isBase }) => {
 										}}
 									>
 										<img
-											src={`/images/${networkInfo.coinGeckoDenom}-logo.png`}
-											alt={`${networkInfo.coinGeckoDenom}-logo`}
+											src={`/images/${networkInfo.network}-logo.png`}
+											alt={`${networkInfo.network}-logo`}
 											className="mr-2 w-6 rounded-full"
 										/>
 										<ChevronDown size="20px" />
@@ -612,6 +592,23 @@ const Header = ({ isBase }) => {
 												mr={2}
 											/>
 											<span>Polkadot</span>
+										</button>
+										<button
+											className={`flex items-center px-4 py-2 text-white text-sm leading-5 ${
+												selectedNetwork === "Westend"
+													? "cursor-default bg-gray-600"
+													: "hover:bg-gray-700 focus:bg-gray-700"
+											}  focus:outline-none w-full`}
+											role="menuitem"
+											onClick={() => switchNetwork(selectedNetwork, "Westend")}
+										>
+											<Avatar
+												name="Westend"
+												src="/images/westend-logo.png"
+												size="sm"
+												mr={2}
+											/>
+											<span>Westend</span>
 										</button>
 									</div>
 								</PopoverContent>

@@ -142,7 +142,7 @@ const EditCouncilMemberProfileModal = withSlideIn(
 		const updateProfile = () => {
 			setUpdating(true);
 			axios
-				.put(`${networkInfo.coinGeckoDenom}council/member/${stashId}/update`, {
+				.put(`${networkInfo.network}council/member/${stashId}/update`, {
 					members: newMembers,
 					vision: newVision,
 				})

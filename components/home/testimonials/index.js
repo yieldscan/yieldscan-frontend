@@ -1,5 +1,4 @@
 import { Avatar, Box } from "@chakra-ui/core";
-import axios from "@lib/axios";
 import { times } from "lodash";
 import { useEffect, useState } from "react";
 import Marquee, { Motion, randomIntFromInterval } from "react-marquee-slider";
@@ -46,13 +45,6 @@ const testimonialData = [
 const Testimonials = () => {
 	const [users, setUsers] = useState([]);
 	const [isPaused, setIsPaused] = useState(false);
-	// useEffect(() => {
-	// 	axios
-	// 		.get("https://dummyapi.io/data/api/user?limit=10", {
-	// 			headers: { "app-id": "5f97d648839b3f7fcc501aea" },
-	// 		})
-	// 		.then(({ data }) => setUsers(data));
-	// });
 
 	return (
 		<Box py={20} my={16}>

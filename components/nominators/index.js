@@ -26,7 +26,7 @@ const Nominators = () => {
 		setLoading(true);
 		setError(false);
 		axios
-			.get(`/${networkInfo.coinGeckoDenom}/actors/nominators`)
+			.get(`/${networkInfo.network}/actors/nominators`)
 			.then(({ data }) => {
 				setNominatorsData(data);
 			})

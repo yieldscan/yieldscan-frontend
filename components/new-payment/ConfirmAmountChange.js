@@ -22,6 +22,7 @@ const ConfirmAmountChange = ({
 				<Alert status="success">
 					<AlertIcon />
 					Your nominations have been successfully updated.
+					{/* TODO: add a subscan url key, instead of using coingecko, it might cause issue in future */}
 					<a
 						href={`https://${networkInfo.coinGeckoDenom}.subscan.io/block/${transactionHash}`}
 						className="mt-6 text-gray-500"

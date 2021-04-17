@@ -48,9 +48,7 @@ const CouncilMemberProfile = () => {
 	const initData = () => {
 		setError(false);
 		axios
-			.get(
-				`/${networkInfo.coinGeckoDenom}/council/member/${councilMemberAccountId}`
-			)
+			.get(`/${networkInfo.network}/council/member/${councilMemberAccountId}`)
 			.then(({ data }) => {
 				setMemberInfo(data);
 			})

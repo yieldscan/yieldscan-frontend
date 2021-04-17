@@ -17,7 +17,7 @@ const StatCard = ({ stat, description, subText }) => {
 	);
 };
 
-const SocialProofStats = ({ networkName, networkDenom, networkUrl }) => {
+const SocialProofStats = ({ networkInfo }) => {
 	const [error, setError] = React.useState(false);
 	const [loading, setLoading] = React.useState(true);
 	const [nominatorsData, setNominatorsData] = React.useState([]);
@@ -35,7 +35,7 @@ const SocialProofStats = ({ networkName, networkDenom, networkUrl }) => {
 		setLoading(true);
 		setError(false);
 		axios
-			.get(`/${networkUrl}/actors/nominator/stats`)
+			.get(`/${networkInfo.network}/actors/nominator/stats`)
 			.then(({ data }) => {
 				setNominatorsData(data);
 				setNomMinStake(data.stats.nomMinStake);
@@ -46,20 +46,20 @@ const SocialProofStats = ({ networkName, networkDenom, networkUrl }) => {
 			.finally(() => {
 				setLoading(false);
 			});
-	}, [networkUrl]);
+	}, [networkInfo]);
 
 	React.useEffect(() => {
 		if (nominatorsData.stats) {
 			convertCurrency(
 				nominatorsData.stats.totalAmountStaked,
-				networkUrl
+				networkInfo.coinGeckoDenom
 			).then((value) => setTotalAmountStakedSubCurrency(value));
 			convertCurrency(
 				nominatorsData.stats.totalRewards,
-				networkUrl
+				networkInfo.coinGeckoDenom
 			).then((value) => setTotalRewardsSubCurrency(value));
 		}
-	}, [nominatorsData, networkDenom]);
+	}, [nominatorsData, networkInfo]);
 
 	return error ? (
 		<div className="flex-center flex-col mt-40">
@@ -78,7 +78,7 @@ const SocialProofStats = ({ networkName, networkDenom, networkUrl }) => {
 						`$ ${millify(totalAmountStakedSubCurrency)}+`
 					)
 				}
-				description={`Invested in staking on ${networkName}`}
+				description={`Invested in staking on ${networkInfo.name}`}
 				subText={
 					<div className="flex items-center">
 						<div className="blob red h-fit-content">
