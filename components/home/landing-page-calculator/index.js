@@ -1,4 +1,5 @@
 import { Box, Button, FormLabel, Input, InputGroup } from "@chakra-ui/core";
+import { isNil } from "lodash";
 import NetworkPopover from "@components/common/utilities/popovers/network-popover";
 import { Events, trackEvent } from "@lib/analytics";
 import axios from "@lib/axios";
