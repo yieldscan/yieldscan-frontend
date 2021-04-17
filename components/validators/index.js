@@ -128,7 +128,7 @@ const Validators = () => {
 	// useEffect(() => {
 	// 	if (!validators) {
 	// 		axios
-	// 			.get(`/${networkInfo.coinGeckoDenom}/rewards/risk-set`)
+	// 			.get(`/${networkInfo.network}/rewards/risk-set`)
 	// 			.then(({ data }) => {
 	// 				setValidators(data.totalset);
 	// 				setFilteredValidators(data.totalset);
@@ -145,7 +145,7 @@ const Validators = () => {
 	useEffect(() => {
 		if (!validatorMap) {
 			axios
-				.get(`/${networkInfo.coinGeckoDenom}/rewards/risk-set`)
+				.get(`/${networkInfo.network}/rewards/risk-set`)
 				.then(({ data }) => {
 					const validatorMap = {
 						Low: mapValues(keyBy(data.lowriskset, "stashId")),

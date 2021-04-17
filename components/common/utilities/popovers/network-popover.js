@@ -93,8 +93,8 @@ const NetworkPopover = ({ isExpanded, hasBorder }) => {
 					}}
 				>
 					<img
-						src={`/images/${networkInfo.coinGeckoDenom}-logo.png`}
-						alt={`${networkInfo.coinGeckoDenom}-logo`}
+						src={`/images/${networkInfo.network}-logo.png`}
+						alt={`${networkInfo.network}-logo`}
 						className="mr-2 w-6 rounded-full"
 					/>
 					{isExpanded && <p className="font-normal mr-2">{selectedNetwork}</p>}

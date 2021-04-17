@@ -83,7 +83,7 @@ const FundsUpdate = withSlideIn(
 			successful
 		) => {
 			axios
-				.put(`${networkInfo.coinGeckoDenom}/user/transaction/update`, {
+				.put(`${networkInfo.network}/user/transaction/update`, {
 					stashId: stashId,
 					network: network,
 					alreadyBonded: alreadyBonded,
@@ -234,7 +234,7 @@ const FundsUpdate = withSlideIn(
 					if (status === 0) {
 						updateTransactionData(
 							stashAccount.address,
-							networkInfo.coinGeckoDenom,
+							networkInfo.network,
 							get(bondedAmount, "currency", 0),
 							type == "bond" || type == "rebond"
 								? get(bondedAmount, "currency", 0) + amount
@@ -252,7 +252,7 @@ const FundsUpdate = withSlideIn(
 						if (message !== "Cancelled") {
 							updateTransactionData(
 								stashAccount.address,
-								networkInfo.coinGeckoDenom,
+								networkInfo.network,
 								get(bondedAmount, "currency", 0),
 								type == "bond" || type == "rebond"
 									? get(bondedAmount, "currency", 0) + amount

@@ -50,7 +50,7 @@ const ValidatorProfile = () => {
 
 	const initData = () => {
 		axios
-			.get(`/${networkInfo.coinGeckoDenom}/validator/${validatorStashId}`)
+			.get(`/${networkInfo.network}/validator/${validatorStashId}`)
 			.then(({ data }) => {
 				setValidatorData(data);
 			})
