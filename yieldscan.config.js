@@ -9,6 +9,7 @@ export const networks = [
 		id: "polkadot-cc1",
 		name: "Polkadot",
 		network: "polkadot",
+		isTestNetwork: false,
 		denom: "DOT",
 		coinGeckoDenom: "polkadot",
 		decimalPlaces: 10,
@@ -25,6 +26,7 @@ export const networks = [
 		id: "kusama-cc3",
 		name: "Kusama",
 		network: "kusama",
+		isTestNetwork: false,
 		denom: "KSM",
 		twitterUrl: "@kusamanetwork",
 		coinGeckoDenom: "kusama",
@@ -41,6 +43,7 @@ export const networks = [
 		id: "westend",
 		name: "Westend",
 		network: "westend",
+		isTestNetwork: true,
 		denom: "WND",
 		twitterUrl: "@westend",
 		coinGeckoDenom: undefined,
@@ -57,6 +60,10 @@ export const networks = [
 
 export const getNetworkInfo = (networkName) => {
 	return networks.find(({ name }) => name === networkName);
+};
+
+export const getAllNetworksInfo = () => {
+	return networks;
 };
 
 export const network = networks.find(({ name }) => name === selectedNetwork);
