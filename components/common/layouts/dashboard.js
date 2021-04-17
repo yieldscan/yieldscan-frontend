@@ -148,17 +148,21 @@ const withDashboardLayout = (children) => {
 					} else setUnbondingBalances([]);
 				});
 				await api.derive.balances.all(address, async (info) => {
-					const freeAmount = Number(
-						parseInt(info.availableBalance) / 10 ** networkInfo.decimalPlaces
+					const calcFreeAmountInCurrency = Number(
+						(parseInt(info.availableBalance) + parseInt(info.vestingLocked)) /
+							10 ** networkInfo.decimalPlaces
 					);
-					const freeAmountInSubCurrency = await convertCurrency(
+					const calcFreeAmountInSubCurrency = await convertCurrency(
 						freeAmount,
 						networkInfo.coinGeckoDenom
 					);
-					setFreeAmount({
-						currency: freeAmount,
-						subCurrency: freeAmountInSubCurrency,
-					});
+					const calcFreeAmount = {
+						currency: calcFreeAmountInCurrency,
+						subCurrency: calcFreeAmountInSubCurrency,
+					};
+					if (calcFreeAmount !== freeAmount) {
+						setFreeAmount(calcFreeAmount);
+					}
 				});
 
 				const setStateAndTrack = (details) => {
