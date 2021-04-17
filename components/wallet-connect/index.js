@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import create from "zustand";
-import { isNil } from "lodash";
+import { isNil, get } from "lodash";
 import { ChevronLeft } from "react-feather";
 import {
 	Modal,
@@ -97,34 +97,23 @@ const WalletConnectPopover = ({ styles, networkInfo, cookies }) => {
 	useEffect(() => {
 		let previousAccountAvailable = false;
 		if (!stashAccount && accounts) {
-			if (!isNil(cookies.kusamaDefault) || !isNil(cookies.polkadotDefault)) {
-				networkInfo.name == "Kusama"
-					? accounts
-							.filter((account) => account.address == cookies.kusamaDefault)
-							.map((account) => {
-								previousAccountAvailable = true;
-								setStashAccount(account);
-								if (typeof window !== undefined) {
-									trackEvent(Events.ACCOUNT_SELECTED, {
-										path: window.location.pathname,
-										address: account.address,
-										network: networkInfo.name,
-									});
-								}
-							})
-					: accounts
-							.filter((account) => account.address == cookies.polkadotDefault)
-							.map((account) => {
-								previousAccountAvailable = true;
-								setStashAccount(account);
-								if (typeof window !== undefined) {
-									trackEvent(Events.ACCOUNT_SELECTED, {
-										path: window.location.pathname,
-										address: account.address,
-										network: networkInfo.name,
-									});
-								}
+			if (!isNil(get(cookies, networkInfo.network + "Default"))) {
+				accounts
+					.filter(
+						(account) =>
+							account.address == get(cookies, networkInfo.network + "Default")
+					)
+					.map((account) => {
+						previousAccountAvailable = true;
+						setStashAccount(account);
+						if (typeof window !== undefined) {
+							trackEvent(Events.ACCOUNT_SELECTED, {
+								path: window.location.pathname,
+								address: account.address,
+								network: networkInfo.name,
 							});
+						}
+					});
 			}
 			if (!previousAccountAvailable) {
 				if (typeof window !== undefined) {
@@ -147,13 +136,9 @@ const WalletConnectPopover = ({ styles, networkInfo, cookies }) => {
 			});
 		}
 		setStashAccount(stashAccount);
-		networkInfo.name == "Kusama"
-			? setCookie(null, "kusamaDefault", stashAccount.address, {
-					maxAge: 7 * 24 * 60 * 60,
-			  })
-			: setCookie(null, "polkadotDefault", stashAccount.address, {
-					maxAge: 7 * 24 * 60 * 60,
-			  });
+		setCookie(null, networkInfo.network + "Default", stashAccount.address, {
+			maxAge: 7 * 24 * 60 * 60,
+		});
 	};
 
 	const handleRecoveryAuth = () => {

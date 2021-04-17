@@ -113,7 +113,7 @@ const Overview = () => {
 				networkInfo.addressPrefix
 			);
 			axios
-				.get(`/${networkInfo.coinGeckoDenom}/user/${kusamaAddress}`)
+				.get(`/${networkInfo.network}/user/${kusamaAddress}`)
 				.then(({ data }) => {
 					if (data.message === "No data found!") setError(true);
 					setUserData(data);
@@ -140,7 +140,7 @@ const Overview = () => {
 							);
 							axios
 								.get(
-									`/${networkInfo.coinGeckoDenom}/validator/multi?stashIds=${multiQueryString}`
+									`/${networkInfo.network}/validator/multi?stashIds=${multiQueryString}`
 								)
 								.then(({ data }) => {
 									setAllNominations(data);
@@ -180,7 +180,7 @@ const Overview = () => {
 	// useEffect(() => {
 	// 	if (!validators) {
 	// 		axios
-	// 			.get(`/${networkInfo.coinGeckoDenom}/rewards/risk-set`)
+	// 			.get(`/${networkInfo.network}/rewards/risk-set`)
 	// 			.then(({ data }) => {
 	// 				const validators = data.totalset;
 	// 				setValidators(validators);
@@ -401,8 +401,6 @@ const Overview = () => {
 					/>
 					<div className="flex ml-20 w-1/2">
 						<EarningsOutput
-							networkDenom={networkInfo.denom}
-							networkUrl={networkInfo.coinGeckoDenom}
 							networkInfo={networkInfo}
 							validators={
 								isNil(userData)
@@ -412,7 +410,6 @@ const Overview = () => {
 									  )
 							}
 							inputValue={activeStake}
-							apiInstance={apiInstance}
 							address={stashAccount.address}
 						/>
 					</div>

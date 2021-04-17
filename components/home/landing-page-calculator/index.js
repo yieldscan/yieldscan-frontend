@@ -8,13 +8,7 @@ import { useEffect, useState } from "react";
 import { Rifm } from "rifm";
 import EarningsOutput from "./earnings-output";
 
-const LandingPageCalculator = ({
-	inputValue,
-	setInputValue,
-	networkUrl,
-	networkDenom,
-	networkInfo,
-}) => {
+const LandingPageCalculator = ({ inputValue, setInputValue, networkInfo }) => {
 	const router = useRouter();
 
 	const { setStakingAmount } = useTransaction();
@@ -61,18 +55,20 @@ const LandingPageCalculator = ({
 	};
 
 	const _formatCurrency = (string) =>
-		formatFloatingPointNumber(string, 12) + " " + networkDenom;
+		formatFloatingPointNumber(string, 12) + " " + networkInfo.denom;
 
 	useEffect(() => {
-		axios
-			.get(
-				`https://api.coingecko.com/api/v3/simple/price?ids=${networkUrl}&vs_currencies=usd&include_market_cap=true&include_24hr_vol=true`
-			)
-			.then(({ data }) => {
-				setTokenPrice(data[networkUrl].usd);
-				setMarketCap(data[networkUrl].usd_market_cap);
-				setVol24H(data[networkUrl].usd_24h_vol);
-			});
+		if (!isNil(networkInfo.coinGeckoDenom)) {
+			axios
+				.get(
+					`https://api.coingecko.com/api/v3/simple/price?ids=${networkInfo.coinGeckoDenom}&vs_currencies=usd&include_market_cap=true&include_24hr_vol=true`
+				)
+				.then(({ data }) => {
+					setTokenPrice(data[networkInfo.coinGeckoDenom].usd);
+					setMarketCap(data[networkInfo.coinGeckoDenom].usd_market_cap);
+					setVol24H(data[networkInfo.coinGeckoDenom].usd_24h_vol);
+				});
+		}
 	});
 
 	return (
@@ -174,12 +170,7 @@ const LandingPageCalculator = ({
 					borderRightWidth={1}
 					borderColor="gray-300"
 				/>
-				<EarningsOutput
-					networkDenom={networkDenom}
-					networkUrl={networkUrl}
-					networkInfo={networkInfo}
-					inputValue={inputValue}
-				/>
+				<EarningsOutput networkInfo={networkInfo} inputValue={inputValue} />
 			</div>
 			<div className="w-full text-center mt-20">
 				<Button
@@ -200,7 +191,7 @@ const LandingPageCalculator = ({
 					onClick={() => {
 						setStakingAmount(inputValue);
 						trackEvent(Events.LANDING_CTA_CLICK, {
-							investmentAmount: `${inputValue} ${networkDenom}`,
+							investmentAmount: `${inputValue} ${networkInfo.denom}`,
 						}).then(() => router.push({ pathname: "/reward-calculator" }));
 					}}
 					isDisabled={isNaN(inputValue) || Number(inputValue) <= 0}

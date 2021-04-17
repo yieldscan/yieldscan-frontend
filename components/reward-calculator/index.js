@@ -124,7 +124,7 @@ const RewardCalculatorPage = () => {
 			setLoading(true);
 			setHeaderLoading(true);
 			axios
-				.get(`/${networkInfo.coinGeckoDenom}/rewards/risk-set-only`)
+				.get(`/${networkInfo.network}/rewards/risk-set-only`)
 				.then(({ data }) => {
 					/**
 					 * `mapValues(keyBy(array), 'value-key')`:
@@ -180,7 +180,7 @@ const RewardCalculatorPage = () => {
 		if (isNil(nomMinStake)) {
 			setLoadingNomMinStake(true);
 			axios
-				.get(`/${networkInfo.coinGeckoDenom}/actors/nominator/stats`)
+				.get(`/${networkInfo.network}/actors/nominator/stats`)
 				.then(({ data }) => {
 					setNomMinStake(data.stats.nomMinStake);
 				})

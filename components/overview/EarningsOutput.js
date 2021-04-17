@@ -48,15 +48,7 @@ const PastEarningsDisplay = ({ earnings, networkInfo }) =>
 		</Skeleton>
 	);
 
-const EarningsOutput = ({
-	networkDenom,
-	networkUrl,
-	inputValue,
-	apiInstance,
-	validators,
-	address,
-	networkInfo,
-}) => {
+const EarningsOutput = ({ networkInfo, inputValue, validators, address }) => {
 	const transactionState = useTransaction();
 	const [risk, setRisk] = useState(transactionState.riskPreference || "Medium");
 	const [timeRange, setTimeRange] = useState("all");
@@ -145,30 +137,13 @@ const EarningsOutput = ({
 		}
 	}, [networkInfo]);
 
-	// useEffect(() => {
-	// 	if (!erasHistoric && address) {
-	// 		getErasHistoric(apiInstance, setErasHistoric);
-	// 	}
-	// }, [networkInfo, address]);
-	// useEffect(() => {
-	// 	if (!claimableRewards && erasHistoric && address) {
-	// 		getClaimableRewards(
-	// 			address,
-	// 			networkInfo,
-	// 			apiInstance,
-	// 			erasHistoric,
-	// 			setClaimableRewards
-	// 		);
-	// 	}
-	// }, [networkInfo, erasHistoric, address]);
-
 	useEffect(() => {
 		if (!validatorMap) {
 			setYearlyEarning(null);
 			setDailyEarning(null);
 			setMonthlyEarning(null);
 			setSelectedValidators(null);
-			axios.get(`/${networkUrl}/rewards/risk-set`).then(({ data }) => {
+			axios.get(`/${networkInfo.network}/rewards/risk-set`).then(({ data }) => {
 				/**
 				 * `mapValues(keyBy(array), 'value-key')`:
 				 * 	O(N + N) operation, using since each risk set will have maximum 16 validators
@@ -453,7 +428,7 @@ const EarningsOutput = ({
 								duration={0.5}
 								decimals={3}
 								separator=","
-								suffix={` ${networkDenom}`}
+								suffix={` ${networkInfo.denom}`}
 								preserveValue
 							/>
 						</p>
@@ -501,7 +476,7 @@ const EarningsOutput = ({
 								duration={0.5}
 								decimals={3}
 								separator=","
-								suffix={` ${networkDenom}`}
+								suffix={` ${networkInfo.denom}`}
 								preserveValue
 							/>
 						</p>
@@ -549,7 +524,7 @@ const EarningsOutput = ({
 								duration={0.5}
 								decimals={3}
 								separator=","
-								suffix={` ${networkDenom}`}
+								suffix={` ${networkInfo.denom}`}
 								preserveValue
 							/>
 						</p>

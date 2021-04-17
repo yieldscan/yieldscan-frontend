@@ -27,7 +27,7 @@ const CouncilMembers = () => {
 	// 	if (!councilMembers) {
 	// 		setError(false);
 	// 		axios
-	// 			.get(`/${networkInfo.coinGeckoDenom}/council/members`)
+	// 			.get(`/${networkInfo.network}/council/members`)
 	// 			.then(({ data }) => {
 	// 				setCouncilMembers(data);
 	// 			})
@@ -47,7 +47,7 @@ const CouncilMembers = () => {
 			// setCouncilLoading(true);
 			setError(false);
 			axios
-				.get(`/${networkInfo.coinGeckoDenom}/council/members`)
+				.get(`/${networkInfo.network}/council/members`)
 				.then(({ data }) => {
 					setCouncilMembers(data);
 				})

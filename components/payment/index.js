@@ -179,7 +179,7 @@ const Payment = () => {
 		successful
 	) => {
 		axios
-			.put(`${networkInfo.coinGeckoDenom}/user/transaction/update`, {
+			.put(`${networkInfo.network}/user/transaction/update`, {
 				stashId: stashId,
 				network: network,
 				alreadyBonded: alreadyBonded,
@@ -280,7 +280,7 @@ const Payment = () => {
 					hash: get(hash, "message"),
 					url: `https://${get(
 						networkInfo,
-						"coinGeckoDenom"
+						"network"
 					)}.subscan.io/block/${transactionHash}`,
 				});
 			},
@@ -305,7 +305,7 @@ const Payment = () => {
 				if (status === 0) {
 					updateTransactionData(
 						stashAccount.address,
-						networkInfo.coinGeckoDenom,
+						networkInfo.network,
 						get(bondedAmount, "currency", 0),
 						get(transactionState, "stakingAmount", 0),
 						tranHash,
@@ -323,7 +323,7 @@ const Payment = () => {
 					if (message !== "Cancelled") {
 						updateTransactionData(
 							stashAccount.address,
-							networkInfo.coinGeckoDenom,
+							networkInfo.network,
 							get(bondedAmount, "currency", 0),
 							get(transactionState, "stakingAmount", 0),
 							tranHash,

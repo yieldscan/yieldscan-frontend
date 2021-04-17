@@ -12,12 +12,7 @@ import { cloneDeep, get, isNil, keyBy, mapValues, set } from "lodash";
 import { useEffect, useState } from "react";
 import CountUp from "react-countup";
 
-const EarningsOutput = ({
-	networkDenom,
-	networkUrl,
-	inputValue,
-	networkInfo,
-}) => {
+const EarningsOutput = ({ inputValue, networkInfo }) => {
 	const transactionState = useTransaction();
 	const [risk, setRisk] = useState("Medium");
 	const [yearlyEarning, setYearlyEarning] = useState();
@@ -49,20 +44,22 @@ const EarningsOutput = ({
 			setDailyEarning(null);
 			setMonthlyEarning(null);
 			setSelectedValidators(null);
-			axios.get(`/${networkUrl}/rewards/risk-set-only`).then(({ data }) => {
-				/**
-				 * `mapValues(keyBy(array), 'value-key')`:
-				 * 	O(N + N) operation, using since each risk set will have maximum 16 validators
-				 */
-				const validatorMap = {
-					Low: mapValues(keyBy(data.lowriskset, "stashId")),
-					Medium: mapValues(keyBy(data.medriskset, "stashId")),
-					High: mapValues(keyBy(data.highriskset, "stashId")),
-				};
+			axios
+				.get(`/${networkInfo.network}/rewards/risk-set-only`)
+				.then(({ data }) => {
+					/**
+					 * `mapValues(keyBy(array), 'value-key')`:
+					 * 	O(N + N) operation, using since each risk set will have maximum 16 validators
+					 */
+					const validatorMap = {
+						Low: mapValues(keyBy(data.lowriskset, "stashId")),
+						Medium: mapValues(keyBy(data.medriskset, "stashId")),
+						High: mapValues(keyBy(data.highriskset, "stashId")),
+					};
 
-				setValidatorMap(validatorMap);
-				setSelectedValidators(validatorMap["Medium"]);
-			});
+					setValidatorMap(validatorMap);
+					setSelectedValidators(validatorMap["Medium"]);
+				});
 		} else {
 			console.info("Using previous validator map.");
 		}
@@ -156,7 +153,7 @@ const EarningsOutput = ({
 								duration={0.5}
 								decimals={3}
 								separator=","
-								suffix={` ${networkDenom}`}
+								suffix={` ${networkInfo.denom}`}
 								preserveValue
 							/>
 						</p>
@@ -191,7 +188,7 @@ const EarningsOutput = ({
 								duration={0.5}
 								decimals={3}
 								separator=","
-								suffix={` ${networkDenom}`}
+								suffix={` ${networkInfo.denom}`}
 								preserveValue
 							/>
 						</p>
@@ -226,7 +223,7 @@ const EarningsOutput = ({
 								duration={0.5}
 								decimals={3}
 								separator=","
-								suffix={` ${networkDenom}`}
+								suffix={` ${networkInfo.denom}`}
 								preserveValue
 							/>
 						</p>

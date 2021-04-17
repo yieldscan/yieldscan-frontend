@@ -14,7 +14,6 @@ import {
 import { PlusCircle, MinusCircle, ExternalLink } from "react-feather";
 import useHover from "@components/common/hooks/useHover";
 import { useState, useEffect } from "react";
-import axios from "@lib/axios";
 import RiskTag from "@components/reward-calculator/RiskTag";
 import { noop, mapValues, keyBy, isNil, get } from "lodash";
 import calculateReward from "@lib/calculate-reward";

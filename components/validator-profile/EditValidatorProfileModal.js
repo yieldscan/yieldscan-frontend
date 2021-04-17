@@ -141,7 +141,7 @@ const EditProfileModal = withSlideIn(
 		const updateProfile = () => {
 			setUpdating(true);
 			axios
-				.put(`${networkInfo.denom}/validator/${stashId}/update`, {
+				.put(`${networkInfo.network}/validator/${stashId}/update`, {
 					members: newMembers,
 					vision: newVision,
 				})

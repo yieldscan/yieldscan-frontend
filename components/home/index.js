@@ -73,15 +73,9 @@ const HomePage = () => {
 			<LandingPageCalculator
 				inputValue={inputValue}
 				setInputValue={(val) => setInputValue(val)}
-				networkUrl={networkInfo.coinGeckoDenom}
-				networkDenom={networkInfo.denom}
 				networkInfo={networkInfo}
 			/>
-			<SocialProofStats
-				networkName={networkInfo.name}
-				networkDenom={networkInfo.denom}
-				networkUrl={networkInfo.coinGeckoDenom}
-			/>
+			<SocialProofStats networkInfo={networkInfo} />
 			<Testimonials />
 			<section name="Supported Networks" id="supported-networks">
 				<SupportedNetworks />
