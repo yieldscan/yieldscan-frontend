@@ -161,19 +161,24 @@ const Header = ({ isBase }) => {
 						 * `freeBalance` here includes `locked` balance also - that's how polkadot API is currently working
 						 *  so we need to subtract the `bondedBalance``
 						 */
-						const freeAmount = Number(
-							parseInt(account.balances.availableBalance) /
+						// TODO: why is freeAmount being calculated at multiple places
+						const calcFreeAmountInCurrency = Number(
+							(parseInt(account.balances.availableBalance) +
+								parseInt(account.balances.vestingLocked)) /
 								Math.pow(10, networkInfo.decimalPlaces)
 						);
-						setFreeAmount({ currency: freeAmount });
-						convertCurrency(freeAmount, networkInfo.coinGeckoDenom).then(
-							(value) => {
-								setFreeAmount({
-									currency: freeAmount,
-									subCurrency: value,
-								});
+						convertCurrency(
+							calcFreeAmountInCurrency,
+							networkInfo.coinGeckoDenom
+						).then((value) => {
+							const calcFreeAmount = {
+								currency: calcFreeAmountInCurrency,
+								subCurrency: value,
+							};
+							if (calcFreeAmount !== freeAmount) {
+								setFreeAmount(calcFreeAmount);
 							}
-						);
+						});
 					}
 				});
 		}
