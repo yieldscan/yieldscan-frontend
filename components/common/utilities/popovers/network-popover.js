@@ -18,7 +18,7 @@ import {
 import { setCookie } from "nookies";
 import { useState } from "react";
 import { ChevronDown } from "react-feather";
-import { getNetworkInfo } from "yieldscan.config";
+import { getNetworkInfo, getAllNetworksInfo } from "yieldscan.config";
 
 const NetworkPopover = ({ isExpanded, hasBorder }) => {
 	const { setApiInstance } = usePolkadotApi();
@@ -47,6 +47,7 @@ const NetworkPopover = ({ isExpanded, hasBorder }) => {
 	const { selectedNetwork, setSelectedNetwork } = useSelectedNetwork();
 	const { setNomMinStake } = useNomMinStake();
 	const networkInfo = getNetworkInfo(selectedNetwork);
+	const supportedNetworksInfo = getAllNetworksInfo();
 	const [isNetworkOpen, setIsNetworkOpen] = useState(false);
 
 	const switchNetwork = (from, to) => {
@@ -117,40 +118,29 @@ const NetworkPopover = ({ isExpanded, hasBorder }) => {
 					aria-orientation="vertical"
 					aria-labelledby="options-menu"
 				>
-					<button
-						className={`flex items-center px-4 py-2 text-white text-sm leading-5 ${
-							selectedNetwork === "Kusama"
-								? "cursor-default bg-gray-600"
-								: "hover:bg-gray-700 focus:bg-gray-700"
-						}  focus:outline-none w-full`}
-						role="menuitem"
-						onClick={() => switchNetwork(selectedNetwork, "Kusama")}
-					>
-						<Avatar
-							name="Kusama"
-							src="/images/kusama-logo.png"
-							size="sm"
-							mr={2}
-						/>
-						<span>Kusama</span>
-					</button>
-					<button
-						className={`flex items-center px-4 py-2 text-white text-sm leading-5 ${
-							selectedNetwork === "Polkadot"
-								? "cursor-default bg-gray-600"
-								: "hover:bg-gray-700 focus:bg-gray-700"
-						}  focus:outline-none w-full`}
-						role="menuitem"
-						onClick={() => switchNetwork(selectedNetwork, "Polkadot")}
-					>
-						<Avatar
-							name="Polkadot"
-							src="/images/polkadot-logo.png"
-							size="sm"
-							mr={2}
-						/>
-						<span>Polkadot</span>
-					</button>
+					{supportedNetworksInfo.map((x) => {
+						if (process.env.NODE_ENV !== "production" || !x.isTestNetwork) {
+							return (
+								<button
+									className={`flex items-center px-4 py-2 text-white text-sm leading-5 ${
+										selectedNetwork === x.name
+											? "cursor-default bg-gray-600"
+											: "hover:bg-gray-700 focus:bg-gray-700"
+									}  focus:outline-none w-full`}
+									role="menuitem"
+									onClick={() => switchNetwork(selectedNetwork, x.name)}
+								>
+									<Avatar
+										name={x.name}
+										src={`/images/${x.network}-logo.png`}
+										size="sm"
+										mr={2}
+									/>
+									<span>{x.name}</span>
+								</button>
+							);
+						} else return <></>;
+					})}
 				</div>
 			</PopoverContent>
 		</Popover>
