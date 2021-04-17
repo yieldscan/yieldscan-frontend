@@ -217,6 +217,7 @@ const Header = ({ isBase }) => {
 			<EditControllerModal
 				isOpen={editControllerModalOpen}
 				close={closeEditControllerModal}
+				networkInfo={networkInfo}
 			/>
 			<div className="flex items-center">
 				{!isBase && (
