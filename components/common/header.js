@@ -205,9 +205,6 @@ const Header = ({ isBase }) => {
 		}
 	}, [stashAccount, networkInfo]);
 
-	console.log(cookies.isAuthorized);
-	console.log(isOpen);
-
 	return (
 		<div
 			className={`header flex items-center justify-between text-gray-700 ${
