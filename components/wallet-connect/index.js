@@ -51,6 +51,11 @@ const WalletConnectPopover = ({ styles, networkInfo, cookies }) => {
 		},
 	};
 
+	const userStorage = !isNil(typeof window) ? window.localStorage : null;
+	const setAuthForAutoConnect = () => {
+		userStorage.setItem("autoConnectEnabled", "true");
+	};
+
 	useEffect(() => {
 		if (typeof window !== undefined) {
 			trackEvent(Events.INTENT_CONNECT_WALLET, {
@@ -68,7 +73,7 @@ const WalletConnectPopover = ({ styles, networkInfo, cookies }) => {
 					}
 					setUserProperties({ hasExtension: false });
 				} else {
-					setCookie(null, "isAuthorized", true);
+					setAuthForAutoConnect();
 					if (typeof window !== undefined) {
 						trackEvent(Events.AUTH_ALLOWED, {
 							path: window.location.pathname,

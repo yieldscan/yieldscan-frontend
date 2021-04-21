@@ -53,6 +53,7 @@ import ProgressiveImage from "react-progressive-image";
 
 const Header = ({ isBase }) => {
 	const cookies = parseCookies();
+	const userStorage = !isNil(typeof window) ? window.localStorage : null;
 	const { selectedNetwork, setSelectedNetwork } = useSelectedNetwork();
 	const {
 		setValidators,
@@ -204,6 +205,9 @@ const Header = ({ isBase }) => {
 		}
 	}, [stashAccount, networkInfo]);
 
+	console.log(cookies.isAuthorized);
+	console.log(isOpen);
+
 	return (
 		<div
 			className={`header flex items-center justify-between text-gray-700 ${
@@ -212,13 +216,14 @@ const Header = ({ isBase }) => {
 					: "max-w-65-rem xl:px-0"
 			} bg-white px-8 py-8 h-12 mx-auto`}
 		>
-			{!isBase && (isOpen || !isNil(cookies.isAuthorized)) && (
-				<WalletConnectPopover
-					isOpen={isOpen}
-					networkInfo={networkInfo}
-					cookies={cookies}
-				/>
-			)}
+			{!isBase &&
+				(isOpen || !isNil(userStorage.getItem("autoConnectEnabled"))) && (
+					<WalletConnectPopover
+						isOpen={isOpen}
+						networkInfo={networkInfo}
+						cookies={cookies}
+					/>
+				)}
 			<EditControllerModal
 				isOpen={editControllerModalOpen}
 				close={closeEditControllerModal}
