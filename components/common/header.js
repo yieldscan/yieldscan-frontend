@@ -197,10 +197,10 @@ const Header = ({ isBase }) => {
 					.catch((error) => {
 						alert("Something went wrong, please reload!");
 					});
-				networkInfo.network !== "westend" &&
-					api.query.staking.eraElectionStatus().then((data) => {
-						setIsInElection(data.isOpen);
-					});
+
+				api.query.staking.eraElectionStatus?.().then((data) => {
+					setIsInElection(data.isOpen);
+				});
 			});
 		}
 	}, [stashAccount, networkInfo]);
