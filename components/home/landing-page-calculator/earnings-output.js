@@ -7,6 +7,7 @@ import {
 	useDailyEarning,
 	useValidatorData,
 	useTransaction,
+	useCoinGeckoPriceUSD,
 } from "@lib/store";
 import { cloneDeep, get, isNil, keyBy, mapValues, set } from "lodash";
 import { useEffect, useState } from "react";
@@ -14,6 +15,8 @@ import CountUp from "react-countup";
 
 const EarningsOutput = ({ inputValue, networkInfo }) => {
 	const transactionState = useTransaction();
+	const { validatorMap, setValidatorMap } = useValidatorData();
+	const { coinGeckoPriceUSD } = useCoinGeckoPriceUSD();
 	const [risk, setRisk] = useState("Medium");
 	const [yearlyEarning, setYearlyEarning] = useState();
 	// const yearlyEarning = useYearlyEarning((state) => state.yearlyEarning);
@@ -27,9 +30,7 @@ const EarningsOutput = ({ inputValue, networkInfo }) => {
 	// );
 
 	const [dailyEarning, setDailyEarning] = useState();
-
 	const [selectedValidators, setSelectedValidators] = useState();
-	const { validatorMap, setValidatorMap } = useValidatorData();
 
 	useEffect(() => {
 		if (validatorMap) {
@@ -71,6 +72,7 @@ const EarningsOutput = ({ inputValue, networkInfo }) => {
 				(v) => !isNil(v)
 			);
 			calculateReward(
+				coinGeckoPriceUSD,
 				selectedValidatorsList,
 				inputValue,
 				12,
@@ -86,6 +88,7 @@ const EarningsOutput = ({ inputValue, networkInfo }) => {
 					alert(error);
 				});
 			calculateReward(
+				coinGeckoPriceUSD,
 				selectedValidatorsList,
 				inputValue,
 				1,
@@ -101,6 +104,7 @@ const EarningsOutput = ({ inputValue, networkInfo }) => {
 					alert(error);
 				});
 			calculateReward(
+				coinGeckoPriceUSD,
 				selectedValidatorsList,
 				inputValue,
 				1,

@@ -1,22 +1,18 @@
 import formatCurrency from "@lib/format-currency";
 import { useEffect, useState } from "react";
+import { useCoinGeckoPriceUSD } from "@lib/store";
 import convertCurrency from "@lib/convert-currency";
 
 const ValidatorKeyStats = ({ stats, networkInfo }) => {
+	const { coinGeckoPriceUSD } = useCoinGeckoPriceUSD();
 	const [ownStakeSubCurrency, setOwnStakeSubCurrency] = useState();
 	const [otherStakeSubCurrency, setOtherStakeSubCurrency] = useState();
 	useEffect(() => {
 		if (stats.ownStake) {
-			convertCurrency(
-				stats.ownStake,
-				networkInfo.coinGeckoDenom
-			).then((value) => setOwnStakeSubCurrency(value));
+			setOwnStakeSubCurrency(stats.ownStake * coinGeckoPriceUSD);
 		}
 		if (stats.othersStake) {
-			convertCurrency(
-				stats.othersStake,
-				networkInfo.coinGeckoDenom
-			).then((value) => setOtherStakeSubCurrency(value));
+			setOtherStakeSubCurrency(stats.othersStake * coinGeckoPriceUSD);
 		}
 	}, [stats]);
 	return (

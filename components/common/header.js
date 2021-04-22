@@ -11,6 +11,7 @@ import {
 	useNomMinStake,
 	useOverviewData,
 	useCouncil,
+	useCoinGeckoPriceUSD,
 } from "@lib/store";
 import { get, isNil } from "lodash";
 import { ChevronDown, Settings, Menu } from "react-feather";
@@ -82,6 +83,7 @@ const Header = ({ isBase }) => {
 		setAccountsWithBalances,
 		setAccountInfoLoading,
 	} = useAccounts();
+	const { coinGeckoPriceUSD, setCoinGeckoPriceUSD } = useCoinGeckoPriceUSD();
 	const { headerLoading } = useHeaderLoading();
 	const {
 		isOpen: editControllerModalOpen,
@@ -126,6 +128,7 @@ const Header = ({ isBase }) => {
 			setFreeAmount(null);
 			setBondedAmount(null);
 			setAccounts(null);
+			setCoinGeckoPriceUSD(null);
 			setAccountsWithBalances(null);
 			setAccountInfoLoading(false);
 			setNomMinStake(null);
@@ -168,18 +171,15 @@ const Header = ({ isBase }) => {
 								parseInt(account.balances.vestingLocked)) /
 								Math.pow(10, networkInfo.decimalPlaces)
 						);
-						convertCurrency(
-							calcFreeAmountInCurrency,
-							networkInfo.coinGeckoDenom
-						).then((value) => {
-							const calcFreeAmount = {
-								currency: calcFreeAmountInCurrency,
-								subCurrency: value,
-							};
-							if (calcFreeAmount !== freeAmount) {
-								setFreeAmount(calcFreeAmount);
-							}
-						});
+						const calcFreeAmountInSubCurrency =
+							calcFreeAmountInCurrency * coinGeckoPriceUSD;
+						const calcFreeAmount = {
+							currency: calcFreeAmountInCurrency,
+							subCurrency: calcFreeAmountInSubCurrency,
+						};
+						if (calcFreeAmount !== freeAmount) {
+							setFreeAmount(calcFreeAmount);
+						}
 					}
 				});
 		}

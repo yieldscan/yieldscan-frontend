@@ -18,6 +18,7 @@ import {
 	useTransactionHash,
 	useValidatorData,
 	useNomMinStake,
+	useCoinGeckoPriceUSD,
 } from "@lib/store";
 import { PaymentPopover } from "@components/new-payment";
 import { get, isNil, mapValues, keyBy, cloneDeep, debounce } from "lodash";
@@ -57,7 +58,7 @@ const RewardCalculatorPage = () => {
 	const { selectedNetwork } = useSelectedNetwork();
 	const networkInfo = getNetworkInfo(selectedNetwork);
 	const { transactionHash, setTransactionHash } = useTransactionHash();
-
+	const { coinGeckoPriceUSD } = useCoinGeckoPriceUSD();
 	const { toggle } = useWalletConnect();
 	const {
 		isOpen: isRiskGlossaryOpen,
@@ -105,11 +106,7 @@ const RewardCalculatorPage = () => {
 	const [result, setResult] = useState({});
 
 	useEffect(() => {
-		convertCurrency(amount || 0, networkInfo.coinGeckoDenom).then(
-			(convertedAmount) => {
-				setSubCurrency(convertedAmount);
-			}
-		);
+		setSubCurrency(amount * coinGeckoPriceUSD);
 	}, [amount, networkInfo, validatorRiskSets]);
 
 	useEffect(() => {
@@ -153,6 +150,7 @@ const RewardCalculatorPage = () => {
 				(v) => !isNil(v)
 			);
 			calculateReward(
+				coinGeckoPriceUSD,
 				selectedValidatorsList,
 				amount || 0,
 				timePeriodValue,

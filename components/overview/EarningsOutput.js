@@ -19,6 +19,7 @@ import {
 	useValidatorData,
 	useTransaction,
 	useTransactionHash,
+	useCoinGeckoPriceUSD,
 } from "@lib/store";
 import { cloneDeep, get, isNil, keyBy, mapValues, set } from "lodash";
 import { useEffect, useState } from "react";
@@ -57,6 +58,7 @@ const EarningsOutput = ({ networkInfo, inputValue, validators, address }) => {
 	const [dailyEarnings, setDailyEarnings] = useState();
 	const [weeklyEarnings, setWeeklyEarnings] = useState();
 	const { transactionHash } = useTransactionHash();
+	const { coinGeckoPriceUSD } = useCoinGeckoPriceUSD();
 	// const yearlyEarning = useYearlyEarning((state) => state.yearlyEarning);
 	// const setYearlyEarning = useYearlyEarning((state) => state.setYearlyEarning);
 
@@ -90,49 +92,30 @@ const EarningsOutput = ({ networkInfo, inputValue, validators, address }) => {
 				const oneDayEarnings = data
 					.filter((x) => x.block_timestamp > currentTimeStamp - 86400)
 					.reduce((a, b) => a + parseInt(b.amount), 0);
-				convertCurrency(
-					oneDayEarnings / Math.pow(10, networkInfo.decimalPlaces),
-					networkInfo.coinGeckoDenom
-				)
-					.then((value) =>
-						setDailyEarnings({
-							currency: oneDayEarnings,
-							subCurrency: value,
-						})
-					)
-					.catch((err) => {
-						console.error(err);
-					});
+				setDailyEarnings({
+					currency: oneDayEarnings,
+					subCurrency:
+						(oneDayEarnings / Math.pow(10, networkInfo.decimalPlaces)) *
+						coinGeckoPriceUSD,
+				});
+
 				const weekEarnings = data
 					.filter((x) => x.block_timestamp > currentTimeStamp - 604800)
 					.reduce((a, b) => a + parseInt(b.amount), 0);
-				convertCurrency(
-					weekEarnings / Math.pow(10, networkInfo.decimalPlaces),
-					networkInfo.coinGeckoDenom
-				)
-					.then((value) =>
-						setWeeklyEarnings({
-							currency: weekEarnings,
-							subCurrency: value,
-						})
-					)
-					.catch((err) => {
-						console.error(err);
-					});
+				setWeeklyEarnings({
+					currency: weekEarnings,
+					subCurrency:
+						(weekEarnings / Math.pow(10, networkInfo.decimalPlaces)) *
+						coinGeckoPriceUSD,
+				});
+
 				const total = data.reduce((a, b) => a + parseInt(b.amount), 0);
-				convertCurrency(
-					total / Math.pow(10, networkInfo.decimalPlaces),
-					networkInfo.coinGeckoDenom
-				)
-					.then((value) =>
-						setTotalEarnings({
-							currency: total,
-							subCurrency: value,
-						})
-					)
-					.catch((err) => {
-						console.error(err);
-					});
+				setTotalEarnings({
+					currency: total,
+					subCurrency:
+						(total / Math.pow(10, networkInfo.decimalPlaces)) *
+						coinGeckoPriceUSD,
+				});
 			});
 		}
 	}, [networkInfo]);
@@ -182,6 +165,7 @@ const EarningsOutput = ({ networkInfo, inputValue, validators, address }) => {
 				(v) => !isNil(v)
 			);
 			calculateReward(
+				coinGeckoPriceUSD,
 				selectedValidatorsList,
 				inputValue.currency,
 				12,
@@ -197,6 +181,7 @@ const EarningsOutput = ({ networkInfo, inputValue, validators, address }) => {
 					alert(error);
 				});
 			calculateReward(
+				coinGeckoPriceUSD,
 				selectedValidatorsList,
 				inputValue.currency,
 				1,
@@ -212,6 +197,7 @@ const EarningsOutput = ({ networkInfo, inputValue, validators, address }) => {
 					alert(error);
 				});
 			calculateReward(
+				coinGeckoPriceUSD,
 				selectedValidatorsList,
 				inputValue.currency,
 				1,

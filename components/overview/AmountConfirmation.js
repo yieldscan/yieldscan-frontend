@@ -3,6 +3,7 @@ import { Divider, Spinner } from "@chakra-ui/core";
 import formatCurrency from "@lib/format-currency";
 import convertCurrency from "@lib/convert-currency";
 import { useEffect, useState } from "react";
+import { useCoinGeckoPriceUSD } from "@lib/store";
 import getUpdateFundsTransactionFee from "@lib/getUpdateFundsTransactionFee";
 import { isNil } from "lodash";
 const AmountConfirmation = ({
@@ -18,6 +19,7 @@ const AmountConfirmation = ({
 	networkInfo,
 	onConfirm,
 }) => {
+	const { coinGeckoPriceUSD } = useCoinGeckoPriceUSD();
 	const [transactionFee, setTransactionFee] = useState();
 	const [subFeeCurrency, setSubFeeCurrency] = useState();
 	const [totalAmount, setTotalAmount] = useState(0);
@@ -43,18 +45,16 @@ const AmountConfirmation = ({
 
 	useEffect(() => {
 		if (transactionFee) {
-			convertCurrency(
-				transactionFee / Math.pow(10, networkInfo.decimalPlaces),
-				networkInfo.coinGeckoDenom
-			).then((data) => setSubFeeCurrency(data));
+			setSubFeeCurrency(
+				(transactionFee / Math.pow(10, networkInfo.decimalPlaces)) *
+					coinGeckoPriceUSD
+			);
 		}
 	}, [transactionFee]);
 
 	useEffect(() => {
 		if (totalAmount) {
-			convertCurrency(totalAmount, networkInfo.coinGeckoDenom).then((data) =>
-				setTotalAmountFiat(data)
-			);
+			setTotalAmountFiat(totalAmount * coinGeckoPriceUSD);
 		}
 	}, [totalAmount]);
 

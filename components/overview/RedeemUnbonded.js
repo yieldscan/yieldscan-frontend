@@ -12,6 +12,7 @@ import {
 import formatCurrency from "@lib/format-currency";
 import convertCurrency from "@lib/convert-currency";
 import { useEffect, useState } from "react";
+import { useCoinGeckoPriceUSD } from "@lib/store";
 import getRedeemUnbondedFee from "@lib/getRedeemUnbondedFee";
 import withSlideIn from "@components/common/withSlideIn";
 import ChainErrorPage from "@components/overview/ChainErrorPage";
@@ -29,6 +30,7 @@ const RedeemUnbonded = withSlideIn(
 		networkInfo,
 	}) => {
 		const toast = useToast();
+		const { coinGeckoPriceUSD } = useCoinGeckoPriceUSD();
 		const [transactionFee, setTransactionFee] = useState(0);
 		const [subFeeCurrency, setSubFeeCurrency] = useState(0);
 		const [totalAmount, setTotalAmount] = useState(0);
@@ -54,27 +56,25 @@ const RedeemUnbonded = withSlideIn(
 
 		useEffect(() => {
 			if (transactionFee) {
-				convertCurrency(
-					transactionFee / Math.pow(10, networkInfo.decimalPlaces),
-					networkInfo.coinGeckoDenom
-				).then((data) => setSubFeeCurrency(data));
+				setSubFeeCurrency(
+					(transactionFee / Math.pow(10, networkInfo.decimalPlaces)) *
+						coinGeckoPriceUSD
+				);
 			}
 		}, [transactionFee]);
 
 		useEffect(() => {
 			if (totalAmount) {
-				convertCurrency(totalAmount, networkInfo.coinGeckoDenom).then((data) =>
-					setTotalAmountFiat(data)
-				);
+				setTotalAmountFiat(totalAmount * coinGeckoPriceUSD);
 			}
 		}, [totalAmount]);
 
 		useEffect(() => {
 			if (redeemableBalance) {
-				convertCurrency(
-					redeemableBalance / 10 ** networkInfo.decimalPlaces,
-					networkInfo.coinGeckoDenom
-				).then((value) => setRedeemableBalanceFiat(value));
+				setRedeemableBalanceFiat(
+					(redeemableBalance / Math.pow(10, networkInfo.decimalPlaces)) *
+						coinGeckoPriceUSD
+				);
 			}
 		}, [redeemableBalance]);
 

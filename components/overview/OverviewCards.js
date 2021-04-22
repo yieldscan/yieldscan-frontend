@@ -3,7 +3,12 @@ import { noop, get, isNil } from "lodash";
 import { FormLabel } from "@chakra-ui/core";
 import formatCurrency from "@lib/format-currency";
 import convertCurrency from "@lib/convert-currency";
-import { useAccounts, usePolkadotApi, useNetworkElection } from "@lib/store";
+import {
+	useAccounts,
+	usePolkadotApi,
+	useNetworkElection,
+	useCoinGeckoPriceUSD,
+} from "@lib/store";
 import calculateReward from "@lib/calculate-reward";
 import { HelpPopover } from "@components/reward-calculator";
 
@@ -24,19 +29,20 @@ const OverviewCards = ({
 	rebondFunds = noop,
 	networkInfo,
 }) => {
-	const totalUnlockingBalance = formatCurrency.methods.formatAmount(
-		Math.trunc(
-			unlockingBalances.reduce(
-				(total, balanceInfo) => total + balanceInfo.value,
-				0
-			)
-		),
-		networkInfo
-	);
+	// const totalUnlockingBalance = formatCurrency.methods.formatAmount(
+	// 	Math.trunc(
+	// 		unlockingBalances.reduce(
+	// 			(total, balanceInfo) => total + balanceInfo.value,
+	// 			0
+	// 		)
+	// 	),
+	// 	networkInfo
+	// );
 
 	const { apiInstance } = usePolkadotApi();
 	const { stashAccount } = useAccounts();
 	const { isInElection } = useNetworkElection();
+	const { coinGeckoPriceUSD } = useCoinGeckoPriceUSD();
 	const [compounding, setCompounding] = React.useState(false);
 
 	const isActivelyStaking = isNil(validators)
@@ -65,21 +71,14 @@ const OverviewCards = ({
 	}, [stashAccount, apiInstance]);
 	React.useEffect(() => {
 		if (stats) {
-			convertCurrency(
-				stats.totalAmountStaked,
-				networkInfo.coinGeckoDenom
-			).then((value) => setTotalAmountStakedFiat(value));
-		}
-
-		if (stats) {
-			convertCurrency(
-				stats.estimatedRewards,
-				networkInfo.coinGeckoDenom
-			).then((value) => setEstimatedRewardsFiat(value));
+			setTotalAmountStakedFiat(stats.totalAmountStaked * coinGeckoPriceUSD);
+			setEstimatedRewardsFiat(stats.estimatedRewards * coinGeckoPriceUSD);
+			setEarningsFiat(stats.earnings * coinGeckoPriceUSD);
 		}
 
 		if (validators) {
 			calculateReward(
+				coinGeckoPriceUSD,
 				validators.filter((validator) => validator.isElected),
 				stats.totalAmountStaked,
 				12,
@@ -88,21 +87,14 @@ const OverviewCards = ({
 				networkInfo
 			).then(({ yieldPercentage }) => setExpectedAPR(yieldPercentage));
 		}
-
-		if (stats) {
-			convertCurrency(
-				stats.earnings,
-				networkInfo.coinGeckoDenom
-			).then((value) => setEarningsFiat(value));
-		}
 	}, [stats, compounding]);
 
 	React.useEffect(() => {
 		if (redeemableBalance) {
-			convertCurrency(
-				redeemableBalance / 10 ** networkInfo.decimalPlaces,
-				networkInfo.coinGeckoDenom
-			).then((value) => setRedeemableBalanceFiat(value));
+			setRedeemableBalanceFiat(
+				(redeemableBalance / Math.pow(10, networkInfo.decimalPlaces)) *
+					coinGeckoPriceUSD
+			);
 		}
 	}, [stats, redeemableBalance]);
 
@@ -110,9 +102,7 @@ const OverviewCards = ({
 		if (unbondingBalances.length > 0) {
 			const total = unbondingBalances.reduce((a, b) => a + b.value, 0);
 			setTotalUnbonding(total);
-			convertCurrency(total, networkInfo.coinGeckoDenom).then((value) =>
-				setTotalUnbondingFiat(value)
-			);
+			setTotalUnbondingFiat(total * coinGeckoPriceUSD);
 		} else {
 			setTotalUnbonding(null);
 			setTotalUnbondingFiat(null);

@@ -7,9 +7,11 @@ import {
 	useSelectedNetwork,
 	useBetaInfo,
 	useEraProgress,
+	useCoinGeckoPriceUSD,
 } from "@lib/store";
 import createPolkadotAPIInstance from "@lib/polkadot-api";
 import convertCurrency from "@lib/convert-currency";
+import fetchPrice from "@lib/fetch-price";
 import { get, includes, isNil, pick } from "lodash";
 import { useEffect } from "react";
 import { trackEvent, Events, setUserProperties } from "@lib/analytics";
@@ -52,10 +54,19 @@ const withDashboardLayout = (children) => {
 		setFreeAmount,
 		accountsWithBalances,
 	} = useAccounts();
+	const { coinGeckoPriceUSD, setCoinGeckoPriceUSD } = useCoinGeckoPriceUSD();
 	const { setEraLength, setEraProgress } = useEraProgress();
 	const { stakingAmount, setTransactionState } = useTransaction((state) =>
 		pick(state, ["stakingAmount", "setTransactionState"])
 	);
+
+	useEffect(() => {
+		if (isNil(coinGeckoPriceUSD)) {
+			fetchPrice(coinGeckoPriceUSD, networkInfo.coinGeckoDenom).then((price) =>
+				setCoinGeckoPriceUSD(price)
+			);
+		}
+	}, [networkInfo, coinGeckoPriceUSD]);
 
 	useEffect(() => {
 		if (accounts && accounts.length > 0) {
@@ -112,10 +123,7 @@ const withDashboardLayout = (children) => {
 							parseInt(info.stakingLedger.active) /
 								10 ** networkInfo.decimalPlaces
 						);
-						const bondedAmountInSubCurrency = await convertCurrency(
-							bondedAmount,
-							networkInfo.coinGeckoDenom
-						);
+						const bondedAmountInSubCurrency = bondedAmount * coinGeckoPriceUSD;
 						setBondedAmount({
 							currency: bondedAmount,
 							subCurrency: bondedAmountInSubCurrency,
@@ -124,10 +132,7 @@ const withDashboardLayout = (children) => {
 							parseInt(info.stakingLedger.active) /
 								10 ** networkInfo.decimalPlaces
 						);
-						const activeStakeInSubCurrency = await convertCurrency(
-							activeStake,
-							networkInfo.coinGeckoDenom
-						);
+						const activeStakeInSubCurrency = activeStake * coinGeckoPriceUSD;
 						setActiveStake({
 							currency: activeStake,
 							subCurrency: activeStakeInSubCurrency,
@@ -152,10 +157,8 @@ const withDashboardLayout = (children) => {
 						(parseInt(info.availableBalance) + parseInt(info.vestingLocked)) /
 							10 ** networkInfo.decimalPlaces
 					);
-					const calcFreeAmountInSubCurrency = await convertCurrency(
-						freeAmount,
-						networkInfo.coinGeckoDenom
-					);
+					const calcFreeAmountInSubCurrency =
+						calcFreeAmountInCurrency * coinGeckoPriceUSD;
 					const calcFreeAmount = {
 						currency: calcFreeAmountInCurrency,
 						subCurrency: calcFreeAmountInSubCurrency,

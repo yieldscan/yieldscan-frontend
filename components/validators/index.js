@@ -34,6 +34,7 @@ import {
 	useSelectedNetwork,
 	useTransactionHash,
 	useValidatorData,
+	useCoinGeckoPriceUSD,
 } from "@lib/store";
 import calculateReward from "@lib/calculate-reward";
 import ValidatorsResult from "./ValidatorsResult";
@@ -67,6 +68,7 @@ const Validators = () => {
 		freeAmount,
 		accountInfoLoading,
 	} = useAccounts();
+	const { coinGeckoPriceUSD } = useCoinGeckoPriceUSD();
 	const { validatorMap, setValidatorMap } = useValidatorData();
 	const { transactionHash, setTransactionHash } = useTransactionHash();
 	const { isOpen, onClose, onToggle } = useDisclosure();
@@ -182,11 +184,7 @@ const Validators = () => {
 	}, [bondedAmount]);
 
 	useEffect(() => {
-		convertCurrency(amount || 0, networkInfo.coinGeckoDenom).then(
-			(convertedAmount) => {
-				setSubCurrency(convertedAmount);
-			}
-		);
+		setSubCurrency(amount * coinGeckoPriceUSD);
 	}, [amount]);
 
 	useEffect(() => {
@@ -273,6 +271,7 @@ const Validators = () => {
 				selectedValidatorsMap
 			).filter((v) => !isNil(v));
 			calculateReward(
+				coinGeckoPriceUSD,
 				selectedValidatorsList,
 				amount,
 				timePeriodValue,

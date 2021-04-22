@@ -14,6 +14,7 @@ import {
 	useValidatorData,
 	useNomMinStake,
 	useOverviewData,
+	useCoinGeckoPriceUSD,
 } from "@lib/store";
 import { setCookie } from "nookies";
 import { useState } from "react";
@@ -28,6 +29,7 @@ const NetworkPopover = ({ isExpanded, hasBorder }) => {
 		setValidatorRiskSets,
 	} = useValidatorData();
 	const { setUserData, setAllNominations } = useOverviewData();
+	const { setCoinGeckoPriceUSD } = useCoinGeckoPriceUSD();
 	const { setTransactionHash } = useTransactionHash();
 	const { setNominatorsData, setNomLoading } = useNominatorsData();
 	const { setCouncilMembers, setCouncilLoading } = useCouncil();
@@ -70,6 +72,7 @@ const NetworkPopover = ({ isExpanded, hasBorder }) => {
 			setFreeAmount(null);
 			setBondedAmount(null);
 			setAccounts(null);
+			setCoinGeckoPriceUSD(null);
 			setAccountsWithBalances(null);
 			setAccountInfoLoading(false);
 			setNomMinStake(null);
