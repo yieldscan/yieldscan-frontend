@@ -23,7 +23,6 @@ import { ChevronRight, ChevronDown, Circle } from "react-feather";
 import Identicon from "@components/common/Identicon";
 import formatCurrency from "@lib/format-currency";
 import Transaction from "./Transaction";
-import convertCurrency from "@lib/convert-currency";
 import RewardDestination from "./RewardDestination";
 import TermsAndServicePopover from "@components/payment/TermsOfService";
 import { GlossaryModal, HelpPopover } from "@components/reward-calculator";

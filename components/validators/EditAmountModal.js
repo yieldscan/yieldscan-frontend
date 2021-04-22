@@ -18,7 +18,6 @@ import {
 import AmountInput from "@components/reward-calculator/AmountInput";
 import withSlideIn from "@components/common/withSlideIn";
 import { isNil, get } from "lodash";
-import convertCurrency from "@lib/convert-currency";
 import { useAccounts, useCoinGeckoPriceUSD } from "@lib/store";
 import formatCurrency from "@lib/format-currency";
 

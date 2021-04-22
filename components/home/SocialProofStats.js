@@ -2,7 +2,6 @@ import React from "react";
 import { Spinner } from "@chakra-ui/core";
 import axios from "@lib/axios";
 import { useNomMinStake, useCoinGeckoPriceUSD } from "@lib/store";
-import convertCurrency from "@lib/convert-currency";
 import formatCurrency from "@lib/format-currency";
 import millify from "millify";
 import Link from "next/link";

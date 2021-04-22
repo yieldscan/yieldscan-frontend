@@ -25,7 +25,6 @@ import { cloneDeep, get, isNil, keyBy, mapValues, set } from "lodash";
 import { useEffect, useState } from "react";
 import CountUp from "react-countup";
 import { Twitter } from "react-feather";
-import convertCurrency from "@lib/convert-currency";
 import getErasHistoric from "@lib/getErasHistoric";
 import ProgressiveImage from "react-progressive-image";
 import PastEarningsTimeRange from "./PastEarningsTimeRange";

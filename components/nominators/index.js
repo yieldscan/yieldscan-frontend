@@ -9,7 +9,6 @@ import {
 	useCoinGeckoPriceUSD,
 } from "@lib/store";
 import formatCurrency from "@lib/format-currency";
-import convertCurrency from "@lib/convert-currency";
 import { getNetworkInfo } from "yieldscan.config";
 
 const Nominators = () => {

@@ -2,7 +2,6 @@ import React from "react";
 import { noop, get, isNil } from "lodash";
 import { FormLabel } from "@chakra-ui/core";
 import formatCurrency from "@lib/format-currency";
-import convertCurrency from "@lib/convert-currency";
 import {
 	useAccounts,
 	usePolkadotApi,

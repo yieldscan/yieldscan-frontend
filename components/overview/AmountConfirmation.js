@@ -1,7 +1,6 @@
 import { ArrowRight } from "react-feather";
 import { Divider, Spinner } from "@chakra-ui/core";
 import formatCurrency from "@lib/format-currency";
-import convertCurrency from "@lib/convert-currency";
 import { useEffect, useState } from "react";
 import { useCoinGeckoPriceUSD } from "@lib/store";
 import getUpdateFundsTransactionFee from "@lib/getUpdateFundsTransactionFee";

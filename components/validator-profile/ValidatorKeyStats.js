@@ -1,7 +1,6 @@
 import formatCurrency from "@lib/format-currency";
 import { useEffect, useState } from "react";
 import { useCoinGeckoPriceUSD } from "@lib/store";
-import convertCurrency from "@lib/convert-currency";
 
 const ValidatorKeyStats = ({ stats, networkInfo }) => {
 	const { coinGeckoPriceUSD } = useCoinGeckoPriceUSD();

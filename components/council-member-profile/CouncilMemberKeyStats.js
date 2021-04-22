@@ -1,4 +1,3 @@
-import convertCurrency from "@lib/convert-currency";
 import { useEffect, useState } from "react";
 import { useCoinGeckoPriceUSD } from "@lib/store";
 import formatCurrency from "@lib/format-currency";

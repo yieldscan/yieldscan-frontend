@@ -46,7 +46,6 @@ import { useWalletConnect } from "@components/wallet-connect";
 import { useRouter } from "next/router";
 import axios from "@lib/axios";
 import { getNetworkInfo } from "yieldscan.config";
-import convertCurrency from "@lib/convert-currency";
 import { trackEvent, Events } from "@lib/analytics";
 
 const DEFAULT_FILTER_OPTIONS = {

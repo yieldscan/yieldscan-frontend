@@ -44,7 +44,6 @@ import {
 } from "@chakra-ui/core";
 import Routes from "@lib/routes";
 import { trackEvent, Events } from "@lib/analytics";
-import convertCurrency from "@lib/convert-currency";
 import { getNetworkInfo } from "yieldscan.config";
 import { HelpCircle } from "react-feather";
 import MinStakeAlert from "./MinStakeAlert";

@@ -26,7 +26,6 @@ import SuccessfullyBonded from "@components/overview/SuccessfullyBonded";
 import AmountInput from "./AmountInput";
 import axios from "@lib/axios";
 import AmountConfirmation from "./AmountConfirmation";
-import convertCurrency from "@lib/convert-currency";
 
 const FundsUpdate = withSlideIn(
 	({

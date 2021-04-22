@@ -42,7 +42,6 @@ import Identicon from "@components/common/Identicon";
 import EditControllerModal from "@components/overview/EditControllerModal";
 import { useEffect, useState } from "react";
 import formatCurrency from "@lib/format-currency";
-import convertCurrency from "@lib/convert-currency";
 import Routes from "@lib/routes";
 import Link from "next/link";
 import createPolkadotAPIInstance from "@lib/polkadot-api";

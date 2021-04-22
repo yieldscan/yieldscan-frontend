@@ -10,7 +10,6 @@ import {
 	useCoinGeckoPriceUSD,
 } from "@lib/store";
 import createPolkadotAPIInstance from "@lib/polkadot-api";
-import convertCurrency from "@lib/convert-currency";
 import fetchPrice from "@lib/fetch-price";
 import { get, includes, isNil, pick } from "lodash";
 import { useEffect } from "react";

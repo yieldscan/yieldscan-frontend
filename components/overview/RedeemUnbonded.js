@@ -10,7 +10,6 @@ import {
 	Spinner,
 } from "@chakra-ui/core";
 import formatCurrency from "@lib/format-currency";
-import convertCurrency from "@lib/convert-currency";
 import { useEffect, useState } from "react";
 import { useCoinGeckoPriceUSD } from "@lib/store";
 import getRedeemUnbondedFee from "@lib/getRedeemUnbondedFee";
