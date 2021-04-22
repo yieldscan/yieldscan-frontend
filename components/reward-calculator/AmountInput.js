@@ -1,7 +1,7 @@
 import React from "react";
 import { InputGroup, Spinner, Input, InputRightElement } from "@chakra-ui/core";
 import formatCurrency from "@lib/format-currency";
-import { useAccounts } from "@lib/store";
+import { useAccounts, useCoinGeckoPriceUSD } from "@lib/store";
 import { get } from "lodash";
 import { useState, useEffect } from "react";
 
@@ -11,6 +11,7 @@ const AmountInputDefault = ({
 	onChange,
 	networkInfo,
 	trackRewardCalculatedEvent,
+	coinGeckoPriceUSD,
 }) => {
 	const { freeAmount, stashAccount } = useAccounts();
 	const initiallyEditable =
@@ -68,7 +69,10 @@ const AmountInputDefault = ({
 							isEditable ? "opacity-1" : "opacity-25"
 						}`}
 					>
-						${formatCurrency.methods.formatNumber(value.subCurrency.toFixed(2))}
+						$
+						{formatCurrency.methods.formatNumber(
+							(value.currency * coinGeckoPriceUSD).toFixed(2)
+						)}
 					</h6>
 					<InputRightElement
 						opacity={isEditable ? "1" : "0.4"}
@@ -124,6 +128,7 @@ const AmountInputAccountInfoLoading = ({
 	onChange,
 	networkInfo,
 	trackRewardCalculatedEvent,
+	coinGeckoPriceUSD,
 }) => {
 	const [inputValue, setInputValue] = useState(value.currency);
 
@@ -162,7 +167,10 @@ const AmountInputAccountInfoLoading = ({
 					<h6
 						className={`absolute z-20 bottom-0 left-0 ml-4 mb-3 text-xs text-gray-600 cursor-not-allowed opacity-25`}
 					>
-						${formatCurrency.methods.formatNumber(value.subCurrency.toFixed(2))}
+						$
+						{formatCurrency.methods.formatNumber(
+							(value.currency * coinGeckoPriceUSD).toFixed(2)
+						)}
 					</h6>
 					<InputRightElement
 						opacity="0.4"
@@ -256,6 +264,7 @@ const AmountInput = ({
 	trackRewardCalculatedEvent,
 	accountInfoLoading,
 }) => {
+	const { coinGeckoPriceUSD } = useCoinGeckoPriceUSD();
 	return (
 		<div className="w-4/5">
 			{/* {get(bonded, 'currency') ? (
@@ -276,6 +285,7 @@ const AmountInput = ({
 					onChange={onChange}
 					networkInfo={networkInfo}
 					trackRewardCalculatedEvent={trackRewardCalculatedEvent}
+					coinGeckoPriceUSD={coinGeckoPriceUSD}
 				/>
 			) : (
 				<AmountInputDefault
@@ -284,6 +294,7 @@ const AmountInput = ({
 					onChange={onChange}
 					networkInfo={networkInfo}
 					trackRewardCalculatedEvent={trackRewardCalculatedEvent}
+					coinGeckoPriceUSD={coinGeckoPriceUSD}
 				/>
 			)}
 		</div>
