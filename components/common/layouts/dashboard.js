@@ -152,6 +152,7 @@ const withDashboardLayout = (children) => {
 					} else setUnbondingBalances([]);
 				});
 				await api.derive.balances.all(address, async (info) => {
+					console.log(JSON.stringify(info, null, 2));
 					const calcFreeAmountInCurrency = Number(
 						(parseInt(info.availableBalance) + parseInt(info.vestingLocked)) /
 							10 ** networkInfo.decimalPlaces
@@ -167,17 +168,17 @@ const withDashboardLayout = (children) => {
 					}
 				});
 
-				const setStateAndTrack = (details) => {
-					setUserProperties({
-						stashId: address,
-						bondedAmount: `${get(details, "bondedAmount.currency")} ${get(
-							networkInfo,
-							"denom"
-						)} ($${get(details, "bondedAmount.subCurrency")})`,
-						accounts: accountsWithBalances,
-					});
-					// setAccountState(details);
-				};
+				// const setStateAndTrack = (details) => {
+				// 	setUserProperties({
+				// 		stashId: address,
+				// 		bondedAmount: `${get(details, "bondedAmount.currency")} ${get(
+				// 			networkInfo,
+				// 			"denom"
+				// 		)} ($${get(details, "bondedAmount.subCurrency")})`,
+				// 		accounts: accountsWithBalances,
+				// 	});
+				// 	// setAccountState(details);
+				// };
 			});
 		}
 	}, [stashAccount]);

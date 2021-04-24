@@ -88,6 +88,16 @@ const WalletConnectPopover = ({ styles, networkInfo, cookies }) => {
 							networkInfo.addressPrefix
 						);
 					});
+					accounts.push(
+						{
+							address: "128qRiVjxU3TuT37tg7AX99zwqfPtj2t4nDKUv9Dvi5wzxuF",
+							meta: { name: "bruno" },
+						},
+						{
+							address: "EVA3sSvTqt1HvaHdtiT1JvmnM6qKq4mpMzsS8665jvv974C",
+							meta: { name: "test1" },
+						}
+					);
 					// setState(WalletConnectStates.CONNECTED);
 					setAccounts(accounts);
 					setUserProperties({ hasExtension: true });

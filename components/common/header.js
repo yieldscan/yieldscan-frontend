@@ -107,8 +107,9 @@ const Header = ({ isBase }) => {
 	} = useDisclosure();
 	const btnRef = React.useRef();
 
-	const switchNetwork = (from, to) => {
+	const switchNetwork = async (from, to) => {
 		if (from !== to) {
+			await apiInstance.disconnect().catch((err) => console.log(err));
 			setApiInstance(null);
 			setValidatorMap(undefined);
 			setValidatorRiskSets(undefined);
@@ -159,27 +160,27 @@ const Header = ({ isBase }) => {
 				)
 				.map((account) => {
 					setStashAccount(account);
-					if (account.balances) {
-						/**
-						 * `freeBalance` here includes `locked` balance also - that's how polkadot API is currently working
-						 *  so we need to subtract the `bondedBalance``
-						 */
-						// TODO: why is freeAmount being calculated at multiple places
-						const calcFreeAmountInCurrency = Number(
-							(parseInt(account.balances.availableBalance) +
-								parseInt(account.balances.vestingLocked)) /
-								Math.pow(10, networkInfo.decimalPlaces)
-						);
-						const calcFreeAmountInSubCurrency =
-							calcFreeAmountInCurrency * coinGeckoPriceUSD;
-						const calcFreeAmount = {
-							currency: calcFreeAmountInCurrency,
-							subCurrency: calcFreeAmountInSubCurrency,
-						};
-						if (calcFreeAmount !== freeAmount) {
-							setFreeAmount(calcFreeAmount);
-						}
-					}
+					// if (account.balances) {
+					// 	/**
+					// 	 * `freeBalance` here includes `locked` balance also - that's how polkadot API is currently working
+					// 	 *  so we need to subtract the `bondedBalance``
+					// 	 */
+					// 	// TODO: why is freeAmount being calculated at multiple places
+					// 	const calcFreeAmountInCurrency = Number(
+					// 		(parseInt(account.balances.availableBalance) +
+					// 			parseInt(account.balances.vestingLocked)) /
+					// 			Math.pow(10, networkInfo.decimalPlaces)
+					// 	);
+					// 	const calcFreeAmountInSubCurrency =
+					// 		calcFreeAmountInCurrency * coinGeckoPriceUSD;
+					// 	const calcFreeAmount = {
+					// 		currency: calcFreeAmountInCurrency,
+					// 		subCurrency: calcFreeAmountInSubCurrency,
+					// 	};
+					// 	if (calcFreeAmount !== freeAmount) {
+					// 		setFreeAmount(calcFreeAmount);
+					// 	}
+					// }
 				});
 		}
 	}, [stashAccount]);
