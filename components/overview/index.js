@@ -16,7 +16,6 @@ import {
 	usePolkadotApi,
 	useSelectedNetwork,
 	useOverviewData,
-	useEraProgress,
 	useValidatorData,
 } from "@lib/store";
 import { useWalletConnect } from "@components/wallet-connect";
@@ -63,14 +62,9 @@ const Overview = () => {
 	const [loading, setLoading] = useState(true);
 	const [nominationsLoading, setNominationsLoading] = useState(true); // work-around :(
 	const [error, setError] = useState(false);
-	const {
-		userData,
-		setUserData,
-		allNominationsData,
-		setAllNominations,
-	} = useOverviewData();
+	const { userData, setUserData, allNominationsData, setAllNominations } =
+		useOverviewData();
 	const { validators, setValidators } = useValidatorData();
-	const { eraLength, eraProgress } = useEraProgress();
 	const [showValidators, setShowValidators] = useState(false);
 	const [validatorsLoading, setValidatorsLoading] = useState(true);
 	const [fundsUpdateModalType, setFundsUpdateModalType] = useState();
@@ -351,11 +345,10 @@ const Overview = () => {
 			/>
 			<UnbondingList
 				isOpen={openUnbondingList}
+				api={apiInstance}
 				close={closeUnbondingList}
 				toggle={toggleUnbondingList}
 				unbondingBalances={unbondingBalances}
-				eraLength={eraLength}
-				eraProgress={eraProgress}
 				networkInfo={networkInfo}
 			/>
 			<RedeemUnbonded

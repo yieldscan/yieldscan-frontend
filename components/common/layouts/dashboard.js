@@ -6,7 +6,6 @@ import {
 	useTransaction,
 	useSelectedNetwork,
 	useBetaInfo,
-	useEraProgress,
 	useCoinGeckoPriceUSD,
 } from "@lib/store";
 import createPolkadotAPIInstance from "@lib/polkadot-api";
@@ -54,7 +53,6 @@ const withDashboardLayout = (children) => {
 		accountsWithBalances,
 	} = useAccounts();
 	const { coinGeckoPriceUSD, setCoinGeckoPriceUSD } = useCoinGeckoPriceUSD();
-	const { setEraLength, setEraProgress } = useEraProgress();
 	const { stakingAmount, setTransactionState } = useTransaction((state) =>
 		pick(state, ["stakingAmount", "setTransactionState"])
 	);
@@ -91,10 +89,6 @@ const withDashboardLayout = (children) => {
 						})
 					);
 					setAccountsWithBalances(accountsWithBalances);
-					await api.derive.session.progress((data) => {
-						setEraLength(parseInt(data.eraLength));
-						setEraProgress(parseInt(data.eraProgress));
-					});
 				})
 				.catch((err) => {
 					throw err;

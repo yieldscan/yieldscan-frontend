@@ -44,8 +44,10 @@ const UnbondingAmountCard = ({
 						)}
 					</span>
 					<div className="flex items-center">
+						{/* TODO: Add skeleteon for loading time instead of dots */}
 						<span className="text-xs mr-2">
-							Unbonding in {humanizeTimeRemaining}
+							Unbonding in{" "}
+							{eraLength && eraProgress ? humanizeTimeRemaining : "..."}
 						</span>
 					</div>
 				</div>
@@ -55,18 +57,26 @@ const UnbondingAmountCard = ({
 };
 
 const UnbondingList = withSlideIn(
-	({
-		open,
-		close,
-		toggle,
-		unbondingBalances,
-		networkInfo,
-		eraProgress,
-		eraLength,
-	}) => {
+	({ open, api, close, toggle, unbondingBalances, networkInfo }) => {
 		const handlePopoverClose = () => {
 			close();
 		};
+
+		const [eraLength, setEraLength] = useState();
+		const [eraProgress, setEraProgress] = useState();
+
+		useEffect(() => {
+			let unsubscribe;
+			api?.derive.session
+				.progress((data) => {
+					setEraLength(parseInt(data.eraLength));
+					setEraProgress(parseInt(data.eraProgress));
+				})
+				.then((u) => (unsubscribe = u));
+			return () => {
+				unsubscribe && unsubscribe();
+			};
+		}, [networkInfo]);
 
 		return (
 			<Modal
