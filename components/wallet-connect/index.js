@@ -11,10 +11,10 @@ import {
 	ModalHeader,
 	Spinner,
 } from "@chakra-ui/core";
+import { web3Enable, web3AccountsSubscribe } from "@polkadot/extension-dapp";
 import { encodeAddress, decodeAddress } from "@polkadot/util-crypto";
 import RejectedPage from "./RejectedPage";
 import SelectAccount from "./SelectAccount";
-import getPolkadotExtensionInfo from "@lib/polkadot-extension";
 import { useAccounts } from "@lib/store";
 import { trackEvent, Events, setUserProperties } from "@lib/analytics";
 import { setCookie } from "nookies";
@@ -57,70 +57,79 @@ const WalletConnectPopover = ({ styles, networkInfo, cookies }) => {
 	};
 
 	useEffect(() => {
-		if (typeof window !== undefined) {
-			trackEvent(Events.INTENT_CONNECT_WALLET, {
-				path: window.location.pathname,
-			});
-		}
-		getPolkadotExtensionInfo(handlers)
-			.then(({ isExtensionAvailable, accounts = [] }) => {
-				if (!isExtensionAvailable) {
-					setState(WalletConnectStates.REJECTED);
-					if (typeof window !== undefined) {
-						trackEvent(Events.AUTH_REJECTED, {
-							path: window.location.pathname,
-						});
-					}
-					setUserProperties({ hasExtension: false });
-				} else {
-					setAuthForAutoConnect();
-					if (typeof window !== undefined) {
-						trackEvent(Events.AUTH_ALLOWED, {
-							path: window.location.pathname,
-						});
-					}
-					if (!accounts.length)
-						throw new Error("Couldn't find any stash or unnassigned accounts.");
-
-					accounts.map((x) => {
-						x.address = encodeAddress(
-							decodeAddress(x.address.toString()),
-							networkInfo.addressPrefix
-						);
+		web3Enable("YieldScan").then((extension) => {
+			if (extension.length === 0) {
+				setState(WalletConnectStates.REJECTED);
+				if (typeof window !== undefined) {
+					trackEvent(Events.AUTH_REJECTED, {
+						path: window.location.pathname,
 					});
-					accounts.push(
-						{
-							address: "128qRiVjxU3TuT37tg7AX99zwqfPtj2t4nDKUv9Dvi5wzxuF",
-							meta: { name: "bruno" },
-						},
-						{
-							address: "EVA3sSvTqt1HvaHdtiT1JvmnM6qKq4mpMzsS8665jvv974C",
-							meta: { name: "test1" },
-						}
-					);
-					// setState(WalletConnectStates.CONNECTED);
-					setAccounts(accounts);
-					setUserProperties({ hasExtension: true });
 				}
-			})
-			.catch((error) => {
-				// TODO: handle error properly using UI toast
-				alert(error);
-			});
-	}, [networkInfo]);
+			} else {
+				setState(WalletConnectStates.CONNECTED);
+				setAuthForAutoConnect();
+				if (typeof window !== undefined) {
+					trackEvent(Events.AUTH_ALLOWED, {
+						path: window.location.pathname,
+					});
+				}
+			}
+		});
+	}, []);
 
 	useEffect(() => {
-		let previousAccountAvailable = false;
-		if (!stashAccount && accounts) {
-			if (!isNil(get(cookies, networkInfo.network + "Default"))) {
+		let unsubscribe;
+		if (state === "connected") {
+			web3AccountsSubscribe((injectedAccounts) => {
+				injectedAccounts.push(
+					{
+						address: "128qRiVjxU3TuT37tg7AX99zwqfPtj2t4nDKUv9Dvi5wzxuF",
+						meta: { name: "bruno" },
+					},
+					{
+						address: "EVA3sSvTqt1HvaHdtiT1JvmnM6qKq4mpMzsS8665jvv974C",
+						meta: { name: "test1" },
+					}
+				);
+				injectedAccounts?.map((account) => {
+					account.address = encodeAddress(
+						decodeAddress(account.address.toString()),
+						networkInfo.addressPrefix
+					);
+					return account;
+				});
+				setAccounts(injectedAccounts);
+			}).then((u) => (unsubscribe = u));
+		}
+		return () => {
+			unsubscribe && unsubscribe();
+		};
+	}, [state, networkInfo]);
+
+	useEffect(() => {
+		if (accounts) {
+			if (
+				accounts?.filter(
+					(account) =>
+						account.address.toString() ===
+						get(cookies, networkInfo.network + "Default")
+				).length === 0
+			) {
+				setStashAccount(null);
+				setCookie(null, networkInfo.network + "Default", null, {
+					maxAge: 7 * 24 * 60 * 60,
+				});
+			} else {
 				accounts
 					.filter(
 						(account) =>
-							account.address == get(cookies, networkInfo.network + "Default")
+							account.address === get(cookies, networkInfo.network + "Default")
 					)
 					.map((account) => {
-						previousAccountAvailable = true;
 						setStashAccount(account);
+						setCookie(null, networkInfo.network + "Default", account.address, {
+							maxAge: 7 * 24 * 60 * 60,
+						});
 						if (typeof window !== undefined) {
 							trackEvent(Events.ACCOUNT_SELECTED, {
 								path: window.location.pathname,
@@ -130,14 +139,6 @@ const WalletConnectPopover = ({ styles, networkInfo, cookies }) => {
 						}
 					});
 			}
-			if (!previousAccountAvailable) {
-				if (typeof window !== undefined) {
-					trackEvent(Events.INTENT_ACCOUNT_SELECTION, {
-						path: window.location.pathname,
-					});
-				}
-				setState(WalletConnectStates.CONNECTED);
-			} else close();
 		}
 	}, [accounts]);
 

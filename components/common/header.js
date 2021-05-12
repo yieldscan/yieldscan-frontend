@@ -55,11 +55,8 @@ const Header = ({ isBase }) => {
 	const cookies = parseCookies();
 	const userStorage = !isNil(typeof window) ? window.localStorage : null;
 	const { selectedNetwork, setSelectedNetwork } = useSelectedNetwork();
-	const {
-		setValidators,
-		setValidatorMap,
-		setValidatorRiskSets,
-	} = useValidatorData();
+	const { setValidators, setValidatorMap, setValidatorRiskSets } =
+		useValidatorData();
 	const { setUserData, setAllNominations } = useOverviewData();
 	const { setTransactionHash } = useTransactionHash();
 	const { setNominatorsData, setNomLoading } = useNominatorsData();
@@ -149,41 +146,7 @@ const Header = ({ isBase }) => {
 					  );
 			setAccountsWithoutCurrent(accountsWithoutCurrent);
 		}
-	}, [stashAccount, networkInfo]);
-
-	useEffect(() => {
-		if (accountsWithBalances && stashAccount) {
-			accountsWithBalances
-				.filter(
-					(account) =>
-						account.address == get(cookies, networkInfo.network + "Default")
-				)
-				.map((account) => {
-					setStashAccount(account);
-					// if (account.balances) {
-					// 	/**
-					// 	 * `freeBalance` here includes `locked` balance also - that's how polkadot API is currently working
-					// 	 *  so we need to subtract the `bondedBalance``
-					// 	 */
-					// 	// TODO: why is freeAmount being calculated at multiple places
-					// 	const calcFreeAmountInCurrency = Number(
-					// 		(parseInt(account.balances.availableBalance) +
-					// 			parseInt(account.balances.vestingLocked)) /
-					// 			Math.pow(10, networkInfo.decimalPlaces)
-					// 	);
-					// 	const calcFreeAmountInSubCurrency =
-					// 		calcFreeAmountInCurrency * coinGeckoPriceUSD;
-					// 	const calcFreeAmount = {
-					// 		currency: calcFreeAmountInCurrency,
-					// 		subCurrency: calcFreeAmountInSubCurrency,
-					// 	};
-					// 	if (calcFreeAmount !== freeAmount) {
-					// 		setFreeAmount(calcFreeAmount);
-					// 	}
-					// }
-				});
-		}
-	}, [stashAccount]);
+	}, [stashAccount, networkInfo, accounts, accountsWithBalances]);
 
 	useEffect(() => {
 		if (stashAccount) {

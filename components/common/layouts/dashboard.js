@@ -152,7 +152,6 @@ const withDashboardLayout = (children) => {
 					} else setUnbondingBalances([]);
 				});
 				await api.derive.balances.all(address, async (info) => {
-					console.log(JSON.stringify(info, null, 2));
 					const calcFreeAmountInCurrency = Number(
 						(parseInt(info.availableBalance) + parseInt(info.vestingLocked)) /
 							10 ** networkInfo.decimalPlaces
