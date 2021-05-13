@@ -12,6 +12,7 @@ import {
 	useOverviewData,
 	useCouncil,
 	useCoinGeckoPriceUSD,
+	useAccountsBalances,
 } from "@lib/store";
 import { get, isNil } from "lodash";
 import { ChevronDown, Settings, Menu } from "react-feather";
@@ -47,6 +48,7 @@ import Link from "next/link";
 import createPolkadotAPIInstance from "@lib/polkadot-api";
 import { getNetworkInfo, getAllNetworksInfo } from "yieldscan.config";
 import { setCookie, parseCookies } from "nookies";
+import Account from "./account";
 import SideMenu from "./sidemenu";
 import SideMenuFooter from "./side-menu-footer";
 import ProgressiveImage from "react-progressive-image";
@@ -79,6 +81,7 @@ const Header = ({ isBase }) => {
 		setAccountsWithBalances,
 		setAccountInfoLoading,
 	} = useAccounts();
+	const { accountsBalances, setAccountsBalances } = useAccountsBalances();
 	const { coinGeckoPriceUSD, setCoinGeckoPriceUSD } = useCoinGeckoPriceUSD();
 	const { headerLoading } = useHeaderLoading();
 	const {
@@ -108,6 +111,7 @@ const Header = ({ isBase }) => {
 		if (from !== to) {
 			await apiInstance.disconnect().catch((err) => console.log(err));
 			setApiInstance(null);
+			setAccountsBalances({});
 			setValidatorMap(undefined);
 			setValidatorRiskSets(undefined);
 			setValidators(undefined);
@@ -189,6 +193,16 @@ const Header = ({ isBase }) => {
 				close={closeEditControllerModal}
 				networkInfo={networkInfo}
 			/>
+			{!isNil(apiInstance)
+				? accounts?.map((account) => (
+						<Account
+							account={account}
+							api={apiInstance}
+							accountsBalances={accountsBalances}
+							setAccountsBalances={(info) => setAccountsBalances(info)}
+						/>
+				  ))
+				: null}
 			<div className="flex items-center">
 				{!isBase && (
 					<>

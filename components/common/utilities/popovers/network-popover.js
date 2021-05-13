@@ -15,6 +15,7 @@ import {
 	useNomMinStake,
 	useOverviewData,
 	useCoinGeckoPriceUSD,
+	useAccountsBalances,
 } from "@lib/store";
 import { setCookie } from "nookies";
 import { useState } from "react";
@@ -23,11 +24,8 @@ import { getNetworkInfo, getAllNetworksInfo } from "yieldscan.config";
 
 const NetworkPopover = ({ isExpanded, hasBorder }) => {
 	const { setApiInstance } = usePolkadotApi();
-	const {
-		setValidatorMap,
-		setValidators,
-		setValidatorRiskSets,
-	} = useValidatorData();
+	const { setValidatorMap, setValidators, setValidatorRiskSets } =
+		useValidatorData();
 	const { setUserData, setAllNominations } = useOverviewData();
 	const { setCoinGeckoPriceUSD } = useCoinGeckoPriceUSD();
 	const { setTransactionHash } = useTransactionHash();
@@ -46,6 +44,7 @@ const NetworkPopover = ({ isExpanded, hasBorder }) => {
 		setAccountsWithBalances,
 		setAccountInfoLoading,
 	} = useAccounts();
+	const { accountsBalances, setAccountsBalances } = useAccountsBalances();
 	const { selectedNetwork, setSelectedNetwork } = useSelectedNetwork();
 	const { setNomMinStake } = useNomMinStake();
 	const networkInfo = getNetworkInfo(selectedNetwork);
@@ -55,6 +54,7 @@ const NetworkPopover = ({ isExpanded, hasBorder }) => {
 	const switchNetwork = (from, to) => {
 		if (from !== to) {
 			setApiInstance(null);
+			setAccountsBalances({});
 			setValidatorMap(undefined);
 			setValidatorRiskSets(undefined);
 			setValidators(undefined);
