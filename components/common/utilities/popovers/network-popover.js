@@ -16,6 +16,8 @@ import {
 	useOverviewData,
 	useCoinGeckoPriceUSD,
 	useAccountsBalances,
+	useAccountsStakingInfo,
+	useAccountsStakingLedgerInfo,
 } from "@lib/store";
 import { setCookie } from "nookies";
 import { useState } from "react";
@@ -44,7 +46,9 @@ const NetworkPopover = ({ isExpanded, hasBorder }) => {
 		setAccountsWithBalances,
 		setAccountInfoLoading,
 	} = useAccounts();
-	const { accountsBalances, setAccountsBalances } = useAccountsBalances();
+	const { setAccountsBalances } = useAccountsBalances();
+	const { setAccountsStakingInfo } = useAccountsStakingInfo();
+	const { setAccountsStakingLedgerInfo } = useAccountsStakingLedgerInfo();
 	const { selectedNetwork, setSelectedNetwork } = useSelectedNetwork();
 	const { setNomMinStake } = useNomMinStake();
 	const networkInfo = getNetworkInfo(selectedNetwork);
@@ -55,6 +59,8 @@ const NetworkPopover = ({ isExpanded, hasBorder }) => {
 		if (from !== to) {
 			setApiInstance(null);
 			setAccountsBalances({});
+			setAccountsStakingInfo({});
+			setAccountsStakingLedgerInfo({});
 			setValidatorMap(undefined);
 			setValidatorRiskSets(undefined);
 			setValidators(undefined);

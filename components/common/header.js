@@ -13,6 +13,8 @@ import {
 	useCouncil,
 	useCoinGeckoPriceUSD,
 	useAccountsBalances,
+	useAccountsStakingInfo,
+	useAccountsStakingLedgerInfo,
 } from "@lib/store";
 import { get, isNil } from "lodash";
 import { ChevronDown, Settings, Menu } from "react-feather";
@@ -82,6 +84,10 @@ const Header = ({ isBase }) => {
 		setAccountInfoLoading,
 	} = useAccounts();
 	const { accountsBalances, setAccountsBalances } = useAccountsBalances();
+	const { accountsStakingInfo, setAccountsStakingInfo } =
+		useAccountsStakingInfo();
+	const { accountsStakingLedgerInfo, setAccountsStakingLedgerInfo } =
+		useAccountsStakingLedgerInfo();
 	const { coinGeckoPriceUSD, setCoinGeckoPriceUSD } = useCoinGeckoPriceUSD();
 	const { headerLoading } = useHeaderLoading();
 	const {
@@ -112,6 +118,8 @@ const Header = ({ isBase }) => {
 			await apiInstance.disconnect().catch((err) => console.log(err));
 			setApiInstance(null);
 			setAccountsBalances({});
+			setAccountsStakingInfo({});
+			setAccountsStakingLedgerInfo({});
 			setValidatorMap(undefined);
 			setValidatorRiskSets(undefined);
 			setValidators(undefined);
@@ -200,6 +208,12 @@ const Header = ({ isBase }) => {
 							api={apiInstance}
 							accountsBalances={accountsBalances}
 							setAccountsBalances={(info) => setAccountsBalances(info)}
+							accountsStakingInfo={accountsStakingInfo}
+							setAccountsStakingInfo={(info) => setAccountsStakingInfo(info)}
+							accountsStakingLedgerInfo={accountsStakingLedgerInfo}
+							setAccountsStakingLedgerInfo={(info) =>
+								setAccountsStakingLedgerInfo(info)
+							}
 						/>
 				  ))
 				: null}
