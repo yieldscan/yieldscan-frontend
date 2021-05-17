@@ -38,7 +38,7 @@ const withBaseLayout = (children) => {
 			"accountsWithBalances",
 			"setAccountsWithBalances",
 			"stashAccount",
-			"setAccountInfoLoading",
+			// "setAccountInfoLoading",
 			"setAccountState",
 		])
 	);

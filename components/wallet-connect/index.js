@@ -15,7 +15,9 @@ import { web3Enable, web3AccountsSubscribe } from "@polkadot/extension-dapp";
 import { encodeAddress, decodeAddress } from "@polkadot/util-crypto";
 import RejectedPage from "./RejectedPage";
 import SelectAccount from "./SelectAccount";
-import { useAccounts } from "@lib/store";
+import { useAccounts, useSelectedAccount } from "@lib/store";
+import getFromLocalStorage from "@lib/getFromLocalStorage";
+import addToLocalStorage from "@lib/addToLocalStorage";
 import { trackEvent, Events, setUserProperties } from "@lib/analytics";
 import { setCookie } from "nookies";
 import RecoverAuthInfo from "./RecoverAuthInfo";
@@ -33,7 +35,7 @@ const WalletConnectStates = {
 	RECOVERAUTH: "recover",
 };
 
-const WalletConnectPopover = ({ styles, networkInfo, cookies }) => {
+const WalletConnectPopover = ({ styles, networkInfo }) => {
 	const { isOpen, close } = useWalletConnect();
 	const [extensionEvent, setExtensionEvent] = useState();
 	const {
@@ -43,6 +45,7 @@ const WalletConnectPopover = ({ styles, networkInfo, cookies }) => {
 		setAccounts,
 		setStashAccount,
 	} = useAccounts();
+	const { selectedAccount, setSelectedAccount } = useSelectedAccount();
 	const [state, setState] = useState("");
 
 	const handlers = {
@@ -112,24 +115,33 @@ const WalletConnectPopover = ({ styles, networkInfo, cookies }) => {
 				accounts?.filter(
 					(account) =>
 						account.address.toString() ===
-						get(cookies, networkInfo.network + "Default")
+						getFromLocalStorage(networkInfo.network, "selectedAccount")
 				).length === 0
 			) {
 				setStashAccount(null);
 				setCookie(null, networkInfo.network + "Default", null, {
 					maxAge: 7 * 24 * 60 * 60,
 				});
+				setSelectedAccount(null);
+				addToLocalStorage(networkInfo.network, "selectedAccount", null);
 			} else {
 				accounts
 					.filter(
 						(account) =>
-							account.address === get(cookies, networkInfo.network + "Default")
+							account.address ===
+							getFromLocalStorage(networkInfo.network, "selectedAccount")
 					)
 					.map((account) => {
 						setStashAccount(account);
 						setCookie(null, networkInfo.network + "Default", account.address, {
 							maxAge: 7 * 24 * 60 * 60,
 						});
+						setSelectedAccount(account);
+						addToLocalStorage(
+							networkInfo.network,
+							"selectedAccount",
+							account.address
+						);
 						if (typeof window !== undefined) {
 							trackEvent(Events.ACCOUNT_SELECTED, {
 								path: window.location.pathname,
@@ -142,19 +154,21 @@ const WalletConnectPopover = ({ styles, networkInfo, cookies }) => {
 		}
 	}, [accounts]);
 
-	const onStashSelected = async (stashAccount) => {
-		if (stashAccount) close();
+	const onAccountSelected = async (account) => {
+		if (account) close();
 		if (typeof window !== undefined) {
 			trackEvent(Events.ACCOUNT_SELECTED, {
 				path: window.location.pathname,
-				address: stashAccount.address,
+				address: account.address,
 				network: networkInfo.name,
 			});
 		}
-		setStashAccount(stashAccount);
-		setCookie(null, networkInfo.network + "Default", stashAccount.address, {
+		setStashAccount(account);
+		setCookie(null, networkInfo.network + "Default", account.address, {
 			maxAge: 7 * 24 * 60 * 60,
 		});
+		setSelectedAccount(account);
+		addToLocalStorage(networkInfo.network, "selectedAccount", account.address);
 	};
 
 	const handleRecoveryAuth = () => {
@@ -228,7 +242,7 @@ const WalletConnectPopover = ({ styles, networkInfo, cookies }) => {
 										? accountsWithBalances
 										: accounts
 								}
-								onStashSelected={onStashSelected}
+								onAccountSelected={onAccountSelected}
 								networkInfo={networkInfo}
 							/>
 						)
