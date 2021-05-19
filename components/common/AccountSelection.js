@@ -9,19 +9,15 @@ import {
 } from "@chakra-ui/core";
 import Identicon from "@components/common/Identicon";
 import formatCurrency from "@lib/format-currency";
-import { setCookie } from "nookies";
+import addToLocalStorage from "@lib/addToLocalStorage";
 
 const AccountSelection = ({
 	accounts,
 	toggle,
 	isStashPopoverOpen,
 	selectedAccount,
-	accountsWithBalances,
 	networkInfo,
 	accountsBalances,
-	accountsWithoutCurrent,
-	setStashAccount,
-	setBondedAmount,
 	setTransactionHash,
 	setIsStashPopoverOpen,
 	setSelectedAccount,
@@ -96,15 +92,7 @@ const AccountSelection = ({
 								<button
 									className="flex items-center rounded px-4 py-2 w-full bg-gray-800 hover:bg-gray-700 hover:text-gray-200"
 									onClick={() => {
-										setBondedAmount(null);
-										setStashAccount(account);
 										setTransactionHash(null);
-										setCookie(
-											null,
-											networkInfo.network + "Default",
-											account.address,
-											{ maxAge: 7 * 24 * 60 * 60 }
-										);
 										setSelectedAccount(account);
 										addToLocalStorage(
 											networkInfo.network,

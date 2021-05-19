@@ -19,6 +19,9 @@ import {
 	useValidatorData,
 	useNomMinStake,
 	useCoinGeckoPriceUSD,
+	useSelectedAccount,
+	useAccountsBalances,
+	useAccountsStakingInfo,
 } from "@lib/store";
 import { PaymentPopover } from "@components/new-payment";
 import { get, isNil, mapValues, keyBy, cloneDeep, debounce } from "lodash";
@@ -80,6 +83,9 @@ const RewardCalculatorPage = () => {
 		bondedAmount,
 		accountInfoLoading,
 	} = useAccounts();
+	const { selectedAccount } = useSelectedAccount();
+	const { accountsBalances } = useAccountsBalances();
+	const { accountsStakingInfo } = useAccountsStakingInfo();
 	const { setHeaderLoading } = useHeaderLoading();
 	const { isInElection } = useNetworkElection();
 	const { isPaymentPopoverOpen, closePaymentPopover } = usePaymentPopover();
@@ -103,6 +109,18 @@ const RewardCalculatorPage = () => {
 	const { validatorRiskSets, setValidatorRiskSets } = useValidatorData();
 	const { nomMinStake, setNomMinStake } = useNomMinStake();
 	const [result, setResult] = useState({});
+	const [balance, setBalance] = useState();
+	const [stakingBalance, setStakingBalance] = useState();
+
+	useEffect(() => {
+		console.log("render2");
+		setBalance(accountsBalances[selectedAccount?.address]);
+	}, [accountsBalances[selectedAccount?.address]]);
+
+	useEffect(() => {
+		console.log("render3");
+		setStakingBalance(accountsStakingInfo[selectedAccount?.address]);
+	}, [accountsStakingInfo[selectedAccount?.address]]);
 
 	useEffect(() => {
 		setSubCurrency(amount * coinGeckoPriceUSD);
@@ -170,7 +188,6 @@ const RewardCalculatorPage = () => {
 		timePeriodValue,
 		timePeriodUnit,
 		compounding,
-		bondedAmount,
 		selectedValidators,
 	]);
 	useEffect(() => {
@@ -232,9 +249,6 @@ const RewardCalculatorPage = () => {
 		updateTransactionState(Events.INTENT_STAKING);
 		if (transactionHash) setTransactionHash(null);
 		router.push("/payment", "/payment", { shallow: true });
-		// get(bondedAmount, "currency", 0) === 0
-		// 	? router.push("/payment", "/payment", "shallow")
-		// 	: openPaymentPopover();
 	};
 
 	const onAdvancedSelection = () => {
@@ -242,13 +256,28 @@ const RewardCalculatorPage = () => {
 		router.push(`${Routes.VALIDATORS}?advanced=true`);
 	};
 
-	const totalBalance =
-		get(bondedAmount, "currency", 0) + get(freeAmount, "currency", 0);
+	const totalPossibleStakingAmount =
+		(parseInt(get(stakingBalance, "stakingLedger.active", 0)) +
+			parseInt(get(balance, "availableBalance", 0)) +
+			parseInt(get(balance, "vestingLocked", 0))) /
+		Math.pow(10, networkInfo.decimalPlaces);
+
+	const totalAvailableStakingAmount =
+		(parseInt(get(balance, "availableBalance", 0)) +
+			parseInt(get(balance, "vestingLocked", 0))) /
+		Math.pow(10, networkInfo.decimalPlaces);
+
 	const calculationDisabled =
-		!totalBalance ||
+		!totalPossibleStakingAmount ||
 		!timePeriodValue ||
-		(amount || 0) > totalBalance - networkInfo.minAmount ||
+		(amount || 0) > totalPossibleStakingAmount - networkInfo.minAmount ||
 		amount == 0;
+
+	// console.log("totalPossibleStakingAmount");
+	// console.log(totalPossibleStakingAmount);
+
+	// console.log("amount");
+	// console.log(amount);
 
 	return loading ? (
 		<div className="flex-center w-full h-full">
@@ -306,42 +335,27 @@ const RewardCalculatorPage = () => {
 						<div className="mt-8 mx-2">
 							<h3 className="text-gray-700 text-xs">I want to invest:</h3>
 							<div className="mt-2">
-								{!accountInfoLoading ? (
-									stashAccount &&
-									(amount > totalBalance - networkInfo.minAmount ||
-										get(freeAmount, "currency", 0) < networkInfo.minAmount) ? (
+								{selectedAccount &&
+									balance &&
+									stakingBalance &&
+									(amount >
+										totalPossibleStakingAmount - networkInfo.minAmount ||
+										totalAvailableStakingAmount < networkInfo.minAmount) && (
 										<LowBalanceAlert
 											amount={amount}
-											freeAmount={freeAmount}
+											stakingBalance={stakingBalance}
 											networkInfo={networkInfo}
-											bondedAmount={bondedAmount}
-											totalBalance={totalBalance}
+											totalPossibleStakingAmount={totalPossibleStakingAmount}
+											totalAvailableStakingAmount={totalAvailableStakingAmount}
 										/>
-									) : (
-										stashAccount &&
-										amount <
-											nomMinStake + networkInfo.recommendedAdditionalAmount && (
-											<MinStakeAlert
-												amount={amount}
-												nomMinStake={nomMinStake}
-												freeAmount={freeAmount}
-												networkInfo={networkInfo}
-												bondedAmount={bondedAmount}
-												totalBalance={totalBalance}
-											/>
-										)
-									)
-								) : (
-									<></>
-								)}
-
+									)}
 								<AmountInput
-									bonded={get(bondedAmount, "currency")}
 									value={{ currency: amount, subCurrency: subCurrency }}
 									networkInfo={networkInfo}
 									onChange={setAmount}
 									trackRewardCalculatedEvent={trackRewardCalculatedEvent}
-									accountInfoLoading={accountInfoLoading}
+									balance={balance}
+									stakingBalance={stakingBalance}
 								/>
 							</div>
 							<div className="flex mt-8 items-center">
@@ -439,19 +453,7 @@ const RewardCalculatorPage = () => {
 						</div>
 					</div>
 					<div className="w-1/2">
-						<ExpectedReturnsCard
-							result={result}
-							stashAccount={stashAccount}
-							calculationDisabled={
-								!totalBalance ||
-								!timePeriodValue ||
-								(amount || 0) > totalBalance - networkInfo.minAmount ||
-								amount == 0
-							}
-							onWalletConnectClick={toggle}
-							networkInfo={networkInfo}
-							onPayment={onPayment}
-						/>
+						<ExpectedReturnsCard result={result} networkInfo={networkInfo} />
 						<div className="mt-3">
 							<Alert
 								color="gray.500"
@@ -463,7 +465,7 @@ const RewardCalculatorPage = () => {
 								<AlertIcon name="secureLogo" />
 								<div>
 									<AlertTitle fontWeight="medium" fontSize="sm">
-										Non-custodial & Secure
+										{"Non-custodial & Secure"}
 									</AlertTitle>
 									<AlertDescription fontSize="xs">
 										We do not own your private keys and cannot access your
@@ -478,7 +480,7 @@ const RewardCalculatorPage = () => {
 							className={`
 						rounded-full font-medium px-12 py-3 bg-teal-500 text-white
 						${
-							(stashAccount &&
+							(selectedAccount &&
 								(get(freeAmount, "currency", 0) < networkInfo.minAmount
 									? amount > get(bondedAmount, "currency", 0)
 										? calculationDisabled
@@ -493,7 +495,7 @@ const RewardCalculatorPage = () => {
 						}
 					`}
 							disabled={
-								(stashAccount &&
+								(selectedAccount &&
 									(get(freeAmount, "currency", 0) < networkInfo.minAmount
 										? amount > get(bondedAmount, "currency", 0)
 											? calculationDisabled
@@ -505,11 +507,11 @@ const RewardCalculatorPage = () => {
 								accountInfoLoading ||
 								isInElection
 							}
-							onClick={() => (stashAccount ? onPayment() : toggle())}
+							onClick={() => (selectedAccount ? onPayment() : toggle())}
 						>
 							{isNil(accounts)
 								? "Connect Wallet"
-								: isNil(stashAccount)
+								: isNil(selectedAccount)
 								? "Select Account"
 								: isInElection
 								? "Ongoing elections, can't invest now!"
@@ -517,39 +519,7 @@ const RewardCalculatorPage = () => {
 						</button>
 					</div>
 				</div>
-				{/* <div className="fixed w-full bg-white bottom-0 p-10 left-0 flex-center">
-					<button
-						className={`
-						rounded-full font-semibold text-lg px-24 py-4 bg-teal-500 text-white
-						${
-							stashAccount && calculationDisabled
-								? "opacity-75 cursor-not-allowed"
-								: "opacity-100"
-						}
-					`}
-						disabled={false && stashAccount && calculationDisabled}
-						onClick={() => (stashAccount ? onPayment() : toggle())}
-					>
-						{stashAccount ? "Stake" : "Connect Wallet"}
-					</button>
-				</div> */}
 			</div>
-			{/* {isPaymentPopoverOpen && (
-				<PaymentPopover
-					isPaymentPopoverOpen={isPaymentPopoverOpen}
-					stashAccount={stashAccount}
-					stakingAmount={{ currency: amount, subCurrency: subCurrency }}
-					validators={get(validatorMap, "total", [])}
-					compounding={compounding}
-					selectedValidators={Object.values(selectedValidators)}
-					setSelectedValidators={setSelectedValidators}
-					onAdvancedSelection={onAdvancedSelection}
-					bondedAmount={bondedAmount}
-					closePaymentPopover={closePaymentPopover}
-					result={result}
-					networkInfo={networkInfo}
-				/>
-			)} */}
 		</div>
 	);
 };

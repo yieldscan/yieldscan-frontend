@@ -150,40 +150,6 @@ const Header = ({ isBase }) => {
 		setIsNetworkOpen(!isNetworkOpen);
 	};
 
-	useEffect(() => {
-		if (accounts) {
-			const accountsWithoutCurrent =
-				accountsWithBalances !== null
-					? accountsWithBalances.filter(
-							(account) => stashAddress && account.address !== stashAddress
-					  )
-					: accounts.filter(
-							(account) => stashAddress && account.address !== stashAddress
-					  );
-			setAccountsWithoutCurrent(accountsWithoutCurrent);
-		}
-	}, [stashAccount, networkInfo, accounts, accountsWithBalances]);
-
-	useEffect(() => {
-		if (stashAccount) {
-			createPolkadotAPIInstance(networkInfo, apiInstance).then((api) => {
-				setApiInstance(api);
-				api.query.staking
-					.bonded(stashAccount.address)
-					.then(({ isSome }) => {
-						setIsBonded(isSome);
-					})
-					.catch((error) => {
-						alert("Something went wrong, please reload!");
-					});
-
-				api.query.staking.eraElectionStatus?.().then((data) => {
-					setIsInElection(data.isOpen);
-				});
-			});
-		}
-	}, [stashAccount, networkInfo]);
-
 	return (
 		<div
 			className={`header flex items-center justify-between text-gray-700 ${
@@ -283,12 +249,8 @@ const Header = ({ isBase }) => {
 						toggle={toggle}
 						isStashPopoverOpen={isStashPopoverOpen}
 						selectedAccount={selectedAccount}
-						accountsWithBalances={accountsWithBalances}
 						networkInfo={networkInfo}
 						accountsBalances={accountsBalances}
-						accountsWithoutCurrent={accountsWithoutCurrent}
-						setStashAccount={(info) => setStashAccount(info)}
-						setBondedAmount={(info) => setBondedAmount(info)}
 						setTransactionHash={(info) => setTransactionHash(info)}
 						setIsStashPopoverOpen={(info) => setIsStashPopoverOpen(info)}
 						setSelectedAccount={(info) => setSelectedAccount(info)}
