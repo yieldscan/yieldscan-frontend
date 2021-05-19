@@ -83,7 +83,7 @@ const EarningsOutput = ({ inputValue, networkInfo }) => {
 				})
 				.catch((error) => {
 					// TODO: handle error gracefully with UI toast
-					alert(error);
+					console.error("Something went wrong", error);
 				});
 			calculateReward(
 				selectedValidatorsList,
@@ -98,7 +98,7 @@ const EarningsOutput = ({ inputValue, networkInfo }) => {
 				})
 				.catch((error) => {
 					// TODO: handle error gracefully with UI toast
-					alert(error);
+					console.error("Something went wrong", error);
 				});
 			calculateReward(
 				selectedValidatorsList,
@@ -113,7 +113,7 @@ const EarningsOutput = ({ inputValue, networkInfo }) => {
 				})
 				.catch((error) => {
 					// TODO: handle error gracefully with UI toast
-					alert(error);
+					console.error("Something went wrong", error);
 				});
 		}
 	}, [inputValue, selectedValidators]);

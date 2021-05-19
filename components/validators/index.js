@@ -61,12 +61,8 @@ const Validators = () => {
 	const { selectedNetwork } = useSelectedNetwork();
 	const networkInfo = getNetworkInfo(selectedNetwork);
 	const { toggle: toggleWalletConnect } = useWalletConnect();
-	const {
-		stashAccount,
-		bondedAmount,
-		freeAmount,
-		accountInfoLoading,
-	} = useAccounts();
+	const { stashAccount, bondedAmount, freeAmount, accountInfoLoading } =
+		useAccounts();
 	const { validatorMap, setValidatorMap } = useValidatorData();
 	const { transactionHash, setTransactionHash } = useTransactionHash();
 	const { isOpen, onClose, onToggle } = useDisclosure();
@@ -283,7 +279,7 @@ const Validators = () => {
 				.then(setResult)
 				.catch((error) => {
 					// TODO: handle error gracefully with UI toast
-					alert(error);
+					console.error("Something went wrong", error);
 				});
 		}
 	}, [
