@@ -34,6 +34,7 @@ import {
 	useSelectedNetwork,
 	useTransactionHash,
 	useValidatorData,
+	useCoinGeckoPriceUSD,
 } from "@lib/store";
 import calculateReward from "@lib/calculate-reward";
 import ValidatorsResult from "./ValidatorsResult";
@@ -45,7 +46,6 @@ import { useWalletConnect } from "@components/wallet-connect";
 import { useRouter } from "next/router";
 import axios from "@lib/axios";
 import { getNetworkInfo } from "yieldscan.config";
-import convertCurrency from "@lib/convert-currency";
 import { trackEvent, Events } from "@lib/analytics";
 
 const DEFAULT_FILTER_OPTIONS = {
@@ -63,6 +63,7 @@ const Validators = () => {
 	const { toggle: toggleWalletConnect } = useWalletConnect();
 	const { stashAccount, bondedAmount, freeAmount, accountInfoLoading } =
 		useAccounts();
+	const { coinGeckoPriceUSD } = useCoinGeckoPriceUSD();
 	const { validatorMap, setValidatorMap } = useValidatorData();
 	const { transactionHash, setTransactionHash } = useTransactionHash();
 	const { isOpen, onClose, onToggle } = useDisclosure();
@@ -178,11 +179,7 @@ const Validators = () => {
 	}, [bondedAmount]);
 
 	useEffect(() => {
-		convertCurrency(amount || 0, networkInfo.coinGeckoDenom).then(
-			(convertedAmount) => {
-				setSubCurrency(convertedAmount);
-			}
-		);
+		setSubCurrency(amount * coinGeckoPriceUSD);
 	}, [amount]);
 
 	useEffect(() => {
@@ -269,6 +266,7 @@ const Validators = () => {
 				selectedValidatorsMap
 			).filter((v) => !isNil(v));
 			calculateReward(
+				coinGeckoPriceUSD,
 				selectedValidatorsList,
 				amount,
 				timePeriodValue,

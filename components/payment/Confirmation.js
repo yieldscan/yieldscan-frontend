@@ -18,11 +18,11 @@ import {
 	Flex,
 	Spinner,
 } from "@chakra-ui/core";
+import { useCoinGeckoPriceUSD } from "@lib/store";
 import { ChevronRight, ChevronDown, Circle } from "react-feather";
 import Identicon from "@components/common/Identicon";
 import formatCurrency from "@lib/format-currency";
 import Transaction from "./Transaction";
-import convertCurrency from "@lib/convert-currency";
 import RewardDestination from "./RewardDestination";
 import TermsAndServicePopover from "@components/payment/TermsOfService";
 import { GlossaryModal, HelpPopover } from "@components/reward-calculator";
@@ -178,6 +178,7 @@ const Confirmation = ({
 	};
 
 	const { isOpen, onOpen, onClose } = useDisclosure();
+	const { coinGeckoPriceUSD } = useCoinGeckoPriceUSD();
 
 	const [tcPopoverOpen, setTCPopoverOpen] = useState(false);
 	const [showValidators, setShowValidators] = useState(false);
@@ -200,20 +201,14 @@ const Confirmation = ({
 	};
 
 	useEffect(() => {
-		convertCurrency(stakingAmount, networkInfo.coinGeckoDenom).then(
-			(convertedAmount) => {
-				setSubCurrency(convertedAmount);
-			}
-		);
+		setSubCurrency(stakingAmount * coinGeckoPriceUSD);
 	}, []);
 
 	useEffect(() => {
-		convertCurrency(
-			transactionFee / Math.pow(10, networkInfo.decimalPlaces),
-			networkInfo.coinGeckoDenom
-		).then((convertedAmount) => {
-			setFeeSubCurrency(convertedAmount);
-		});
+		setFeeSubCurrency(
+			(transactionFee / Math.pow(10, networkInfo.decimalPlaces)) *
+				coinGeckoPriceUSD
+		);
 	}, [transactionFee]);
 
 	return (

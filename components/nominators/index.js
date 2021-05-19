@@ -3,9 +3,12 @@ import Top3Section from "./Top3Section";
 import NominationsTable from "./NominatorsTable";
 import { useEffect, useState } from "react";
 import axios from "@lib/axios";
-import { useSelectedNetwork, useNominatorsData } from "@lib/store";
+import {
+	useSelectedNetwork,
+	useNominatorsData,
+	useCoinGeckoPriceUSD,
+} from "@lib/store";
 import formatCurrency from "@lib/format-currency";
-import convertCurrency from "@lib/convert-currency";
 import { getNetworkInfo } from "yieldscan.config";
 
 const Nominators = () => {
@@ -13,6 +16,7 @@ const Nominators = () => {
 	const { selectedNetwork } = useSelectedNetwork();
 	const networkInfo = getNetworkInfo(selectedNetwork);
 	const { nomLoading, setNomLoading } = useNominatorsData();
+	const { coinGeckoPriceUSD } = useCoinGeckoPriceUSD();
 	const [loading, setLoading] = useState(true);
 	const [nominatorsData, setNominatorsData] = useState(undefined);
 	const [
@@ -41,14 +45,12 @@ const Nominators = () => {
 
 	useEffect(() => {
 		if (nominatorsData) {
-			convertCurrency(
-				nominatorsData.stats.totalAmountStaked,
-				networkInfo.coinGeckoDenom
-			).then((value) => setTotalAmountStakedSubCurrency(value));
-			convertCurrency(
-				nominatorsData.stats.totalRewards,
-				networkInfo.coinGeckoDenom
-			).then((value) => setTotalRewardsSubCurrency(value));
+			setTotalAmountStakedSubCurrency(
+				nominatorsData.stats.totalAmountStaked * coinGeckoPriceUSD
+			);
+			setTotalRewardsSubCurrency(
+				nominatorsData.stats.totalRewards * coinGeckoPriceUSD
+			);
 		}
 	}, [nominatorsData]);
 

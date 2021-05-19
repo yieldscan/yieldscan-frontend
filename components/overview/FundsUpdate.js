@@ -17,7 +17,7 @@ import { random, get, noop, isNil } from "lodash";
 import calculateReward from "@lib/calculate-reward";
 import formatCurrency from "@lib/format-currency";
 import updateFunds from "@lib/polkadot/update-funds";
-import { usePolkadotApi, useAccounts } from "@lib/store";
+import { usePolkadotApi, useAccounts, useCoinGeckoPriceUSD } from "@lib/store";
 import { ExternalLink } from "react-feather";
 import Routes from "@lib/routes";
 import Identicon from "@components/common/Identicon";
@@ -26,7 +26,6 @@ import SuccessfullyBonded from "@components/overview/SuccessfullyBonded";
 import AmountInput from "./AmountInput";
 import axios from "@lib/axios";
 import AmountConfirmation from "./AmountConfirmation";
-import convertCurrency from "@lib/convert-currency";
 
 const FundsUpdate = withSlideIn(
 	({
@@ -41,6 +40,7 @@ const FundsUpdate = withSlideIn(
 		const toast = useToast();
 		const { stashAccount, freeAmount } = useAccounts();
 		const { apiInstance } = usePolkadotApi();
+		const { coinGeckoPriceUSD } = useCoinGeckoPriceUSD();
 		const [currentStep, setCurrentStep] = useState(0);
 		const [amount, setAmount] = useState(0);
 		const [subCurrency, setSubCurrency] = useState(0);
@@ -134,6 +134,7 @@ const FundsUpdate = withSlideIn(
 				timePeriodUnit = "months";
 
 			calculateReward(
+				coinGeckoPriceUSD,
 				validators,
 				totalStakingAmount,
 				timePeriodValue,
@@ -158,16 +159,8 @@ const FundsUpdate = withSlideIn(
 		}, [amount]);
 
 		useEffect(() => {
-			convertCurrency(amount || 0, networkInfo.coinGeckoDenom).then(
-				(convertedAmount) => {
-					setSubCurrency(convertedAmount);
-				}
-			);
-			convertCurrency(totalStakingAmount || 0, networkInfo.coinGeckoDenom).then(
-				(convertedAmount) => {
-					setTotalStakingAmountFiat(convertedAmount);
-				}
-			);
+			setSubCurrency(amount * coinGeckoPriceUSD);
+			setTotalStakingAmountFiat(totalStakingAmount * coinGeckoPriceUSD);
 		}, [amount, totalStakingAmount]);
 
 		useEffect(() => {
@@ -189,9 +182,7 @@ const FundsUpdate = withSlideIn(
 			if (unbondingBalances.length > 0) {
 				const total = unbondingBalances.reduce((a, b) => a + b.value, 0);
 				setTotalUnbonding(total);
-				convertCurrency(total, networkInfo.coinGeckoDenom).then((value) =>
-					setTotalUnbondingFiat(value)
-				);
+				setTotalUnbondingFiat(total * coinGeckoPriceUSD);
 			} else {
 				setTotalUnbonding(null);
 				setTotalUnbondingFiat(null);

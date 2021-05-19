@@ -18,8 +18,7 @@ import {
 import AmountInput from "@components/reward-calculator/AmountInput";
 import withSlideIn from "@components/common/withSlideIn";
 import { isNil, get } from "lodash";
-import convertCurrency from "@lib/convert-currency";
-import { useAccounts } from "@lib/store";
+import { useAccounts, useCoinGeckoPriceUSD } from "@lib/store";
 import formatCurrency from "@lib/format-currency";
 
 const EditAmountModal = withSlideIn(
@@ -34,6 +33,7 @@ const EditAmountModal = withSlideIn(
 		networkInfo,
 		trackRewardCalculatedEvent,
 	}) => {
+		const { coinGeckoPriceUSD } = useCoinGeckoPriceUSD();
 		const [stakingAmount, setStakingAmount] = useState(amount);
 		const [subCurrency, setSubCurrency] = useState(0);
 
@@ -43,11 +43,7 @@ const EditAmountModal = withSlideIn(
 		};
 
 		useEffect(() => {
-			convertCurrency(stakingAmount || 0, networkInfo.coinGeckoDenom).then(
-				(convertedAmount) => {
-					setSubCurrency(convertedAmount);
-				}
-			);
+			setSubCurrency(stakingAmount * coinGeckoPriceUSD);
 		}, [stakingAmount]);
 
 		const totalBalance = bondedAmount + get(freeAmount, "currency", 0);

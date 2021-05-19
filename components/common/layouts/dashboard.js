@@ -6,12 +6,12 @@ import {
 	useTransaction,
 	useSelectedNetwork,
 	useBetaInfo,
-	useEraProgress,
+	useCoinGeckoPriceUSD,
 } from "@lib/store";
 import createPolkadotAPIInstance from "@lib/polkadot-api";
-import convertCurrency from "@lib/convert-currency";
+import fetchPrice from "@lib/fetch-price";
 import { get, includes, isNil, pick } from "lodash";
-import { useEffect } from "react";
+import { useMe, useEffect } from "react";
 import { trackEvent, Events, setUserProperties } from "@lib/analytics";
 import Footer from "../footer";
 import { decodeAddress, encodeAddress } from "@polkadot/util-crypto";
@@ -52,150 +52,155 @@ const withDashboardLayout = (children) => {
 		setFreeAmount,
 		accountsWithBalances,
 	} = useAccounts();
-	const { setEraLength, setEraProgress } = useEraProgress();
+	const { coinGeckoPriceUSD, setCoinGeckoPriceUSD } = useCoinGeckoPriceUSD();
 	const { stakingAmount, setTransactionState } = useTransaction((state) =>
 		pick(state, ["stakingAmount", "setTransactionState"])
 	);
 
 	useEffect(() => {
-		if (accounts && accounts.length > 0) {
-			createPolkadotAPIInstance(networkInfo, apiInstance)
-				.then(async (api) => {
-					setApiInstance(api);
-					const queries = accounts.map((account) => [
-						api.query.staking.ledger,
-						account.address,
-					]);
-
-					const accountsWithBalances = await Promise.all(
-						accounts.map(async (account) => {
-							const balanceInfo = await api.derive.balances.all(
-								account.address.toString()
-							);
-							account.address = encodeAddress(
-								decodeAddress(account.address.toString()),
-								networkInfo.addressPrefix
-							);
-							account.balances = balanceInfo;
-							return account;
-						})
-					);
-					setAccountsWithBalances(accountsWithBalances);
-					await api.derive.session.progress((data) => {
-						setEraLength(parseInt(data.eraLength));
-						setEraProgress(parseInt(data.eraProgress));
-					});
-				})
-				.catch((err) => {
-					throw err;
-				});
+		if (isNil(coinGeckoPriceUSD)) {
+			fetchPrice(coinGeckoPriceUSD, networkInfo.coinGeckoDenom).then((price) =>
+				setCoinGeckoPriceUSD(price)
+			);
 		}
-	}, [accounts]);
+	}, [networkInfo, coinGeckoPriceUSD]);
 
 	useEffect(() => {
-		// wallet connected state:
-		// when `stashAccount` is selected, fetch ledger for the account and save it.
-		if (stashAccount) {
-			setAccountInfoLoading(true);
-			createPolkadotAPIInstance(networkInfo, apiInstance).then(async (api) => {
-				setApiInstance(api);
+		createPolkadotAPIInstance(networkInfo, apiInstance).then((api) => {
+			console.log("hello");
+			setApiInstance(api);
+		});
+	}, [networkInfo]);
 
-				const { address } = stashAccount;
+	// useEffect(() => {
+	// 	if (accounts && accounts.length > 0) {
+	// 		createPolkadotAPIInstance(networkInfo, apiInstance)
+	// 			.then(async (api) => {
+	// 				setApiInstance(api);
+	// 				const queries = accounts.map((account) => [
+	// 					api.query.staking.ledger,
+	// 					account.address,
+	// 				]);
 
-				await api.derive.staking.account(address, async (info) => {
-					if (!isNil(info.redeemable)) {
-						const redeemable = Number(parseInt(info.redeemable));
-						setRedeemableBalance(redeemable);
-					}
-					if (!isNil(info.stakingLedger)) {
-						const bondedAmount = Number(
-							parseInt(info.stakingLedger.active) /
-								10 ** networkInfo.decimalPlaces
-						);
-						const bondedAmountInSubCurrency = await convertCurrency(
-							bondedAmount,
-							networkInfo.coinGeckoDenom
-						);
-						setBondedAmount({
-							currency: bondedAmount,
-							subCurrency: bondedAmountInSubCurrency,
-						});
-						const activeStake = Number(
-							parseInt(info.stakingLedger.active) /
-								10 ** networkInfo.decimalPlaces
-						);
-						const activeStakeInSubCurrency = await convertCurrency(
-							activeStake,
-							networkInfo.coinGeckoDenom
-						);
-						setActiveStake({
-							currency: activeStake,
-							subCurrency: activeStakeInSubCurrency,
-						});
-					}
-					if (!isNil(info.unlocking)) {
-						const unbondingBalancesArr = [];
-						info.unlocking.forEach((unbondingBalance) => {
-							const { remainingEras, value } = unbondingBalance;
-							unbondingBalancesArr.push({
-								remainingEras: Number(parseInt(remainingEras)),
-								value: Number(
-									parseInt(value) / 10 ** networkInfo.decimalPlaces
-								),
-							});
-						});
-						setUnbondingBalances(unbondingBalancesArr);
-					} else setUnbondingBalances([]);
-				});
-				await api.derive.balances.all(address, async (info) => {
-					const calcFreeAmountInCurrency = Number(
-						(parseInt(info.availableBalance) + parseInt(info.vestingLocked)) /
-							10 ** networkInfo.decimalPlaces
-					);
-					const calcFreeAmountInSubCurrency = await convertCurrency(
-						freeAmount,
-						networkInfo.coinGeckoDenom
-					);
-					const calcFreeAmount = {
-						currency: calcFreeAmountInCurrency,
-						subCurrency: calcFreeAmountInSubCurrency,
-					};
-					if (calcFreeAmount !== freeAmount) {
-						setFreeAmount(calcFreeAmount);
-					}
-				});
+	// 				const accountsWithBalances = await Promise.all(
+	// 					accounts.map(async (account) => {
+	// 						const balanceInfo = await api.derive.balances.all(
+	// 							account.address.toString()
+	// 						);
+	// 						account.address = encodeAddress(
+	// 							decodeAddress(account.address.toString()),
+	// 							networkInfo.addressPrefix
+	// 						);
+	// 						account.balances = balanceInfo;
+	// 						return account;
+	// 					})
+	// 				);
+	// 				setAccountsWithBalances(accountsWithBalances);
+	// 			})
+	// 			.catch((err) => {
+	// 				throw err;
+	// 			});
+	// 	}
+	// }, [accounts]);
 
-				const setStateAndTrack = (details) => {
-					setUserProperties({
-						stashId: address,
-						bondedAmount: `${get(details, "bondedAmount.currency")} ${get(
-							networkInfo,
-							"denom"
-						)} ($${get(details, "bondedAmount.subCurrency")})`,
-						accounts: accountsWithBalances,
-					});
-					// setAccountState(details);
-				};
-			});
-		}
-	}, [stashAccount]);
+	// useEffect(() => {
+	// 	// wallet connected state:
+	// 	// when `stashAccount` is selected, fetch ledger for the account and save it.
+	// 	if (stashAccount) {
+	// 		setAccountInfoLoading(true);
+	// 		createPolkadotAPIInstance(networkInfo, apiInstance).then(async (api) => {
+	// 			setApiInstance(api);
 
-	useEffect(() => {
-		if (stashAccount) {
-			setAccountInfoLoading(true);
-			if (!isNil(bondedAmount) && !isNil(activeStake) && !isNil(freeAmount)) {
-				setAccountInfoLoading(false);
-				// setStateAndTrack({
-				// 	bondedAmount: bondedAmount,
-				// 	freeAmount: freeAmount,
-				// 	activeStake: activeStake,
-				// 	redeemableBalance: redeemableBalance,
-				// 	unbondingBalances: unbondingBalances,
-				// 	accountInfoLoading: false,
-				// });
-			}
-		}
-	}, [freeAmount, bondedAmount, activeStake]);
+	// 			const { address } = stashAccount;
+
+	// 			await api.derive.staking.account(address, async (info) => {
+	// 				if (!isNil(info.redeemable)) {
+	// 					const redeemable = Number(parseInt(info.redeemable));
+	// 					setRedeemableBalance(redeemable);
+	// 				}
+	// 				if (!isNil(info.stakingLedger)) {
+	// 					const bondedAmount = Number(
+	// 						parseInt(info.stakingLedger.active) /
+	// 							10 ** networkInfo.decimalPlaces
+	// 					);
+	// 					const bondedAmountInSubCurrency = bondedAmount * coinGeckoPriceUSD;
+	// 					setBondedAmount({
+	// 						currency: bondedAmount,
+	// 						subCurrency: bondedAmountInSubCurrency,
+	// 					});
+	// 					const activeStake = Number(
+	// 						parseInt(info.stakingLedger.active) /
+	// 							10 ** networkInfo.decimalPlaces
+	// 					);
+	// 					const activeStakeInSubCurrency = activeStake * coinGeckoPriceUSD;
+	// 					setActiveStake({
+	// 						currency: activeStake,
+	// 						subCurrency: activeStakeInSubCurrency,
+	// 					});
+	// 				}
+	// 				if (!isNil(info.unlocking)) {
+	// 					const unbondingBalancesArr = [];
+	// 					info.unlocking.forEach((unbondingBalance) => {
+	// 						const { remainingEras, value } = unbondingBalance;
+	// 						unbondingBalancesArr.push({
+	// 							remainingEras: Number(parseInt(remainingEras)),
+	// 							value: Number(
+	// 								parseInt(value) / 10 ** networkInfo.decimalPlaces
+	// 							),
+	// 						});
+	// 					});
+	// 					setUnbondingBalances(unbondingBalancesArr);
+	// 				} else setUnbondingBalances([]);
+	// 			});
+	// 			await api.derive.balances.all(address, async (info) => {
+	// 				const calcFreeAmountInCurrency = Number(
+	// 					(parseInt(info.availableBalance) + parseInt(info.vestingLocked)) /
+	// 						10 ** networkInfo.decimalPlaces
+	// 				);
+	// 				const calcFreeAmountInSubCurrency =
+	// 					calcFreeAmountInCurrency * coinGeckoPriceUSD;
+	// 				const calcFreeAmount = {
+	// 					currency: calcFreeAmountInCurrency,
+	// 					subCurrency: calcFreeAmountInSubCurrency,
+	// 				};
+	// 				if (calcFreeAmount !== freeAmount) {
+	// 					setFreeAmount(calcFreeAmount);
+	// 				}
+	// 			});
+
+	// 			// const setStateAndTrack = (details) => {
+	// 			// 	setUserProperties({
+	// 			// 		stashId: address,
+	// 			// 		bondedAmount: `${get(details, "bondedAmount.currency")} ${get(
+	// 			// 			networkInfo,
+	// 			// 			"denom"
+	// 			// 		)} ($${get(details, "bondedAmount.subCurrency")})`,
+	// 			// 		accounts: accountsWithBalances,
+	// 			// 	});
+	// 			// 	// setAccountState(details);
+	// 			// };
+	// 		});
+	// 	}
+	// }, [stashAccount]);
+
+	// useEffect(() => {
+	// 	if (stashAccount) {
+	// 		setAccountInfoLoading(true);
+	// 		if (!isNil(bondedAmount) && !isNil(activeStake) && !isNil(freeAmount)) {
+	// 			setAccountInfoLoading(false);
+	// 			// setStateAndTrack({
+	// 			// 	bondedAmount: bondedAmount,
+	// 			// 	freeAmount: freeAmount,
+	// 			// 	activeStake: activeStake,
+	// 			// 	redeemableBalance: redeemableBalance,
+	// 			// 	unbondingBalances: unbondingBalances,
+	// 			// 	accountInfoLoading: false,
+	// 			// });
+	// 		}
+	// 	}
+	// }, [freeAmount, bondedAmount, activeStake]);
+
+	console.log(isNil(apiInstance));
 
 	return () => (
 		<div>

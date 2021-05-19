@@ -1,8 +1,7 @@
 import React from "react";
 import { Spinner } from "@chakra-ui/core";
 import axios from "@lib/axios";
-import { useNomMinStake } from "@lib/store";
-import convertCurrency from "@lib/convert-currency";
+import { useNomMinStake, useCoinGeckoPriceUSD } from "@lib/store";
 import formatCurrency from "@lib/format-currency";
 import millify from "millify";
 import Link from "next/link";
@@ -22,6 +21,7 @@ const SocialProofStats = ({ networkInfo }) => {
 	const [loading, setLoading] = React.useState(true);
 	const [nominatorsData, setNominatorsData] = React.useState([]);
 	const { setNomMinStake } = useNomMinStake();
+	const { coinGeckoPriceUSD } = useCoinGeckoPriceUSD();
 	const [
 		totalAmountStakedSubCurrency,
 		setTotalAmountStakedSubCurrency,
@@ -50,14 +50,12 @@ const SocialProofStats = ({ networkInfo }) => {
 
 	React.useEffect(() => {
 		if (nominatorsData.stats) {
-			convertCurrency(
-				nominatorsData.stats.totalAmountStaked,
-				networkInfo.coinGeckoDenom
-			).then((value) => setTotalAmountStakedSubCurrency(value));
-			convertCurrency(
-				nominatorsData.stats.totalRewards,
-				networkInfo.coinGeckoDenom
-			).then((value) => setTotalRewardsSubCurrency(value));
+			setTotalAmountStakedSubCurrency(
+				nominatorsData.stats.totalAmountStaked * coinGeckoPriceUSD
+			);
+			setTotalRewardsSubCurrency(
+				nominatorsData.stats.totalRewards * coinGeckoPriceUSD
+			);
 		}
 	}, [nominatorsData, networkInfo]);
 
