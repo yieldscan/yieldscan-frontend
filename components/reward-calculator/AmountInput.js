@@ -1,4 +1,4 @@
-import React, { memo } from "react";
+import { memo, useState, useEffect } from "react";
 import {
 	InputGroup,
 	Spinner,
@@ -9,7 +9,6 @@ import {
 import formatCurrency from "@lib/format-currency";
 import { useSelectedAccount, useCoinGeckoPriceUSD } from "@lib/store";
 import { get, isEmpty, isNil } from "lodash";
-import { useState, useEffect } from "react";
 
 const AmountInputDefault = memo(
 	({
@@ -23,9 +22,9 @@ const AmountInputDefault = memo(
 		trackRewardCalculatedEvent,
 		coinGeckoPriceUSD,
 	}) => {
-		const initiallyEditable =
-			bonded === undefined ? true : bonded == 0 ? true : false;
-		const [isEditable, setIsEditable] = React.useState(initiallyEditable);
+		// const initiallyEditable =
+		// 	bonded === undefined ? true : bonded == 0 ? true : false;
+		const [isEditable, setIsEditable] = useState(true);
 		const [inputValue, setInputValue] = useState(value.currency);
 		const maxAmount = Math.max(
 			availableBalance + vestingLocked <= networkInfo.minAmount
@@ -33,6 +32,12 @@ const AmountInputDefault = memo(
 				: bonded + availableBalance + vestingLocked - networkInfo.minAmount,
 			0
 		);
+
+		useEffect(() => {
+			const initiallyEditable =
+				bonded === undefined ? true : bonded == 0 ? true : false;
+			setIsEditable(initiallyEditable);
+		}, [bonded]);
 
 		useEffect(() => {
 			if (bonded) {
@@ -48,13 +53,6 @@ const AmountInputDefault = memo(
 				investmentAmount: `${value} ${networkInfo.denom}`,
 			});
 		};
-
-		// console.log("bonded");
-		// console.log(bonded);
-		// console.log("vestingLocked");
-		// console.log(vestingLocked);
-		// console.log("value?.currency");
-		// console.log(value);
 
 		return (
 			<div>
@@ -253,8 +251,6 @@ const AmountInput = memo(
 	}) => {
 		const { selectedAccount } = useSelectedAccount();
 		const { coinGeckoPriceUSD } = useCoinGeckoPriceUSD();
-		console.log(JSON.stringify(balance, null, 2));
-		console.log(JSON.stringify(stakingBalance, null, 2));
 		return (
 			<div className="w-4/5">
 				{/* {get(bonded, 'currency') ? (

@@ -19,140 +19,67 @@ const LowBalanceAlert = ({
 	totalPossibleStakingAmount,
 	stakingBalance,
 }) => {
+	const [status, setStatus] = useState();
 	const [title, setTitle] = useState();
 	const [titleColor, setTitleColor] = useState();
 	const [description, setDescription] = useState();
 	const [descriptionColor, setDescriptionColor] = useState();
 	useEffect(() => {
 		if (amount > totalPossibleStakingAmount) {
+			setStatus("error");
+			setTitleColor("red.500");
+			setTitle("Insufficient Balance");
+			setDescriptionColor("red.500");
+			setDescription(
+				`You need an additional of ${formatCurrency.methods.formatAmount(
+					Math.trunc(
+						Number(
+							amount - (totalPossibleStakingAmount - networkInfo.minAmount)
+						) *
+							10 ** networkInfo.decimalPlaces
+					),
+					networkInfo
+				)} to proceed further.`
+			);
+		} else if (totalAvailableStakingAmount < networkInfo.minAmount) {
+			if (totalAvailableStakingAmount < networkInfo.minAmount / 2) {
+				setStatus("error");
+				setTitleColor("red.500");
+				setTitle("Insufficient Balance");
+				setDescriptionColor("red.500");
+				setDescription(
+					`You need an additional of ${formatCurrency.methods.formatAmount(
+						Math.trunc(
+							Number(networkInfo.minAmount - totalAvailableStakingAmount) *
+								10 ** networkInfo.decimalPlaces
+						),
+						networkInfo
+					)} to proceed further.`
+				);
+			} else {
+				setStatus("warning");
+				setTitleColor("#FDB808");
+				setTitle("Low Balance");
+				setDescriptionColor("#FDB808");
+				setDescription(
+					`Your available balance is low, we recommend to add more ${networkInfo.denom}'s`
+				);
+			}
 		}
 	});
+
 	return (
 		<Alert
-			status={
-				// get(freeAmount, "currency", 0) < networkInfo.minAmount
-				// 	? amount > get(bondedAmount, "currency", 0)
-				// 		? "error"
-				// 		: get(freeAmount, "currency", 0) > networkInfo.minAmount / 2
-				// 		? "warning"
-				// 		: "error"
-				// 	: "error"
-				amount > totalPossibleStakingAmount - networkInfo.minAmount ||
-				totalAvailableStakingAmount < networkInfo.minAmount / 2
-					? "error"
-					: amount > totalPossibleStakingAmount - networkInfo.minAmount / 2
-					? "error"
-					: "warning"
-			}
+			status={status}
 			rounded="md"
 			flex
 			flexDirection="column"
 			alignItems="start"
 			my={4}
 		>
-			<AlertTitle
-				color={
-					// get(freeAmount, "currency", 0) < networkInfo.minAmount
-					// 	? amount > get(bondedAmount, "currency", 0)
-					// 		? "red.500"
-					// 		: get(freeAmount, "currency", 0) > networkInfo.minAmount / 2
-					// 		? "#FDB808"
-					// 		: "red.500"
-					// 	: "red.500"
-					amount > totalPossibleStakingAmount - networkInfo.minAmount
-						? "red.500"
-						: amount > totalPossibleStakingAmount - networkInfo.minAmount / 2
-						? "red.500"
-						: "#FDB808"
-				}
-			>
-				{
-					// get(freeAmount, "currency", 0) < networkInfo.minAmount
-					// 	? amount > get(bondedAmount, "currency", 0)
-					// 		? "Insufficient Balance"
-					// 		: get(freeAmount, "currency", 0) > networkInfo.minAmount / 2
-					// 		? "Low Balance"
-					// 		: "Insufficient Balance"
-					// 	: "Insufficient Balance"
-					amount > totalPossibleStakingAmount - networkInfo.minAmount
-						? "Insufficient Balance"
-						: amount > totalPossibleStakingAmount - networkInfo.minAmount / 2
-						? "Insufficient Balance"
-						: "Low Balance"
-				}
-			</AlertTitle>
-			<AlertDescription
-				color={
-					// get(freeAmount, "currency", 0) < networkInfo.minAmount
-					// 	? amount > get(bondedAmount, "currency", 0)
-					// 		? "red.500"
-					// 		: get(freeAmount, "currency", 0) > networkInfo.minAmount / 2
-					// 		? "#FDB808"
-					// 		: "red.500"
-					// 	: "red.500"
-					amount > totalPossibleStakingAmount - networkInfo.minAmount
-						? "red.500"
-						: amount > totalPossibleStakingAmount - networkInfo.minAmount / 2
-						? "red.500"
-						: "#FDB808"
-				}
-			>
-				{
-					// get(freeAmount, "currency", 0) < networkInfo.minAmount
-					// 	? amount > get(bondedAmount, "currency", 0)
-					// 		? `You need an additional of ${formatCurrency.methods.formatAmount(
-					// 				Math.trunc(
-					// 					Number(
-					// 						amount - (totalPossibleStakingAmount - networkInfo.minAmount)
-					// 					) *
-					// 						10 ** networkInfo.decimalPlaces
-					// 				),
-					// 				networkInfo
-					// 		  )} to proceed further.`
-					// 		: get(freeAmount, "currency", 0) > networkInfo.minAmount / 2
-					// 		? `Your available balance is low, we recommend to add more ${networkInfo.denom}'s`
-					// 		: `You need an additional of ${formatCurrency.methods.formatAmount(
-					// 				Math.trunc(
-					// 					Number(
-					// 						amount - (totalPossibleStakingAmount - networkInfo.minAmount)
-					// 					) *
-					// 						10 ** networkInfo.decimalPlaces
-					// 				),
-					// 				networkInfo
-					// 		  )} to proceed further.`
-					// 	: `You need an additional of ${formatCurrency.methods.formatAmount(
-					// 			Math.trunc(
-					// 				Number(
-					// 					amount - (totalPossibleStakingAmount - networkInfo.minAmount)
-					// 				) *
-					// 					10 ** networkInfo.decimalPlaces
-					// 			),
-					// 			networkInfo
-					// 	  )} to proceed further.`
-					amount > totalPossibleStakingAmount - networkInfo.minAmount
-						? `You need an additional of ${formatCurrency.methods.formatAmount(
-								Math.trunc(
-									Number(
-										amount -
-											(totalPossibleStakingAmount - networkInfo.minAmount)
-									) *
-										10 ** networkInfo.decimalPlaces
-								),
-								networkInfo
-						  )} to proceed further.`
-						: amount > totalPossibleStakingAmount - networkInfo.minAmount / 2
-						? `You need an additional of ${formatCurrency.methods.formatAmount(
-								Math.trunc(
-									Number(
-										amount -
-											(totalPossibleStakingAmount - networkInfo.minAmount)
-									) *
-										10 ** networkInfo.decimalPlaces
-								),
-								networkInfo
-						  )} to proceed further.`
-						: `Your available balance is low, we recommend to add more ${networkInfo.denom}'s`
-				}{" "}
+			<AlertTitle color={titleColor}>{title}</AlertTitle>
+			<AlertDescription color={descriptionColor}>
+				{description}{" "}
 				<Popover trigger="hover" usePortal>
 					<PopoverTrigger>
 						<span className="underline cursor-help">Why?</span>

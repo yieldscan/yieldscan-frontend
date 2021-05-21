@@ -257,10 +257,7 @@ const RewardCalculatorPage = () => {
 	};
 
 	const totalPossibleStakingAmount =
-		(parseInt(get(stakingBalance, "stakingLedger.active", 0)) +
-			parseInt(get(balance, "availableBalance", 0)) +
-			parseInt(get(balance, "vestingLocked", 0))) /
-		Math.pow(10, networkInfo.decimalPlaces);
+		get(balance, "freeBalance", 0) / Math.pow(10, networkInfo.decimalPlaces);
 
 	const totalAvailableStakingAmount =
 		(parseInt(get(balance, "availableBalance", 0)) +
@@ -272,12 +269,6 @@ const RewardCalculatorPage = () => {
 		!timePeriodValue ||
 		(amount || 0) > totalPossibleStakingAmount - networkInfo.minAmount ||
 		amount == 0;
-
-	// console.log("totalPossibleStakingAmount");
-	// console.log(totalPossibleStakingAmount);
-
-	// console.log("amount");
-	// console.log(amount);
 
 	return loading ? (
 		<div className="flex-center w-full h-full">

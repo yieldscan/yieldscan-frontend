@@ -67,7 +67,6 @@ const withDashboardLayout = (children) => {
 
 	useEffect(() => {
 		createPolkadotAPIInstance(networkInfo, apiInstance).then((api) => {
-			console.log("hello");
 			setApiInstance(api);
 		});
 	}, [networkInfo]);
@@ -199,8 +198,6 @@ const withDashboardLayout = (children) => {
 	// 		}
 	// 	}
 	// }, [freeAmount, bondedAmount, activeStake]);
-
-	console.log(isNil(apiInstance));
 
 	return () => (
 		<div>
