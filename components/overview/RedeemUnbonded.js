@@ -25,7 +25,7 @@ const RedeemUnbonded = withSlideIn(
 		api,
 		toggle,
 		redeemableBalance,
-		stashAccount,
+		selectedAccount,
 		networkInfo,
 	}) => {
 		const toast = useToast();
@@ -44,14 +44,14 @@ const RedeemUnbonded = withSlideIn(
 		const [closeOnOverlayClick, setCloseOnOverlayClick] = useState(true);
 		const [processComplete, setProcessComplete] = useState(false);
 
-		const { address } = stashAccount;
+		const { address } = selectedAccount;
 		useEffect(() => {
 			if (!transactionFee) {
 				getRedeemUnbondedFee(address, api, networkInfo).then((data) => {
 					setTransactionFee(data);
 				});
 			}
-		}, [stashAccount, networkInfo]);
+		}, [selectedAccount, networkInfo]);
 
 		useEffect(() => {
 			if (transactionFee) {
@@ -120,7 +120,7 @@ const RedeemUnbonded = withSlideIn(
 
 					if (status === 0) {
 						// updateTransactionData(
-						// 	stashAccount.address,
+						// 	selectedAccount.address,
 						// 	networkInfo.coinGeckoDenom,
 						// 	get(bondedAmount, "currency", 0),
 						// 	type == "bond"
@@ -138,7 +138,7 @@ const RedeemUnbonded = withSlideIn(
 						setErrMessage(message);
 						if (message !== "Cancelled") {
 							// updateTransactionData(
-							// 	stashAccount.address,
+							// 	selectedAccount.address,
 							// 	networkInfo.coinGeckoDenom,
 							// 	get(bondedAmount, "currency", 0),
 							// 	type == "bond"
@@ -152,7 +152,7 @@ const RedeemUnbonded = withSlideIn(
 					}
 				},
 			};
-			redeemUnbonded(stashAccount.address, api, handlers, networkInfo).catch(
+			redeemUnbonded(selectedAccount.address, api, handlers, networkInfo).catch(
 				(error) => {
 					handlers.onFinish(1, error.message);
 				}

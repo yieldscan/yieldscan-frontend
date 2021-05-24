@@ -174,6 +174,7 @@ const Header = ({ isBase }) => {
 				? accounts?.map((account) => (
 						<Account
 							account={account}
+							key={account.address}
 							api={apiInstance}
 							accountsBalances={accountsBalances}
 							setAccountsBalances={(info) => setAccountsBalances(info)}

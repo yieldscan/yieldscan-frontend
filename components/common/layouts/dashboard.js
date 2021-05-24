@@ -58,12 +58,10 @@ const withDashboardLayout = (children) => {
 	);
 
 	useEffect(() => {
-		if (isNil(coinGeckoPriceUSD)) {
-			fetchPrice(coinGeckoPriceUSD, networkInfo.coinGeckoDenom).then((price) =>
-				setCoinGeckoPriceUSD(price)
-			);
-		}
-	}, [networkInfo, coinGeckoPriceUSD]);
+		fetchPrice(coinGeckoPriceUSD, networkInfo.coinGeckoDenom).then((price) =>
+			setCoinGeckoPriceUSD(price)
+		);
+	}, [networkInfo]);
 
 	useEffect(() => {
 		createPolkadotAPIInstance(networkInfo, apiInstance).then((api) => {

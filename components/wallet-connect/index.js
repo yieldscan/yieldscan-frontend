@@ -92,6 +92,10 @@ const WalletConnectPopover = ({ styles, networkInfo }) => {
 					{
 						address: "EVA3sSvTqt1HvaHdtiT1JvmnM6qKq4mpMzsS8665jvv974C",
 						meta: { name: "test1" },
+					},
+					{
+						address: "13xDUejMzd7ehFFgjWdYcxdzykxS6yxiVq7cr96vQPQNQWy1",
+						meta: { name: "sahil" },
 					}
 				);
 				injectedAccounts?.map((account) => {

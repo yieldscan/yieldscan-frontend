@@ -33,12 +33,12 @@ const FundsUpdate = withSlideIn(
 		type,
 		close,
 		nominations,
-		bondedAmount,
-		unbondingBalances,
+		selectedAccount,
+		balance,
+		stakingInfo,
 		networkInfo,
 	}) => {
 		const toast = useToast();
-		const { stashAccount, freeAmount } = useAccounts();
 		const { apiInstance } = usePolkadotApi();
 		const { coinGeckoPriceUSD } = useCoinGeckoPriceUSD();
 		const [currentStep, setCurrentStep] = useState(0);
@@ -58,7 +58,9 @@ const FundsUpdate = withSlideIn(
 		const [calculationDisabled, setCalculationDisabled] = useState(true);
 
 		const [totalStakingAmount, setTotalStakingAmount] = useState(
-			get(bondedAmount, "currency", 0)
+			() =>
+				stakingInfo.stakingLedger.active /
+				Math.pow(10, networkInfo.decimalPlaces)
 		);
 		const [totalStakingAmountFiat, setTotalStakingAmountFiat] = useState(0);
 		const [validatorsLoading, setValidatorsLoading] = useState(true);
@@ -116,20 +118,15 @@ const FundsUpdate = withSlideIn(
 		}, [nominations]);
 
 		useEffect(() => {
-			apiInstance.query.staking.payee(stashAccount.address).then((payee) => {
+			apiInstance.query.staking.payee(selectedAccount.address).then((payee) => {
 				if (payee.isStaked) setCompounding(true);
 				else {
 					setCompounding(false);
 				}
 			});
-		}, [stashAccount]);
+		}, [selectedAccount]);
 
 		useEffect(() => {
-			// let amountByType = amount * (type === "bond" ? 1 : -1);
-			// const totalStakingAmount = Math.max(
-			// 	get(bondedAmount, "currency", 0) + amountByType,
-			// 	0
-			// );
 			const timePeriodValue = 12,
 				timePeriodUnit = "months";
 
@@ -151,7 +148,9 @@ const FundsUpdate = withSlideIn(
 			if (amount) {
 				let amountByType = amount * (type === "bond" ? 1 : -1);
 				const totalAmount = Math.max(
-					get(bondedAmount, "currency", 0) + amountByType,
+					stakingInfo.stakingLedger.active /
+						Math.pow(10, networkInfo.decimalPlaces) +
+						amountByType,
 					0
 				);
 				setTotalStakingAmount(totalAmount);
@@ -164,11 +163,18 @@ const FundsUpdate = withSlideIn(
 		}, [amount, totalStakingAmount]);
 
 		useEffect(() => {
-			if (type === "unbond" && amount > get(bondedAmount, "currency", 0)) {
+			if (
+				type === "unbond" &&
+				amount >
+					stakingInfo.stakingLedger.active /
+						Math.pow(10, networkInfo.decimalPlaces)
+			) {
 				setCalculationDisabled(true);
 			} else if (
 				type === "bond" &&
-				amount > get(freeAmount, "currency", 0) - networkInfo.minAmount
+				amount >
+					balance.availableBalance / Math.pow(10, networkInfo.decimalPlaces) -
+						networkInfo.minAmount
 			) {
 				setCalculationDisabled(true);
 			} else if (type === "rebond" && amount > totalUnbonding) {
@@ -224,12 +230,17 @@ const FundsUpdate = withSlideIn(
 
 					if (status === 0) {
 						updateTransactionData(
-							stashAccount.address,
+							selectedAccount.address,
 							networkInfo.network,
-							get(bondedAmount, "currency", 0),
+							stakingInfo.stakingLedger.active /
+								Math.pow(10, networkInfo.decimalPlaces),
 							type == "bond" || type == "rebond"
-								? get(bondedAmount, "currency", 0) + amount
-								: get(bondedAmount, "currency", 0) - amount,
+								? stakingInfo.stakingLedger.active /
+										Math.pow(10, networkInfo.decimalPlaces) +
+										amount
+								: stakingInfo.stakingLedger.active /
+										Math.pow(10, networkInfo.decimalPlaces) -
+										amount,
 							tranHash,
 							true
 						);
@@ -242,12 +253,17 @@ const FundsUpdate = withSlideIn(
 						setErrMessage(message);
 						if (message !== "Cancelled") {
 							updateTransactionData(
-								stashAccount.address,
+								selectedAccount.address,
 								networkInfo.network,
-								get(bondedAmount, "currency", 0),
+								stakingInfo.stakingLedger.active /
+									Math.pow(10, networkInfo.decimalPlaces),
 								type == "bond" || type == "rebond"
-									? get(bondedAmount, "currency", 0) + amount
-									: get(bondedAmount, "currency", 0) - amount,
+									? stakingInfo.stakingLedger.active /
+											Math.pow(10, networkInfo.decimalPlaces) +
+											amount
+									: stakingInfo.stakingLedger.active /
+											Math.pow(10, networkInfo.decimalPlaces) -
+											amount,
 								tranHash,
 								false
 							);
@@ -258,7 +274,7 @@ const FundsUpdate = withSlideIn(
 			};
 			updateFunds(
 				type,
-				stashAccount.address,
+				selectedAccount.address,
 				amount,
 				apiInstance,
 				handlers,
@@ -353,12 +369,7 @@ const FundsUpdate = withSlideIn(
 														>
 															Available Balance:{" "}
 															{formatCurrency.methods.formatAmount(
-																Math.trunc(
-																	Number(
-																		(get(freeAmount, "currency", 0) || 0) *
-																			10 ** networkInfo.decimalPlaces
-																	)
-																),
+																balance.availableBalance,
 																networkInfo
 															)}
 														</span>
@@ -368,12 +379,7 @@ const FundsUpdate = withSlideIn(
 														>
 															Current Investment:{" "}
 															{formatCurrency.methods.formatAmount(
-																Math.trunc(
-																	Number(
-																		(get(bondedAmount, "currency", 0) || 0) *
-																			10 ** networkInfo.decimalPlaces
-																	)
-																),
+																stakingInfo.stakingLedger.active,
 																networkInfo
 															)}
 														</span>
@@ -395,12 +401,19 @@ const FundsUpdate = withSlideIn(
 													</div>
 													<div className="flex flex-col">
 														<AmountInput
-															bonded={get(bondedAmount, "currency")}
+															bonded={
+																stakingInfo.stakingLedger.active /
+																Math.pow(10, networkInfo.decimalPlaces)
+															}
 															value={{
 																currency: amount,
 																subCurrency: subCurrency,
 															}}
 															networkInfo={networkInfo}
+															availableBalance={
+																balance.availableBalance /
+																Math.pow(10, networkInfo.decimalPlaces)
+															}
 															totalUnbonding={totalUnbonding}
 															totalUnbondingFiat={totalUnbondingFiat}
 															type={type}
@@ -419,8 +432,14 @@ const FundsUpdate = withSlideIn(
 													onClick={handleOnClickProceed}
 													disabled={
 														type == "bond"
-															? amount > freeAmount.currency || !amount
-															: amount > bondedAmount.currency || !amount
+															? amount >
+																	balance.availableBalance /
+																		Math.pow(10, networkInfo.decimalPlaces) ||
+															  !amount
+															: amount >
+																	stakingInfo.stakingLedger.active /
+																		Math.pow(10, networkInfo.decimalPlaces) ||
+															  !amount
 													}
 													// isLoading={updatingFunds}
 												>
@@ -439,10 +458,10 @@ const FundsUpdate = withSlideIn(
 											subCurrency={subCurrency}
 											type={type}
 											close={close}
-											stashId={stashAccount.address}
+											stashId={selectedAccount.address}
 											nominations={nominations}
 											handlePopoverClose={handlePopoverClose}
-											bondedAmount={bondedAmount}
+											stakingInfo={stakingInfo}
 											networkInfo={networkInfo}
 											api={apiInstance}
 											onConfirm={onConfirm}

@@ -113,12 +113,10 @@ const RewardCalculatorPage = () => {
 	const [stakingBalance, setStakingBalance] = useState();
 
 	useEffect(() => {
-		console.log("render2");
 		setBalance(accountsBalances[selectedAccount?.address]);
 	}, [accountsBalances[selectedAccount?.address]]);
 
 	useEffect(() => {
-		console.log("render3");
 		setStakingBalance(accountsStakingInfo[selectedAccount?.address]);
 	}, [accountsStakingInfo[selectedAccount?.address]]);
 

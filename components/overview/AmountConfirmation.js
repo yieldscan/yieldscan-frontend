@@ -14,7 +14,7 @@ const AmountConfirmation = ({
 	nominations,
 	handlePopoverClose,
 	api,
-	bondedAmount,
+	stakingInfo,
 	networkInfo,
 	onConfirm,
 }) => {
@@ -29,7 +29,8 @@ const AmountConfirmation = ({
 				stashId,
 				amount,
 				type,
-				bondedAmount.currency,
+				stakingInfo.stakingLedger.active /
+					Math.pow(10, networkInfo.decimalPlaces),
 				api,
 				networkInfo
 			).then((data) => {
@@ -60,10 +61,18 @@ const AmountConfirmation = ({
 	useEffect(() => {
 		if (!totalAmount) {
 			type === "bond" || type == "rebond"
-				? setTotalAmount(amount + bondedAmount.currency)
-				: setTotalAmount(bondedAmount.currency - amount);
+				? setTotalAmount(
+						amount +
+							stakingInfo.stakingLedger.active /
+								Math.pow(10, networkInfo.decimalPlaces)
+				  )
+				: setTotalAmount(
+						stakingInfo.stakingLedger.active /
+							Math.pow(10, networkInfo.decimalPlaces) -
+							amount
+				  );
 		}
-	}, [amount, bondedAmount]);
+	}, [amount, stakingInfo]);
 
 	return (
 		<div className="flex flex-col">
@@ -76,15 +85,17 @@ const AmountConfirmation = ({
 						</span>
 						<h3 className="text-2xl white-space-nowrap">
 							{formatCurrency.methods.formatAmount(
-								Math.trunc(
-									bondedAmount.currency *
-										Math.pow(10, networkInfo.decimalPlaces)
-								),
+								stakingInfo.stakingLedger.active,
 								networkInfo
 							)}
 						</h3>
 						<span className="text-sm font-medium text-teal-500">
-							${bondedAmount.subCurrency.toFixed(2)}
+							$
+							{(
+								(stakingInfo.stakingLedger.active /
+									Math.pow(10, networkInfo.decimalPlaces)) *
+								coinGeckoPriceUSD
+							).toFixed(2)}
 						</span>
 					</div>
 					<div>

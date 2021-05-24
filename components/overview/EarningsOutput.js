@@ -85,39 +85,39 @@ const EarningsOutput = ({ networkInfo, inputValue, validators, address }) => {
 	}, [validatorMap]);
 
 	useEffect(() => {
-		if (!totalEarnings) {
-			getRewards(address, networkInfo).then((data) => {
-				const currentTimeStamp = Date.now() / 1000;
-				const oneDayEarnings = data
-					.filter((x) => x.block_timestamp > currentTimeStamp - 86400)
-					.reduce((a, b) => a + parseInt(b.amount), 0);
-				setDailyEarnings({
-					currency: oneDayEarnings,
-					subCurrency:
-						(oneDayEarnings / Math.pow(10, networkInfo.decimalPlaces)) *
-						coinGeckoPriceUSD,
-				});
-
-				const weekEarnings = data
-					.filter((x) => x.block_timestamp > currentTimeStamp - 604800)
-					.reduce((a, b) => a + parseInt(b.amount), 0);
-				setWeeklyEarnings({
-					currency: weekEarnings,
-					subCurrency:
-						(weekEarnings / Math.pow(10, networkInfo.decimalPlaces)) *
-						coinGeckoPriceUSD,
-				});
-
-				const total = data.reduce((a, b) => a + parseInt(b.amount), 0);
-				setTotalEarnings({
-					currency: total,
-					subCurrency:
-						(total / Math.pow(10, networkInfo.decimalPlaces)) *
-						coinGeckoPriceUSD,
-				});
+		setDailyEarnings(null);
+		setWeeklyEarnings(null);
+		setTotalEarnings(null);
+		getRewards(address, networkInfo).then((data) => {
+			const currentTimeStamp = Date.now() / 1000;
+			const oneDayEarnings = data
+				.filter((x) => x.block_timestamp > currentTimeStamp - 86400)
+				.reduce((a, b) => a + parseInt(b.amount), 0);
+			setDailyEarnings({
+				currency: oneDayEarnings,
+				subCurrency:
+					(oneDayEarnings / Math.pow(10, networkInfo.decimalPlaces)) *
+					coinGeckoPriceUSD,
 			});
-		}
-	}, [networkInfo]);
+
+			const weekEarnings = data
+				.filter((x) => x.block_timestamp > currentTimeStamp - 604800)
+				.reduce((a, b) => a + parseInt(b.amount), 0);
+			setWeeklyEarnings({
+				currency: weekEarnings,
+				subCurrency:
+					(weekEarnings / Math.pow(10, networkInfo.decimalPlaces)) *
+					coinGeckoPriceUSD,
+			});
+
+			const total = data.reduce((a, b) => a + parseInt(b.amount), 0);
+			setTotalEarnings({
+				currency: total,
+				subCurrency:
+					(total / Math.pow(10, networkInfo.decimalPlaces)) * coinGeckoPriceUSD,
+			});
+		});
+	}, [networkInfo, address]);
 
 	useEffect(() => {
 		if (!validatorMap) {
