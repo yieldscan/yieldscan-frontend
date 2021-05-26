@@ -15,6 +15,7 @@ import { useEffect, useState } from "react";
 const LowBalanceAlert = ({
 	networkInfo,
 	amount,
+	activeBondedAmount,
 	totalAvailableStakingAmount,
 	totalPossibleStakingAmount,
 	stakingBalance,
@@ -25,6 +26,15 @@ const LowBalanceAlert = ({
 	const [description, setDescription] = useState();
 	const [descriptionColor, setDescriptionColor] = useState();
 	useEffect(() => {
+		amount > totalPossibleStakingAmount
+			? true
+			: activeBondedAmount > totalPossibleStakingAmount - networkInfo.minAmount
+			? totalAvailableStakingAmount < networkInfo.minAmount / 2
+				? true
+				: false
+			: amount > totalPossibleStakingAmount - networkInfo.minAmount
+			? true
+			: false;
 		if (amount > totalPossibleStakingAmount) {
 			setStatus("error");
 			setTitleColor("red.500");
@@ -41,7 +51,10 @@ const LowBalanceAlert = ({
 					networkInfo
 				)} to proceed further.`
 			);
-		} else if (totalAvailableStakingAmount < networkInfo.minAmount) {
+		} else if (
+			activeBondedAmount >
+			totalPossibleStakingAmount - networkInfo.minAmount
+		) {
 			if (totalAvailableStakingAmount < networkInfo.minAmount / 2) {
 				setStatus("error");
 				setTitleColor("red.500");
@@ -65,13 +78,30 @@ const LowBalanceAlert = ({
 					`Your available balance is low, we recommend to add more ${networkInfo.denom}'s`
 				);
 			}
-		}
+		} else if (amount > totalPossibleStakingAmount - networkInfo.minAmount) {
+			setStatus("error");
+			setTitleColor("red.500");
+			setTitle("Insufficient Balance");
+			setDescriptionColor("red.500");
+			setDescription(
+				`You need an additional of ${formatCurrency.methods.formatAmount(
+					Math.trunc(
+						Number(
+							amount - (totalPossibleStakingAmount - networkInfo.minAmount)
+						) *
+							10 ** networkInfo.decimalPlaces
+					),
+					networkInfo
+				)} to proceed further.`
+			);
+		} else setStatus(null);
 	});
 
 	return (
 		<Alert
 			status={status}
 			rounded="md"
+			hidden={status}
 			flex
 			flexDirection="column"
 			alignItems="start"

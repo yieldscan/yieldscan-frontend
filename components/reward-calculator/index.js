@@ -76,13 +76,7 @@ const RewardCalculatorPage = () => {
 		(state) => state.setTransactionState
 	);
 	const transactionState = useTransaction();
-	const {
-		stashAccount,
-		accounts,
-		freeAmount,
-		bondedAmount,
-		accountInfoLoading,
-	} = useAccounts();
+	const { accounts, freeAmount, bondedAmount } = useAccounts();
 	const { selectedAccount } = useSelectedAccount();
 	const { accountsBalances } = useAccountsBalances();
 	const { accountsStakingInfo } = useAccountsStakingInfo();
@@ -254,19 +248,42 @@ const RewardCalculatorPage = () => {
 		router.push(`${Routes.VALIDATORS}?advanced=true`);
 	};
 
-	const totalPossibleStakingAmount =
-		get(balance, "freeBalance", 0) / Math.pow(10, networkInfo.decimalPlaces);
+	const totalBondedAmount =
+		parseInt(get(stakingBalance, "stakingLedger.total", 0)) /
+		Math.pow(10, networkInfo.decimalPlaces);
+
+	const activeBondedAmount =
+		parseInt(get(stakingBalance, "stakingLedger.active", 0)) /
+		Math.pow(10, networkInfo.decimalPlaces);
 
 	const totalAvailableStakingAmount =
-		(parseInt(get(balance, "availableBalance", 0)) +
-			parseInt(get(balance, "vestingLocked", 0))) /
+		parseInt(get(balance, "availableBalance", 0)) /
 		Math.pow(10, networkInfo.decimalPlaces);
+
+	const totalPossibleStakingAmount =
+		activeBondedAmount + totalAvailableStakingAmount;
 
 	const calculationDisabled =
 		!totalPossibleStakingAmount ||
 		!timePeriodValue ||
 		(amount || 0) > totalPossibleStakingAmount - networkInfo.minAmount ||
 		amount == 0;
+
+	const proceedDisabled =
+		accounts && selectedAccount
+			? amount && !isInElection
+				? amount > totalPossibleStakingAmount
+					? true
+					: activeBondedAmount >
+					  totalPossibleStakingAmount - networkInfo.minAmount
+					? totalAvailableStakingAmount < networkInfo.minAmount / 2
+						? true
+						: false
+					: amount > totalPossibleStakingAmount - networkInfo.minAmount
+					? true
+					: false
+				: true
+			: false;
 
 	return loading ? (
 		<div className="flex-center w-full h-full">
@@ -333,6 +350,7 @@ const RewardCalculatorPage = () => {
 										<LowBalanceAlert
 											amount={amount}
 											stakingBalance={stakingBalance}
+											activeBondedAmount={activeBondedAmount}
 											networkInfo={networkInfo}
 											totalPossibleStakingAmount={totalPossibleStakingAmount}
 											totalAvailableStakingAmount={totalAvailableStakingAmount}
@@ -468,34 +486,9 @@ const RewardCalculatorPage = () => {
 						<button
 							className={`
 						rounded-full font-medium px-12 py-3 bg-teal-500 text-white
-						${
-							(selectedAccount &&
-								(get(freeAmount, "currency", 0) < networkInfo.minAmount
-									? amount > get(bondedAmount, "currency", 0)
-										? calculationDisabled
-										: get(freeAmount, "currency", 0) > networkInfo.minAmount / 2
-										? false
-										: true
-									: calculationDisabled)) ||
-							accountInfoLoading ||
-							isInElection
-								? "opacity-75 cursor-not-allowed"
-								: "opacity-100"
-						}
+						${proceedDisabled ? "opacity-75 cursor-not-allowed" : "opacity-100"}
 					`}
-							disabled={
-								(selectedAccount &&
-									(get(freeAmount, "currency", 0) < networkInfo.minAmount
-										? amount > get(bondedAmount, "currency", 0)
-											? calculationDisabled
-											: get(freeAmount, "currency", 0) >
-											  networkInfo.minAmount / 2
-											? false
-											: true
-										: calculationDisabled)) ||
-								accountInfoLoading ||
-								isInElection
-							}
+							disabled={proceedDisabled}
 							onClick={() => (selectedAccount ? onPayment() : toggle())}
 						>
 							{isNil(accounts)

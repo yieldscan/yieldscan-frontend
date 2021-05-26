@@ -27,9 +27,9 @@ const AmountInputDefault = memo(
 		const [isEditable, setIsEditable] = useState(true);
 		const [inputValue, setInputValue] = useState(value.currency);
 		const maxAmount = Math.max(
-			availableBalance + vestingLocked <= networkInfo.minAmount
+			availableBalance <= networkInfo.minAmount
 				? bonded
-				: bonded + availableBalance + vestingLocked - networkInfo.minAmount,
+				: bonded + availableBalance - networkInfo.minAmount,
 			0
 		);
 
