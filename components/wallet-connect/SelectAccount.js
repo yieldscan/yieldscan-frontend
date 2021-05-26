@@ -64,6 +64,7 @@ const SelectAccount = ({ accounts, onAccountSelected, networkInfo }) => {
 						return (
 							<Account
 								account={account}
+								key={account.address}
 								onAccountSelected={onAccountSelected}
 								balances={accountsBalances[account.address]}
 								networkInfo={networkInfo}
