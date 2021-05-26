@@ -1,3 +1,4 @@
+// TODO: Cleanup this: remove unused variables and effects
 import { useState, useEffect } from "react";
 import {
 	Modal,
@@ -183,6 +184,20 @@ const FundsUpdate = withSlideIn(
 				setCalculationDisabled(true);
 			} else setCalculationDisabled(false);
 		}, [amount]);
+
+		useEffect(() => {
+			if (stakingInfo?.unlocking && !stakingInfo?.unlocking?.isEmpty) {
+				const total = stakingInfo.unlocking.reduce(
+					(a, b) => a + b.value / Math.pow(10, networkInfo.decimalPlaces),
+					0
+				);
+				setTotalUnbonding(total);
+				setTotalUnbondingFiat(total * coinGeckoPriceUSD);
+			} else {
+				setTotalUnbonding(null);
+				setTotalUnbondingFiat(null);
+			}
+		}, [stakingInfo?.unlocking, coinGeckoPriceUSD]);
 
 		const onConfirm = () => {
 			setUpdatingFunds(true);

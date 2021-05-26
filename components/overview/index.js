@@ -153,7 +153,7 @@ const Overview = () => {
 		toggleFundsUpdateModal();
 	};
 
-	const openUnbondingListModal = (type) => {
+	const openUnbondingListModal = () => {
 		toggleUnbondingList();
 	};
 
@@ -248,6 +248,7 @@ const Overview = () => {
 			/>
 			<UnbondingList
 				api={apiInstance}
+				isOpen={openUnbondingList}
 				close={closeUnbondingList}
 				stakingInfo={stakingInfo}
 				networkInfo={networkInfo}
@@ -272,7 +273,7 @@ const Overview = () => {
 						unbondFunds={() => openFundsUpdateModal("unbond")}
 						rebondFunds={() => openFundsUpdateModal("rebond")}
 						toggleRedeemUnbonded={toggleRedeemUnbonded}
-						openUnbondingListModal={openUnbondingListModal}
+						openUnbondingListModal={() => openUnbondingListModal()}
 						openRewardDestinationModal={toggleRewardDestinationModal}
 						networkInfo={networkInfo}
 					/>

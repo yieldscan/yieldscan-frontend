@@ -54,7 +54,7 @@ const UnbondingAmountCard = ({
 };
 
 const UnbondingList = withSlideIn(
-	({ api, close, stakingInfo, networkInfo }) => {
+	({ api, close, isOpen, stakingInfo, networkInfo }) => {
 		const handlePopoverClose = () => {
 			close();
 		};
@@ -77,7 +77,7 @@ const UnbondingList = withSlideIn(
 
 		return (
 			<Modal
-				isOpen={true}
+				isOpen={isOpen}
 				onClose={close}
 				isCentered
 				closeOnOverlayClick={true}

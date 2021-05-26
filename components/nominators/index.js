@@ -33,7 +33,7 @@ const Nominators = () => {
 				setNominatorsData(data);
 			})
 			.catch((err) => {
-				console.log(err);
+				console.error(err);
 				setError(true);
 			})
 			.finally(() => {
