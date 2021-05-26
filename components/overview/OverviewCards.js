@@ -13,38 +13,17 @@ import { HelpPopover } from "@components/reward-calculator";
 
 const OverviewCards = ({
 	stats,
-	bondedAmount,
-	balance,
 	stakingInfo,
-	activeStake,
-	address,
 	validators,
-	redeemableBalance,
 	openUnbondingListModal,
 	toggleRedeemUnbonded,
-	unbondingBalances,
-	unlockingBalances = [],
-	openRewardDestinationModal = noop,
 	bondFunds = noop,
 	unbondFunds = noop,
 	rebondFunds = noop,
 	networkInfo,
 }) => {
-	// const totalUnlockingBalance = formatCurrency.methods.formatAmount(
-	// 	Math.trunc(
-	// 		unlockingBalances.reduce(
-	// 			(total, balanceInfo) => total + balanceInfo.value,
-	// 			0
-	// 		)
-	// 	),
-	// 	networkInfo
-	// );
-
-	const { apiInstance } = usePolkadotApi();
-	const { stashAccount } = useAccounts();
 	const { isInElection } = useNetworkElection();
 	const { coinGeckoPriceUSD } = useCoinGeckoPriceUSD();
-	const [compounding, setCompounding] = useState(false);
 
 	const isActivelyStaking = isNil(validators)
 		? false
@@ -52,43 +31,9 @@ const OverviewCards = ({
 		? true
 		: false;
 
-	const [totalAmountStakedFiat, setTotalAmountStakedFiat] = useState();
-	const [earningsFiat, setEarningsFiat] = useState();
-	const [estimatedRewardsFiat, setEstimatedRewardsFiat] = useState();
-	const [expectedAPR, setExpectedAPR] = useState(0);
 	const [redeemableBalanceFiat, setRedeemableBalanceFiat] = useState();
 	const [totalUnbonding, setTotalUnbonding] = useState();
 	const [totalUnbondingFiat, setTotalUnbondingFiat] = useState();
-
-	useEffect(() => {
-		if (!isNil(apiInstance)) {
-			apiInstance.query.staking.payee(stashAccount.address).then((payee) => {
-				if (payee.isStaked) setCompounding(true);
-				else {
-					setCompounding(false);
-				}
-			});
-		}
-	}, [stashAccount, apiInstance]);
-	useEffect(() => {
-		if (stats) {
-			setTotalAmountStakedFiat(stats.totalAmountStaked * coinGeckoPriceUSD);
-			setEstimatedRewardsFiat(stats.estimatedRewards * coinGeckoPriceUSD);
-			setEarningsFiat(stats.earnings * coinGeckoPriceUSD);
-		}
-
-		if (validators) {
-			calculateReward(
-				coinGeckoPriceUSD,
-				validators.filter((validator) => validator.isElected),
-				stats.totalAmountStaked,
-				12,
-				"months",
-				compounding,
-				networkInfo
-			).then(({ yieldPercentage }) => setExpectedAPR(yieldPercentage));
-		}
-	}, [stats, compounding]);
 
 	useEffect(() => {
 		if (!stakingInfo.redeemable.isEmpty) {

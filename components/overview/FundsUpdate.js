@@ -184,17 +184,6 @@ const FundsUpdate = withSlideIn(
 			} else setCalculationDisabled(false);
 		}, [amount]);
 
-		useEffect(() => {
-			if (unbondingBalances.length > 0) {
-				const total = unbondingBalances.reduce((a, b) => a + b.value, 0);
-				setTotalUnbonding(total);
-				setTotalUnbondingFiat(total * coinGeckoPriceUSD);
-			} else {
-				setTotalUnbonding(null);
-				setTotalUnbondingFiat(null);
-			}
-		}, [unbondingBalances]);
-
 		const onConfirm = () => {
 			setUpdatingFunds(true);
 			setCloseOnOverlayClick(false);

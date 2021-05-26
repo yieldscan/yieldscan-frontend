@@ -25,6 +25,7 @@ const RedeemUnbonded = withSlideIn(
 		api,
 		toggle,
 		redeemableBalance,
+		stakingInfo,
 		selectedAccount,
 		networkInfo,
 	}) => {

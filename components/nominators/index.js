@@ -19,10 +19,8 @@ const Nominators = () => {
 	const { coinGeckoPriceUSD } = useCoinGeckoPriceUSD();
 	const [loading, setLoading] = useState(true);
 	const [nominatorsData, setNominatorsData] = useState(undefined);
-	const [
-		totalAmountStakedSubCurrency,
-		setTotalAmountStakedSubCurrency,
-	] = useState();
+	const [totalAmountStakedSubCurrency, setTotalAmountStakedSubCurrency] =
+		useState();
 	const [totalRewardsSubCurrency, setTotalRewardsSubCurrency] = useState();
 
 	useEffect(() => {
@@ -34,7 +32,8 @@ const Nominators = () => {
 			.then(({ data }) => {
 				setNominatorsData(data);
 			})
-			.catch(() => {
+			.catch((err) => {
+				console.log(err);
 				setError(true);
 			})
 			.finally(() => {

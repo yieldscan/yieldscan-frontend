@@ -54,15 +54,7 @@ const UnbondingAmountCard = ({
 };
 
 const UnbondingList = withSlideIn(
-	({
-		open,
-		api,
-		close,
-		toggle,
-		unbondingBalances,
-		stakingInfo,
-		networkInfo,
-	}) => {
+	({ api, close, stakingInfo, networkInfo }) => {
 		const handlePopoverClose = () => {
 			close();
 		};

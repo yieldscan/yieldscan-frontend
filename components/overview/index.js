@@ -44,16 +44,7 @@ const Overview = () => {
 	const networkInfo = getNetworkInfo(selectedNetwork);
 	const { toggle } = useWalletConnect();
 	const { apiInstance } = usePolkadotApi();
-	const {
-		accounts,
-		bondedAmount,
-		activeStake,
-		setFreeAmount,
-		unlockingBalances,
-		redeemableBalance,
-		unbondingBalances,
-		accountInfoLoading,
-	} = useAccounts();
+	const { accounts, redeemableBalance } = useAccounts();
 	const { selectedAccount } = useSelectedAccount();
 	const { accountsBalances } = useAccountsBalances();
 	const { accountsStakingInfo } = useAccountsStakingInfo();
@@ -250,20 +241,15 @@ const Overview = () => {
 				close={closeFundsUpdateModal}
 				type={fundsUpdateModalType}
 				nominations={allNominations}
-				unbondingBalances={unbondingBalances}
-				bondedAmount={bondedAmount}
 				selectedAccount={selectedAccount}
 				balance={balance}
 				stakingInfo={stakingInfo}
 				networkInfo={networkInfo}
 			/>
 			<UnbondingList
-				isOpen={openUnbondingList}
 				api={apiInstance}
 				close={closeUnbondingList}
-				toggle={toggleUnbondingList}
 				stakingInfo={stakingInfo}
-				unbondingBalances={unbondingBalances}
 				networkInfo={networkInfo}
 			/>
 			<RedeemUnbonded
@@ -271,7 +257,8 @@ const Overview = () => {
 				close={closeRedeemUnbonded}
 				api={apiInstance}
 				toggle={toggleRedeemUnbonded}
-				redeemableBalance={redeemableBalance}
+				redeemableBalance={stakingInfo?.redeemable}
+				stakingInfo={stakingInfo}
 				selectedAccount={selectedAccount}
 				networkInfo={networkInfo}
 			/>
@@ -279,15 +266,8 @@ const Overview = () => {
 				<div className="flex">
 					<OverviewCards
 						stats={isNil(userData) ? null : userData.stats}
-						balance={balance}
 						stakingInfo={stakingInfo}
-						bondedAmount={bondedAmount}
-						address={selectedAccount.address}
-						activeStake={activeStake}
 						validators={isNil(userData) ? null : userData.validatorsInfo}
-						unlockingBalances={unlockingBalances}
-						unbondingBalances={unbondingBalances}
-						redeemableBalance={redeemableBalance}
 						bondFunds={() => openFundsUpdateModal("bond")}
 						unbondFunds={() => openFundsUpdateModal("unbond")}
 						rebondFunds={() => openFundsUpdateModal("rebond")}
