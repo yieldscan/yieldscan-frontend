@@ -10,6 +10,12 @@ import {
 	ModalCloseButton,
 	ModalHeader,
 	Spinner,
+	Box,
+	SimpleGrid,
+	Flex,
+	Text,
+	Button,
+	Icon,
 } from "@chakra-ui/core";
 import { web3Enable, web3AccountsSubscribe } from "@polkadot/extension-dapp";
 import { encodeAddress, decodeAddress } from "@polkadot/util-crypto";
@@ -35,9 +41,16 @@ const WalletConnectStates = {
 	RECOVERAUTH: "recover",
 };
 
+const CheckIconInfo = ({ info }) => (
+	<Flex flexDirection="row" alignItems="center" m={2}>
+		<Icon name="check-circle" color="#2BCACA" />
+		<Text ml={2} fontSize="xs" lineHeight="18px" color="gray.700">
+			{info}
+		</Text>
+	</Flex>
+);
 const WalletConnectPopover = ({ styles, networkInfo }) => {
 	const { isOpen, close } = useWalletConnect();
-	const [extensionEvent, setExtensionEvent] = useState();
 	const {
 		accounts,
 		stashAccount,
@@ -46,7 +59,9 @@ const WalletConnectPopover = ({ styles, networkInfo }) => {
 		setStashAccount,
 	} = useAccounts();
 	const { selectedAccount, setSelectedAccount } = useSelectedAccount();
-	const [state, setState] = useState("");
+	const [state, setState] = useState();
+	const [extensionEvent, setExtensionEvent] = useState();
+	const [currentStep, setCurrentStep] = useState("beginnerInfo");
 
 	const handlers = {
 		onEvent: (eventInfo) => {
@@ -55,30 +70,39 @@ const WalletConnectPopover = ({ styles, networkInfo }) => {
 	};
 
 	const userStorage = !isNil(typeof window) ? window.localStorage : null;
+	const autoConnectEnabled = userStorage.getItem("autoConnectEnabled");
 	const setAuthForAutoConnect = () => {
 		userStorage.setItem("autoConnectEnabled", "true");
 	};
 
 	useEffect(() => {
-		web3Enable("YieldScan").then((extension) => {
-			if (extension.length === 0) {
-				setState(WalletConnectStates.REJECTED);
-				if (typeof window !== undefined) {
-					trackEvent(Events.AUTH_REJECTED, {
-						path: window.location.pathname,
-					});
-				}
-			} else {
-				setState(WalletConnectStates.CONNECTED);
-				setAuthForAutoConnect();
-				if (typeof window !== undefined) {
-					trackEvent(Events.AUTH_ALLOWED, {
-						path: window.location.pathname,
-					});
-				}
-			}
-		});
+		if (autoConnectEnabled) {
+			setCurrentStep("connectWallet");
+		}
 	}, []);
+
+	useEffect(() => {
+		if (currentStep === "connectWallet") {
+			web3Enable("YieldScan").then((extension) => {
+				if (extension.length === 0) {
+					setState(WalletConnectStates.REJECTED);
+					if (typeof window !== undefined) {
+						trackEvent(Events.AUTH_REJECTED, {
+							path: window.location.pathname,
+						});
+					}
+				} else {
+					setState(WalletConnectStates.CONNECTED);
+					setAuthForAutoConnect();
+					if (typeof window !== undefined) {
+						trackEvent(Events.AUTH_ALLOWED, {
+							path: window.location.pathname,
+						});
+					}
+				}
+			});
+		}
+	}, [currentStep]);
 
 	useEffect(() => {
 		let unsubscribe;
@@ -179,6 +203,9 @@ const WalletConnectPopover = ({ styles, networkInfo }) => {
 		setState(WalletConnectStates.RECOVERAUTH);
 	};
 
+	console.log(autoConnectEnabled);
+	console.log(state);
+
 	return (
 		<Modal
 			isOpen={isOpen}
@@ -188,32 +215,15 @@ const WalletConnectPopover = ({ styles, networkInfo }) => {
 			closeOnOverlayClick={true}
 		>
 			<ModalOverlay />
-			<ModalContent
-				rounded="lg"
-				maxWidth={state === WalletConnectStates.REJECTED ? "lg" : "xl"}
-				{...styles}
-				py={4}
-			>
+			<ModalContent rounded="lg" maxWidth="lg" {...styles} py={4}>
 				<ModalHeader>
-					{[
-						WalletConnectStates.DISCLAIMER,
-						WalletConnectStates.CREATE,
-						WalletConnectStates.IMPORT,
-					].includes(state) ? (
-						<div
-							className="text-sm flex-center px-2 py-1 text-gray-700 bg-gray-200 rounded-xl w-40 font-normal cursor-pointer"
-							onClick={() => setState(WalletConnectStates.REJECTED)}
-						>
-							<ChevronLeft />
-							<span>Wallet Connect</span>
-						</div>
-					) : (
-						state === WalletConnectStates.CONNECTED && (
-							<h3 className="px-3 text-2xl text-left self-start">
-								Select Account
-							</h3>
-						)
-					)}
+					<h3 className="px-3 text-2xl text-left text-gray-700 self-start">
+						{currentStep === "beginnerInfo"
+							? "What you should know"
+							: isNil(state)
+							? "Wallet Connect"
+							: "Select Account"}
+					</h3>
 				</ModalHeader>
 				<ModalCloseButton
 					onClick={close}
@@ -225,31 +235,75 @@ const WalletConnectPopover = ({ styles, networkInfo }) => {
 					mr={4}
 				/>
 				<ModalBody>
-					{state === WalletConnectStates.REJECTED ? (
-						<RejectedPage handleRecoveryAuth={handleRecoveryAuth} />
-					) : state === WalletConnectStates.RECOVERAUTH ? (
-						<RecoverAuthInfo />
-					) : !accounts ? (
-						<div className="flex-center w-full h-full min-h-26-rem">
-							<div className="flex-center flex-col">
-								<Spinner size="xl" color="teal.500" thickness="4px" />
-								<span className="text-sm text-gray-600 mt-5">
-									{extensionEvent}
-								</span>
+					{currentStep === "connectWallet" ? (
+						state === WalletConnectStates.REJECTED ? (
+							<RejectedPage handleRecoveryAuth={handleRecoveryAuth} />
+						) : state === WalletConnectStates.RECOVERAUTH ? (
+							<RecoverAuthInfo />
+						) : !accounts ? (
+							<div className="flex-center w-full h-full min-h-26-rem">
+								<div className="flex-center flex-col">
+									<Spinner size="xl" color="teal.500" thickness="4px" />
+									<span className="text-sm text-gray-600 mt-5">
+										{extensionEvent}
+									</span>
+								</div>
 							</div>
-						</div>
-					) : (
-						state === WalletConnectStates.CONNECTED && (
-							<SelectAccount
-								accounts={
-									accountsWithBalances !== null
-										? accountsWithBalances
-										: accounts
-								}
-								onAccountSelected={onAccountSelected}
-								networkInfo={networkInfo}
-							/>
+						) : (
+							state === WalletConnectStates.CONNECTED && (
+								<SelectAccount
+									accounts={
+										accountsWithBalances !== null
+											? accountsWithBalances
+											: accounts
+									}
+									onAccountSelected={onAccountSelected}
+									networkInfo={networkInfo}
+								/>
+							)
 						)
+					) : (
+						<SimpleGrid w="100%" columns={1} spacing={8}>
+							<Box w="100%">
+								<CheckIconInfo info="You keep ownership of your funds" />
+								<CheckIconInfo info="Staking rewards usually start to show after 2-3 days" />
+								<CheckIconInfo
+									info="Funds will be locked for staking and can be unlocked at any
+										time, but unlocking takes 28 days"
+								/>
+							</Box>
+
+							<Flex
+								w="100%"
+								align="center"
+								justify="center"
+								border="1px"
+								borderStyle="dashed"
+								borderColor="gray.700"
+								rounded="md"
+								p={6}
+							>
+								<Icon name="warning" size={10} color="#2BCACA" />
+								<Text ml={2} fontSize="sm" color="gray.700">
+									Your staked funds may be irrevocably lost if the validator
+									doesn’t behave properly, YieldScan mitigates this but does NOT
+									guarantee immunity
+								</Text>
+							</Flex>
+							<Button
+								w="100%"
+								rounded="full"
+								color="white"
+								bg="#2BCACA"
+								alignItems="center"
+								fontWeight="medium"
+								textAlign="center"
+								p={6}
+								onClick={() => setCurrentStep("connectWallet")}
+							>
+								Continue
+							</Button>
+						</SimpleGrid>
 					)}
 				</ModalBody>
 			</ModalContent>

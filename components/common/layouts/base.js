@@ -20,6 +20,7 @@ const Header = dynamic(
 );
 
 import { getNetworkInfo } from "yieldscan.config";
+import { Box, Flex } from "@chakra-ui/core";
 
 const withBaseLayout = (children) => {
 	const { apiInstance, setApiInstance } = usePolkadotApi();
@@ -87,12 +88,11 @@ const withBaseLayout = (children) => {
 	}, [accounts]);
 
 	return () => (
-		<div>
+		<Flex h="100%" w="100%" flexDirection="column">
 			<Header isBase />
-			<div className="flex">
-				<div className="min-h-full h-fit-content w-full">{children()}</div>
-			</div>
-		</div>
+			<Box flex={1}>{children()}</Box>
+			{/* <div className="min-h-full h-fit-content w-full"></div> */}
+		</Flex>
 	);
 };
 

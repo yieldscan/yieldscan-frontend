@@ -152,7 +152,7 @@ const Header = ({ isBase }) => {
 
 	return (
 		<div
-			className={`header flex items-center justify-between text-gray-700 ${
+			className={`header w-full flex items-center justify-between text-gray-700 ${
 				!isBase
 					? "border border-bottom border-gray-200"
 					: "max-w-65-rem xl:px-0"

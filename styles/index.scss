@@ -12,6 +12,24 @@
 	font-family: "Inter", "Proxima Nova", sans-serif;
 }
 
+html {
+	height: 100%;
+}
+
+body {
+	height: 100%;
+}
+
+body > div:first-child {
+	height: 100%;
+}
+div#__next {
+	height: 100%;
+}
+div#__next > div {
+	height: 100%;
+}
+
 button:focus,
 a:focus,
 select:focus {
@@ -289,7 +307,7 @@ input[type="number"] {
 // For testimonial slider on homepage
 
 .sc-bdnylx {
-    align-items: stretch;
+	align-items: stretch;
 	display: inline-flex !important;
 	height: 100%;
 }
