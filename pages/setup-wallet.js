@@ -6,15 +6,15 @@ const Page = dynamic(
 	{ ssr: false }
 );
 
-const SetupExtension = dynamic(
-	() => import("@components/setup-extension").then((mod) => mod.default),
+const SetupWallet = dynamic(
+	() => import("@components/setup-wallet").then((mod) => mod.default),
 	{ ssr: false }
 );
 
-const SetupExtensionComponent = () => (
+const SetupWalletComponent = () => (
 	<Page title="Setup Extension" layoutProvider={withBaseLayout}>
-		{() => <SetupExtension />}
+		{() => <SetupWallet />}
 	</Page>
 );
 
-export default SetupExtensionComponent;
+export default SetupWalletComponent;
