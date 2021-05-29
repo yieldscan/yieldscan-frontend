@@ -37,7 +37,7 @@ export const networks = [
 		lockUpPeriod: 7,
 		minAmount: 0.1,
 		recommendedAdditionalAmount: 0.5,
-		about: "Kusama is an early, unaudited, and unrefined release of Polkadot.",
+		about: "Kusama is a scalable, multichain network for radical innovation.",
 	},
 	{
 		id: "westend",
