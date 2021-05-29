@@ -6,8 +6,12 @@ import { useEffect } from "react";
 
 window.setImmediate = (cb) => cb();
 
-const Page = ({ title, children, layoutProvider }) => {
-	const layoutedChild = layoutProvider ? layoutProvider(children) : children;
+const Page = ({ title, children, layoutProvider, isSetUp = false }) => {
+	console.log("isSetUp");
+	console.log(isSetUp);
+	const layoutedChild = layoutProvider
+		? layoutProvider(children, isSetUp)
+		: children;
 
 	if (isMobile || isTablet) {
 		return (
