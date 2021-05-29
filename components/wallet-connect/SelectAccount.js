@@ -10,12 +10,12 @@ const Account = ({ account, onAccountSelected, balances, networkInfo }) => {
 		<div
 			key={account.address}
 			className={`
-		flex items-center rounded-lg border-1 border-gray-200 border-2 transform hover:scale-105 cursor-pointer px-3 py-3 mb-2 text-gray-600
+		flex items-center mx-2 rounded-lg border-1 border-gray-200 border-2 p-2 transform hover:scale-105 cursor-pointer text-gray-600
 		transition-all duration-300 ease-in-out
 	`}
 			onClick={() => onAccountSelected(account)}
 		>
-			<Identicon address={get(account, "address")} size="3rem" />
+			<Identicon address={get(account, "address")} size="2rem" />
 			<div className="ml-2 flex w-full">
 				<div className="ml-2 flex-col w-1/2">
 					<p className="text-gray-700 text-base font-medium">
@@ -57,25 +57,23 @@ const Account = ({ account, onAccountSelected, balances, networkInfo }) => {
 const SelectAccount = ({ accounts, onAccountSelected, networkInfo }) => {
 	const { accountsBalances } = useAccountsBalances();
 	return (
-		<div className="mx-6 mb-6 flex flex-col items-center">
-			<div className="py-3 self-stretch rounded-lg">
-				<div className="mt-1 px-5 py-2 overflow-y-scroll text-sm accounts-container">
-					{accounts.map((account) => {
-						return (
-							<Account
-								account={account}
-								key={account.address}
-								onAccountSelected={onAccountSelected}
-								balances={accountsBalances[account.address]}
-								networkInfo={networkInfo}
-							/>
-						);
-					})}
-				</div>
+		<div className="w-full">
+			<div className="w-full text-sm p-2 space-y-1 overflow-y-scroll max-h-24-rem">
+				{accounts.map((account) => {
+					return (
+						<Account
+							account={account}
+							key={account.address}
+							onAccountSelected={onAccountSelected}
+							balances={accountsBalances[account.address]}
+							networkInfo={networkInfo}
+						/>
+					);
+				})}
 			</div>
 			<style jsx>{`
-				.accounts-container {
-					height: 23rem;
+				.max-h-24-rem {
+					max-height: 24rem;
 				}
 			`}</style>
 		</div>

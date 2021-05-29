@@ -23,7 +23,10 @@ const SetupAccounts = () => {
 	) : usingLedger ? (
 		<>Using Ledger</>
 	) : (
-		<NotUsingLedger />
+		<NotUsingLedger
+			incrementStep={incrementStep}
+			decrementStep={decrementStep}
+		/>
 	);
 };
 

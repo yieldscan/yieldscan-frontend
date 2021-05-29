@@ -1,4 +1,5 @@
 import { ChevronLeft } from "react-feather";
+import { useRouter } from "next/router";
 import SelectAccount from "../wallet-connect/SelectAccount";
 import {
 	useAccounts,
@@ -6,14 +7,18 @@ import {
 	useSelectedNetwork,
 } from "@lib/store";
 import { getNetworkInfo } from "yieldscan.config";
+import addToLocalStorage from "lib/addToLocalStorage";
 
-const NotUsingLedger = ({ incrementStep }) => {
+const NotUsingLedger = ({ incrementStep, decrementStep }) => {
+	const router = useRouter();
+	const { setSelectedAccount } = useSelectedAccount();
 	const { accounts } = useAccounts();
-	const { selectedNetwork, setSelectedNetwork } = useSelectedNetwork();
+	const { selectedNetwork } = useSelectedNetwork();
 	const networkInfo = getNetworkInfo(selectedNetwork);
 	const onAccountSelected = (account) => {
 		setSelectedAccount(account);
 		addToLocalStorage(networkInfo.network, "selectedAccount", account.address);
+		router.push({ pathname: "/reward-calculator" });
 	};
 	return (
 		<div className="w-full h-full flex justify-center">
@@ -22,7 +27,7 @@ const NotUsingLedger = ({ incrementStep }) => {
 					{/* TODO: Make a common back button component */}
 					<button
 						className="flex items-center bg-gray-200 text-gray-600 rounded-full px-2 py-1"
-						// onClick={decrementStep}
+						onClick={decrementStep}
 					>
 						<ChevronLeft size={16} className="text-gray-600" />
 						<span className="mx-2 text-sm">back</span>
@@ -35,7 +40,14 @@ const NotUsingLedger = ({ incrementStep }) => {
 					<p className="text-gray-600 text-sm text-center max-w-md">
 						Please select the account which your want to stake from
 					</p>
-					<SelectAccount accounts={accounts} networkInfo={networkInfo} />
+					<SelectAccount
+						accounts={accounts}
+						networkInfo={networkInfo}
+						onAccountSelected={(info) => onAccountSelected(info)}
+					/>
+					<span className="underline text-teal-500 cursor-pointer">
+						Don't see your account?
+					</span>
 				</div>
 			</div>
 		</div>
