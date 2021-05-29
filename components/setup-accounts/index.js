@@ -1,6 +1,6 @@
 import { useState } from "react";
 import GettingStarted from "./GettingStarted";
-import UsingALedger from "./UsingALedger";
+import AreYouUsingLedger from "./AreYouUsingLedger";
 import NotUsingLedger from "./NotUsingLedger";
 
 const SetupAccounts = () => {
@@ -15,7 +15,7 @@ const SetupAccounts = () => {
 	return step === 0 ? (
 		<GettingStarted incrementStep={incrementStep} />
 	) : step === 1 ? (
-		<UsingALedger
+		<AreYouUsingLedger
 			incrementStep={incrementStep}
 			decrementStep={decrementStep}
 			setUsingLedger={(info) => setUsingLedger(info)}

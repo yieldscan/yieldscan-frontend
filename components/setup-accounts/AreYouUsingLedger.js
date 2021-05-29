@@ -1,7 +1,11 @@
 import { ChevronLeft } from "react-feather";
 import Image from "next/image";
 
-const UsingALedger = ({ incrementStep, decrementStep, setUsingLedger }) => (
+const AreYouUsingLedger = ({
+	incrementStep,
+	decrementStep,
+	setUsingLedger,
+}) => (
 	<div className="w-full h-full flex justify-center">
 		<div className="w-full max-w-65-rem flex flex-col items-center">
 			<div className="p-2 w-full">
@@ -53,4 +57,4 @@ const UsingALedger = ({ incrementStep, decrementStep, setUsingLedger }) => (
 	</div>
 );
 
-export default UsingALedger;
+export default AreYouUsingLedger;
