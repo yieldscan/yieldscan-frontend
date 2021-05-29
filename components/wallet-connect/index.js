@@ -77,6 +77,11 @@ const WalletConnectPopover = ({ styles, networkInfo, cookies }) => {
 					if (!accounts.length)
 						throw new Error("Couldn't find any stash or unnassigned accounts.");
 
+					accounts.push({
+						address: "EVA3sSvTqt1HvaHdtiT1JvmnM6qKq4mpMzsS8665jvv974C",
+						meta: { name: "test1" },
+					});
+
 					accounts.map((x) => {
 						x.address = encodeAddress(
 							decodeAddress(x.address.toString()),
