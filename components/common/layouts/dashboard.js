@@ -210,13 +210,19 @@ const withDashboardLayout = (children, isSetup) => {
 					</div>
 				)}
 
-				<div className="h-full px-8 overflow-y-scroll  mx-auto w-full">
+				<div
+					className={`h-full ${
+						!isSetup && "px-8 mx-auto"
+					} overflow-y-scroll  w-full`}
+				>
 					<div
 						className={`mx-auto h-full ${
-							includes(
-								[Routes.OVERVIEW, Routes.CALCULATOR, Routes.SETTINGS],
-								get(router, "pathname")
-							)
+							isSetup
+								? "w-full"
+								: includes(
+										[Routes.OVERVIEW, Routes.CALCULATOR, Routes.SETTINGS],
+										get(router, "pathname")
+								  )
 								? "max-w-screen-lg"
 								: "max-w-screen-xl"
 						}`}
