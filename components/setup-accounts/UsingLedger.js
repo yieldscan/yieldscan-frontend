@@ -9,6 +9,7 @@ import { getNetworkInfo } from "yieldscan.config";
 import addToLocalStorage from "lib/addToLocalStorage";
 import { useState } from "react";
 import Introduction from "./Introduction";
+import IdentifyLedgerAccounts from "./IdentifyLedgerAccounts";
 
 const stepsMenu = [
 	"Introduction to staking with Ledger",
@@ -45,7 +46,7 @@ const UsingLedger = ({ incrementStep, decrementStep }) => {
 			<div className="w-full flex flex-col items-center shadow-lg">
 				<div className="flex-1 flex flex-col text-gray-700 justify-center content-center p-4 text-gray-700 space-y-6 mb-32">
 					{stepsMenu.map((step, index) => (
-						<div className="grid grid-cols-8 items-center">
+						<div key={index} className="grid grid-cols-8 items-center">
 							{currentStep > index ? (
 								<Check
 									className="p-1 mr-2 rounded-full border-2 border-gray-500 text-gray-500 bg-opacity-100"
@@ -71,10 +72,18 @@ const UsingLedger = ({ incrementStep, decrementStep }) => {
 				</div>
 			</div>
 			<div className="w-full col-span-3 flex flex-col justify-center items-center">
-				<Introduction
-					incrementCurrentStep={incrementCurrentStep}
-					decrementStep={decrementStep}
-				/>
+				{currentStep === 0 ? (
+					<Introduction
+						incrementCurrentStep={incrementCurrentStep}
+						decrementStep={decrementStep}
+					/>
+				) : (
+					<IdentifyLedgerAccounts
+						incrementCurrentStep={incrementCurrentStep}
+						decrementCurrentStep={decrementCurrentStep}
+						networkInfo={networkInfo}
+					/>
+				)}
 			</div>
 		</div>
 	);

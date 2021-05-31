@@ -34,7 +34,7 @@ const Introduction = ({ decrementStep, incrementCurrentStep }) => {
 				<h2 className="text-xl font-semibold">Before you begin</h2>
 				<div className="w-full space-y-2">
 					{begginerInfo.map((info, index) => (
-						<div className="grid grid-cols-10 items-center">
+						<div key={index} className="grid grid-cols-10 items-center">
 							<div className="grid justify-items-center">
 								<Check
 									className="p-1 mr-2 rounded-full text-white bg-teal-500 bg-opacity-100"
