@@ -95,6 +95,7 @@ const UsingLedger = ({ incrementStep, decrementStep }) => {
 					<SelectControllerAccount
 						incrementCurrentStep={incrementCurrentStep}
 						decrementCurrentStep={decrementCurrentStep}
+						incrementStep={incrementStep}
 						networkInfo={networkInfo}
 					/>
 				)}

@@ -1,11 +1,11 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { isNil } from "lodash";
 import {
 	useAccounts,
 	useAccountsBalances,
 	useSelectedAccount,
+	useAccountsControllerStashInfo,
 } from "@lib/store";
-import getFromLocalStorage from "@lib/getFromLocalStorage";
 import addToLocalStorage from "@lib/addToLocalStorage";
 import { BottomBackButton, BottomNextButton } from "./BottomButton";
 import PopoverAccountSelection from "../common/PopoverAccountSelection";
@@ -18,13 +18,25 @@ const SelectStakingAccount = ({
 	const { accounts } = useAccounts();
 	const { accountsBalances } = useAccountsBalances();
 	const { selectedAccount, setSelectedAccount } = useSelectedAccount();
+	const { accountsControllerStashInfo } = useAccountsControllerStashInfo();
 	const [isStashPopoverOpen, setIsStashPopoverOpen] = useState(false);
+
+	const [filteredAccounts, setFilteredAccounts] = useState(null);
 
 	const handleOnClick = (account) => {
 		setSelectedAccount(account);
 		addToLocalStorage(networkInfo.network, "selectedAccount", account.address);
 		setIsStashPopoverOpen(false);
 	};
+
+	useEffect(() => {
+		const filteredAccounts = accounts.filter(
+			(account) =>
+				!accountsControllerStashInfo[account.address].isController ||
+				accountsControllerStashInfo[account.address].isSameStashController
+		);
+		setFilteredAccounts(filteredAccounts);
+	}, [accountsControllerStashInfo]);
 
 	return (
 		<div className="flex-1 w-full max-w-2xl flex flex-col text-gray-700 justify-center p-4 text-gray-700 space-y-6 mb-32">
@@ -36,16 +48,18 @@ const SelectStakingAccount = ({
 				</p>
 			</div>
 			<div className="space-y-4">
-				<PopoverAccountSelection
-					accounts={accounts}
-					accountsBalances={accountsBalances}
-					isStashPopoverOpen={isStashPopoverOpen}
-					setIsStashPopoverOpen={setIsStashPopoverOpen}
-					networkInfo={networkInfo}
-					selectedAccount={selectedAccount}
-					onClick={handleOnClick}
-					isSetUp={true}
-				/>
+				{filteredAccounts && (
+					<PopoverAccountSelection
+						accounts={filteredAccounts}
+						accountsBalances={accountsBalances}
+						isStashPopoverOpen={isStashPopoverOpen}
+						setIsStashPopoverOpen={setIsStashPopoverOpen}
+						networkInfo={networkInfo}
+						selectedAccount={selectedAccount}
+						onClick={handleOnClick}
+						isSetUp={true}
+					/>
+				)}
 				<h2 className="text-md font-semibold underline cursor-pointer">
 					Don’t see your account?
 				</h2>

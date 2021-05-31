@@ -4,6 +4,7 @@ import {
 	useAccountsBalances,
 	useSelectedAccount,
 	useAccountsStakingInfo,
+	useAccountsControllerStashInfo,
 } from "@lib/store";
 import { isNil } from "lodash";
 import { BottomBackButton, BottomNextButton } from "./BottomButton";
@@ -18,18 +19,16 @@ import {
 const SelectControllerAccount = ({
 	decrementCurrentStep,
 	incrementCurrentStep,
+	incrementStep,
 	networkInfo,
 }) => {
 	const { accounts } = useAccounts();
 	const { accountsBalances } = useAccountsBalances();
 	const { accountsStakingInfo } = useAccountsStakingInfo();
 	const { selectedAccount, setSelectedAccount } = useSelectedAccount();
+	const { accountsControllerStashInfo } = useAccountsControllerStashInfo();
 	const [isStashPopoverOpen, setIsStashPopoverOpen] = useState(false);
-	const [exisiting, setExisiting] = useState(() =>
-		isNil(accountsStakingInfo[selectedAccount.address]?.controllerId)
-			? null
-			: accountsStakingInfo[selectedAccount.address].controllerId.toString()
-	);
+	const [exisiting, setExisiting] = useState();
 
 	const [sessionController, setSessionController] = useState(() =>
 		isNil(
@@ -57,15 +56,17 @@ const SelectControllerAccount = ({
 	};
 
 	useEffect(() => {
-		if (isNil(accountsStakingInfo[selectedAccount.address]?.controllerId)) {
-			setExisiting(null);
-		} else
-			setExisiting(
-				accountsStakingInfo[selectedAccount.address].controllerId.toString()
-			);
+		const controller =
+			accountsStakingInfo[selectedAccount.address]?.controllerId?.toString();
+
+		const controllerInfo = controller
+			? accounts.filter((account) => account.address === controller)[0]
+			: controller;
+
+		setExisiting(controllerInfo);
 	}, [accountsStakingInfo[selectedAccount.address]]);
 
-	console.log(JSON.stringify(accountsStakingInfo[selectedAccount.address]));
+	// console.log(JSON.stringify(accountsStakingInfo[selectedAccount.address]));
 	console.log("exisiting");
 	console.log(exisiting);
 
@@ -81,37 +82,22 @@ const SelectControllerAccount = ({
 				</p>
 			</div>
 			<div className="space-y-4">
-				<Alert
-					status="warning"
-					color="#FDB808"
-					backgroundColor="#FFF4DA"
-					borderRadius="8px"
-					zIndex={1}
-				>
-					<AlertIcon name="info-outline" color />
-					<div>
-						<AlertTitle fontWeight="medium" fontSize="sm">
-							{"Found an exisiting controller"}
-						</AlertTitle>
-						<AlertDescription fontSize="xs">
-							<p>
-								Please make sure that your controller account is NOT imported
-								from a ledger device else your staking transaction may fail. You
-								can change your controller later in the settings tab.
-							</p>
-							<h2 className="mt-2 text-md font-semibold underline cursor-pointer">
-								See how to setup a controller using PolkadotJS
-							</h2>
-						</AlertDescription>
-					</div>
-				</Alert>
+				{exisiting && exisiting.address === selectedAccount.address ? (
+					<SameStashControllerAlert />
+				) : (
+					<ExistingControllerAlert />
+				)}
 				<PopoverAccountSelection
 					accounts={accounts}
 					accountsBalances={accountsBalances}
 					isStashPopoverOpen={isStashPopoverOpen}
 					setIsStashPopoverOpen={setIsStashPopoverOpen}
 					networkInfo={networkInfo}
-					selectedAccount={sessionController}
+					selectedAccount={
+						exisiting
+							? accounts.filter((account) => account === exisiting)[0]
+							: sessionController
+					}
 					onClick={handleOnClick}
 					isSetUp={true}
 					disabled={!isNil(exisiting)}
@@ -130,9 +116,9 @@ const SelectControllerAccount = ({
 				</BottomBackButton>
 				<BottomNextButton
 					onClick={() => {
-						incrementCurrentStep();
+						incrementStep();
 					}}
-					disabled={isNil(sessionController)}
+					disabled={isNil(sessionController) && isNil(exisiting)}
 				>
 					Next
 				</BottomNextButton>
@@ -141,3 +127,57 @@ const SelectControllerAccount = ({
 	);
 };
 export default SelectControllerAccount;
+
+const ExistingControllerAlert = () => (
+	<Alert
+		status="warning"
+		color="#FDB808"
+		backgroundColor="#FFF4DA"
+		borderRadius="8px"
+		zIndex={1}
+	>
+		<AlertIcon name="info-outline" color />
+		<div>
+			<AlertTitle fontWeight="medium" fontSize="sm">
+				{"Found an exisiting controller"}
+			</AlertTitle>
+			<AlertDescription fontSize="xs">
+				<p>
+					Please make sure that your controller account is NOT imported from a
+					ledger device else your staking transaction may fail. You can change
+					your controller later in the settings tab.
+				</p>
+				<h2 className="mt-2 text-md font-semibold underline cursor-pointer">
+					See how to setup a controller
+				</h2>
+			</AlertDescription>
+		</div>
+	</Alert>
+);
+
+const SameStashControllerAlert = () => (
+	<Alert
+		status="warning"
+		color="#FDB808"
+		backgroundColor="#FFF4DA"
+		borderRadius="8px"
+		zIndex={1}
+	>
+		<AlertIcon name="info-outline" color />
+		<div>
+			<AlertTitle fontWeight="medium" fontSize="sm">
+				{"You haven’t setup a dedicated controller..."}
+			</AlertTitle>
+			<AlertDescription fontSize="xs">
+				<p>
+					You seem to be using the same account for storing and managing your
+					funds. We recommend having separate storage and controller wallets for
+					better security and accessibility.
+				</p>
+				<h2 className="mt-2 text-md font-semibold underline cursor-pointer">
+					See how to setup a controller
+				</h2>
+			</AlertDescription>
+		</div>
+	</Alert>
+);

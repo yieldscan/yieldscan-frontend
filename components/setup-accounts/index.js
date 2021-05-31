@@ -3,6 +3,7 @@ import GettingStarted from "./GettingStarted";
 import AreYouUsingLedger from "./AreYouUsingLedger";
 import NotUsingLedger from "./NotUsingLedger";
 import UsingLedger from "./UsingLedger";
+import SetUpComplete from "./SetUpComplete";
 
 const SetupAccounts = () => {
 	const [step, setStep] = useState(0);
@@ -21,13 +22,20 @@ const SetupAccounts = () => {
 			decrementStep={decrementStep}
 			setUsingLedger={(info) => setUsingLedger(info)}
 		/>
-	) : usingLedger ? (
-		<UsingLedger incrementStep={incrementStep} decrementStep={decrementStep} />
+	) : step === 2 ? (
+		usingLedger ? (
+			<UsingLedger
+				incrementStep={incrementStep}
+				decrementStep={decrementStep}
+			/>
+		) : (
+			<NotUsingLedger
+				incrementStep={incrementStep}
+				decrementStep={decrementStep}
+			/>
+		)
 	) : (
-		<NotUsingLedger
-			incrementStep={incrementStep}
-			decrementStep={decrementStep}
-		/>
+		<SetUpComplete incrementStep={incrementStep} />
 	);
 };
 
