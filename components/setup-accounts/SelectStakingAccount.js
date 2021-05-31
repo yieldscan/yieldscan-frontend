@@ -8,7 +8,6 @@ import {
 import getFromLocalStorage from "@lib/getFromLocalStorage";
 import addToLocalStorage from "@lib/addToLocalStorage";
 import { BottomBackButton, BottomNextButton } from "./BottomButton";
-import AccountButton from "./AccountButton";
 import PopoverAccountSelection from "../common/PopoverAccountSelection";
 
 const SelectStakingAccount = ({
@@ -19,39 +18,12 @@ const SelectStakingAccount = ({
 	const { accounts } = useAccounts();
 	const { accountsBalances } = useAccountsBalances();
 	const { selectedAccount, setSelectedAccount } = useSelectedAccount();
-	const [infoIndex, setInfoIndex] = useState();
 	const [isStashPopoverOpen, setIsStashPopoverOpen] = useState(false);
-	const [isOpen, setIsOpen] = useState(false);
-	const [isLedgerWalletObj, setIsLedgerWalletObj] = useState(() =>
-		accounts.reduce((acc, account) => {
-			if (
-				isNil(
-					getFromLocalStorage(account.address + networkInfo.network, "isLedger")
-				)
-			) {
-				acc[account.address] = false;
-			} else
-				acc[account.address] = JSON.parse(
-					getFromLocalStorage(account.address + networkInfo.network, "isLedger")
-				);
-			return acc;
-		}, {})
-	);
 
 	const handleOnClick = (account) => {
 		setSelectedAccount(account);
 		addToLocalStorage(networkInfo.network, "selectedAccount", account.address);
 		setIsStashPopoverOpen(false);
-	};
-
-	const handleOnClickNext = () => {
-		accounts.map((account) => {
-			addToLocalStorage(
-				account.address + networkInfo.network,
-				"isLedger",
-				isLedgerWalletObj[account.address]
-			);
-		});
 	};
 
 	return (
@@ -88,7 +60,6 @@ const SelectStakingAccount = ({
 				</BottomBackButton>
 				<BottomNextButton
 					onClick={() => {
-						handleOnClickNext();
 						incrementCurrentStep();
 					}}
 					disabled={isNil(selectedAccount)}

@@ -14,6 +14,10 @@ const AccountButton = ({
 	handleSelection,
 	isLedgerWallet,
 }) => {
+	const metaName =
+		account?.meta.name.length > 15
+			? account?.meta.name.slice(0, 6) + "..." + account?.meta.name.slice(-6)
+			: account?.meta.name;
 	return (
 		<button
 			onClick={() => handleSelection(account.address, isLedgerWallet)}
@@ -30,7 +34,7 @@ const AccountButton = ({
 				)}
 			</div>
 			<Identicon address={account.address} size="3rem" />
-			<p className="text-gray-700 text-base font-medium">{account.meta.name}</p>
+			<p className="text-gray-700 text-base font-medium">{metaName}</p>
 			{balance ? (
 				<p className="text-gray-500 text-xs">
 					{formatCurrency.methods.formatAmount(
