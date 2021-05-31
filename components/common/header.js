@@ -153,49 +153,6 @@ const Header = ({ isBase }) => {
 		setIsNetworkOpen(!isNetworkOpen);
 	};
 
-	// useEffect(() => {
-	// 	console.log("out");
-	// 	if (
-	// 		accounts &&
-	// 		Object.keys(accountsStakingInfo).length > 0 &&
-	// 		Object.keys(accountsStakingLedgerInfo).length > 0
-	// 	) {
-	// 		console.log("hello");
-	// 		const temp = accounts.reduce((acc, account) => {
-	// 			console.log(accountsStakingInfo[account.address]);
-	// 			console.log(JSON.stringify(accountsStakingLedgerInfo[account.address]));
-	// 			const controller = isNil(
-	// 				accountsStakingInfo[account.address].controllerId
-	// 			)
-	// 				? null
-	// 				: accountsStakingInfo[account.address].controllerId;
-	// 			const stash = isNil(accountsStakingLedgerInfo[account.address].stash)
-	// 				? null
-	// 				: JSON.parse(accountsStakingLedgerInfo[account.address]).stash;
-
-	// 			console.log("stash");
-	// 			console.log("controller");
-
-	// 			console.log(accountsStakingLedgerInfo[account.address].stash);
-	// 			console.log(controller);
-
-	// 			acc[account.address] = {
-	// 				...account,
-	// 				isController: !isNil(stash),
-	// 				isStash: !isNil(controller),
-	// 				isSameStashController:
-	// 					!isNil(stash) || !isNil(controller) ? controller === stash : false,
-	// 			};
-
-	// 			return acc;
-	// 		}, {});
-	// 		setAccountsControllerStashInfo({ ...temp });
-	// 	}
-	// }, [
-	// 	JSON.stringify(accountsStakingInfo),
-	// 	JSON.stringify(accountsStakingLedgerInfo),
-	// ]);
-
 	useEffect(() => {
 		if (
 			accounts &&
