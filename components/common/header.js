@@ -243,19 +243,21 @@ const Header = ({ isBase }) => {
 				</Link>
 			) : (
 				// network and account selection
-				<div className="flex">
+				<div className="grid grid-cols-4 w-full max-w-sm justify-items-end items-center space-x-4">
 					{/* Account Selection */}
-					<AccountSelection
-						accounts={accounts}
-						toggle={toggle}
-						isStashPopoverOpen={isStashPopoverOpen}
-						selectedAccount={selectedAccount}
-						networkInfo={networkInfo}
-						accountsBalances={accountsBalances}
-						setTransactionHash={(info) => setTransactionHash(info)}
-						setIsStashPopoverOpen={(info) => setIsStashPopoverOpen(info)}
-						setSelectedAccount={(info) => setSelectedAccount(info)}
-					/>
+					<div className="col-span-3">
+						<AccountSelection
+							accounts={accounts}
+							toggle={toggle}
+							isStashPopoverOpen={isStashPopoverOpen}
+							selectedAccount={selectedAccount}
+							networkInfo={networkInfo}
+							accountsBalances={accountsBalances}
+							setTransactionHash={(info) => setTransactionHash(info)}
+							setIsStashPopoverOpen={(info) => setIsStashPopoverOpen(info)}
+							setSelectedAccount={(info) => setSelectedAccount(info)}
+						/>
+					</div>
 					<div className="relative">
 						<NetworkSelection
 							isNetworkOpen={isNetworkOpen}

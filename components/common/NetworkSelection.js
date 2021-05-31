@@ -21,15 +21,19 @@ const NetworkSelection = ({
 		>
 			<PopoverTrigger>
 				<button
-					className="relative flex items-center rounded-full border border-gray-300 p-2 px-4 font-semibold text-gray-800 z-20"
+					className="relative flex flex-row items-center rounded-full border border-gray-300 p-2 px-4 font-semibold text-gray-800 z-20"
 					onClick={() => setIsNetworkOpen(!isNetworkOpen)}
 				>
-					<img
-						src={`/images/${networkInfo.network}-logo.png`}
-						alt={`${networkInfo.network}-logo`}
-						className="mr-2 w-6 rounded-full"
-					/>
-					<ChevronDown size="20px" />
+					<div>
+						<img
+							src={`/images/${networkInfo.network}-logo.png`}
+							alt={`${networkInfo.network}-logo`}
+							className="mr-2 w-6 rounded-full"
+						/>
+					</div>
+					<div>
+						<ChevronDown size="20px" />
+					</div>
 				</button>
 			</PopoverTrigger>
 			<PopoverContent

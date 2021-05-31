@@ -10,6 +10,8 @@ import addToLocalStorage from "lib/addToLocalStorage";
 import { useState } from "react";
 import Introduction from "./Introduction";
 import IdentifyLedgerAccounts from "./IdentifyLedgerAccounts";
+import SelectStakingAccount from "./SelectStakingAccount";
+import SelectControllerAccount from "./SelectControllerAccount";
 
 const stepsMenu = [
 	"Introduction to staking with Ledger",
@@ -77,8 +79,20 @@ const UsingLedger = ({ incrementStep, decrementStep }) => {
 						incrementCurrentStep={incrementCurrentStep}
 						decrementStep={decrementStep}
 					/>
-				) : (
+				) : currentStep === 1 ? (
 					<IdentifyLedgerAccounts
+						incrementCurrentStep={incrementCurrentStep}
+						decrementCurrentStep={decrementCurrentStep}
+						networkInfo={networkInfo}
+					/>
+				) : currentStep === 2 ? (
+					<SelectStakingAccount
+						incrementCurrentStep={incrementCurrentStep}
+						decrementCurrentStep={decrementCurrentStep}
+						networkInfo={networkInfo}
+					/>
+				) : (
+					<SelectControllerAccount
 						incrementCurrentStep={incrementCurrentStep}
 						decrementCurrentStep={decrementCurrentStep}
 						networkInfo={networkInfo}
