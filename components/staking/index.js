@@ -36,22 +36,6 @@ const Staking = () => {
 	const stakingAmount = get(transactionState, "stakingAmount", 0);
 	const [transactionFee, setTransactionFee] = useState(0);
 
-	// useEffect(() => {
-	// 	if (selectedAccount && apiInstance) {
-	// 		getTransactionFee(
-	// 			selectedAccount.address,
-	// 			selectedAccount.address,
-	// 			transactionState.stakingAmount,
-	// 			transactionState.rewardDestination,
-	// 			transactionState.selectedValidators.map((v) => v.stashId),
-	// 			apiInstance,
-	// 			networkInfo
-	// 		).then((info) => {
-	// 			setTransactionFee(info);
-	// 		});
-	// 	}
-	// }, []);
-
 	useEffect(() => {
 		if (selectedAccount && apiInstance) {
 			const nominatedValidators = transactionState.selectedValidators.map(
@@ -74,12 +58,6 @@ const Staking = () => {
 				});
 		}
 	}, [accountsStakingInfo[selectedAccount.address]]);
-
-	console.log("transactionState");
-	console.log(transactionState);
-
-	console.log("isNil(apiInstance)");
-	console.log(isNil(apiInstance));
 
 	return (
 		<div className="w-full h-full flex justify-center max-h-full">
@@ -210,122 +188,6 @@ const Staking = () => {
 				</div>
 			</div>
 		</div>
-		// <div className="mt-8 w-full max-h-screen flex flex-col items-center text-gray-700 text-center content-center justify-center">
-		// 	<div className="p-2 w-full max-w-2xl">
-		// 		{/* TODO: Make a common back button component */}
-		// 		<button
-		// 			className="flex items-center bg-gray-200 text-gray-600 rounded-full px-2 py-1"
-		// 			onClick={() => router.back()}
-		// 		>
-		// 			<ChevronLeft size={16} className="text-gray-600" />
-		// 			<span className="mx-2 text-sm">back</span>
-		// 		</button>
-		// 	</div>
-		// 	<div className="flex-1 flex-col w-full max-w-lg items-center">
-		// 		<Image
-		// 			src="/images/channel.svg"
-		// 			width="60"
-		// 			height="60"
-		// 			alt="walletIcon"
-		// 		/>
-		// 		<h1 className="text-2xl font-semibold">Stake to start earning</h1>
-		// 		<p className="text-gray-600 text-sm">
-		// 			You will be delegating your stake to the following validators. Please
-		// 			make sure you understand the risks before proceeding.
-		// 		</p>
-		// 		<div className="max-h-full mt-2 rounded-xl mb-8">
-		// 			<div className="mb-4">
-		// 				{selectedValidators.map((validator) => (
-		// 					<ValidatorCard
-		// 						key={validator.stashId}
-		// 						name={validator.name}
-		// 						stashId={validator.stashId}
-		// 						riskScore={validator.riskScore.toFixed(2)}
-		// 						commission={validator.commission}
-		// 						nominators={validator.numOfNominators}
-		// 						totalStake={validator.totalStake}
-		// 						estimatedReward={Number(validator.rewardsPer100KSM)}
-		// 						networkInfo={networkInfo}
-		// 						onProfile={() => onProfile(validator)}
-		// 					/>
-		// 				))}
-		// 			</div>
-		// 		</div>
-		// 		<div className="w-full mt-8">
-		// 			<div className="flex justify-between">
-		// 				<p className="text-gray-700 text-xs">Staking amount</p>
-		// 				<div className="flex flex-col">
-		// 					<p className="text-sm font-semibold text-right">
-		// 						{formatCurrency.methods.formatAmount(
-		// 							Math.trunc(stakingAmount * 10 ** networkInfo.decimalPlaces),
-		// 							networkInfo
-		// 						)}
-		// 					</p>
-		// 					{/* <p className="text-xs text-right text-gray-600">
-		// 						${subCurrency.toFixed(2)}
-		// 					</p> */}
-		// 				</div>
-		// 			</div>
-
-		// 			<div className="flex justify-between mt-4">
-		// 				<div className="text-xs text-gray-700 flex items-center">
-		// 					<p>Transaction Fee</p>
-		// 					<HelpPopover
-		// 						content={
-		// 							<p className="text-xs text-white">
-		// 								This fee is used to pay for the resources used for
-		// 								processing the transaction on the blockchain network.
-		// 								YieldScan doesn’t profit from this fee in any way.
-		// 							</p>
-		// 						}
-		// 					/>
-		// 				</div>
-
-		// 				<div className="flex flex-col">
-		// 					{transactionFee !== 0 ? (
-		// 						<div>
-		// 							<p className="text-sm font-semibold text-right">
-		// 								{formatCurrency.methods.formatAmount(
-		// 									Math.trunc(transactionFee),
-		// 									networkInfo
-		// 								)}
-		// 							</p>
-		// 							{/* <p className="text-xs text-right text-gray-600">
-		// 							${subFeeCurrency.toFixed(2)}
-		// 						</p> */}
-		// 						</div>
-		// 					) : (
-		// 						<Spinner />
-		// 					)}
-		// 				</div>
-		// 			</div>
-		// 			<Divider my={6} />
-		// 			<div className="flex justify-between">
-		// 				<p className="text-gray-700 text-sm font-semibold">Total Amount</p>
-		// 				<div className="flex flex-col">
-		// 					<p className="text-lg text-right font-bold">
-		// 						{formatCurrency.methods.formatAmount(
-		// 							Math.trunc(stakingAmount * 10 ** networkInfo.decimalPlaces) +
-		// 								transactionFee,
-		// 							networkInfo
-		// 						)}
-		// 					</p>
-		// 					{/* <p className="text-sm text-right text-gray-600 font-medium">
-		// 					${(subCurrency + subFeeCurrency).toFixed(2)}
-		// 				</p> */}
-		// 				</div>
-		// 			</div>
-		// 		</div>
-		// 		<div className="mt-4 w-full text-center">
-		// 			<button
-		// 				className="rounded-full font-medium px-12 py-3 bg-teal-500 text-white"
-		// 				// onClick={() => onConfirm()}
-		// 			>
-		// 				Stake Now
-		// 			</button>
-		// 		</div>
-		// 	</div>
-		// </div>
 	);
 };
 export default Staking;
@@ -352,20 +214,9 @@ const ValidatorCard = ({
 				<Identicon address={stashId} size="2rem" />
 				<div className="text-gray-700 cursor-pointer ml-2" onClick={onProfile}>
 					<span className="text-xs font-semibold">{displayName}</span>
-					{/* <div className="flex items-center">
-						<span className="text-xs mr-2">View Profile</span>
-						<ExternalLink size="12px" />
-					</div> */}
 				</div>
 			</div>
-			{/* <StatusTag status="active" /> */}
 			<div className="flex">
-				{/* <div className="flex flex-col mx-8">
-					<span className="text-xs text-gray-500 font-semibold">
-						Nominators
-					</span>
-					<h3 className="text-xg">{nominators}</h3>
-				</div> */}
 				<div className="flex flex-col">
 					<span className="text-xs text-gray-500 font-semibold">
 						Risk Score
