@@ -4,6 +4,7 @@ import AreYouUsingLedger from "./AreYouUsingLedger";
 import NotUsingLedger from "./NotUsingLedger";
 import UsingLedger from "./UsingLedger";
 import SetUpComplete from "./SetUpComplete";
+import NextSteps from "./NextSteps";
 
 const SetupAccounts = () => {
 	const [step, setStep] = useState(0);
@@ -34,8 +35,10 @@ const SetupAccounts = () => {
 				decrementStep={decrementStep}
 			/>
 		)
-	) : (
+	) : step === 3 ? (
 		<SetUpComplete incrementStep={incrementStep} />
+	) : (
+		<NextSteps />
 	);
 };
 

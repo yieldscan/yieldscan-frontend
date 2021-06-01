@@ -240,7 +240,7 @@ const RewardCalculatorPage = () => {
 	const onPayment = async () => {
 		updateTransactionState(Events.INTENT_STAKING);
 		if (transactionHash) setTransactionHash(null);
-		router.push("/payment", "/payment", { shallow: true });
+		router.push("/staking");
 	};
 
 	const onAdvancedSelection = () => {
