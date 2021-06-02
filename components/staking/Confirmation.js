@@ -8,6 +8,7 @@ import {
 	useTransaction,
 	useSelectedNetwork,
 	usePolkadotApi,
+	useAccounts,
 	useAccountsBalances,
 	useAccountsStakingInfo,
 	useAccountsStakingLedgerInfo,
@@ -16,18 +17,32 @@ import { getNetworkInfo } from "yieldscan.config";
 import RiskTag from "@components/reward-calculator/RiskTag";
 import formatCurrency from "@lib/format-currency";
 import { GlossaryModal, HelpPopover } from "@components/reward-calculator";
-import { Spinner, Divider } from "@chakra-ui/core";
+import {
+	Spinner,
+	Divider,
+	Alert,
+	AlertDescription,
+	AlertIcon,
+	AlertTitle,
+	Collapse,
+} from "@chakra-ui/core";
 import getTransactionFee from "@lib/getTransactionFee";
+import { web3FromAddress } from "@polkadot/extension-dapp";
 import { decodeAddress, encodeAddress } from "@polkadot/util-crypto";
-import { ChevronLeft } from "react-feather";
+import { ChevronLeft, Circle, ChevronRight, Edit } from "react-feather";
+import Account from "../wallet-connect/Account";
 import ValidatorCard from "./ValidatorCard";
+import RewardDestination from "./RewardDestination";
+import EditController from "./EditController";
 
-const StakeToEarn = () => {
+const Confirmation = () => {
 	const { selectedNetwork } = useSelectedNetwork();
 	const { apiInstance } = usePolkadotApi();
 	const networkInfo = getNetworkInfo(selectedNetwork);
 	const { selectedAccount } = useSelectedAccount();
 	const { setTransactionState, ...transactionState } = useTransaction();
+	const { accounts } = useAccounts();
+
 	const { accountsBalances, setAccountsBalances } = useAccountsBalances();
 	const { accountsStakingInfo, setAccountsStakingInfo } =
 		useAccountsStakingInfo();
@@ -36,16 +51,24 @@ const StakeToEarn = () => {
 	const selectedValidators = get(transactionState, "selectedValidators", []);
 	const stakingAmount = get(transactionState, "stakingAmount", 0);
 	const [transactionFee, setTransactionFee] = useState(0);
+	const [showValidators, setShowValidators] = useState(false);
+	const [showAdvPrefs, setShowAdvPrefs] = useState(false);
+
+	const handleAdvPrefsToggle = () => {
+		setShowAdvPrefs((show) => !show);
+	};
+
+	const handleValToggle = () => {
+		setShowValidators((show) => !show);
+	};
 
 	useEffect(() => {
-		if (selectedAccount && apiInstance) {
+		if (!isNil(accountsStakingInfo[selectedAccount.address])) {
 			const nominatedValidators = transactionState.selectedValidators.map(
 				(v) => v.stashId
 			);
 			const substrateControllerId = encodeAddress(
-				decodeAddress(
-					accountsStakingInfo[selectedAccount.address].controllerId
-				),
+				decodeAddress(selectedAccount.address),
 				42
 			);
 			apiInstance.tx.staking
@@ -75,37 +98,114 @@ const StakeToEarn = () => {
 				<div className="flex-1 flex justify-center items-center">
 					<div className="flex flex-col w-full max-w-xl items-center justify-center space-y-6">
 						<div className="w-full flex justify-center items-center">
-							<Image
-								src="/images/channel.svg"
-								width="60"
-								height="60"
-								alt="walletIcon"
-							/>
+							<Circle size={60} color="#2BCACA" />
 						</div>
 						<div className="text-center space-y-2">
-							<h1 className="text-2xl  font-semibold">
-								Stake to start earning
-							</h1>
+							<h1 className="text-2xl  font-semibold">Confirmation</h1>
 							<p className="text-gray-600 text-sm">
-								You will be delegating your stake to the following validators.
-								Please make sure you understand the risks before proceeding.
+								You will be locking your funds for staking. Please make sure you
+								understand the risks before proceeding.
 							</p>
 						</div>
-						<div className="h-48 w-full px-4 overflow-scroll">
-							{selectedValidators.map((validator) => (
-								<ValidatorCard
-									key={validator.stashId}
-									name={validator.name}
-									stashId={validator.stashId}
-									riskScore={validator.riskScore.toFixed(2)}
-									commission={validator.commission}
-									nominators={validator.numOfNominators}
-									totalStake={validator.totalStake}
-									estimatedReward={Number(validator.rewardsPer100KSM)}
+						<BrowserWalletAlert />
+						<div className="flex flex-col w-full text-gray-700 text-sm space-y-2 font-semibold">
+							<div>
+								<p className="ml-2">Stash Account</p>
+								<Account
+									account={selectedAccount}
+									balances={accountsBalances[selectedAccount.address]}
 									networkInfo={networkInfo}
-									onProfile={() => onProfile(validator)}
+									onAccountSelected={() => {
+										return;
+									}}
+									disabled={true}
 								/>
-							))}
+							</div>
+							<div>
+								<p className="ml-2">Controller Account</p>
+								<Account
+									account={selectedAccount}
+									balances={accountsBalances[selectedAccount.address]}
+									networkInfo={networkInfo}
+									onAccountSelected={() => {
+										return;
+									}}
+									disabled={true}
+								/>
+							</div>
+						</div>
+						<div className="w-full p-2">
+							<button
+								onClick={handleValToggle}
+								className="flex text-gray-600 text-xs"
+							>
+								<ChevronRight
+									size={16}
+									className={`transition ease-in-out duration-500 mr-2 ${
+										showValidators && "transform rotate-90"
+									}`}
+								/>
+								{showValidators ? "Hide" : "Show"} suggested validators{" "}
+								<HelpPopover
+									content={
+										<p className="text-white text-xs">
+											The list of most rewarding validators, selected based on
+											your investment amount and risk preference.
+										</p>
+									}
+								/>
+							</button>
+							<Collapse isOpen={showValidators}>
+								<div className="mt-2 rounded-xl">
+									<div className="overflow-auto">
+										{selectedValidators.map((validator) => (
+											<ValidatorCard
+												key={validator.stashId}
+												name={validator.name}
+												stashId={validator.stashId}
+												riskScore={validator.riskScore.toFixed(2)}
+												commission={validator.commission}
+												nominators={validator.numOfNominators}
+												totalStake={validator.totalStake}
+												estimatedReward={Number(validator.rewardsPer100KSM)}
+												networkInfo={networkInfo}
+												onProfile={() => onProfile(validator)}
+											/>
+										))}
+									</div>
+								</div>
+							</Collapse>
+						</div>
+						<div className="w-full p-2">
+							<button
+								className="flex text-gray-600 text-xs items-center"
+								onClick={handleAdvPrefsToggle}
+							>
+								<ChevronRight
+									size={16}
+									className={`transition ease-in-out duration-500 mr-2 ${
+										showAdvPrefs && "transform rotate-90"
+									}`}
+								/>
+								Advanced preferences
+							</button>
+							<Collapse isOpen={showAdvPrefs}>
+								<div className="mt-6 rounded-xl mt-4">
+									<EditController
+										accounts={accounts}
+										controller={selectedAccount}
+										transactionState={transactionState}
+										setController={(controller) =>
+											setTransactionState({ controller })
+										}
+										networkInfo={networkInfo}
+									/>
+									<RewardDestination
+										transactionState={transactionState}
+										setTransactionState={setTransactionState}
+									/>
+								</div>
+							</Collapse>
 						</div>
 						<div className="w-full px-4">
 							<div className="flex justify-between">
@@ -191,4 +291,26 @@ const StakeToEarn = () => {
 		</div>
 	);
 };
-export default StakeToEarn;
+export default Confirmation;
+
+const BrowserWalletAlert = () => (
+	<Alert
+		status="warning"
+		color="#FDB808"
+		backgroundColor="#FFF4DA"
+		borderRadius="8px"
+		zIndex={1}
+	>
+		<AlertIcon name="warning-2" color />
+		<div>
+			<AlertTitle fontSize="sm">{"CAUTION: Funds at risk"}</AlertTitle>
+			<AlertDescription fontSize="xs">
+				<p>
+					You’re trying to stake 191.2423 DOT using a software wallet. We
+					recommend using a Ledger hardware wallet to store your funds securely,
+					isolated from your easy-to-hack computer.
+				</p>
+			</AlertDescription>
+		</div>
+	</Alert>
+);
