@@ -1,38 +1,29 @@
 import { useState, useEffect } from "react";
 import { get, isNil } from "lodash";
-import Identicon from "@components/common/Identicon";
 import Image from "next/image";
 import router from "next/router";
-import {
-	useSelectedAccount,
-	useTransaction,
-	useSelectedNetwork,
-	usePolkadotApi,
-	useAccountsBalances,
-	useAccountsStakingInfo,
-	useAccountsStakingLedgerInfo,
-} from "@lib/store";
-import { getNetworkInfo } from "yieldscan.config";
-import RiskTag from "@components/reward-calculator/RiskTag";
 import formatCurrency from "@lib/format-currency";
-import { GlossaryModal, HelpPopover } from "@components/reward-calculator";
+import { HelpPopover } from "@components/reward-calculator";
 import { Spinner, Divider } from "@chakra-ui/core";
-import getTransactionFee from "@lib/getTransactionFee";
 import { decodeAddress, encodeAddress } from "@polkadot/util-crypto";
 import { ChevronLeft } from "react-feather";
 import Account from "../wallet-connect/Account";
 
-const LockFunds = () => {
-	const { selectedNetwork } = useSelectedNetwork();
-	const { apiInstance } = usePolkadotApi();
-	const networkInfo = getNetworkInfo(selectedNetwork);
-	const { selectedAccount } = useSelectedAccount();
-	const { setTransactionState, ...transactionState } = useTransaction();
-	const { accountsBalances, setAccountsBalances } = useAccountsBalances();
-	const { accountsStakingInfo, setAccountsStakingInfo } =
-		useAccountsStakingInfo();
-	const { accountsStakingLedgerInfo, setAccountsStakingLedgerInfo } =
-		useAccountsStakingLedgerInfo();
+const LockFunds = ({
+	accounts,
+	balances,
+	controllerBalances,
+	stakingInfo,
+	stakingLedgerInfo,
+	controllerStashInfo,
+	apiInstance,
+	selectedAccount,
+	controllerAccount,
+	networkInfo,
+	transactionState,
+	setTransactionState,
+	onConfirm,
+}) => {
 	const selectedValidators = get(transactionState, "selectedValidators", []);
 	const stakingAmount = get(transactionState, "stakingAmount", 0);
 	const [transactionFee, setTransactionFee] = useState(0);
@@ -43,9 +34,7 @@ const LockFunds = () => {
 				(v) => v.stashId
 			);
 			const substrateControllerId = encodeAddress(
-				decodeAddress(
-					accountsStakingInfo[selectedAccount.address].controllerId
-				),
+				decodeAddress(controllerAccount.address),
 				42
 			);
 			apiInstance.tx.staking
@@ -58,7 +47,7 @@ const LockFunds = () => {
 					setTransactionFee(fee);
 				});
 		}
-	}, [accountsStakingInfo[selectedAccount.address]]);
+	}, [stakingInfo]);
 
 	return (
 		<div className="w-full h-full flex justify-center max-h-full">
@@ -96,7 +85,7 @@ const LockFunds = () => {
 								<p className="ml-2">Stash Account</p>
 								<Account
 									account={selectedAccount}
-									balances={accountsBalances[selectedAccount.address]}
+									balances={balances}
 									networkInfo={networkInfo}
 									onAccountSelected={() => {
 										return;
@@ -107,8 +96,8 @@ const LockFunds = () => {
 							<div>
 								<p className="ml-2">Controller Account</p>
 								<Account
-									account={selectedAccount}
-									balances={accountsBalances[selectedAccount.address]}
+									account={controllerAccount}
+									balances={controllerBalances}
 									networkInfo={networkInfo}
 									onAccountSelected={() => {
 										return;
@@ -190,7 +179,7 @@ const LockFunds = () => {
 						<div className="mt-4 w-full text-center">
 							<button
 								className="rounded-full font-medium px-12 py-3 bg-teal-500 text-white"
-								// onClick={() => onConfirm()}
+								onClick={() => onConfirm("lock-funds")}
 							>
 								Lock Funds
 							</button>

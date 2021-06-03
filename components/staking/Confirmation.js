@@ -1,53 +1,40 @@
 import { useState, useEffect } from "react";
 import { get, isNil } from "lodash";
-import Identicon from "@components/common/Identicon";
-import Image from "next/image";
 import router from "next/router";
-import {
-	useSelectedAccount,
-	useTransaction,
-	useSelectedNetwork,
-	usePolkadotApi,
-	useAccounts,
-	useAccountsBalances,
-	useAccountsStakingInfo,
-	useAccountsStakingLedgerInfo,
-} from "@lib/store";
-import { getNetworkInfo } from "yieldscan.config";
-import RiskTag from "@components/reward-calculator/RiskTag";
 import formatCurrency from "@lib/format-currency";
 import { GlossaryModal, HelpPopover } from "@components/reward-calculator";
-import {
-	Spinner,
-	Divider,
-	Alert,
-	AlertDescription,
-	AlertIcon,
-	AlertTitle,
-	Collapse,
-} from "@chakra-ui/core";
-import getTransactionFee from "@lib/getTransactionFee";
-import { web3FromAddress } from "@polkadot/extension-dapp";
+import { Spinner, Divider, Collapse } from "@chakra-ui/core";
 import { decodeAddress, encodeAddress } from "@polkadot/util-crypto";
 import { ChevronLeft, Circle, ChevronRight, Edit } from "react-feather";
 import Account from "../wallet-connect/Account";
 import ValidatorCard from "./ValidatorCard";
 import RewardDestination from "./RewardDestination";
 import EditController from "./EditController";
+import BrowserWalletAlert from "./BrowserWalletAlert";
+import ConfettiGenerator from "confetti-js";
+import ChainErrorPage from "./ChainErrorPage";
 
-const Confirmation = () => {
-	const { selectedNetwork } = useSelectedNetwork();
-	const { apiInstance } = usePolkadotApi();
-	const networkInfo = getNetworkInfo(selectedNetwork);
-	const { selectedAccount } = useSelectedAccount();
-	const { setTransactionState, ...transactionState } = useTransaction();
-	const { accounts } = useAccounts();
-
-	const { accountsBalances, setAccountsBalances } = useAccountsBalances();
-	const { accountsStakingInfo, setAccountsStakingInfo } =
-		useAccountsStakingInfo();
-	const { accountsStakingLedgerInfo, setAccountsStakingLedgerInfo } =
-		useAccountsStakingLedgerInfo();
+const Confirmation = ({
+	accounts,
+	balances,
+	controllerBalances,
+	stakingInfo,
+	stakingLedgerInfo,
+	controllerStashInfo,
+	apiInstance,
+	selectedAccount,
+	controllerAccount,
+	networkInfo,
+	transactionState,
+	setTransactionState,
+	stakingLoading,
+	stakingEvent,
+	onConfirm,
+	transactionHash,
+	isSuccessful,
+	chainError,
+	loaderError,
+}) => {
 	const selectedValidators = get(transactionState, "selectedValidators", []);
 	const stakingAmount = get(transactionState, "stakingAmount", 0);
 	const [transactionFee, setTransactionFee] = useState(0);
@@ -63,12 +50,12 @@ const Confirmation = () => {
 	};
 
 	useEffect(() => {
-		if (!isNil(accountsStakingInfo[selectedAccount.address])) {
+		if (!isNil(stakingInfo)) {
 			const nominatedValidators = transactionState.selectedValidators.map(
 				(v) => v.stashId
 			);
 			const substrateControllerId = encodeAddress(
-				decodeAddress(selectedAccount.address),
+				decodeAddress(controllerAccount.address),
 				42
 			);
 			apiInstance.tx.staking
@@ -81,10 +68,11 @@ const Confirmation = () => {
 					setTransactionFee(fee);
 				});
 		}
-	}, [accountsStakingInfo[selectedAccount.address]]);
+	}, [stakingInfo]);
 
 	return (
 		<div className="w-full h-full flex justify-center max-h-full">
+			(
 			<div className="flex flex-col w-full max-w-65-rem h-full space-y-evenly">
 				<div className="p-2 w-full">
 					<button
@@ -113,7 +101,7 @@ const Confirmation = () => {
 								<p className="ml-2">Stash Account</p>
 								<Account
 									account={selectedAccount}
-									balances={accountsBalances[selectedAccount.address]}
+									balances={balances}
 									networkInfo={networkInfo}
 									onAccountSelected={() => {
 										return;
@@ -125,7 +113,7 @@ const Confirmation = () => {
 								<p className="ml-2">Controller Account</p>
 								<Account
 									account={selectedAccount}
-									balances={accountsBalances[selectedAccount.address]}
+									balances={balances}
 									networkInfo={networkInfo}
 									onAccountSelected={() => {
 										return;
@@ -280,7 +268,13 @@ const Confirmation = () => {
 						<div className="mt-4 w-full text-center">
 							<button
 								className="rounded-full font-medium px-12 py-3 bg-teal-500 text-white"
-								// onClick={() => onConfirm()}
+								onClick={() =>
+									onConfirm(
+										stakingInfo.stakingLedger.active.isEmpty
+											? "bond-and-nominate"
+											: "nominate"
+									)
+								}
 							>
 								Stake Now
 							</button>
@@ -288,29 +282,8 @@ const Confirmation = () => {
 					</div>
 				</div>
 			</div>
+			)
 		</div>
 	);
 };
 export default Confirmation;
-
-const BrowserWalletAlert = () => (
-	<Alert
-		status="warning"
-		color="#FDB808"
-		backgroundColor="#FFF4DA"
-		borderRadius="8px"
-		zIndex={1}
-	>
-		<AlertIcon name="warning-2" color />
-		<div>
-			<AlertTitle fontSize="sm">{"CAUTION: Funds at risk"}</AlertTitle>
-			<AlertDescription fontSize="xs">
-				<p>
-					You’re trying to stake 191.2423 DOT using a software wallet. We
-					recommend using a Ledger hardware wallet to store your funds securely,
-					isolated from your easy-to-hack computer.
-				</p>
-			</AlertDescription>
-		</div>
-	</Alert>
-);

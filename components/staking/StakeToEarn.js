@@ -1,38 +1,31 @@
 import { useState, useEffect } from "react";
 import { get, isNil } from "lodash";
-import Identicon from "@components/common/Identicon";
 import Image from "next/image";
 import router from "next/router";
-import {
-	useSelectedAccount,
-	useTransaction,
-	useSelectedNetwork,
-	usePolkadotApi,
-	useAccountsBalances,
-	useAccountsStakingInfo,
-	useAccountsStakingLedgerInfo,
-} from "@lib/store";
-import { getNetworkInfo } from "yieldscan.config";
-import RiskTag from "@components/reward-calculator/RiskTag";
 import formatCurrency from "@lib/format-currency";
 import { GlossaryModal, HelpPopover } from "@components/reward-calculator";
 import { Spinner, Divider } from "@chakra-ui/core";
-import getTransactionFee from "@lib/getTransactionFee";
 import { decodeAddress, encodeAddress } from "@polkadot/util-crypto";
 import { ChevronLeft } from "react-feather";
 import ValidatorCard from "./ValidatorCard";
+import BrowserWalletAlert from "./BrowserWalletAlert";
 
-const StakeToEarn = () => {
-	const { selectedNetwork } = useSelectedNetwork();
-	const { apiInstance } = usePolkadotApi();
-	const networkInfo = getNetworkInfo(selectedNetwork);
-	const { selectedAccount } = useSelectedAccount();
-	const { setTransactionState, ...transactionState } = useTransaction();
-	const { accountsBalances, setAccountsBalances } = useAccountsBalances();
-	const { accountsStakingInfo, setAccountsStakingInfo } =
-		useAccountsStakingInfo();
-	const { accountsStakingLedgerInfo, setAccountsStakingLedgerInfo } =
-		useAccountsStakingLedgerInfo();
+const StakeToEarn = ({
+	accounts,
+	balances,
+	controllerBalances,
+	stakingInfo,
+	stakingLedgerInfo,
+	controllerStashInfo,
+	apiInstance,
+	selectedAccount,
+	controllerAccount,
+	isLedger,
+	networkInfo,
+	transactionState,
+	setTransactionState,
+	onConfirm,
+}) => {
 	const selectedValidators = get(transactionState, "selectedValidators", []);
 	const stakingAmount = get(transactionState, "stakingAmount", 0);
 	const [transactionFee, setTransactionFee] = useState(0);
@@ -43,9 +36,7 @@ const StakeToEarn = () => {
 				(v) => v.stashId
 			);
 			const substrateControllerId = encodeAddress(
-				decodeAddress(
-					accountsStakingInfo[selectedAccount.address].controllerId
-				),
+				decodeAddress(stakingInfo?.controllerId),
 				42
 			);
 			apiInstance.tx.staking
@@ -58,7 +49,7 @@ const StakeToEarn = () => {
 					setTransactionFee(fee);
 				});
 		}
-	}, [accountsStakingInfo[selectedAccount.address]]);
+	}, [stakingInfo]);
 
 	return (
 		<div className="w-full h-full flex justify-center max-h-full">
@@ -91,6 +82,7 @@ const StakeToEarn = () => {
 								Please make sure you understand the risks before proceeding.
 							</p>
 						</div>
+						{!isLedger && <BrowserWalletAlert />}
 						<div className="h-48 w-full px-4 overflow-scroll">
 							{selectedValidators.map((validator) => (
 								<ValidatorCard
@@ -180,7 +172,7 @@ const StakeToEarn = () => {
 						<div className="mt-4 w-full text-center">
 							<button
 								className="rounded-full font-medium px-12 py-3 bg-teal-500 text-white"
-								// onClick={() => onConfirm()}
+								onClick={() => onConfirm("nominate")}
 							>
 								Stake Now
 							</button>

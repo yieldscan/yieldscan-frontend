@@ -313,10 +313,10 @@ input[type="number"] {
 }
 
 .loader {
-	position: absolute;
+	position: relative;
 	content: "";
-	top: calc(50% - 2.5rem);
-	left: calc(50% - 2.5rem);
+	// top: calc(50% - 2.5rem);
+	// left: calc(50% - 2.5rem);
 	width: 5rem;
 	height: 5rem;
 	border: 5px solid #eee;

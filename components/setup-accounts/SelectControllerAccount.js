@@ -58,7 +58,8 @@ const SelectControllerAccount = ({
 	useEffect(() => {
 		const controller =
 			accountsStakingInfo[selectedAccount.address]?.controllerId?.toString();
-
+		console.log("controller");
+		console.log(controller);
 		const controllerInfo = controller
 			? accounts.filter((account) => account.address === controller)[0]
 			: controller;
@@ -67,8 +68,11 @@ const SelectControllerAccount = ({
 	}, [accountsStakingInfo[selectedAccount.address]]);
 
 	// console.log(JSON.stringify(accountsStakingInfo[selectedAccount.address]));
+
 	console.log("exisiting");
 	console.log(exisiting);
+	console.log("accountsStakingInfo[selectedAccount.address]");
+	console.log(accountsStakingInfo[selectedAccount.address]);
 
 	return (
 		<div className="flex-1 w-full max-w-2xl flex flex-col text-gray-700 justify-center p-4 text-gray-700 space-y-6 mb-32">
@@ -82,11 +86,12 @@ const SelectControllerAccount = ({
 				</p>
 			</div>
 			<div className="space-y-4">
-				{exisiting && exisiting.address === selectedAccount.address ? (
-					<SameStashControllerAlert />
-				) : (
-					<ExistingControllerAlert />
-				)}
+				{exisiting &&
+					(exisiting.address === selectedAccount.address ? (
+						<SameStashControllerAlert />
+					) : (
+						<ExistingControllerAlert />
+					))}
 				<PopoverAccountSelection
 					accounts={accounts}
 					accountsBalances={accountsBalances}
