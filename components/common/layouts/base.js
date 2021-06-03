@@ -12,10 +12,10 @@ import { useEffect } from "react";
 import { trackEvent, Events, setUserProperties } from "@lib/analytics";
 import Footer from "../footer";
 import { decodeAddress, encodeAddress } from "@polkadot/util-crypto";
+import {motion} from "framer-motion"
 
 const Header = dynamic(
 	() => import("@components/common/header").then((mod) => mod.default),
-	{ ssr: false }
 );
 
 import { getNetworkInfo } from "yieldscan.config";
@@ -194,12 +194,12 @@ const withBaseLayout = (children) => {
 	}, [stashAccount]);
 
 	return () => (
-		<div>
+		<motion.div initial={{opacity:0}} animate={{opacity:1}} exit={{opacity:0}}>
 			<Header isBase />
 			<div className="flex">
 				<div className="min-h-full h-fit-content w-full">{children()}</div>
 			</div>
-		</div>
+		</motion.div>
 	);
 };
 

@@ -2,6 +2,8 @@ import { ConsentGate, MetomicProvider } from "@metomic/react";
 import * as Sentry from "@sentry/node";
 import tawkTo from "tawkto-react";
 
+import { AnimatePresence } from "framer-motion";
+
 import { ThemeProvider, theme } from "@chakra-ui/core";
 import "../styles/index.scss";
 import { useEffect } from "react";
@@ -157,10 +159,12 @@ export default function YieldScanApp({ Component, pageProps, err }) {
 		tawkTo(process.env.NEXT_PUBLIC_TAWK_PROP_ID);
 	}, []);
 	return (
-		<ThemeProvider theme={customTheme}>
-			<MetomicProvider projectId={process.env.NEXT_PUBLIC_METOMIC_PROJECT_ID}>
-				<Component {...pageProps} err={err} />
-			</MetomicProvider>
-		</ThemeProvider>
+			<ThemeProvider theme={customTheme}>
+				<MetomicProvider projectId={process.env.NEXT_PUBLIC_METOMIC_PROJECT_ID}>
+					<AnimatePresence exitBeforeEnter>
+						<Component {...pageProps} err={err} />
+					</AnimatePresence>
+				</MetomicProvider>
+			</ThemeProvider>
 	);
 }

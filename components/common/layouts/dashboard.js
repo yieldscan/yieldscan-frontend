@@ -15,11 +15,7 @@ import { useEffect } from "react";
 import { trackEvent, Events, setUserProperties } from "@lib/analytics";
 import Footer from "../footer";
 import { decodeAddress, encodeAddress } from "@polkadot/util-crypto";
-
-const Header = dynamic(
-	() => import("@components/common/header").then((mod) => mod.default),
-	{ ssr: false }
-);
+import {motion} from "framer-motion"
 
 import { getNetworkInfo } from "yieldscan.config";
 import { Alert, AlertIcon, CloseButton } from "@chakra-ui/core";
@@ -27,6 +23,10 @@ import SideMenuFooter from "../side-menu-footer";
 import { useRouter } from "next/router";
 import Routes from "@lib/routes";
 import { setCookie } from "nookies";
+
+const Header = dynamic(
+	() => import("@components/common/header").then((mod) => mod.default),
+);
 
 const withDashboardLayout = (children) => {
 	const router = useRouter();
@@ -208,7 +208,7 @@ const withDashboardLayout = (children) => {
 					</div>
 				</div>
 
-				<div className="h-full px-8 overflow-y-scroll  mx-auto w-full">
+				<motion.div initial={{opacity:0}} animate={{opacity:1}} exit={{opacity:0}} className="h-full px-8 overflow-y-scroll  mx-auto w-full">
 					<div
 						className={`mx-auto h-full ${
 							includes(
@@ -247,7 +247,7 @@ const withDashboardLayout = (children) => {
 						)}
 						{children()}
 					</div>
-				</div>
+				</motion.div>
 			</div>
 			<style jsx>{`
 				.dashboard-content {
