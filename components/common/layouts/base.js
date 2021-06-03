@@ -13,12 +13,12 @@ import { trackEvent, Events, setUserProperties } from "@lib/analytics";
 import Footer from "../footer";
 import { decodeAddress, encodeAddress } from "@polkadot/util-crypto";
 import {motion} from "framer-motion"
+import { getNetworkInfo } from "yieldscan.config";
 
 const Header = dynamic(
 	() => import("@components/common/header").then((mod) => mod.default),
+	{ ssr: false }
 );
-
-import { getNetworkInfo } from "yieldscan.config";
 
 const withBaseLayout = (children) => {
 	const { apiInstance, setApiInstance } = usePolkadotApi();

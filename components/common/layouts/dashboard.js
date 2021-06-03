@@ -26,6 +26,7 @@ import { setCookie } from "nookies";
 
 const Header = dynamic(
 	() => import("@components/common/header").then((mod) => mod.default),
+	{ ssr: false }
 );
 
 const withDashboardLayout = (children) => {

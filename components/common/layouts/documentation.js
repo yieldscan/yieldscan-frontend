@@ -4,6 +4,7 @@ import {motion} from "framer-motion"
 
 const Header = dynamic(
 	() => import("@components/common/header").then((mod) => mod.default),
+	{ ssr: false }
 );
 
 const withDocumentationLayout = (children) => {
