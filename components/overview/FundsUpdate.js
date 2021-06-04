@@ -127,23 +127,23 @@ const FundsUpdate = withSlideIn(
 			});
 		}, [selectedAccount]);
 
-		useEffect(() => {
-			const timePeriodValue = 12,
-				timePeriodUnit = "months";
+		// useEffect(() => {
+		// 	const timePeriodValue = 12,
+		// 		timePeriodUnit = "months";
 
-			calculateReward(
-				coinGeckoPriceUSD,
-				validators,
-				totalStakingAmount,
-				timePeriodValue,
-				timePeriodUnit,
-				compounding,
-				networkInfo
-			).then((result) => {
-				// setTotalStakingAmount(totalStakingAmount);
-				setEstimatedReturns(get(result, "returns", 0));
-			});
-		}, [amount, compounding]);
+		// 	calculateReward(
+		// 		coinGeckoPriceUSD,
+		// 		validators,
+		// 		totalStakingAmount,
+		// 		timePeriodValue,
+		// 		timePeriodUnit,
+		// 		compounding,
+		// 		networkInfo
+		// 	).then((result) => {
+		// 		// setTotalStakingAmount(totalStakingAmount);
+		// 		setEstimatedReturns(get(result, "returns", 0));
+		// 	});
+		// }, [amount, compounding]);
 
 		useEffect(() => {
 			if (amount) {
@@ -279,6 +279,7 @@ const FundsUpdate = withSlideIn(
 			updateFunds(
 				type,
 				selectedAccount.address,
+				stakingInfo.controllerId.toString(),
 				amount,
 				apiInstance,
 				handlers,
