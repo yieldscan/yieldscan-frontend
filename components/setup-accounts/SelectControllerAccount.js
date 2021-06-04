@@ -32,7 +32,7 @@ const SelectControllerAccount = ({
 
 	const [sessionController, setSessionController] = useState(() =>
 		isNil(
-			window?.sessionStorage.getItem(
+			window?.localStorage.getItem(
 				selectedAccount.address + networkInfo.network + "Controller"
 			)
 		)
@@ -40,7 +40,7 @@ const SelectControllerAccount = ({
 			: accounts?.filter(
 					(account) =>
 						account.address ===
-						window?.sessionStorage.getItem(
+						window?.localStorage.getItem(
 							selectedAccount.address + networkInfo.network + "Controller"
 						)
 			  )[0]
@@ -48,7 +48,7 @@ const SelectControllerAccount = ({
 
 	const handleOnClick = (account) => {
 		setSessionController(account);
-		window?.sessionStorage.setItem(
+		window?.localStorage.setItem(
 			selectedAccount.address + networkInfo.network + "Controller",
 			account.address
 		);
@@ -58,21 +58,12 @@ const SelectControllerAccount = ({
 	useEffect(() => {
 		const controller =
 			accountsStakingInfo[selectedAccount.address]?.controllerId?.toString();
-		console.log("controller");
-		console.log(controller);
 		const controllerInfo = controller
 			? accounts.filter((account) => account.address === controller)[0]
 			: controller;
 
 		setExisiting(controllerInfo);
 	}, [accountsStakingInfo[selectedAccount.address]]);
-
-	// console.log(JSON.stringify(accountsStakingInfo[selectedAccount.address]));
-
-	console.log("exisiting");
-	console.log(exisiting);
-	console.log("accountsStakingInfo[selectedAccount.address]");
-	console.log(accountsStakingInfo[selectedAccount.address]);
 
 	return (
 		<div className="flex-1 w-full max-w-2xl flex flex-col text-gray-700 justify-center p-4 text-gray-700 space-y-6 mb-32">

@@ -83,7 +83,7 @@ const Staking = () => {
 						]?.stakingLedger.controllerId.toString()
 			  )[0]
 			: isNil(
-					window?.sessionStorage.getItem(
+					window?.localStorage.getItem(
 						selectedAccount.address + networkInfo.network + "Controller"
 					)
 			  )
@@ -91,7 +91,7 @@ const Staking = () => {
 			: accounts?.filter(
 					(account) =>
 						account.address ===
-						window?.sessionStorage.getItem(
+						window?.localStorage.getItem(
 							selectedAccount.address + networkInfo.network + "Controller"
 						)
 			  )[0]
@@ -153,7 +153,7 @@ const Staking = () => {
 	// }, [transactionHash, isSuccessful]);
 
 	const transact = (transactionType) => {
-		if (transactionType === "lock-funds") {
+		if (["lock-funds", "bond-extra"].includes(transactionType)) {
 			setIsLockFunds(true);
 		} else setIsLockFunds(false);
 
@@ -196,17 +196,18 @@ const Staking = () => {
 			onFinish: (status, message, eventLogs, tranHash) => {
 				// status = 0 for success, anything else for error code
 				if (status === 0) {
-					transactionType === "lock-funds"
+					["lock-funds", "bond-extra"].includes(transactionType)
 						? setSuccessHeading("Now you’re ready to stake")
 						: setSuccessHeading("Congratulations");
-					const successMessage =
-						transactionType === "lock-funds"
-							? "Your funds have been locked successfully. Just one more step to start earning..."
-							: "You’ve successfully staked your funds...";
+					const successMessage = ["lock-funds", "bond-extra"].includes(
+						transactionType
+					)
+						? "Your funds have been locked successfully. Just one more step to start earning..."
+						: "You’ve successfully staked your funds...";
 					setStakingEvent(successMessage);
 					setIsSuccessful(true);
 					setTimeout(() => {
-						if (transactionType === "lock-funds") {
+						if (["lock-funds", "bond-extra"].includes(transactionType)) {
 							setIsSuccessful(false);
 							setTransactionHash(null);
 						}

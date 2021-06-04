@@ -28,6 +28,14 @@ const LockFunds = ({
 	const stakingAmount = get(transactionState, "stakingAmount", 0);
 	const [transactionFee, setTransactionFee] = useState(0);
 
+	const handleOnClick = () => {
+		const type = stakingInfo?.stakingLedger?.total.isEmpty
+			? "lock-funds"
+			: "bond-extra";
+
+		return onConfirm(type);
+	};
+
 	useEffect(() => {
 		if (selectedAccount && apiInstance) {
 			const nominatedValidators = transactionState.selectedValidators.map(
@@ -179,7 +187,7 @@ const LockFunds = ({
 						<div className="mt-4 w-full text-center">
 							<button
 								className="rounded-full font-medium px-12 py-3 bg-teal-500 text-white"
-								onClick={() => onConfirm("lock-funds")}
+								onClick={handleOnClick}
 							>
 								Lock Funds
 							</button>
