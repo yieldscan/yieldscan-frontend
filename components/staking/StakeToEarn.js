@@ -64,7 +64,7 @@ const StakeToEarn = ({
 					</button>
 				</div>
 				<div className="flex-1 flex justify-center items-center">
-					<div className="flex flex-col w-full max-w-xl items-center justify-center space-y-6">
+					<div className="flex flex-col w-full max-w-xl items-center justify-center space-y-4 pb-4">
 						<div className="w-full flex justify-center items-center">
 							<Image
 								src="/images/channel.svg"

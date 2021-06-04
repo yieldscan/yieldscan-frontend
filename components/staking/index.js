@@ -23,6 +23,8 @@ import axios from "@lib/axios";
 import { useToast, Spinner, Flex, Button } from "@chakra-ui/core";
 import ConfettiGenerator from "confetti-js";
 import ChainErrorPage from "./ChainErrorPage";
+import { BottomNextButton } from "../setup-accounts/BottomButton";
+import InfoAlert from "./InfoAlert";
 
 const Staking = () => {
 	const toast = useToast();
@@ -74,17 +76,17 @@ const Staking = () => {
 	const [loaderError, setLoaderError] = useState(false);
 
 	const [controllerAccount, setControllerAccount] = useState(() =>
-		accountsStakingInfo[selectedAccount.address]?.stakingLedger.controllerId
+		accountsStakingInfo[selectedAccount?.address]?.stakingLedger.controllerId
 			? accounts?.filter(
 					(account) =>
 						account.address ===
 						accountsStakingInfo[
-							selectedAccount.address
+							selectedAccount?.address
 						]?.stakingLedger.controllerId.toString()
 			  )[0]
 			: isNil(
 					window?.localStorage.getItem(
-						selectedAccount.address + networkInfo.network + "Controller"
+						selectedAccount?.address + networkInfo.network + "Controller"
 					)
 			  )
 			? selectedAccount
@@ -92,7 +94,7 @@ const Staking = () => {
 					(account) =>
 						account.address ===
 						window?.localStorage.getItem(
-							selectedAccount.address + networkInfo.network + "Controller"
+							selectedAccount?.address + networkInfo.network + "Controller"
 						)
 			  )[0]
 	);
@@ -132,8 +134,8 @@ const Staking = () => {
 	// 	setHeaderLoading(true);
 	// 	if (selectedAccount) {
 	// 		getTransactionFee(
-	// 			selectedAccount.address,
-	// 			selectedAccount.address,
+	// 			selectedAccount?.address,
+	// 			selectedAccount?.address,
 	// 			transactionState.stakingAmount,
 	// 			get(bondedAmount, "currency", 0),
 	// 			transactionState.rewardDestination,
@@ -228,7 +230,7 @@ const Staking = () => {
 
 				if (status === 0) {
 					updateTransactionData(
-						selectedAccount.address,
+						selectedAccount?.address,
 						networkInfo.network,
 						parseInt(stakingInfo.stakingLedger.active) /
 							Math.pow(10, networkInfo.decimalPlaces),
@@ -247,7 +249,7 @@ const Staking = () => {
 				} else {
 					if (message !== "Cancelled") {
 						updateTransactionData(
-							selectedAccount.address,
+							selectedAccount?.address,
 							networkInfo.network,
 							parseInt(stakingInfo.stakingLedger.active) /
 								Math.pow(10, networkInfo.decimalPlaces),
@@ -261,15 +263,15 @@ const Staking = () => {
 						// 	errorMessage: message,
 						// 	eventLogs,
 						// });
-						setTimeout(() => {
-							setStakingEvent("Transaction failed");
-							setLoaderError(true);
-						}, 750);
+
+						setStakingEvent("Transaction failed");
+						setLoaderError(true);
+
 						setTimeout(() => {
 							setChainError(true);
 							setLoaderError(false);
 							setStakingLoading(false);
-						}, 2500);
+						}, 2000);
 					}
 				}
 			},
@@ -277,7 +279,7 @@ const Staking = () => {
 
 		if (transactionState.stakingAmount) {
 			stake(
-				selectedAccount.address,
+				selectedAccount?.address,
 				controllerAccount?.address,
 				transactionState.stakingAmount,
 				transactionState.rewardDestination,
@@ -333,21 +335,22 @@ const Staking = () => {
 		setIsLedger(() =>
 			JSON.parse(
 				getFromLocalStorage(
-					selectedAccount.address + networkInfo.network,
+					selectedAccount?.address + networkInfo.network,
 					"isLedger"
 				)
 			)
 		);
 	}, [selectedAccount?.address]);
 
-	useEffect(() => {
-		if (transactionHash && isSuccessful && !isLockFunds) {
-			setTimeout(() => router.push({ pathname: "/overview" }), 5000);
-		}
-	}, [transactionHash, isSuccessful]);
+	// uncomment the following for automatically taking to overview after successful staking
+	// useEffect(() => {
+	// 	if (transactionHash && isSuccessful && !isLockFunds) {
+	// 		setTimeout(() => router.push({ pathname: "/overview" }), 5000);
+	// 	}
+	// }, [transactionHash, isSuccessful]);
 
 	useEffect(() => {
-		if (transactionHash && isSuccessful) {
+		if (transactionHash && isSuccessful && !isLockFunds) {
 			const confettiSettings = {
 				target: "confetti-holder",
 				max: "150",
@@ -368,7 +371,9 @@ const Staking = () => {
 			const confetti = new ConfettiGenerator(confettiSettings);
 			confetti.render();
 
-			return () => confetti.clear();
+			const confettiClear = setTimeout(() => confetti.clear(), 5000);
+
+			return () => clearTimeout(confettiClear);
 		}
 	}, [transactionHash, isSuccessful]);
 
@@ -393,26 +398,43 @@ const Staking = () => {
 	// console.log("controllerAccount");
 	// console.log(controllerAccount);
 
-	return selectedAccount ? (
+	return selectedAccount?.address ? (
 		<div className="w-full h-full flex justify-center max-h-full">
-			{transactionHash && isSuccessful && (
+			{transactionHash && isSuccessful && !isLockFunds && (
 				<canvas id="confetti-holder" className="absolute w-full"></canvas>
 			)}
 			{stakingLoading || isSuccessful ? (
-				<div className="flex flex-col h-full items-center justify-content justify-center space-y-4">
-					<span
-						className={`loader ${
-							loaderError
-								? "fail"
-								: transactionHash && isSuccessful && "success"
-						}`}
-					></span>
-					{isSuccessful && (
-						<h1 className="text-gray-700 text-2xl font-semibold">
-							{successHeading}
-						</h1>
-					)}
-					<p className="text-gray-700">{stakingEvent}</p>
+				<div className="grid grid-rows-2 gap-2 h-full items-center justify-content justify-center">
+					<div className="w-full h-full flex justify-center items-end">
+						<span
+							className={`loader ${
+								loaderError
+									? "fail"
+									: transactionHash && isSuccessful && "success"
+							}`}
+						></span>
+					</div>
+					<div className="w-full max-w-sm flex flex-col items-center h-full justify-between pb-12">
+						<div className="flex flex-col items-center text-center">
+							{isSuccessful && (
+								<h1 className="text-gray-700 text-2xl font-semibold">
+									{successHeading}
+								</h1>
+							)}
+							<p className="text-gray-700">{stakingEvent}</p>
+						</div>
+						<div className="w-full mb-32">
+							{" "}
+							{isSuccessful && !isLockFunds && <InfoAlert />}
+						</div>
+						{isSuccessful && !isLockFunds && (
+							<BottomNextButton
+								onClick={() => router.push({ pathname: "/overview" })}
+							>
+								Continue
+							</BottomNextButton>
+						)}
+					</div>
 				</div>
 			) : chainError ? (
 				<ChainErrorPage
@@ -502,7 +524,9 @@ const Staking = () => {
 			)}
 		</div>
 	) : (
-		<></>
+		<div className="w-full h-full flex justify-center items-center max-h-full">
+			<span className="loader"></span>
+		</div>
 	);
 };
 

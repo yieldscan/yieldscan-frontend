@@ -68,13 +68,13 @@ const PopoverAccountSelection = ({
 								<span className="flex flex-row text-gray-600 text-xs">
 									<span>Total: </span>
 									<span className="ml-1">
-										{accountsBalances[selectedAccount.address] ? (
+										{accountsBalances[selectedAccount?.address] ? (
 											formatCurrency.methods.formatAmount(
 												parseInt(
-													accountsBalances[selectedAccount.address].freeBalance
+													accountsBalances[selectedAccount?.address].freeBalance
 												) +
 													parseInt(
-														accountsBalances[selectedAccount.address]
+														accountsBalances[selectedAccount?.address]
 															.reservedBalance
 													),
 												networkInfo

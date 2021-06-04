@@ -42,7 +42,7 @@ const LockFunds = ({
 				(v) => v.stashId
 			);
 			const substrateControllerId = encodeAddress(
-				decodeAddress(controllerAccount.address),
+				decodeAddress(controllerAccount?.address),
 				42
 			);
 			apiInstance.tx.staking
@@ -70,7 +70,7 @@ const LockFunds = ({
 					</button>
 				</div>
 				<div className="flex-1 flex justify-center items-center">
-					<div className="flex flex-col w-full max-w-xl items-center justify-center space-y-6">
+					<div className="flex flex-col w-full max-w-xl items-center justify-center space-y-4">
 						<div className="w-full flex justify-center items-center">
 							<Image
 								src="/images/lock-alt.svg"

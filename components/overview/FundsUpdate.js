@@ -119,12 +119,14 @@ const FundsUpdate = withSlideIn(
 		}, [nominations]);
 
 		useEffect(() => {
-			apiInstance.query.staking.payee(selectedAccount.address).then((payee) => {
-				if (payee.isStaked) setCompounding(true);
-				else {
-					setCompounding(false);
-				}
-			});
+			apiInstance.query.staking
+				.payee(selectedAccount?.address)
+				.then((payee) => {
+					if (payee.isStaked) setCompounding(true);
+					else {
+						setCompounding(false);
+					}
+				});
 		}, [selectedAccount]);
 
 		// useEffect(() => {
@@ -234,7 +236,7 @@ const FundsUpdate = withSlideIn(
 
 					if (status === 0) {
 						updateTransactionData(
-							selectedAccount.address,
+							selectedAccount?.address,
 							networkInfo.network,
 							stakingInfo.stakingLedger.active /
 								Math.pow(10, networkInfo.decimalPlaces),
@@ -257,7 +259,7 @@ const FundsUpdate = withSlideIn(
 						setErrMessage(message);
 						if (message !== "Cancelled") {
 							updateTransactionData(
-								selectedAccount.address,
+								selectedAccount?.address,
 								networkInfo.network,
 								stakingInfo.stakingLedger.active /
 									Math.pow(10, networkInfo.decimalPlaces),
@@ -278,7 +280,7 @@ const FundsUpdate = withSlideIn(
 			};
 			updateFunds(
 				type,
-				selectedAccount.address,
+				selectedAccount?.address,
 				stakingInfo.controllerId.toString(),
 				amount,
 				apiInstance,
@@ -463,7 +465,7 @@ const FundsUpdate = withSlideIn(
 											subCurrency={subCurrency}
 											type={type}
 											close={close}
-											stashId={selectedAccount.address}
+											stashId={selectedAccount?.address}
 											nominations={nominations}
 											handlePopoverClose={handlePopoverClose}
 											stakingInfo={stakingInfo}

@@ -121,7 +121,7 @@ const RedeemUnbonded = withSlideIn(
 
 					if (status === 0) {
 						// updateTransactionData(
-						// 	selectedAccount.address,
+						// 	selectedAccount?.address,
 						// 	networkInfo.coinGeckoDenom,
 						// 	get(bondedAmount, "currency", 0),
 						// 	type == "bond"
@@ -139,7 +139,7 @@ const RedeemUnbonded = withSlideIn(
 						setErrMessage(message);
 						if (message !== "Cancelled") {
 							// updateTransactionData(
-							// 	selectedAccount.address,
+							// 	selectedAccount?.address,
 							// 	networkInfo.coinGeckoDenom,
 							// 	get(bondedAmount, "currency", 0),
 							// 	type == "bond"
@@ -153,11 +153,14 @@ const RedeemUnbonded = withSlideIn(
 					}
 				},
 			};
-			redeemUnbonded(selectedAccount.address, api, handlers, networkInfo).catch(
-				(error) => {
-					handlers.onFinish(1, error.message);
-				}
-			);
+			redeemUnbonded(
+				selectedAccount?.address,
+				api,
+				handlers,
+				networkInfo
+			).catch((error) => {
+				handlers.onFinish(1, error.message);
+			});
 		};
 
 		const handlePopoverClose = () => {

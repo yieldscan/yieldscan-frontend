@@ -101,7 +101,7 @@ const Overview = () => {
 	useEffect(() => {
 		if (selectedAccount?.address) {
 			axios
-				.get(`/${networkInfo.network}/user/${selectedAccount.address}`)
+				.get(`/${networkInfo.network}/user/${selectedAccount?.address}`)
 				.then(({ data }) => {
 					setUserData(data);
 				})
@@ -109,7 +109,7 @@ const Overview = () => {
 					setUserData(null);
 					console.info(
 						"No staking data found for the accountId:",
-						selectedAccount.address
+						selectedAccount?.address
 					);
 				});
 		} else {
@@ -293,7 +293,7 @@ const Overview = () => {
 									stakingInfo?.stakingLedger.active /
 									Math.pow(10, networkInfo.decimalPlaces),
 							}}
-							address={selectedAccount.address}
+							address={selectedAccount?.address}
 						/>
 					</div>
 				</div>

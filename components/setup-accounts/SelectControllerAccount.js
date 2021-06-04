@@ -33,7 +33,7 @@ const SelectControllerAccount = ({
 	const [sessionController, setSessionController] = useState(() =>
 		isNil(
 			window?.localStorage.getItem(
-				selectedAccount.address + networkInfo.network + "Controller"
+				selectedAccount?.address + networkInfo.network + "Controller"
 			)
 		)
 			? null
@@ -41,7 +41,7 @@ const SelectControllerAccount = ({
 					(account) =>
 						account.address ===
 						window?.localStorage.getItem(
-							selectedAccount.address + networkInfo.network + "Controller"
+							selectedAccount?.address + networkInfo.network + "Controller"
 						)
 			  )[0]
 	);
@@ -49,7 +49,7 @@ const SelectControllerAccount = ({
 	const handleOnClick = (account) => {
 		setSessionController(account);
 		window?.localStorage.setItem(
-			selectedAccount.address + networkInfo.network + "Controller",
+			selectedAccount?.address + networkInfo.network + "Controller",
 			account.address
 		);
 		setIsStashPopoverOpen(false);
@@ -57,13 +57,13 @@ const SelectControllerAccount = ({
 
 	useEffect(() => {
 		const controller =
-			accountsStakingInfo[selectedAccount.address]?.controllerId?.toString();
+			accountsStakingInfo[selectedAccount?.address]?.controllerId?.toString();
 		const controllerInfo = controller
 			? accounts.filter((account) => account.address === controller)[0]
 			: controller;
 
 		setExisiting(controllerInfo);
-	}, [accountsStakingInfo[selectedAccount.address]]);
+	}, [accountsStakingInfo[selectedAccount?.address]]);
 
 	return (
 		<div className="flex-1 w-full max-w-2xl flex flex-col text-gray-700 justify-center p-4 text-gray-700 space-y-6 mb-32">
@@ -78,7 +78,7 @@ const SelectControllerAccount = ({
 			</div>
 			<div className="space-y-4">
 				{exisiting &&
-					(exisiting.address === selectedAccount.address ? (
+					(exisiting.address === selectedAccount?.address ? (
 						<SameStashControllerAlert />
 					) : (
 						<ExistingControllerAlert />

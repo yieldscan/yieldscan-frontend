@@ -9,7 +9,7 @@ const BottomBackButton = ({ onClick, children }) => (
 
 const BottomNextButton = ({ onClick, children, disabled = false }) => (
 	<button
-		className="rounded-lg min-w-32 font-medium p-3 bg-teal-500 text-white"
+		className="rounded-lg min-w-32 font-medium p-3 bg-teal-500 text-white z-50"
 		onClick={onClick}
 		disabled={disabled}
 	>

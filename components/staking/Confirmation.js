@@ -55,7 +55,7 @@ const Confirmation = ({
 				(v) => v.stashId
 			);
 			const substrateControllerId = encodeAddress(
-				decodeAddress(controllerAccount.address),
+				decodeAddress(controllerAccount?.address),
 				42
 			);
 			apiInstance.tx.staking
@@ -72,7 +72,6 @@ const Confirmation = ({
 
 	return (
 		<div className="w-full h-full flex justify-center max-h-full">
-			(
 			<div className="flex flex-col w-full max-w-65-rem h-full space-y-evenly">
 				<div className="p-2 w-full">
 					<button
@@ -83,8 +82,8 @@ const Confirmation = ({
 						<span className="mx-2 text-sm">back</span>
 					</button>
 				</div>
-				<div className="flex-1 flex justify-center items-center">
-					<div className="flex flex-col w-full max-w-xl items-center justify-center space-y-6">
+				<div className="flex-1 flex justify-center items-center pb-4">
+					<div className="flex flex-col w-full max-w-xl items-center justify-center space-y-4">
 						<div className="w-full flex justify-center items-center">
 							<Circle size={60} color="#2BCACA" />
 						</div>
@@ -98,7 +97,11 @@ const Confirmation = ({
 						<BrowserWalletAlert />
 						<div className="flex flex-col w-full text-gray-700 text-sm space-y-2 font-semibold">
 							<div>
-								<p className="ml-2">Stash Account</p>
+								<p className="ml-2">{`${
+									controllerAccount.address === selectedAccount.address
+										? "Same Stash and Controller"
+										: "Stash"
+								} Account`}</p>
 								<Account
 									account={selectedAccount}
 									balances={balances}
@@ -109,18 +112,20 @@ const Confirmation = ({
 									disabled={true}
 								/>
 							</div>
-							<div>
-								<p className="ml-2">Controller Account</p>
-								<Account
-									account={selectedAccount}
-									balances={balances}
-									networkInfo={networkInfo}
-									onAccountSelected={() => {
-										return;
-									}}
-									disabled={true}
-								/>
-							</div>
+							{controllerAccount.address !== selectedAccount.address && (
+								<div>
+									<p className="ml-2">Controller Account</p>
+									<Account
+										account={selectedAccount}
+										balances={balances}
+										networkInfo={networkInfo}
+										onAccountSelected={() => {
+											return;
+										}}
+										disabled={true}
+									/>
+								</div>
+							)}
 						</div>
 						<div className="w-full p-2">
 							<button
@@ -282,7 +287,6 @@ const Confirmation = ({
 					</div>
 				</div>
 			</div>
-			)
 		</div>
 	);
 };
