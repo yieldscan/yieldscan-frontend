@@ -248,9 +248,9 @@ const RewardCalculatorPage = () => {
 		router.push(`${Routes.VALIDATORS}?advanced=true`);
 	};
 
-	const totalBondedAmount =
-		parseInt(get(stakingBalance, "stakingLedger.total", 0)) /
-		Math.pow(10, networkInfo.decimalPlaces);
+	// const totalBondedAmount =
+	// 	parseInt(get(stakingBalance, "stakingLedger.total", 0)) /
+	// 	Math.pow(10, networkInfo.decimalPlaces);
 
 	const activeBondedAmount =
 		parseInt(get(stakingBalance, "stakingLedger.active", 0)) /
@@ -263,15 +263,9 @@ const RewardCalculatorPage = () => {
 	const totalPossibleStakingAmount =
 		activeBondedAmount + totalAvailableStakingAmount;
 
-	const calculationDisabled =
-		!totalPossibleStakingAmount ||
-		!timePeriodValue ||
-		(amount || 0) > totalPossibleStakingAmount - networkInfo.minAmount ||
-		amount == 0;
-
 	const proceedDisabled =
 		accounts && selectedAccount
-			? amount && !isInElection
+			? amount && !isInElection && amount > 0
 				? amount > totalPossibleStakingAmount
 					? true
 					: activeBondedAmount >

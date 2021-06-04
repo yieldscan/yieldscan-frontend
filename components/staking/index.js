@@ -42,7 +42,7 @@ const Staking = () => {
 	const [isLedger, setIsLedger] = useState(() =>
 		JSON.parse(
 			getFromLocalStorage(
-				selectedAccount.address + networkInfo.network,
+				selectedAccount?.address + networkInfo.network,
 				"isLedger"
 			)
 		)
