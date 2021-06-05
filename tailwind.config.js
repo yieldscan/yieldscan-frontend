@@ -4,6 +4,9 @@ const {
 	borderRadius,
 	maxWidth,
 	scale,
+	height,
+	minWidth,
+	maxHeight,
 } = require("tailwindcss/defaultTheme");
 
 module.exports = {
@@ -53,6 +56,7 @@ module.exports = {
 				xxs: "12rem",
 			},
 			minWidth: {
+				...minWidth,
 				1: "0.25rem",
 				2: "0.5rem",
 				3: "0.75rem",
@@ -78,6 +82,13 @@ module.exports = {
 				80: "20rem",
 				96: "24rem",
 			},
+			height: {
+				...height,
+				72: "18rem",
+				80: "20rem",
+				96: "24rem",
+			},
+			maxHeight: { ...maxHeight },
 			boxShadow: {
 				r: "0.5px 0px 0.5px 0px rgba(0, 0, 0, 0.25)",
 			},

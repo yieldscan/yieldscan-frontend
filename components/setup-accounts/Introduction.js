@@ -1,6 +1,11 @@
-import { ArrowUpRight, Check, ChevronDown, ExternalLink } from "react-feather";
+import { ArrowRight, ArrowUpRight, Check, ChevronDown } from "react-feather";
 import { Collapse } from "@chakra-ui/core";
-import { BottomBackButton, BottomNextButton } from "./BottomButton";
+import {
+	BackButtonContent,
+	BottomBackButton,
+	BottomNextButton,
+	NextButtonContent,
+} from "./BottomButton";
 import { useState } from "react";
 
 const begginerInfo = [
@@ -151,21 +156,25 @@ const Introduction = ({ decrementStep, incrementCurrentStep }) => {
 					))}
 				</div>
 			</div>
-			<div className="w-full flex-row justify-start space-x-3">
-				<BottomBackButton
-					onClick={() => {
-						decrementStep();
-					}}
-				>
-					Go Back
-				</BottomBackButton>
-				<BottomNextButton
-					onClick={() => {
-						incrementCurrentStep();
-					}}
-				>
-					Next
-				</BottomNextButton>
+			<div className="w-full flex flex-row justify-start space-x-3">
+				<div>
+					<BottomBackButton
+						onClick={() => {
+							decrementStep();
+						}}
+					>
+						<BackButtonContent />
+					</BottomBackButton>
+				</div>
+				<div>
+					<BottomNextButton
+						onClick={() => {
+							incrementCurrentStep();
+						}}
+					>
+						<NextButtonContent />
+					</BottomNextButton>
+				</div>
 			</div>
 		</div>
 	);

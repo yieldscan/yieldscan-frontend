@@ -3,7 +3,12 @@ import { isNil } from "lodash";
 import { useAccounts, useAccountsBalances } from "@lib/store";
 import getFromLocalStorage from "@lib/getFromLocalStorage";
 import addToLocalStorage from "@lib/addToLocalStorage";
-import { BottomBackButton, BottomNextButton } from "./BottomButton";
+import {
+	BackButtonContent,
+	BottomBackButton,
+	BottomNextButton,
+	NextButtonContent,
+} from "./BottomButton";
 import AccountButton from "./AccountButton";
 
 const IdentifyLedgerAccounts = ({
@@ -46,8 +51,8 @@ const IdentifyLedgerAccounts = ({
 	};
 
 	return (
-		<div className="flex-1 w-full max-w-2xl flex flex-col text-gray-700 justify-center p-4 text-gray-700 space-y-6 mb-32">
-			<div>
+		<div className="w-full h-full max-w-2xl grid grid-rows-6 gap-2 text-gray-700 p-4 text-gray-700">
+			<div className="row-span-2 w-full h-full flex flex-col justify-center">
 				<h1 className="text-2xl font-semibold">
 					Identify your ledger accounts
 				</h1>
@@ -55,12 +60,12 @@ const IdentifyLedgerAccounts = ({
 					Please select all the accounts which are imported from your ledger
 					device
 				</p>
-			</div>
-			<div className="space-y-4">
 				<h2 className="text-md font-semibold underline cursor-pointer">
 					How do I check?
 				</h2>
-				<div className="w-full max-h-xl grid grid-cols-4 gap-3 items-center">
+			</div>
+			<div className="row-span-4 w-full space-y-4">
+				<div className="w-full h-80 grid grid-cols-4 gap-3 overflow-y-scroll items-center">
 					{isLedgerWalletObj &&
 						accounts.map((account) => (
 							<AccountButton
@@ -73,23 +78,27 @@ const IdentifyLedgerAccounts = ({
 							/>
 						))}
 				</div>
-			</div>
-			<div className="w-full flex flex-row text-center space-x-3">
-				<BottomBackButton
-					onClick={() => {
-						decrementCurrentStep();
-					}}
-				>
-					Back
-				</BottomBackButton>
-				<BottomNextButton
-					onClick={() => {
-						handleOnClickNext();
-						incrementCurrentStep();
-					}}
-				>
-					Next
-				</BottomNextButton>
+				<div className="w-full flex flex-row justify-start space-x-3">
+					<div>
+						<BottomBackButton
+							onClick={() => {
+								decrementCurrentStep();
+							}}
+						>
+							<BackButtonContent />
+						</BottomBackButton>
+					</div>
+					<div>
+						<BottomNextButton
+							onClick={() => {
+								handleOnClickNext();
+								incrementCurrentStep();
+							}}
+						>
+							<NextButtonContent />
+						</BottomNextButton>
+					</div>
+				</div>
 			</div>
 		</div>
 	);
