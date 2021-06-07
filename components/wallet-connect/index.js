@@ -79,10 +79,8 @@ const WalletConnectPopover = ({ styles, networkInfo }) => {
 	const [redirectToSetUp, setRedirectToSetUp] = useState(false);
 	const [filteredAccounts, setFilteredAccounts] = useState(null);
 
-	const handlers = {
-		onEvent: (eventInfo) => {
-			setExtensionEvent(eventInfo.message);
-		},
+	const onEvent = (eventInfo) => {
+		setExtensionEvent(eventInfo.message);
 	};
 
 	const userStorage = !isNil(typeof window) ? window.localStorage : null;
@@ -99,6 +97,15 @@ const WalletConnectPopover = ({ styles, networkInfo }) => {
 
 	useEffect(() => {
 		if (currentStep === "connectWallet") {
+			const createEventInstance = (message, ...params) => ({
+				message,
+				...params,
+			});
+			onEvent(
+				createEventInstance(
+					"Waiting for you to allow access to polkadot-js extension..."
+				)
+			);
 			web3Enable("YieldScan").then((extension) => {
 				if (extension.length === 0) {
 					setState(WalletConnectStates.REJECTED);
