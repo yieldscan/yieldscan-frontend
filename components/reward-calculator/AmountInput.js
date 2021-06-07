@@ -58,8 +58,10 @@ const AmountInputDefault = memo(
 		};
 
 		useEffect(() => {
-			handleChange(bonded);
-			setIsEditable(!isEditable);
+			if (bonded !== 0) {
+				handleChange(bonded);
+				setIsEditable(simulationChecked);
+			}
 		}, [simulationChecked]);
 
 		return (

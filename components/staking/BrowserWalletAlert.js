@@ -5,7 +5,7 @@ import {
 	AlertTitle,
 } from "@chakra-ui/core";
 
-const BrowserWalletAlert = () => (
+const BrowserWalletAlert = ({ networkInfo, stakingAmount }) => (
 	<Alert
 		status="warning"
 		color="#FDB808"
@@ -18,9 +18,10 @@ const BrowserWalletAlert = () => (
 			<AlertTitle fontSize="sm">{"CAUTION: Funds at risk"}</AlertTitle>
 			<AlertDescription fontSize="xs">
 				<p>
-					You’re trying to stake 191.2423 DOT using a software wallet. We
-					recommend using a Ledger hardware wallet to store your funds securely,
-					isolated from your easy-to-hack computer.
+					You’re trying to stake {stakingAmount.toFixed(4)} {networkInfo.denom}{" "}
+					using a software wallet. We recommend using a Ledger hardware wallet
+					to store your funds securely, isolated from your easy-to-hack
+					computer.
 				</p>
 			</AlertDescription>
 		</div>

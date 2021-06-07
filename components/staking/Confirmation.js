@@ -92,7 +92,10 @@ const Confirmation = ({
 								understand the risks before proceeding.
 							</p>
 						</div>
-						<BrowserWalletAlert />
+						<BrowserWalletAlert
+							stakingAmount={stakingAmount}
+							networkInfo={networkInfo}
+						/>
 						<div className="flex flex-col w-full text-gray-700 text-sm space-y-2 font-semibold">
 							<div>
 								<p className="ml-2">{`${

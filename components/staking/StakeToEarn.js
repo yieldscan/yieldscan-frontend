@@ -80,7 +80,12 @@ const StakeToEarn = ({
 								Please make sure you understand the risks before proceeding.
 							</p>
 						</div>
-						{!isLedger && <BrowserWalletAlert />}
+						{!isLedger && (
+							<BrowserWalletAlert
+								networkInfo={networkInfo}
+								stakingAmount={stakingAmount}
+							/>
+						)}
 						<div className="h-48 w-full px-4 overflow-scroll">
 							{selectedValidators.map((validator) => (
 								<ValidatorCard
