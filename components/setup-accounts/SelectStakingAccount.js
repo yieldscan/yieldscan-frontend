@@ -5,9 +5,21 @@ import {
 	useAccountsBalances,
 	useSelectedAccount,
 	useAccountsControllerStashInfo,
+	usePolkadotApi,
 } from "@lib/store";
+import {
+	Alert,
+	AlertDescription,
+	AlertIcon,
+	AlertTitle,
+} from "@chakra-ui/core";
 import addToLocalStorage from "@lib/addToLocalStorage";
-import { BottomBackButton, BottomNextButton } from "./BottomButton";
+import {
+	BottomBackButton,
+	BottomNextButton,
+	BackButtonContent,
+	NextButtonContent,
+} from "./BottomButton";
 import PopoverAccountSelection from "../common/PopoverAccountSelection";
 
 const SelectStakingAccount = ({
@@ -15,6 +27,7 @@ const SelectStakingAccount = ({
 	incrementCurrentStep,
 	networkInfo,
 }) => {
+	const { apiInstance } = usePolkadotApi();
 	const { accounts } = useAccounts();
 	const { accountsBalances } = useAccountsBalances();
 	const { selectedAccount, setSelectedAccount } = useSelectedAccount();
@@ -29,59 +42,109 @@ const SelectStakingAccount = ({
 		setIsStashPopoverOpen(false);
 	};
 
+	// useEffect(() => {
+	// 	if (apiInstance) {
+	// 		setExistentialDeposit(
+	// 			() =>
+	// 				apiInstance.consts.balances.existentialDeposit.toNumber() /
+	// 				Math.pow(10, networkInfo.decimalPlaces)
+	// 		);
+	// 	}
+	// }, []);
+
 	useEffect(() => {
 		const filteredAccounts = accounts.filter(
 			(account) =>
-				!accountsControllerStashInfo[account.address].isController ||
-				accountsControllerStashInfo[account.address].isSameStashController
+				accountsBalances[account.address]?.freeBalance.gte(
+					apiInstance?.consts.balances.existentialDeposit
+				) &&
+				(!accountsControllerStashInfo[account.address]?.isController ||
+					accountsControllerStashInfo[account.address]?.isSameStashController)
 		);
 		setFilteredAccounts(filteredAccounts);
-	}, [accountsControllerStashInfo]);
+	}, [
+		JSON.stringify(accounts),
+		JSON.stringify(accountsControllerStashInfo),
+		JSON.stringify(accountsBalances),
+	]);
 
 	return (
-		<div className="flex-1 w-full max-w-2xl flex flex-col text-gray-700 justify-center p-4 text-gray-700 space-y-6 mb-32">
-			<div>
-				<h1 className="text-2xl font-semibold">Select staking account</h1>
-				<p className="text-gray-600 text-sm max-w-md">
-					Choose the account you want to use for staking, this would be your
-					main wallet
-				</p>
+		filteredAccounts && (
+			<div className="flex-1 w-full max-w-2xl flex flex-col text-gray-700 justify-center p-4 text-gray-700 space-y-6 mb-32">
+				<div>
+					<h1 className="text-2xl font-semibold">Select staking account</h1>
+					<p className="text-gray-600 text-sm max-w-md">
+						Choose the account you want to use for staking, this would be your
+						main wallet
+					</p>
+				</div>
+				<div className="space-y-4">
+					{filteredAccounts && (
+						<div className="w-full space-y-4">
+							{filteredAccounts.length === 0 && (
+								<NoElligibleAccounts networkInfo={networkInfo} />
+							)}
+							<PopoverAccountSelection
+								accounts={filteredAccounts}
+								accountsBalances={accountsBalances}
+								isStashPopoverOpen={isStashPopoverOpen}
+								setIsStashPopoverOpen={setIsStashPopoverOpen}
+								networkInfo={networkInfo}
+								selectedAccount={selectedAccount}
+								onClick={handleOnClick}
+								isSetUp={true}
+								disabled={filteredAccounts.length === 0}
+							/>
+						</div>
+					)}
+					<h2 className="text-md font-semibold underline cursor-pointer">
+						Don’t see your account?
+					</h2>
+				</div>
+				<div className="w-full flex flex-row justify-start space-x-3">
+					<div>
+						<BottomBackButton onClick={() => decrementCurrentStep()}>
+							<BackButtonContent />
+						</BottomBackButton>
+					</div>
+					<div>
+						<BottomNextButton
+							onClick={() => incrementCurrentStep()}
+							disabled={isNil(selectedAccount)}
+						>
+							<NextButtonContent />
+						</BottomNextButton>
+					</div>
+				</div>
 			</div>
-			<div className="space-y-4">
-				{filteredAccounts && (
-					<PopoverAccountSelection
-						accounts={filteredAccounts}
-						accountsBalances={accountsBalances}
-						isStashPopoverOpen={isStashPopoverOpen}
-						setIsStashPopoverOpen={setIsStashPopoverOpen}
-						networkInfo={networkInfo}
-						selectedAccount={selectedAccount}
-						onClick={handleOnClick}
-						isSetUp={true}
-					/>
-				)}
-				<h2 className="text-md font-semibold underline cursor-pointer">
-					Don’t see your account?
-				</h2>
-			</div>
-			<div className="w-full flex flex-row text-center space-x-3">
-				<BottomBackButton
-					onClick={() => {
-						decrementCurrentStep();
-					}}
-				>
-					Back
-				</BottomBackButton>
-				<BottomNextButton
-					onClick={() => {
-						incrementCurrentStep();
-					}}
-					disabled={isNil(selectedAccount)}
-				>
-					Next
-				</BottomNextButton>
-			</div>
-		</div>
+		)
 	);
 };
 export default SelectStakingAccount;
+
+const NoElligibleAccounts = ({ networkInfo }) => (
+	<Alert
+		status="warning"
+		color="gray.500"
+		backgroundColor="white"
+		borderRadius="8px"
+		border="1px solid #E2ECF9"
+		zIndex={1}
+	>
+		<AlertIcon name="info-outline" color="gray.500" />
+		<div>
+			<AlertTitle fontWeight="medium" fontSize="sm">
+				No elligible accounts available
+			</AlertTitle>
+			<AlertDescription fontSize="xs">
+				<p>
+					Please create a new account if not already created and make sure that
+					you have enough funds for staking.
+				</p>
+				<h2 className="mt-2 text-md font-semibold underline cursor-pointer">
+					Get {networkInfo.denom}
+				</h2>
+			</AlertDescription>
+		</div>
+	</Alert>
+);

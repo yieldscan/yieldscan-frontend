@@ -40,7 +40,10 @@ const PopoverAccountSelection = ({
 							isSetUp
 								? "border-2 border-gray-500 rounded-lg"
 								: "rounded-full border"
+						}  ${
+							disabled ? "cursor-not-allowed opacity-50" : ""
 						} w-full max-w-xs py-2 px-4 flex items-center justify-between font-medium`}
+						disabled={disabled}
 					>
 						Select Account
 						<ChevronDown size="20px" className="ml-2" />
@@ -50,7 +53,7 @@ const PopoverAccountSelection = ({
 						className={`flex flex-row ${
 							isSetUp ? "border-2 border-gray-500 rounded-lg" : "rounded-full"
 						} ${
-							disabled && "cursor-not-allowed hover:bg-gray-200"
+							disabled && "cursor-not-allowed opacity-50"
 						} items-center w-full max-w-xs justify-between py-2 px-4`}
 						disabled={disabled}
 					>
@@ -58,7 +61,7 @@ const PopoverAccountSelection = ({
 							<Identicon address={get(selectedAccount, "address")} />
 							<div
 								className={`flex flex-col cursor-pointer ml-2 text-left  ${
-									disabled && "cursor-not-allowed hover:bg-gray-200"
+									disabled && "cursor-not-allowed"
 								}`}
 							>
 								<h3 className="flex items-center text-gray-700 font-medium -mb-1">

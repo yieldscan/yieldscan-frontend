@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { isNil } from "lodash";
-import { useAccounts, useAccountsBalances } from "@lib/store";
+import { useAccounts, useAccountsBalances, useWalletType } from "@lib/store";
 import getFromLocalStorage from "@lib/getFromLocalStorage";
 import addToLocalStorage from "@lib/addToLocalStorage";
 import {
@@ -18,35 +18,39 @@ const IdentifyLedgerAccounts = ({
 }) => {
 	const { accounts } = useAccounts();
 	const { accountsBalances } = useAccountsBalances();
+	const { walletType, setWalletType } = useWalletType();
 	const [infoIndex, setInfoIndex] = useState();
 	const [isOpen, setIsOpen] = useState(false);
 	const [isLedgerWalletObj, setIsLedgerWalletObj] = useState(() =>
 		accounts.reduce((acc, account) => {
-			if (
-				isNil(
-					getFromLocalStorage(account.address + networkInfo.network, "isLedger")
-				)
-			) {
-				acc[account.address] = false;
+			if (isNil(getFromLocalStorage(account.substrateAddress, "isLedger"))) {
+				acc[account.substrateAddress] = false;
 			} else
-				acc[account.address] = JSON.parse(
-					getFromLocalStorage(account.address + networkInfo.network, "isLedger")
+				acc[account.substrateAddress] = JSON.parse(
+					getFromLocalStorage(account.substrateAddress, "isLedger")
 				);
 			return acc;
 		}, {})
 	);
 
-	const handleSelection = (address, info) => {
-		setIsLedgerWalletObj((state) => ({ ...state, [address]: !info }));
+	const handleSelection = (account, info) => {
+		setIsLedgerWalletObj((state) => ({
+			...state,
+			[account.substrateAddress]: !info,
+		}));
 	};
 
 	const handleOnClickNext = () => {
 		accounts.map((account) => {
 			addToLocalStorage(
-				account.address + networkInfo.network,
+				account.substrateAddress,
 				"isLedger",
-				isLedgerWalletObj[account.address]
+				isLedgerWalletObj[account.substrateAddress]
 			);
+			const accountsType = walletType;
+			accountsType[account.substrateAddress] =
+				isLedgerWalletObj[account.substrateAddress];
+			setWalletType({ ...accountsType });
 		});
 	};
 
@@ -74,17 +78,13 @@ const IdentifyLedgerAccounts = ({
 								balance={accountsBalances[account.address]}
 								networkInfo={networkInfo}
 								handleSelection={handleSelection}
-								isLedgerWallet={isLedgerWalletObj[account.address]}
+								isLedgerWallet={isLedgerWalletObj[account.substrateAddress]}
 							/>
 						))}
 				</div>
 				<div className="w-full flex flex-row justify-start space-x-3">
 					<div>
-						<BottomBackButton
-							onClick={() => {
-								decrementCurrentStep();
-							}}
-						>
+						<BottomBackButton onClick={() => decrementCurrentStep()}>
 							<BackButtonContent />
 						</BottomBackButton>
 					</div>
@@ -94,6 +94,7 @@ const IdentifyLedgerAccounts = ({
 								handleOnClickNext();
 								incrementCurrentStep();
 							}}
+							disabled={!Object.values(isLedgerWalletObj).includes(true)}
 						>
 							<NextButtonContent />
 						</BottomNextButton>

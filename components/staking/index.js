@@ -43,10 +43,7 @@ const Staking = () => {
 	const { accountsControllerStashInfo } = useAccountsControllerStashInfo();
 	const [isLedger, setIsLedger] = useState(() =>
 		JSON.parse(
-			getFromLocalStorage(
-				selectedAccount?.address + networkInfo.network,
-				"isLedger"
-			)
+			getFromLocalStorage(selectedAccount?.substrateAddress, "isLedger")
 		)
 	);
 
@@ -224,7 +221,6 @@ const Staking = () => {
 					duration: 7000,
 				});
 				setTimeout(() => {
-					console.log("hello");
 					setStakingLoading(false);
 				}, 2500);
 
@@ -334,10 +330,7 @@ const Staking = () => {
 	useEffect(() => {
 		setIsLedger(() =>
 			JSON.parse(
-				getFromLocalStorage(
-					selectedAccount?.address + networkInfo.network,
-					"isLedger"
-				)
+				getFromLocalStorage(selectedAccount?.substrateAddress, "isLedger")
 			)
 		);
 	}, [selectedAccount?.address]);
@@ -387,16 +380,6 @@ const Staking = () => {
 			);
 		}
 	}, [stakingInfo?.controllerId]);
-	// console.log("balances");
-	// console.log(balances);
-	// console.log("stakingInfo");
-	// console.log(stakingInfo);
-	// console.log("controllerStashInfo");
-	// console.log(controllerStashInfo);
-	// console.log(isLedger);
-
-	// console.log("controllerAccount");
-	// console.log(controllerAccount);
 
 	return selectedAccount?.address ? (
 		<div className="w-full h-full flex justify-center max-h-full">

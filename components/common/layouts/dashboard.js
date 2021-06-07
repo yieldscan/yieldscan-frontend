@@ -28,7 +28,7 @@ import { useRouter } from "next/router";
 import Routes from "@lib/routes";
 import { setCookie } from "nookies";
 
-const withDashboardLayout = (children, isSetup) => {
+const withDashboardLayout = (children, isSetUp) => {
 	const router = useRouter();
 	const { showBetaMessage, setShowBetaMessage } = useBetaInfo();
 	const { apiInstance, setApiInstance } = usePolkadotApi();
@@ -199,9 +199,9 @@ const withDashboardLayout = (children, isSetup) => {
 
 	return () => (
 		<div>
-			<Header />
+			<Header isSetUp={isSetUp} />
 			<div className="dashboard-content fixed flex relative w-full">
-				{!isSetup && (
+				{!isSetUp && (
 					<div className="h-full hidden xl:block sidemenu-container xl:w-2/12 py-8 max-w-xs">
 						<SideMenu />
 						<div className="absolute bottom-0 pb-8">
@@ -212,12 +212,12 @@ const withDashboardLayout = (children, isSetup) => {
 
 				<div
 					className={`h-full ${
-						!isSetup && "px-8 mx-auto"
+						!isSetUp && "px-8 mx-auto"
 					} overflow-y-scroll  w-full`}
 				>
 					<div
 						className={`mx-auto h-full ${
-							isSetup
+							isSetUp
 								? "w-full"
 								: includes(
 										[Routes.OVERVIEW, Routes.CALCULATOR, Routes.SETTINGS],

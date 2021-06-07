@@ -17,6 +17,7 @@ import {
 	useAccountsStakingInfo,
 	useAccountsStakingLedgerInfo,
 	useAccountsControllerStashInfo,
+	useWalletType,
 } from "@lib/store";
 import { get, isNil } from "lodash";
 import { ChevronDown, Settings, Menu } from "react-feather";
@@ -59,7 +60,7 @@ import YieldScanLogo from "./YieldScanLogo";
 import NetworkSelection from "./NetworkSelection";
 import AccountSelection from "./AccountSelection";
 
-const Header = ({ isBase }) => {
+const Header = ({ isBase, isSetUp }) => {
 	const userStorage = !isNil(typeof window) ? window.localStorage : null;
 	const { selectedNetwork, setSelectedNetwork } = useSelectedNetwork();
 	const { setValidators, setValidatorMap, setValidatorRiskSets } =
@@ -86,6 +87,7 @@ const Header = ({ isBase }) => {
 		setAccountsWithBalances,
 		setAccountInfoLoading,
 	} = useAccounts();
+	const { walletType } = useWalletType();
 	const { selectedAccount, setSelectedAccount } = useSelectedAccount();
 	const { accountsBalances, setAccountsBalances } = useAccountsBalances();
 	const { accountsStakingInfo, setAccountsStakingInfo } =
@@ -282,6 +284,9 @@ const Header = ({ isBase }) => {
 							toggle={toggle}
 							isStashPopoverOpen={isStashPopoverOpen}
 							selectedAccount={selectedAccount}
+							walletType={walletType}
+							isSetUp={isSetUp}
+							apiInstance={apiInstance}
 							networkInfo={networkInfo}
 							accountsBalances={accountsBalances}
 							setTransactionHash={(info) => setTransactionHash(info)}
@@ -294,6 +299,8 @@ const Header = ({ isBase }) => {
 							isNetworkOpen={isNetworkOpen}
 							setIsNetworkOpen={setIsNetworkOpen}
 							networkInfo={networkInfo}
+							walletType={walletType}
+							isSetUp={isSetUp}
 							supportedNetworksInfo={supportedNetworksInfo}
 							switchNetwork={switchNetwork}
 							selectedNetwork={selectedNetwork}

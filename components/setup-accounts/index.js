@@ -13,8 +13,6 @@ const SetupAccounts = () => {
 	const incrementStep = () => setStep((step) => step + 1);
 	const decrementStep = () => setStep((step) => step - 1);
 
-	console.log(step);
-
 	return step === 0 ? (
 		<GettingStarted incrementStep={incrementStep} />
 	) : step === 1 ? (

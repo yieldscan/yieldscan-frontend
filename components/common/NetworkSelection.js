@@ -11,6 +11,8 @@ const NetworkSelection = ({
 	networkInfo,
 	supportedNetworksInfo,
 	switchNetwork,
+	isSetUp,
+	walletType,
 	selectedNetwork,
 }) => {
 	return (
@@ -21,8 +23,10 @@ const NetworkSelection = ({
 		>
 			<PopoverTrigger>
 				<button
-					className="relative flex flex-row items-center rounded-full border border-gray-300 p-2 px-4 font-semibold text-gray-800 z-20"
-					onClick={() => setIsNetworkOpen(!isNetworkOpen)}
+					className={`relative flex flex-row items-center ${
+						isSetUp ? "cursor-default" : "rounded-full border border-gray-300"
+					} p-2 px-4 font-semibold text-gray-800 z-20`}
+					onClick={() => !isSetUp && setIsNetworkOpen(!isNetworkOpen)}
 				>
 					<div>
 						<img
@@ -31,9 +35,11 @@ const NetworkSelection = ({
 							className="mr-2 w-6 rounded-full"
 						/>
 					</div>
-					<div>
-						<ChevronDown size="20px" />
-					</div>
+					{!isSetUp && (
+						<div>
+							<ChevronDown size="20px" />
+						</div>
+					)}
 				</button>
 			</PopoverTrigger>
 			<PopoverContent

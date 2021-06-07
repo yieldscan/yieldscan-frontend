@@ -63,8 +63,6 @@ const Confirmation = ({
 				.paymentInfo(substrateControllerId)
 				.then((info) => {
 					const fee = info.partialFee.toNumber();
-					console.log("fee");
-					console.log(fee);
 					setTransactionFee(fee);
 				});
 		}

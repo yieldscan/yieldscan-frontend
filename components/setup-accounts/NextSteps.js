@@ -1,11 +1,14 @@
-import { useEffect, useState } from "react";
-import { Check, ArrowRight } from "react-feather";
+import { ArrowRight } from "react-feather";
 import { BottomNextButton } from "./BottomButton";
 import Image from "next/image";
 import { useRouter } from "next/router";
+import { useAccountsBalances, useSelectedAccount } from "@lib/store";
 
 const NextSteps = () => {
 	const router = useRouter();
+	const { selectedAccount } = useSelectedAccount();
+	const { accountsStakingInfo } = useAccountsBalances();
+
 	return (
 		<div className="w-full h-full flex justify-center">
 			<div className="w-full grid grid-rows-10 gap-4 justify-items-center items-center content-center">
@@ -30,23 +33,29 @@ const NextSteps = () => {
 							</p>
 						</div>
 						<ArrowRight size={60} />
-						<div className="flex flex-col w-full h-full items-center p-2 text-gray-700 space-y-6">
-							<Image
-								src="/images/money-withdraw.svg"
-								width="60"
-								height="60"
-								alt="walletIcon"
-							/>
-							<h1 className="text-lg font-semibold text-center">
-								Lock funds for staking
-							</h1>
-							<p className="text-gray-600 text-xs text-center max-w-xs">
-								It is a network requirement to lock your funds to earn staking
-								rewards. Unlocking takes 28 days from the day you withhdraw your
-								funds.
-							</p>
-						</div>
-						<ArrowRight size={60} />
+						{accountsStakingInfo &&
+							accountsStakingInfo[selectedAccount?.address] && (
+								<div className="flex flex-col w-full h-full items-center p-2 text-gray-700 space-y-6">
+									<Image
+										src="/images/money-withdraw.svg"
+										width="60"
+										height="60"
+										alt="walletIcon"
+									/>
+									<h1 className="text-lg font-semibold text-center">
+										Lock funds for staking
+									</h1>
+									<p className="text-gray-600 text-xs text-center max-w-xs">
+										It is a network requirement to lock your funds to earn
+										staking rewards. Unlocking takes 28 days from the day you
+										withhdraw your funds.
+									</p>
+								</div>
+							)}
+						{accountsStakingInfo &&
+							accountsStakingInfo[selectedAccount?.address] && (
+								<ArrowRight size={60} />
+							)}
 						<div className="flex flex-col w-full h-full items-center p-2 text-gray-700 space-y-6">
 							<Image
 								src="/images/coins.svg"

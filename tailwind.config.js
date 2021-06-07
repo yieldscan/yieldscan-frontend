@@ -3,6 +3,7 @@ const {
 	colors,
 	borderRadius,
 	maxWidth,
+	width,
 	scale,
 	height,
 	minWidth,
@@ -81,6 +82,10 @@ module.exports = {
 				72: "18rem",
 				80: "20rem",
 				96: "24rem",
+			},
+			width: {
+				...width,
+				"w-max": "max-content",
 			},
 			height: {
 				...height,

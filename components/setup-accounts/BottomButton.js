@@ -1,6 +1,6 @@
 import { ArrowLeft, ArrowRight } from "react-feather";
 
-const BottomBackButton = ({ onClick, children }) => (
+const BottomBackButton = ({ onClick, children, disabled = false }) => (
 	<button
 		className="rounded-lg min-w-32 font-medium p-3 bg-gray-200 z-20"
 		onClick={onClick}
@@ -11,7 +11,9 @@ const BottomBackButton = ({ onClick, children }) => (
 
 const BottomNextButton = ({ onClick, children, disabled = false }) => (
 	<button
-		className="rounded-lg min-w-32 font-medium p-3 bg-teal-500 text-white z-20"
+		className={`rounded-lg min-w-32 font-medium p-3 bg-teal-500 text-white z-20 ${
+			disabled && "cursor-not-allowed opacity-50"
+		}`}
 		onClick={onClick}
 		disabled={disabled}
 	>
@@ -19,17 +21,17 @@ const BottomNextButton = ({ onClick, children, disabled = false }) => (
 	</button>
 );
 
-const NextButtonContent = () => (
+const NextButtonContent = ({ name }) => (
 	<div className="flex flex-row items-center justify-center space-x-2">
-		<p>Next</p>
+		<p>{name ? name : "Next"}</p>
 		<ArrowRight size={16} />
 	</div>
 );
 
-const BackButtonContent = () => (
+const BackButtonContent = ({ name }) => (
 	<div className="flex flex-row items-center justify-center space-x-2">
 		<ArrowLeft size={16} />
-		<p>Back</p>
+		<p>{name ? name : "Back"}</p>
 	</div>
 );
 

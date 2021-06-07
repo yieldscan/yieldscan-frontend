@@ -9,6 +9,7 @@ import {
 import formatCurrency from "@lib/format-currency";
 import { useSelectedAccount, useCoinGeckoPriceUSD } from "@lib/store";
 import { get, isEmpty, isNil } from "lodash";
+import { useRouter } from "next/router";
 
 const AmountInputDefault = memo(
 	({
@@ -21,7 +22,9 @@ const AmountInputDefault = memo(
 		networkInfo,
 		trackRewardCalculatedEvent,
 		coinGeckoPriceUSD,
+		simulationChecked,
 	}) => {
+		const router = useRouter();
 		// const initiallyEditable =
 		// 	bonded === undefined ? true : bonded == 0 ? true : false;
 		const [isEditable, setIsEditable] = useState(true);
@@ -35,7 +38,7 @@ const AmountInputDefault = memo(
 
 		useEffect(() => {
 			const initiallyEditable =
-				bonded === undefined ? true : bonded == 0 ? true : false;
+				bonded === undefined ? true : bonded === 0 ? true : false;
 			setIsEditable(initiallyEditable);
 		}, [bonded]);
 
@@ -53,6 +56,11 @@ const AmountInputDefault = memo(
 				investmentAmount: `${value} ${networkInfo.denom}`,
 			});
 		};
+
+		useEffect(() => {
+			handleChange(bonded);
+			setIsEditable(!isEditable);
+		}, [simulationChecked]);
 
 		return (
 			<div>
@@ -123,7 +131,20 @@ const AmountInputDefault = memo(
 						/>
 					</InputGroup>
 				</div>
-				{(bonded && (
+				{bonded && bonded !== 0 ? (
+					<span className="text-gray-700 text-xs ">
+						Looking to change staking amount?{" "}
+						<span
+							className="font-semibold cursor-pointer"
+							onClick={() => router.push("/overview")}
+						>
+							Visit Overview
+						</span>
+					</span>
+				) : (
+					<></>
+				)}
+				{/* {(bonded && (
 					<button
 						className="mt-2 py-2 px-4 shadow-custom rounded-full text-xs border border-gray-200"
 						onClick={() => {
@@ -136,7 +157,7 @@ const AmountInputDefault = memo(
 						{isEditable ? "Use Currently Bonded Amount" : "Use Custom Amount"}
 					</button>
 				)) ||
-					""}
+					""} */}
 			</div>
 		);
 	}
@@ -147,6 +168,7 @@ const AmountInputAccountInfoLoading = memo(
 		value,
 		onChange,
 		networkInfo,
+		walletType,
 		selectedAccount,
 		trackRewardCalculatedEvent,
 		coinGeckoPriceUSD,
@@ -183,13 +205,21 @@ const AmountInputAccountInfoLoading = memo(
 							fontSize="lg"
 							isInvalid={isNil(value?.currency) || value.currency === ""}
 							errorBorderColor="crimson"
-							isDisabled={selectedAccount && true}
-							backgroundColor={selectedAccount && "gray.200"}
+							isDisabled={
+								selectedAccount && !Object.values(walletType).includes(null)
+							}
+							backgroundColor={
+								selectedAccount &&
+								!Object.values(walletType).includes(null) &&
+								"gray.200"
+							}
 							color="gray.600"
 						/>
 						<h6
 							className={`absolute z-20 bottom-0 left-0 ml-4 mb-3 text-xs text-gray-600 ${
-								selectedAccount ? "opacity-25 cursor-not-allowed" : "opacity-1"
+								selectedAccount && !Object.values(walletType).includes(null)
+									? "opacity-25 cursor-not-allowed"
+									: "opacity-1"
 							}`}
 						>
 							$
@@ -220,7 +250,7 @@ const AmountInputAccountInfoLoading = memo(
 							</span>
 						</InputRightElement>
 					</InputGroup>
-					{selectedAccount && (
+					{selectedAccount && !Object.values(walletType).includes(null) && (
 						<div className="ml-4 text-gray text-xs flex inline">
 							Loading...
 							<div className="ml-2">
@@ -247,6 +277,8 @@ const AmountInput = memo(
 		onChange,
 		trackRewardCalculatedEvent,
 		balance,
+		walletType,
+		simulationChecked,
 		stakingBalance,
 	}) => {
 		const { selectedAccount } = useSelectedAccount();
@@ -264,7 +296,9 @@ const AmountInput = memo(
 					onChange={onChange}
 				/>
 			): ( */}
-				{stakingBalance && balance ? (
+				{stakingBalance &&
+				balance &&
+				!Object.values(walletType).includes(null) ? (
 					<AmountInputDefault
 						value={value}
 						selectedAccount={selectedAccount}
@@ -284,11 +318,13 @@ const AmountInput = memo(
 						networkInfo={networkInfo}
 						trackRewardCalculatedEvent={trackRewardCalculatedEvent}
 						coinGeckoPriceUSD={coinGeckoPriceUSD}
+						simulationChecked={simulationChecked}
 					/>
 				) : (
 					<AmountInputAccountInfoLoading
 						value={value}
 						selectedAccount={selectedAccount}
+						walletType={walletType}
 						onChange={onChange}
 						networkInfo={networkInfo}
 						trackRewardCalculatedEvent={trackRewardCalculatedEvent}

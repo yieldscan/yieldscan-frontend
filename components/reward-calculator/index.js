@@ -6,6 +6,7 @@ import AmountInput from "./AmountInput";
 import TimePeriodInput from "./TimePeriodInput";
 import ExpectedReturnsCard from "./ExpectedReturnsCard";
 import CompoundRewardSlider from "./CompoundRewardSlider";
+import SimulationSwitch from "./SimulationSwitch";
 import LowBalanceAlert from "./LowBalanceAlert";
 import { useWalletConnect } from "@components/wallet-connect";
 import {
@@ -21,6 +22,7 @@ import {
 	useCoinGeckoPriceUSD,
 	useSelectedAccount,
 	useAccountsBalances,
+	useWalletType,
 	useAccountsStakingInfo,
 } from "@lib/store";
 import { PaymentPopover } from "@components/new-payment";
@@ -80,6 +82,7 @@ const RewardCalculatorPage = () => {
 	const { selectedAccount } = useSelectedAccount();
 	const { accountsBalances } = useAccountsBalances();
 	const { accountsStakingInfo } = useAccountsStakingInfo();
+	const { walletType } = useWalletType();
 	const { setHeaderLoading } = useHeaderLoading();
 	const { isInElection } = useNetworkElection();
 	const { isPaymentPopoverOpen, closePaymentPopover } = usePaymentPopover();
@@ -105,6 +108,7 @@ const RewardCalculatorPage = () => {
 	const [result, setResult] = useState({});
 	const [balance, setBalance] = useState();
 	const [stakingBalance, setStakingBalance] = useState();
+	const [simulationChecked, setSimulationChecked] = useState(false);
 
 	useEffect(() => {
 		setBalance(accountsBalances[selectedAccount?.address]);
@@ -237,7 +241,7 @@ const RewardCalculatorPage = () => {
 		});
 	};
 
-	const onPayment = async () => {
+	const toStaking = async () => {
 		updateTransactionState(Events.INTENT_STAKING);
 		if (transactionHash) setTransactionHash(null);
 		router.push("/staking");
@@ -246,6 +250,10 @@ const RewardCalculatorPage = () => {
 	const onAdvancedSelection = () => {
 		updateTransactionState(Events.INTENT_ADVANCED_SELECTION);
 		router.push(`${Routes.VALIDATORS}?advanced=true`);
+	};
+
+	const toSetUpAccounts = () => {
+		router.push("/setup-accounts");
 	};
 
 	// const totalBondedAmount =
@@ -264,7 +272,7 @@ const RewardCalculatorPage = () => {
 		activeBondedAmount + totalAvailableStakingAmount;
 
 	const proceedDisabled =
-		accounts && selectedAccount
+		accounts && selectedAccount && !Object.values(walletType).includes(null)
 			? amount && !isInElection && amount > 0
 				? amount > totalPossibleStakingAmount
 					? true
@@ -328,16 +336,47 @@ const RewardCalculatorPage = () => {
 			/>
 			<div>
 				<div className="flex flex-wrap">
-					<div className="w-1/2">
-						<h1 className="font-semibold text-xl text-gray-700">
+					{(Object.values(walletType).includes(true) ||
+						Object.values(walletType).includes(false)) &&
+						Object.values(walletType).includes(null) && (
+							<div className="w-full mb-4">
+								<SetupAccountsAlert />
+							</div>
+						)}
+					{!Object.values(walletType).includes(null) && activeBondedAmount > 0 && (
+						<div
+							className={`w-full flex flex-row mb-4 ${
+								simulationChecked ? "justify-between" : "justify-end"
+							}`}
+						>
+							{simulationChecked && (
+								<div>
+									<SimulationAlert />
+								</div>
+							)}
+							<div className=" flex items-center justify-center">
+								<SimulationSwitch
+									simulationChecked={simulationChecked}
+									setSimulationChecked={setSimulationChecked}
+								/>
+							</div>
+						</div>
+					)}
+					<div className="w-1/2 space-y-8">
+						{/* <h1 className="font-semibold text-xl text-gray-700">
 							Calculate Returns
-						</h1>
-						<div className="mt-8 mx-2">
-							<h3 className="text-gray-700 text-xs">I want to invest:</h3>
+						</h1> */}
+						<div className="mx-2">
+							<h3 className="text-gray-700 text-xs">
+								{activeBondedAmount > 0
+									? "Staking Amount:"
+									: "I want to invest:"}
+							</h3>
 							<div className="mt-2">
 								{selectedAccount &&
 									balance &&
 									stakingBalance &&
+									!Object.values(walletType).includes(null) &&
 									(amount >
 										totalPossibleStakingAmount - networkInfo.minAmount ||
 										totalAvailableStakingAmount < networkInfo.minAmount) && (
@@ -356,6 +395,8 @@ const RewardCalculatorPage = () => {
 									onChange={setAmount}
 									trackRewardCalculatedEvent={trackRewardCalculatedEvent}
 									balance={balance}
+									simulationChecked={simulationChecked}
+									walletType={walletType}
 									stakingBalance={stakingBalance}
 								/>
 							</div>
@@ -483,10 +524,27 @@ const RewardCalculatorPage = () => {
 						${proceedDisabled ? "opacity-75 cursor-not-allowed" : "opacity-100"}
 					`}
 							disabled={proceedDisabled}
-							onClick={() => (selectedAccount ? onPayment() : toggle())}
+							hidden={
+								!Object.values(walletType).includes(null) &&
+								activeBondedAmount > 0 &&
+								simulationChecked
+							}
+							onClick={() =>
+								isNil(accounts)
+									? toggle()
+									: Object.keys(walletType).length === 0 ||
+									  Object.values(walletType).includes(null)
+									? toSetUpAccounts()
+									: selectedAccount
+									? toStaking()
+									: toggle()
+							}
 						>
 							{isNil(accounts)
 								? "Connect Wallet"
+								: Object.keys(walletType).length === 0 ||
+								  Object.values(walletType).includes(null)
+								? "Setup Accounts"
 								: isNil(selectedAccount)
 								? "Select Account"
 								: isInElection
@@ -569,5 +627,49 @@ const HelpPopover = ({
 		</Popover>
 	);
 };
+
+const SetupAccountsAlert = () => (
+	<Alert
+		status="warning"
+		color="gray.500"
+		backgroundColor="gray.200"
+		borderRadius="8px"
+		border="1px solid #E2ECF9"
+		zIndex={1}
+	>
+		<AlertIcon name="info-outline" color="gray.500" />
+		<div>
+			<AlertDescription fontSize="xs">
+				<p>
+					<span className="font-semibold">Setup required:</span> We found some
+					new accounts in your wallet. You need to setup your accounts before
+					you can use them to stake.
+				</p>
+			</AlertDescription>
+		</div>
+	</Alert>
+);
+
+const SimulationAlert = () => (
+	<Alert
+		status="warning"
+		color="gray.500"
+		backgroundColor="gray.200"
+		borderRadius="8px"
+		border="1px solid #E2ECF9"
+		zIndex={1}
+	>
+		<AlertIcon name="warning-2" color="gray.500" />
+		<div>
+			<AlertDescription fontSize="xs">
+				<p>
+					<span className="font-semibold">Simulation mode:</span> You can use
+					this calculator ONLY to simulate your expected earnings. To stake,
+					turn off simulation.
+				</p>
+			</AlertDescription>
+		</div>
+	</Alert>
+);
 
 export { GlossaryModal, HelpPopover };

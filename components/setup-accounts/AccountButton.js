@@ -20,7 +20,7 @@ const AccountButton = ({
 			: account?.meta.name;
 	return (
 		<button
-			onClick={() => handleSelection(account.address, isLedgerWallet)}
+			onClick={() => handleSelection(account, isLedgerWallet)}
 			className={`flex flex-col justify-items-center items-center rounded-lg py-4 border-2 ${
 				isLedgerWallet && "border-2 border-teal-500"
 			}`}

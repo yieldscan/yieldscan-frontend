@@ -21,12 +21,13 @@ import { web3Enable, web3AccountsSubscribe } from "@polkadot/extension-dapp";
 import { encodeAddress, decodeAddress } from "@polkadot/util-crypto";
 import RejectedPage from "./RejectedPage";
 import SelectAccount from "./SelectAccount";
-import { useAccounts, useSelectedAccount } from "@lib/store";
+import { useAccounts, useSelectedAccount, useWalletType } from "@lib/store";
 import getFromLocalStorage from "@lib/getFromLocalStorage";
 import addToLocalStorage from "@lib/addToLocalStorage";
 import { trackEvent, Events, setUserProperties } from "@lib/analytics";
 import { setCookie } from "nookies";
 import RecoverAuthInfo from "./RecoverAuthInfo";
+import { useRouter } from "next/router";
 
 const useWalletConnect = create((set) => ({
 	isOpen: false,
@@ -38,6 +39,7 @@ const useWalletConnect = create((set) => ({
 const WalletConnectStates = {
 	REJECTED: "rejected",
 	CONNECTED: "connected",
+	GOTACCOUNTS: "gotaccounts",
 	RECOVERAUTH: "recover",
 };
 
@@ -50,6 +52,7 @@ const CheckIconInfo = ({ info }) => (
 	</Flex>
 );
 const WalletConnectPopover = ({ styles, networkInfo }) => {
+	const router = useRouter();
 	const { isOpen, close } = useWalletConnect();
 	const {
 		accounts,
@@ -59,9 +62,11 @@ const WalletConnectPopover = ({ styles, networkInfo }) => {
 		setStashAccount,
 	} = useAccounts();
 	const { selectedAccount, setSelectedAccount } = useSelectedAccount();
+	const { walletType, setWalletType } = useWalletType();
 	const [state, setState] = useState();
 	const [extensionEvent, setExtensionEvent] = useState();
 	const [currentStep, setCurrentStep] = useState("beginnerInfo");
+	const [redirectToSetUp, setRedirectToSetUp] = useState(false);
 
 	const handlers = {
 		onEvent: (eventInfo) => {
@@ -92,6 +97,9 @@ const WalletConnectPopover = ({ styles, networkInfo }) => {
 						});
 					}
 				} else {
+					if (!autoConnectEnabled) {
+						setRedirectToSetUp(true);
+					}
 					setState(WalletConnectStates.CONNECTED);
 					setAuthForAutoConnect();
 					if (typeof window !== undefined) {
@@ -110,11 +118,11 @@ const WalletConnectPopover = ({ styles, networkInfo }) => {
 			web3AccountsSubscribe((injectedAccounts) => {
 				injectedAccounts.push(
 					{
-						address: "128qRiVjxU3TuT37tg7AX99zwqfPtj2t4nDKUv9Dvi5wzxuF",
+						address: "5DCYHPEg6gmzTv2bw34ANzKr6DfkCRUjzHUqKd9sNd4RpXYh",
 						meta: { name: "bruno" },
 					},
 					{
-						address: "EVA3sSvTqt1HvaHdtiT1JvmnM6qKq4mpMzsS8665jvv974C",
+						address: "5DyYPZ73qUs5YGkqsBuQ7MZmdkpbXAFbMzA83Tp8bwiRQFpb",
 						meta: { name: "test1" },
 					}
 					// {
@@ -123,19 +131,40 @@ const WalletConnectPopover = ({ styles, networkInfo }) => {
 					// }
 				);
 				injectedAccounts?.map((account) => {
+					account.substrateAddress = account.address.toString();
 					account.address = encodeAddress(
 						decodeAddress(account.address.toString()),
 						networkInfo.addressPrefix
 					);
+					const accountsType = walletType;
+					accountsType[account.substrateAddress] = isNil(
+						getFromLocalStorage(account.substrateAddress, "isLedger")
+					)
+						? null
+						: JSON.parse(
+								getFromLocalStorage(account.substrateAddress, "isLedger")
+						  );
+
+					setWalletType({ ...accountsType });
 					return account;
 				});
 				setAccounts(injectedAccounts);
+				if (!redirectToSetUp) {
+					setState(WalletConnectStates.GOTACCOUNTS);
+				}
 			}).then((u) => (unsubscribe = u));
 		}
 		return () => {
 			unsubscribe && unsubscribe();
 		};
 	}, [state, networkInfo]);
+
+	useEffect(() => {
+		if (redirectToSetUp && accounts) {
+			close();
+			router.push("/setup-accounts");
+		}
+	}, [accounts, redirectToSetUp]);
 
 	useEffect(() => {
 		if (accounts) {
@@ -247,7 +276,7 @@ const WalletConnectPopover = ({ styles, networkInfo }) => {
 								</div>
 							</div>
 						) : (
-							state === WalletConnectStates.CONNECTED && (
+							state === WalletConnectStates.GOTACCOUNTS && (
 								<SelectAccount
 									accounts={
 										accountsWithBalances !== null
@@ -289,7 +318,7 @@ const WalletConnectPopover = ({ styles, networkInfo }) => {
 							</Flex>
 							<Button
 								w="100%"
-								rounded="full"
+								rounded="lg"
 								color="white"
 								bg="#2BCACA"
 								alignItems="center"
