@@ -1,7 +1,10 @@
+import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import { Check } from "react-feather";
+import { BottomNextButton } from "./BottomButton";
 
-const SetUpComplete = ({ incrementStep }) => {
+const SetUpComplete = ({ incrementStep, isNewSetup, setIsNewSetup }) => {
+	const router = useRouter();
 	const [startTimeMS, setStartTimeMS] = useState(() => new Date().getTime());
 	const timerStep = 5000;
 	const [remaining, setRemaining] = useState(timerStep);
@@ -45,25 +48,37 @@ const SetUpComplete = ({ incrementStep }) => {
 							Accounts setup complete
 						</h1>
 						<p className="text-gray-600 text-sm text-center max-w-md">
-							Your account is succesfully set up. Now, you can take the next
-							steps to stake!
+							{isNewSetup
+								? "Your account is succesfully set up. You can continue to review your staking preferences before locking your funds to stake."
+								: "Your account is succesfully set up. Now, you can take the next steps to stake!"}
 						</p>
 					</div>
 				</div>
-				<div className="flex flex-col text-gray-700 justify-center content-center p-2 items-center text-gray-700 space-y-6 max-w-md">
-					<p className="text-gray-600 text-sm text-center max-w-md">
-						{`You will be automatically redirected to the next steps in ${remaining} seconds.`}{" "}
-						<span>
-							<span
-								className="text-teal-500 underline cursor-pointer"
-								onClick={() => handleOnClick()}
-							>
-								Click here
-							</span>{" "}
-							if you’re not automatically redirected
-						</span>
-					</p>
-				</div>
+				{isNewSetup ? (
+					<BottomNextButton
+						onClick={() => {
+							router.back();
+							// setIsNewSetup(false);
+						}}
+					>
+						Continue
+					</BottomNextButton>
+				) : (
+					<div className="flex flex-col text-gray-700 justify-center content-center p-2 items-center text-gray-700 space-y-6 max-w-md">
+						<p className="text-gray-600 text-sm text-center max-w-md">
+							{`You will be automatically redirected to the next steps in ${remaining} seconds.`}{" "}
+							<span>
+								<span
+									className="text-teal-500 underline cursor-pointer"
+									onClick={() => handleOnClick()}
+								>
+									Click here
+								</span>{" "}
+								if you’re not automatically redirected
+							</span>
+						</p>
+					</div>
+				)}
 			</div>
 		</div>
 	);

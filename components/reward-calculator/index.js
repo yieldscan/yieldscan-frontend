@@ -25,6 +25,7 @@ import {
 	useWalletType,
 	useAccountsStakingInfo,
 	usePolkadotApi,
+	useIsNewSetup,
 } from "@lib/store";
 import { PaymentPopover } from "@components/new-payment";
 import { get, isNil, mapValues, keyBy, cloneDeep, debounce } from "lodash";
@@ -51,8 +52,9 @@ import {
 import Routes from "@lib/routes";
 import { trackEvent, Events } from "@lib/analytics";
 import { getNetworkInfo } from "yieldscan.config";
-import { HelpCircle } from "react-feather";
+import { HelpCircle, AlertCircle } from "react-feather";
 import MinStakeAlert from "./MinStakeAlert";
+import { BottomNextButton } from "@components/setup-accounts/BottomButton";
 
 const trackRewardCalculatedEvent = debounce((eventData) => {
 	trackEvent(Events.REWARD_CALCULATED, eventData);
@@ -630,27 +632,30 @@ const HelpPopover = ({
 	);
 };
 
-const SetupAccountsAlert = () => (
-	<Alert
-		status="warning"
-		color="gray.500"
-		backgroundColor="gray.200"
-		borderRadius="8px"
-		border="1px solid #E2ECF9"
-		zIndex={1}
-	>
-		<AlertIcon name="info-outline" color="gray.500" />
-		<div>
-			<AlertDescription fontSize="xs">
+const SetupAccountsAlert = () => {
+	const router = useRouter();
+	const { setIsNewSetup } = useIsNewSetup();
+	return (
+		<div className="flex flex-row justify-between items-center bg-gray-200 text-xs text-gray-700 p-2 px-4 rounded-lg">
+			<div className="flex flex-row space-x-2">
+				<AlertCircle size={18} />
 				<p>
 					<span className="font-semibold">Setup required:</span> We found some
 					new accounts in your wallet. You need to setup your accounts before
 					you can use them to stake.
 				</p>
-			</AlertDescription>
+			</div>
+			<BottomNextButton
+				onClick={() => {
+					setIsNewSetup(true);
+					router.push("/setup-accounts");
+				}}
+			>
+				Setup accounts
+			</BottomNextButton>
 		</div>
-	</Alert>
-);
+	);
+};
 
 const SimulationAlert = () => (
 	<Alert

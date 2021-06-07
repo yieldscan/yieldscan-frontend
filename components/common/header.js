@@ -59,6 +59,10 @@ import addToLocalStorage from "@lib/addToLocalStorage";
 import YieldScanLogo from "./YieldScanLogo";
 import NetworkSelection from "./NetworkSelection";
 import AccountSelection from "./AccountSelection";
+import {
+	useNewAccountsSetup,
+	NewAccountsSetupPopover,
+} from "../setup-accounts/NewAccountsSetupPopover";
 
 const Header = ({ isBase, isSetUp }) => {
 	const userStorage = !isNil(typeof window) ? window.localStorage : null;
@@ -73,6 +77,7 @@ const Header = ({ isBase, isSetUp }) => {
 	const supportedNetworksInfo = getAllNetworksInfo();
 	const { apiInstance, setApiInstance } = usePolkadotApi();
 	const { isOpen, toggle } = useWalletConnect();
+	const { isNewSetupOpen, toggleNewSetup } = useNewAccountsSetup();
 	const { setIsInElection } = useNetworkElection();
 	const {
 		accounts,
@@ -220,6 +225,11 @@ const Header = ({ isBase, isSetUp }) => {
 			{!isBase &&
 				(isOpen || !isNil(userStorage.getItem("autoConnectEnabled"))) && (
 					<WalletConnectPopover isOpen={isOpen} networkInfo={networkInfo} />
+				)}
+			{(Object.values(walletType).includes(true) ||
+				Object.values(walletType).includes(false)) &&
+				Object.values(walletType).includes(null) && (
+					<NewAccountsSetupPopover isOpen={isNewSetupOpen} />
 				)}
 			{/* Edit Controller */}
 			{/* <EditControllerModal
