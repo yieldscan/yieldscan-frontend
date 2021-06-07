@@ -21,7 +21,14 @@ import { web3Enable, web3AccountsSubscribe } from "@polkadot/extension-dapp";
 import { encodeAddress, decodeAddress } from "@polkadot/util-crypto";
 import RejectedPage from "./RejectedPage";
 import SelectAccount from "./SelectAccount";
-import { useAccounts, useSelectedAccount, useWalletType } from "@lib/store";
+import {
+	useAccounts,
+	useAccountsBalances,
+	useAccountsControllerStashInfo,
+	usePolkadotApi,
+	useSelectedAccount,
+	useWalletType,
+} from "@lib/store";
 import getFromLocalStorage from "@lib/getFromLocalStorage";
 import addToLocalStorage from "@lib/addToLocalStorage";
 import { trackEvent, Events, setUserProperties } from "@lib/analytics";
@@ -63,10 +70,14 @@ const WalletConnectPopover = ({ styles, networkInfo }) => {
 	} = useAccounts();
 	const { selectedAccount, setSelectedAccount } = useSelectedAccount();
 	const { walletType, setWalletType } = useWalletType();
+	const { accountsBalances } = useAccountsBalances();
+	const { apiInstance } = usePolkadotApi();
+	const { accountsControllerStashInfo } = useAccountsControllerStashInfo();
 	const [state, setState] = useState();
 	const [extensionEvent, setExtensionEvent] = useState();
 	const [currentStep, setCurrentStep] = useState("beginnerInfo");
 	const [redirectToSetUp, setRedirectToSetUp] = useState(false);
+	const [filteredAccounts, setFilteredAccounts] = useState(null);
 
 	const handlers = {
 		onEvent: (eventInfo) => {
@@ -211,6 +222,28 @@ const WalletConnectPopover = ({ styles, networkInfo }) => {
 		}
 	}, [accounts]);
 
+	useEffect(() => {
+		if (
+			accounts &&
+			Object.keys(accountsBalances).length > 0 &&
+			Object.keys(accountsControllerStashInfo).length > 0
+		) {
+			const filteredAccounts = accounts.filter(
+				(account) =>
+					accountsBalances[account.address]?.freeBalance.gte(
+						apiInstance?.consts.balances.existentialDeposit
+					) &&
+					(!accountsControllerStashInfo[account.address]?.isController ||
+						accountsControllerStashInfo[account.address]?.isSameStashController)
+			);
+			setFilteredAccounts(filteredAccounts);
+		}
+	}, [
+		JSON.stringify(accounts),
+		JSON.stringify(accountsControllerStashInfo),
+		JSON.stringify(accountsBalances),
+	]);
+
 	const onAccountSelected = async (account) => {
 		if (account) close();
 		if (typeof window !== undefined) {
@@ -278,11 +311,7 @@ const WalletConnectPopover = ({ styles, networkInfo }) => {
 						) : (
 							state === WalletConnectStates.GOTACCOUNTS && (
 								<SelectAccount
-									accounts={
-										accountsWithBalances !== null
-											? accountsWithBalances
-											: accounts
-									}
+									accounts={filteredAccounts ? filteredAccounts : accounts}
 									onAccountSelected={onAccountSelected}
 									networkInfo={networkInfo}
 								/>

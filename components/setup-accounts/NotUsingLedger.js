@@ -3,23 +3,48 @@ import { useRouter } from "next/router";
 import SelectAccount from "../wallet-connect/SelectAccount";
 import {
 	useAccounts,
+	useAccountsBalances,
+	useAccountsControllerStashInfo,
+	usePolkadotApi,
 	useSelectedAccount,
 	useSelectedNetwork,
 } from "@lib/store";
 import { getNetworkInfo } from "yieldscan.config";
 import addToLocalStorage from "lib/addToLocalStorage";
+import { useEffect, useState } from "react";
 
 const NotUsingLedger = ({ incrementStep, decrementStep }) => {
 	const router = useRouter();
 	const { setSelectedAccount } = useSelectedAccount();
 	const { accounts } = useAccounts();
+	const { apiInstance } = usePolkadotApi();
 	const { selectedNetwork } = useSelectedNetwork();
+	const { accountsBalances } = useAccountsBalances();
+	const { accountsControllerStashInfo } = useAccountsControllerStashInfo();
 	const networkInfo = getNetworkInfo(selectedNetwork);
 	const onAccountSelected = (account) => {
 		setSelectedAccount(account);
 		addToLocalStorage(networkInfo.network, "selectedAccount", account.address);
 		router.push({ pathname: "/reward-calculator" });
 	};
+
+	const [filteredAccounts, setFilteredAccounts] = useState(null);
+
+	useEffect(() => {
+		const filteredAccounts = accounts.filter(
+			(account) =>
+				accountsBalances[account.address]?.freeBalance.gte(
+					apiInstance?.consts.balances.existentialDeposit
+				) &&
+				(!accountsControllerStashInfo[account.address]?.isController ||
+					accountsControllerStashInfo[account.address]?.isSameStashController)
+		);
+		setFilteredAccounts(filteredAccounts);
+	}, [
+		JSON.stringify(accounts),
+		JSON.stringify(accountsControllerStashInfo),
+		JSON.stringify(accountsBalances),
+	]);
 	return (
 		<div className="w-full h-full flex justify-center">
 			<div className="w-full max-w-65-rem flex flex-col items-center">
@@ -41,7 +66,7 @@ const NotUsingLedger = ({ incrementStep, decrementStep }) => {
 						Please select the account which your want to stake from
 					</p>
 					<SelectAccount
-						accounts={accounts}
+						accounts={filteredAccounts ? filteredAccounts : accounts}
 						networkInfo={networkInfo}
 						onAccountSelected={(info) => onAccountSelected(info)}
 					/>

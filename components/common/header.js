@@ -110,6 +110,8 @@ const Header = ({ isBase, isSetUp }) => {
 
 	const stashAddress = get(stashAccount, "address");
 
+	const [filteredAccounts, setFilteredAccounts] = useState(null);
+
 	const [isStashPopoverOpen, setIsStashPopoverOpen] = useState(false);
 	const [isNetworkOpen, setIsNetworkOpen] = useState(false);
 	const [isBonded, setIsBonded] = useState(false);
@@ -129,6 +131,7 @@ const Header = ({ isBase, isSetUp }) => {
 			setAccountsBalances({});
 			setAccountsStakingInfo({});
 			setAccountsStakingLedgerInfo({});
+			setAccountsControllerStashInfo({});
 			setValidatorMap(undefined);
 			setValidatorRiskSets(undefined);
 			setValidators(undefined);
@@ -181,6 +184,28 @@ const Header = ({ isBase, isSetUp }) => {
 	}, [
 		JSON.stringify(accountsStakingInfo),
 		JSON.stringify(accountsStakingLedgerInfo),
+	]);
+
+	useEffect(() => {
+		if (
+			accounts &&
+			Object.keys(accountsBalances).length > 0 &&
+			Object.keys(accountsControllerStashInfo).length > 0
+		) {
+			const filteredAccounts = accounts.filter(
+				(account) =>
+					accountsBalances[account.address]?.freeBalance.gte(
+						apiInstance?.consts.balances.existentialDeposit
+					) &&
+					(!accountsControllerStashInfo[account.address]?.isController ||
+						accountsControllerStashInfo[account.address]?.isSameStashController)
+			);
+			setFilteredAccounts(filteredAccounts);
+		}
+	}, [
+		JSON.stringify(accounts),
+		JSON.stringify(accountsControllerStashInfo),
+		JSON.stringify(accountsBalances),
 	]);
 
 	return (
@@ -280,7 +305,7 @@ const Header = ({ isBase, isSetUp }) => {
 					{/* Account Selection */}
 					<div className="col-span-3">
 						<AccountSelection
-							accounts={accounts}
+							accounts={filteredAccounts ? filteredAccounts : accounts}
 							toggle={toggle}
 							isStashPopoverOpen={isStashPopoverOpen}
 							selectedAccount={selectedAccount}
