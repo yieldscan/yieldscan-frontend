@@ -96,6 +96,16 @@ const WalletConnectPopover = ({ styles, networkInfo }) => {
 	}, []);
 
 	useEffect(() => {
+		if (autoConnectEnabled) {
+			setCurrentStep("connectWallet");
+			setState("connected");
+		} else {
+			setCurrentStep("beginnerInfo");
+			setState(null);
+		}
+	}, [networkInfo]);
+
+	useEffect(() => {
 		if (currentStep === "connectWallet") {
 			const createEventInstance = (message, ...params) => ({
 				message,
@@ -185,6 +195,13 @@ const WalletConnectPopover = ({ styles, networkInfo }) => {
 	}, [accounts, redirectToSetUp]);
 
 	useEffect(() => {
+		if (state === WalletConnectStates.REJECTED) {
+			close();
+			router.push("/setup-wallet");
+		}
+	}, [state]);
+
+	useEffect(() => {
 		if (accounts) {
 			if (
 				accounts?.filter(
@@ -251,6 +268,12 @@ const WalletConnectPopover = ({ styles, networkInfo }) => {
 		JSON.stringify(accountsBalances),
 	]);
 
+	useEffect(() => {
+		if (filteredAccounts) {
+			setFilteredAccounts(null);
+		}
+	}, [networkInfo.network]);
+
 	const onAccountSelected = async (account) => {
 		if (account) close();
 		if (typeof window !== undefined) {
@@ -302,27 +325,12 @@ const WalletConnectPopover = ({ styles, networkInfo }) => {
 				/>
 				<ModalBody>
 					{currentStep === "connectWallet" ? (
-						state === WalletConnectStates.REJECTED ? (
-							<RejectedPage handleRecoveryAuth={handleRecoveryAuth} />
-						) : state === WalletConnectStates.RECOVERAUTH ? (
-							<RecoverAuthInfo />
-						) : !accounts ? (
-							<div className="flex-center w-full h-full min-h-26-rem">
-								<div className="flex-center flex-col">
-									<Spinner size="xl" color="teal.500" thickness="4px" />
-									<span className="text-sm text-gray-600 mt-5">
-										{extensionEvent}
-									</span>
-								</div>
-							</div>
-						) : (
-							state === WalletConnectStates.GOTACCOUNTS && (
-								<SelectAccount
-									accounts={filteredAccounts ? filteredAccounts : accounts}
-									onAccountSelected={onAccountSelected}
-									networkInfo={networkInfo}
-								/>
-							)
+						state === WalletConnectStates.GOTACCOUNTS && (
+							<SelectAccount
+								accounts={filteredAccounts ? filteredAccounts : accounts}
+								onAccountSelected={onAccountSelected}
+								networkInfo={networkInfo}
+							/>
 						)
 					) : (
 						<SimpleGrid w="100%" columns={1} spacing={8}>

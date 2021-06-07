@@ -1,7 +1,9 @@
 import { ChevronLeft } from "react-feather";
 import Image from "next/image";
+import { useRouter } from "next/router";
 
 const SetupWallet = () => {
+	const router = useRouter();
 	return (
 		<div className="w-full h-full flex justify-center">
 			<div className="w-full max-w-65-rem flex flex-col">
@@ -9,7 +11,7 @@ const SetupWallet = () => {
 					{/* TODO: Make a common back button component */}
 					<button
 						className="flex items-center bg-gray-200 text-gray-600 rounded-full px-2 py-1"
-						// onClick={back}
+						onClick={() => router.back()}
 					>
 						<ChevronLeft size={16} className="text-gray-600" />
 						<span className="mx-2 text-sm">back</span>

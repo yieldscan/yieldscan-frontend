@@ -24,6 +24,7 @@ import {
 	useAccountsBalances,
 	useWalletType,
 	useAccountsStakingInfo,
+	usePolkadotApi,
 } from "@lib/store";
 import { PaymentPopover } from "@components/new-payment";
 import { get, isNil, mapValues, keyBy, cloneDeep, debounce } from "lodash";
@@ -80,6 +81,7 @@ const RewardCalculatorPage = () => {
 	const transactionState = useTransaction();
 	const { accounts, freeAmount, bondedAmount } = useAccounts();
 	const { selectedAccount } = useSelectedAccount();
+	const { apiInstance } = usePolkadotApi();
 	const { accountsBalances } = useAccountsBalances();
 	const { accountsStakingInfo } = useAccountsStakingInfo();
 	const { walletType } = useWalletType();
@@ -287,7 +289,7 @@ const RewardCalculatorPage = () => {
 				: true
 			: false;
 
-	return loading ? (
+	return loading || isNil(apiInstance) ? (
 		<div className="flex-center w-full h-full">
 			<div className="flex-center flex-col">
 				<Spinner size="xl" color="teal.500" thickness="4px" />
