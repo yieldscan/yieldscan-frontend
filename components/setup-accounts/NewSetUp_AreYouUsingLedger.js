@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { ChevronLeft } from "react-feather";
 import Image from "next/image";
 import { useAccounts, useSelectedNetwork, useWalletType } from "@lib/store";

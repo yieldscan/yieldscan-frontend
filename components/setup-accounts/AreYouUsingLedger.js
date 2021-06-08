@@ -1,9 +1,9 @@
+import { useState } from "react";
 import { ChevronLeft } from "react-feather";
 import Image from "next/image";
 import { useAccounts, useSelectedNetwork, useWalletType } from "@lib/store";
 import addToLocalStorage from "@lib/addToLocalStorage";
 import { getNetworkInfo } from "yieldscan.config";
-import { useState } from "react";
 
 const AreYouUsingLedger = ({
 	incrementStep,
