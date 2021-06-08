@@ -18,6 +18,7 @@ const PopoverAccountSelection = ({
 	accountsBalances,
 	onClick,
 	setIsStashPopoverOpen,
+	defaultHeading = "Select Account",
 	isSetUp = false,
 	disabled = false,
 }) => {
@@ -45,7 +46,7 @@ const PopoverAccountSelection = ({
 						} w-full max-w-xs py-2 px-4 flex items-center justify-between font-medium`}
 						disabled={disabled}
 					>
-						Select Account
+						{defaultHeading}
 						<ChevronDown size="20px" className="ml-2" />
 					</button>
 				) : (

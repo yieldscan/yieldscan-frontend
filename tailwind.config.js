@@ -46,6 +46,9 @@ module.exports = {
 					500: "#35475C",
 					700: "#212D3B",
 				},
+				warning: {
+					500: "#FFF4DA",
+				},
 			},
 			borderRadius: {
 				...borderRadius,

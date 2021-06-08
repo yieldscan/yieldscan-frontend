@@ -25,6 +25,7 @@ import ConfettiGenerator from "confetti-js";
 import ChainErrorPage from "./ChainErrorPage";
 import { BottomNextButton } from "../setup-accounts/BottomButton";
 import InfoAlert from "./InfoAlert";
+import TransferFunds from "./TransferFunds";
 
 const Staking = () => {
 	const toast = useToast();
@@ -69,6 +70,7 @@ const Staking = () => {
 	const [stakingEvent, setStakingEvent] = useState();
 	const [isSuccessful, setIsSuccessful] = useState(false);
 	const [isLockFunds, setIsLockFunds] = useState();
+	const [isTransferFunds, setIsTransferFunds] = useState();
 	const [chainError, setChainError] = useState(false);
 	const [loaderError, setLoaderError] = useState(false);
 
@@ -155,7 +157,7 @@ const Staking = () => {
 		if (["lock-funds", "bond-extra"].includes(transactionType)) {
 			setIsLockFunds(true);
 		} else setIsLockFunds(false);
-
+		setIsTransferFunds(false);
 		setStakingLoading(true);
 
 		// trackEvent(Events.INTENT_TRANSACTION, {
@@ -343,7 +345,7 @@ const Staking = () => {
 	// }, [transactionHash, isSuccessful]);
 
 	useEffect(() => {
-		if (transactionHash && isSuccessful && !isLockFunds) {
+		if (transactionHash && isSuccessful && !isLockFunds && !isTransferFunds) {
 			const confettiSettings = {
 				target: "confetti-holder",
 				max: "150",
@@ -383,7 +385,7 @@ const Staking = () => {
 
 	return selectedAccount?.address ? (
 		<div className="w-full h-full flex justify-center max-h-full">
-			{transactionHash && isSuccessful && !isLockFunds && (
+			{transactionHash && isSuccessful && !isLockFunds && !isTransferFunds && (
 				<canvas id="confetti-holder" className="absolute w-full"></canvas>
 			)}
 			{stakingLoading || isSuccessful ? (
@@ -408,9 +410,11 @@ const Staking = () => {
 						</div>
 						<div className="w-full mb-32">
 							{" "}
-							{isSuccessful && !isLockFunds && <InfoAlert />}
+							{isSuccessful && !isLockFunds && !isTransferFunds && (
+								<InfoAlert />
+							)}
 						</div>
-						{isSuccessful && !isLockFunds && (
+						{isSuccessful && !isLockFunds && !isTransferFunds && (
 							<BottomNextButton
 								onClick={() => router.push({ pathname: "/overview" })}
 							>
@@ -428,6 +432,29 @@ const Staking = () => {
 					// 	transact();
 					// }}
 					networkInfo={networkInfo}
+				/>
+			) : controllerAccount &&
+			  controllerBalances?.availableBalance.lte(
+					apiInstance?.consts.balances.existentialDeposit.toNumber / 2
+			  ) ? (
+				<TransferFunds
+					toast={toast}
+					router={router}
+					apiInstance={apiInstance}
+					networkInfo={networkInfo}
+					selectedAccount={selectedAccount}
+					accounts={accounts}
+					accountsBalances={accountsBalances}
+					accountsStakingInfo={accountsStakingInfo}
+					controllerAccount={controllerAccount}
+					controllerBalances={controllerBalances}
+					setStakingLoading={setStakingLoading}
+					setStakingEvent={setStakingEvent}
+					setLoaderError={setLoaderError}
+					setSuccessHeading={setSuccessHeading}
+					setIsSuccessful={setIsSuccessful}
+					setChainError={setChainError}
+					setIsTransferFunds={setIsTransferFunds}
 				/>
 			) : isLedger ? (
 				stakingInfo.stakingLedger.active.isEmpty ? (
