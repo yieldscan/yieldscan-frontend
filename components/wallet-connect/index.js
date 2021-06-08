@@ -300,8 +300,8 @@ const WalletConnectPopover = ({ styles, networkInfo }) => {
 			isOpen={isOpen}
 			onClose={close}
 			isCentered
-			closeOnEsc={true}
-			closeOnOverlayClick={true}
+			closeOnEsc={state}
+			closeOnOverlayClick={state}
 		>
 			<ModalOverlay />
 			<ModalContent rounded="lg" maxWidth="lg" {...styles} py={4}>
@@ -314,23 +314,34 @@ const WalletConnectPopover = ({ styles, networkInfo }) => {
 							: "Select Account"}
 					</h3>
 				</ModalHeader>
-				<ModalCloseButton
-					onClick={close}
-					boxShadow="0 0 0 0 #fff"
-					color="gray.400"
-					backgroundColor="gray.100"
-					rounded="1rem"
-					mt={4}
-					mr={4}
-				/>
+				{state && (
+					<ModalCloseButton
+						onClick={close}
+						boxShadow="0 0 0 0 #fff"
+						color="gray.400"
+						backgroundColor="gray.100"
+						rounded="1rem"
+						mt={4}
+						mr={4}
+					/>
+				)}
 				<ModalBody>
 					{currentStep === "connectWallet" ? (
-						state === WalletConnectStates.GOTACCOUNTS && (
+						state === WalletConnectStates.GOTACCOUNTS ? (
 							<SelectAccount
 								accounts={filteredAccounts ? filteredAccounts : accounts}
 								onAccountSelected={onAccountSelected}
 								networkInfo={networkInfo}
 							/>
+						) : (
+							isNil(state) && (
+								<div className="h-64 flex text-left text-gray-700 flex-col justify-center items-center">
+									<span className="loader"></span>
+									<p className="text-gray-700 text-center mt-2">
+										{extensionEvent}
+									</p>
+								</div>
+							)
 						)
 					) : (
 						<SimpleGrid w="100%" columns={1} spacing={8}>
