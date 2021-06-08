@@ -55,7 +55,7 @@ const AccountSelection = ({
 			</div>
 		</button>
 	) : Object.keys(walletType).length === 0 ||
-	  Object.values(walletType).includes(null) ? (
+	  Object.values(walletType).every((value) => value === null) ? (
 		<button
 			className="rounded-full border border-gray-300 p-2 px-4 font-medium text-gray-800"
 			onClick={handleOnClickSetUp}

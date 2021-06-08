@@ -276,7 +276,9 @@ const RewardCalculatorPage = () => {
 		activeBondedAmount + totalAvailableStakingAmount;
 
 	const proceedDisabled =
-		accounts && selectedAccount && !Object.values(walletType).includes(null)
+		accounts &&
+		selectedAccount &&
+		!Object.values(walletType).every((value) => value === null)
 			? amount && !isInElection && amount > 0
 				? amount > totalPossibleStakingAmount
 					? true
@@ -340,32 +342,32 @@ const RewardCalculatorPage = () => {
 			/>
 			<div>
 				<div className="flex flex-wrap">
-					{(Object.values(walletType).includes(true) ||
-						Object.values(walletType).includes(false)) &&
+					{!Object.values(walletType).every((value) => value === null) &&
 						Object.values(walletType).includes(null) && (
 							<div className="w-full mb-4">
 								<SetupAccountsAlert />
 							</div>
 						)}
-					{!Object.values(walletType).includes(null) && activeBondedAmount > 0 && (
-						<div
-							className={`w-full flex flex-row mb-4 ${
-								simulationChecked ? "justify-between" : "justify-end"
-							}`}
-						>
-							{simulationChecked && (
-								<div>
-									<SimulationAlert />
+					{!Object.values(walletType).every((value) => value === null) &&
+						activeBondedAmount > 0 && (
+							<div
+								className={`w-full flex flex-row mb-4 ${
+									simulationChecked ? "justify-between" : "justify-end"
+								}`}
+							>
+								{simulationChecked && (
+									<div>
+										<SimulationAlert />
+									</div>
+								)}
+								<div className=" flex items-center justify-center">
+									<SimulationSwitch
+										simulationChecked={simulationChecked}
+										setSimulationChecked={setSimulationChecked}
+									/>
 								</div>
-							)}
-							<div className=" flex items-center justify-center">
-								<SimulationSwitch
-									simulationChecked={simulationChecked}
-									setSimulationChecked={setSimulationChecked}
-								/>
 							</div>
-						</div>
-					)}
+						)}
 					<div className="w-1/2 space-y-8">
 						{/* <h1 className="font-semibold text-xl text-gray-700">
 							Calculate Returns
@@ -380,7 +382,7 @@ const RewardCalculatorPage = () => {
 								{selectedAccount &&
 									balance &&
 									stakingBalance &&
-									!Object.values(walletType).includes(null) &&
+									!Object.values(walletType).every((value) => value === null) &&
 									(amount >
 										totalPossibleStakingAmount - networkInfo.minAmount ||
 										totalAvailableStakingAmount < networkInfo.minAmount) && (
@@ -529,7 +531,7 @@ const RewardCalculatorPage = () => {
 					`}
 							disabled={proceedDisabled}
 							hidden={
-								!Object.values(walletType).includes(null) &&
+								!Object.values(walletType).every((value) => value === null) &&
 								activeBondedAmount > 0 &&
 								simulationChecked
 							}
@@ -537,7 +539,7 @@ const RewardCalculatorPage = () => {
 								isNil(accounts)
 									? toggle()
 									: Object.keys(walletType).length === 0 ||
-									  Object.values(walletType).includes(null)
+									  Object.values(walletType).every((value) => value === null)
 									? toSetUpAccounts()
 									: selectedAccount
 									? toStaking()
@@ -547,7 +549,7 @@ const RewardCalculatorPage = () => {
 							{isNil(accounts)
 								? "Connect Wallet"
 								: Object.keys(walletType).length === 0 ||
-								  Object.values(walletType).includes(null)
+								  Object.values(walletType).every((value) => value === null)
 								? "Setup Accounts"
 								: isNil(selectedAccount)
 								? "Select Account"

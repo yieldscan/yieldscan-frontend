@@ -208,18 +208,20 @@ const AmountInputAccountInfoLoading = memo(
 							isInvalid={isNil(value?.currency) || value.currency === ""}
 							errorBorderColor="crimson"
 							isDisabled={
-								selectedAccount && !Object.values(walletType).includes(null)
+								selectedAccount &&
+								!Object.values(walletType).every((value) => value === null)
 							}
 							backgroundColor={
 								selectedAccount &&
-								!Object.values(walletType).includes(null) &&
+								!Object.values(walletType).every((value) => value === null) &&
 								"gray.200"
 							}
 							color="gray.600"
 						/>
 						<h6
 							className={`absolute z-20 bottom-0 left-0 ml-4 mb-3 text-xs text-gray-600 ${
-								selectedAccount && !Object.values(walletType).includes(null)
+								selectedAccount &&
+								!Object.values(walletType).every((value) => value === null)
 									? "opacity-25 cursor-not-allowed"
 									: "opacity-1"
 							}`}
@@ -252,20 +254,21 @@ const AmountInputAccountInfoLoading = memo(
 							</span>
 						</InputRightElement>
 					</InputGroup>
-					{selectedAccount && !Object.values(walletType).includes(null) && (
-						<div className="ml-4 text-gray text-xs flex inline">
-							Loading...
-							<div className="ml-2">
-								<Spinner
-									thickness="2px"
-									speed="0.65s"
-									emptyColor="gray.200"
-									color="blue.500"
-									size="sm"
-								/>
+					{selectedAccount &&
+						!Object.values(walletType).every((value) => value === null) && (
+							<div className="ml-4 text-gray text-xs flex inline">
+								Loading...
+								<div className="ml-2">
+									<Spinner
+										thickness="2px"
+										speed="0.65s"
+										emptyColor="gray.200"
+										color="blue.500"
+										size="sm"
+									/>
+								</div>
 							</div>
-						</div>
-					)}
+						)}
 				</div>
 			</div>
 		);
@@ -300,7 +303,7 @@ const AmountInput = memo(
 			): ( */}
 				{stakingBalance &&
 				balance &&
-				!Object.values(walletType).includes(null) ? (
+				!Object.values(walletType).every((value) => value === null) ? (
 					<AmountInputDefault
 						value={value}
 						selectedAccount={selectedAccount}
