@@ -11,6 +11,7 @@ const NewSetUp_AreYouUsingLedger = ({ incrementStep, setUsingLedger }) => {
 	const { accounts } = useAccounts();
 	const { selectedNetwork } = useSelectedNetwork();
 	const { walletType, setWalletType } = useWalletType();
+	const [showLedgerInfo, setShowLedgerInfo] = useState(false);
 	const networkInfo = getNetworkInfo(selectedNetwork);
 	const newAccounts = accounts?.filter((account) =>
 		isNil(walletType[account?.substrateAddress])
@@ -49,9 +50,23 @@ const NewSetUp_AreYouUsingLedger = ({ incrementStep, setUsingLedger }) => {
 					<h1 className="text-2xl font-semibold text-center">
 						Are any of your new accounts imported from a ledger device?
 					</h1>
-					<p className="text-gray-600 text-sm text-center max-w-md">
-						Please select yes, even if your ledger device is connected through
-						PolkadotJS browser extension
+					<p
+						className={`text-sm text-center max-w-md p-4 rounded-lg border border-white ${
+							showLedgerInfo
+								? "rounded-lg border border-teal-500 text-teal-500"
+								: "text-gray-600"
+						}`}
+					>
+						{showLedgerInfo
+							? "Ledger wallet is a dedicated hardware device which securely stores your accounts, isolated from your easy-to-hack computer"
+							: "Please select yes, even if your ledger device is connected through PolkadotJS browser extension"}
+					</p>
+					<p
+						className="text-gray-700 text-xs text-center underline cursor-pointer"
+						onMouseOver={() => setShowLedgerInfo(true)}
+						onMouseOut={() => setShowLedgerInfo(false)}
+					>
+						WTF is a ledger?
 					</p>
 					<div className="w-full flex flex-col text-center space-y-3">
 						<button
