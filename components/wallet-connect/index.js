@@ -144,20 +144,16 @@ const WalletConnectPopover = ({ styles, networkInfo }) => {
 		let unsubscribe;
 		if (state === "connected") {
 			web3AccountsSubscribe((injectedAccounts) => {
-				injectedAccounts.push(
-					{
-						address: "5DCYHPEg6gmzTv2bw34ANzKr6DfkCRUjzHUqKd9sNd4RpXYh",
-						meta: { name: "bruno" },
-					},
-					{
-						address: "5DyYPZ73qUs5YGkqsBuQ7MZmdkpbXAFbMzA83Tp8bwiRQFpb",
-						meta: { name: "test1" },
-					}
-					// {
-					// 	address: "13xDUejMzd7ehFFgjWdYcxdzykxS6yxiVq7cr96vQPQNQWy1",
-					// 	meta: { name: "sahil" },
-					// }
-				);
+				// injectedAccounts.push(
+				// 	{
+				// 		address: "5DCYHPEg6gmzTv2bw34ANzKr6DfkCRUjzHUqKd9sNd4RpXYh",
+				// 		meta: { name: "bruno" },
+				// 	},
+				// 	{
+				// 		address: "5DyYPZ73qUs5YGkqsBuQ7MZmdkpbXAFbMzA83Tp8bwiRQFpb",
+				// 		meta: { name: "test1" },
+				// 	},
+				// );
 				injectedAccounts?.map((account) => {
 					account.substrateAddress = account.address.toString();
 					account.address = encodeAddress(
