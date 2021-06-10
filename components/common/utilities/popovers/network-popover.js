@@ -14,6 +14,10 @@ import {
 	useValidatorData,
 	useNomMinStake,
 	useOverviewData,
+	useCoinGeckoPriceUSD,
+	useAccountsBalances,
+	useAccountsStakingInfo,
+	useAccountsStakingLedgerInfo,
 } from "@lib/store";
 import { setCookie } from "nookies";
 import { useState } from "react";
@@ -22,12 +26,10 @@ import { getNetworkInfo, getAllNetworksInfo } from "yieldscan.config";
 
 const NetworkPopover = ({ isExpanded, hasBorder }) => {
 	const { setApiInstance } = usePolkadotApi();
-	const {
-		setValidatorMap,
-		setValidators,
-		setValidatorRiskSets,
-	} = useValidatorData();
+	const { setValidatorMap, setValidators, setValidatorRiskSets } =
+		useValidatorData();
 	const { setUserData, setAllNominations } = useOverviewData();
+	const { setCoinGeckoPriceUSD } = useCoinGeckoPriceUSD();
 	const { setTransactionHash } = useTransactionHash();
 	const { setNominatorsData, setNomLoading } = useNominatorsData();
 	const { setCouncilMembers, setCouncilLoading } = useCouncil();
@@ -44,6 +46,9 @@ const NetworkPopover = ({ isExpanded, hasBorder }) => {
 		setAccountsWithBalances,
 		setAccountInfoLoading,
 	} = useAccounts();
+	const { setAccountsBalances } = useAccountsBalances();
+	const { setAccountsStakingInfo } = useAccountsStakingInfo();
+	const { setAccountsStakingLedgerInfo } = useAccountsStakingLedgerInfo();
 	const { selectedNetwork, setSelectedNetwork } = useSelectedNetwork();
 	const { setNomMinStake } = useNomMinStake();
 	const networkInfo = getNetworkInfo(selectedNetwork);
@@ -53,6 +58,9 @@ const NetworkPopover = ({ isExpanded, hasBorder }) => {
 	const switchNetwork = (from, to) => {
 		if (from !== to) {
 			setApiInstance(null);
+			setAccountsBalances({});
+			setAccountsStakingInfo({});
+			setAccountsStakingLedgerInfo({});
 			setValidatorMap(undefined);
 			setValidatorRiskSets(undefined);
 			setValidators(undefined);
@@ -70,6 +78,7 @@ const NetworkPopover = ({ isExpanded, hasBorder }) => {
 			setFreeAmount(null);
 			setBondedAmount(null);
 			setAccounts(null);
+			setCoinGeckoPriceUSD(null);
 			setAccountsWithBalances(null);
 			setAccountInfoLoading(false);
 			setNomMinStake(null);

@@ -51,14 +51,7 @@ const ResultCardInsight = ({
 	</div>
 );
 
-const ExpectedReturnsCard = ({
-	result,
-	stashAccount,
-	calculationDisabled,
-	onWalletConnectClick,
-	onPayment,
-	networkInfo,
-}) => {
+const ExpectedReturnsCard = ({ result, networkInfo }) => {
 	const returns = {
 		currency: get(result, "returns.currency"),
 		subCurrency: get(result, "returns.subCurrency"),

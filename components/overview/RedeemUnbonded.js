@@ -10,8 +10,8 @@ import {
 	Spinner,
 } from "@chakra-ui/core";
 import formatCurrency from "@lib/format-currency";
-import convertCurrency from "@lib/convert-currency";
 import { useEffect, useState } from "react";
+import { useCoinGeckoPriceUSD } from "@lib/store";
 import getRedeemUnbondedFee from "@lib/getRedeemUnbondedFee";
 import withSlideIn from "@components/common/withSlideIn";
 import ChainErrorPage from "@components/overview/ChainErrorPage";
@@ -25,10 +25,12 @@ const RedeemUnbonded = withSlideIn(
 		api,
 		toggle,
 		redeemableBalance,
-		stashAccount,
+		stakingInfo,
+		selectedAccount,
 		networkInfo,
 	}) => {
 		const toast = useToast();
+		const { coinGeckoPriceUSD } = useCoinGeckoPriceUSD();
 		const [transactionFee, setTransactionFee] = useState(0);
 		const [subFeeCurrency, setSubFeeCurrency] = useState(0);
 		const [totalAmount, setTotalAmount] = useState(0);
@@ -43,38 +45,36 @@ const RedeemUnbonded = withSlideIn(
 		const [closeOnOverlayClick, setCloseOnOverlayClick] = useState(true);
 		const [processComplete, setProcessComplete] = useState(false);
 
-		const { address } = stashAccount;
+		const { address } = selectedAccount;
 		useEffect(() => {
 			if (!transactionFee) {
 				getRedeemUnbondedFee(address, api, networkInfo).then((data) => {
 					setTransactionFee(data);
 				});
 			}
-		}, [stashAccount, networkInfo]);
+		}, [selectedAccount, networkInfo]);
 
 		useEffect(() => {
 			if (transactionFee) {
-				convertCurrency(
-					transactionFee / Math.pow(10, networkInfo.decimalPlaces),
-					networkInfo.coinGeckoDenom
-				).then((data) => setSubFeeCurrency(data));
+				setSubFeeCurrency(
+					(transactionFee / Math.pow(10, networkInfo.decimalPlaces)) *
+						coinGeckoPriceUSD
+				);
 			}
 		}, [transactionFee]);
 
 		useEffect(() => {
 			if (totalAmount) {
-				convertCurrency(totalAmount, networkInfo.coinGeckoDenom).then((data) =>
-					setTotalAmountFiat(data)
-				);
+				setTotalAmountFiat(totalAmount * coinGeckoPriceUSD);
 			}
 		}, [totalAmount]);
 
 		useEffect(() => {
 			if (redeemableBalance) {
-				convertCurrency(
-					redeemableBalance / 10 ** networkInfo.decimalPlaces,
-					networkInfo.coinGeckoDenom
-				).then((value) => setRedeemableBalanceFiat(value));
+				setRedeemableBalanceFiat(
+					(redeemableBalance / Math.pow(10, networkInfo.decimalPlaces)) *
+						coinGeckoPriceUSD
+				);
 			}
 		}, [redeemableBalance]);
 
@@ -121,7 +121,7 @@ const RedeemUnbonded = withSlideIn(
 
 					if (status === 0) {
 						// updateTransactionData(
-						// 	stashAccount.address,
+						// 	selectedAccount?.address,
 						// 	networkInfo.coinGeckoDenom,
 						// 	get(bondedAmount, "currency", 0),
 						// 	type == "bond"
@@ -139,7 +139,7 @@ const RedeemUnbonded = withSlideIn(
 						setErrMessage(message);
 						if (message !== "Cancelled") {
 							// updateTransactionData(
-							// 	stashAccount.address,
+							// 	selectedAccount?.address,
 							// 	networkInfo.coinGeckoDenom,
 							// 	get(bondedAmount, "currency", 0),
 							// 	type == "bond"
@@ -153,11 +153,14 @@ const RedeemUnbonded = withSlideIn(
 					}
 				},
 			};
-			redeemUnbonded(stashAccount.address, api, handlers, networkInfo).catch(
-				(error) => {
-					handlers.onFinish(1, error.message);
-				}
-			);
+			redeemUnbonded(
+				selectedAccount?.address,
+				api,
+				handlers,
+				networkInfo
+			).catch((error) => {
+				handlers.onFinish(1, error.message);
+			});
 		};
 
 		const handlePopoverClose = () => {

@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import { Edit2, AlertTriangle, ChevronRight } from "react-feather";
 import OverviewCards from "./OverviewCards";
 import NominationsTable from "./NominationsTable";
-import ExpectedReturns from "./ExpectedReturns";
 import {
 	Spinner,
 	useDisclosure,
@@ -16,18 +15,15 @@ import {
 	usePolkadotApi,
 	useSelectedNetwork,
 	useOverviewData,
-	useEraProgress,
 	useValidatorData,
+	useSelectedAccount,
+	useAccountsBalances,
+	useAccountsStakingInfo,
 } from "@lib/store";
 import { useWalletConnect } from "@components/wallet-connect";
-import { get, isNil, noop } from "lodash";
-import { decodeAddress, encodeAddress } from "@polkadot/util-crypto";
-import RewardDestinationModal from "./RewardDestinationModal";
-import EditControllerModal from "./EditControllerModal";
+import { isNil } from "lodash";
 import FundsUpdate from "./FundsUpdate";
 import UnbondingList from "./UnbondingList";
-import EditValidators from "./EditValidators";
-import ChillAlert from "./ChillAlert";
 import Routes from "@lib/routes";
 import { useRouter } from "next/router";
 import AllNominations from "./AllNominations";
@@ -48,29 +44,19 @@ const Overview = () => {
 	const networkInfo = getNetworkInfo(selectedNetwork);
 	const { toggle } = useWalletConnect();
 	const { apiInstance } = usePolkadotApi();
-	const {
-		stashAccount,
-		accounts,
-		bondedAmount,
-		activeStake,
-		setFreeAmount,
-		unlockingBalances,
-		redeemableBalance,
-		unbondingBalances,
-		accountInfoLoading,
-	} = useAccounts();
+	const { accounts, redeemableBalance } = useAccounts();
+	const { selectedAccount } = useSelectedAccount();
+	const { accountsBalances } = useAccountsBalances();
+	const { accountsStakingInfo } = useAccountsStakingInfo();
+	const [balance, setBalance] = useState();
+	const [stakingInfo, setStakingInfo] = useState();
 	const toast = useToast();
 	const [loading, setLoading] = useState(true);
 	const [nominationsLoading, setNominationsLoading] = useState(true); // work-around :(
 	const [error, setError] = useState(false);
-	const {
-		userData,
-		setUserData,
-		allNominationsData,
-		setAllNominations,
-	} = useOverviewData();
+	const { userData, setUserData, allNominations, setAllNominations } =
+		useOverviewData();
 	const { validators, setValidators } = useValidatorData();
-	const { eraLength, eraProgress } = useEraProgress();
 	const [showValidators, setShowValidators] = useState(false);
 	const [validatorsLoading, setValidatorsLoading] = useState(true);
 	const [fundsUpdateModalType, setFundsUpdateModalType] = useState();
@@ -103,137 +89,59 @@ const Overview = () => {
 	} = useDisclosure();
 
 	useEffect(() => {
-		setLoading(true);
-		setError(false);
-		setAllNominations(null);
-		setUserData(null);
-		if (get(stashAccount, "address") && apiInstance) {
-			const kusamaAddress = encodeAddress(
-				decodeAddress(stashAccount.address),
-				networkInfo.addressPrefix
-			);
+		if (balance) setBalance(null);
+		setBalance(accountsBalances[selectedAccount?.address]);
+	}, [selectedAccount, accountsBalances[selectedAccount?.address]]);
+
+	useEffect(() => {
+		if (stakingInfo) setStakingInfo(null);
+		setStakingInfo(accountsStakingInfo[selectedAccount?.address]);
+	}, [selectedAccount, accountsStakingInfo[selectedAccount?.address]]);
+
+	useEffect(() => {
+		if (selectedAccount?.address) {
 			axios
-				.get(`/${networkInfo.network}/user/${kusamaAddress}`)
+				.get(`/${networkInfo.network}/user/${selectedAccount?.address}`)
 				.then(({ data }) => {
-					if (data.message === "No data found!") setError(true);
 					setUserData(data);
 				})
-				.catch(() => {
-					setError(true);
-				})
-				.finally(() => {
-					setLoading(false);
+				.catch((err) => {
+					setUserData(null);
+					console.info(
+						"No staking data found for the accountId:",
+						selectedAccount?.address
+					);
 				});
-
-			let unsubscribe = noop;
-			unsubscribe = apiInstance.query.staking
-				.nominators(
-					stashAccount.address,
-					({ value: { targets: nominations } }) => {
-						if (nominations) {
-							const readableNominations = nominations.map((nomination) =>
-								nomination.toString()
-							);
-							const multiQueryString = readableNominations.reduce(
-								(acc, curr) => acc + `,${curr}`,
-								""
-							);
-							axios
-								.get(
-									`/${networkInfo.network}/validator/multi?stashIds=${multiQueryString}`
-								)
-								.then(({ data }) => {
-									setAllNominations(data);
-								})
-								.catch((err) => {
-									toast({
-										title: "Error",
-										description: "Something went wrong!",
-										position: "top-right",
-										duration: 3000,
-										status: "error",
-									});
-									close();
-								})
-								.finally(() => {
-									setNominationsLoading(false);
-								});
-						} else {
-							setError(true);
-							setNominationsLoading(false);
-						}
-					}
-				)
-				.then((_unsubscribe) => {
-					unsubscribe = _unsubscribe;
-				})
-				.finally(() => {
-					// setLoading(false);
-				});
-
-			return () => {
-				unsubscribe;
-			};
+		} else {
+			setUserData(null);
 		}
-	}, [stashAccount, apiInstance, selectedNetwork]);
+	}, [selectedAccount?.address]);
 
-	// useEffect(() => {
-	// 	if (!validators) {
-	// 		axios
-	// 			.get(`/${networkInfo.network}/rewards/risk-set`)
-	// 			.then(({ data }) => {
-	// 				const validators = data.totalset;
-	// 				setValidators(validators);
-	// 				setSelectedValidatorsMap(allNominationsData);
-	// 			})
-	// 			.catch(() => {
-	// 				// toast({
-	// 				// 	title: "Error",
-	// 				// 	description: "Something went wrong!",
-	// 				// 	position: "top-right",
-	// 				// 	duration: 3000,
-	// 				// 	status: "error",
-	// 				// });
-	// 				close();
-	// 			})
-	// 			.finally(() => {
-	// 				setValidatorsLoading(false);
-	// 			});
-	// 	}
-	// }, [allNominationsData]);
+	useEffect(() => {
+		if (stakingInfo?.nominators && stakingInfo?.nominators.length > 0) {
+			const multiQueryString = stakingInfo.nominators.reduce(
+				(acc, curr) => acc + `,${curr.toString()}`,
+				""
+			);
 
-	// if (loading || accountInfoLoading || nominationsLoading) {
-	// 	return (
-	// 		<div className="flex-center w-full h-full">
-	// 			<div className="flex-center flex-col">
-	// 				<Spinner size="xl" color="teal.500" thickness="4px" />
-	// 				<span className="text-sm text-gray-600 mt-5">
-	// 					Fetching your data...
-	// 				</span>
-	// 			</div>
-	// 		</div>
-	// 	);
-	// }
-
-	// if (error) {
-	// 	return (
-	// 		<div className="flex-center w-full h-full">
-	// 			<div className="flex-center flex-col">
-	// 				<AlertTriangle size="2rem" className="text-orange-500" />
-	// 				<span className="font-semibold text-red-600 text-lg mb-10">
-	// 					Sorry, no data for your account since you don't have active
-	// 					nominations! :(
-	// 				</span>
-	// 				<span
-	// 					onClick={() => router.replace(Routes.CALCULATOR)}
-	// 					className="text-sm text-gray-600 mt-5 hover:underline cursor-pointer"
-	// 				>
-	// 					Use Reward Calculator to bond more funds and nominate.
-	// 				</span>
-	// 			</div>
-	// 		</div>
-	// 	);
-	// }
+			axios
+				.get(
+					`/${networkInfo.network}/validator/multi?stashIds=${multiQueryString}`
+				)
+				.then(({ data }) => {
+					setAllNominations(data);
+				})
+				.catch((err) => {
+					setAllNominations(null);
+					console.info("No data found for the nominations!");
+				})
+				.finally(() => {
+					setNominationsLoading(false);
+				});
+		} else {
+			setAllNominations(null);
+		}
+	}, [stakingInfo]);
 
 	const onEditController = () => {
 		closeRewardDestinationModal();
@@ -245,11 +153,18 @@ const Overview = () => {
 		toggleFundsUpdateModal();
 	};
 
-	const openUnbondingListModal = (type) => {
+	const openUnbondingListModal = () => {
 		toggleUnbondingList();
 	};
 
-	return !stashAccount ? (
+	return isNil(apiInstance) ? (
+		<div className="flex-center w-full h-full">
+			<div className="flex-center flex-col">
+				<Spinner size="xl" color="teal.500" thickness="4px" />
+				<span className="text-sm text-gray-600 mt-5">Instantiating API...</span>
+			</div>
+		</div>
+	) : !accounts || !selectedAccount ? (
 		<div className="flex-center w-full h-full">
 			<div className="flex-center flex-col">
 				<AlertTriangle size="32" className="text-orange-500" />
@@ -264,25 +179,16 @@ const Overview = () => {
 				</button>
 			</div>
 		</div>
-	) : isNil(bondedAmount) ||
-	  isNil(activeStake) ||
-	  nominationsLoading ||
-	  loading ? (
+	) : isNil(balance) || isNil(stakingInfo) ? (
 		<div className="flex-center w-full h-full">
 			<div className="flex-center flex-col">
 				<Spinner size="xl" color="teal.500" thickness="4px" />
 				<span className="text-sm text-gray-600 mt-5">
-					{isNil(apiInstance)
-						? "Instantiating API..."
-						: "Fetching your data..."}
+					Fetching your data...
 				</span>
 			</div>
 		</div>
-	) : isNil(allNominationsData) &&
-	  isNil(userData) &&
-	  unbondingBalances.length === 0 &&
-	  isNil(unlockingBalances) &&
-	  redeemableBalance === 0 ? (
+	) : stakingInfo?.stakingLedger?.total.isEmpty ? (
 		<div className="flex items-center flex-col pt-24">
 			<ProgressiveImage
 				src="/images/unicorn-sweat/unicorn-sweat.png"
@@ -330,32 +236,21 @@ const Overview = () => {
 		</div>
 	) : (
 		<div className="py-10 w-full h-full">
-			{/* <RewardDestinationModal
-				isOpen={isRewardDestinationModalOpen}
-				close={closeRewardDestinationModal}
-				onEditController={onEditController}
-			/>
-			<EditControllerModal
-				isOpen={editControllerModalOpen}
-				close={closeEditControllerModal}
-				networkInfo={networkInfo}
-			/> */}
 			<FundsUpdate
 				isOpen={fundsUpdateModalOpen}
 				close={closeFundsUpdateModal}
 				type={fundsUpdateModalType}
-				nominations={allNominationsData}
-				unbondingBalances={unbondingBalances}
-				bondedAmount={bondedAmount}
+				nominations={allNominations}
+				selectedAccount={selectedAccount}
+				balance={balance}
+				stakingInfo={stakingInfo}
 				networkInfo={networkInfo}
 			/>
 			<UnbondingList
+				api={apiInstance}
 				isOpen={openUnbondingList}
 				close={closeUnbondingList}
-				toggle={toggleUnbondingList}
-				unbondingBalances={unbondingBalances}
-				eraLength={eraLength}
-				eraProgress={eraProgress}
+				stakingInfo={stakingInfo}
 				networkInfo={networkInfo}
 			/>
 			<RedeemUnbonded
@@ -363,42 +258,26 @@ const Overview = () => {
 				close={closeRedeemUnbonded}
 				api={apiInstance}
 				toggle={toggleRedeemUnbonded}
-				redeemableBalance={redeemableBalance}
-				stashAccount={stashAccount}
+				redeemableBalance={stakingInfo?.redeemable}
+				stakingInfo={stakingInfo}
+				selectedAccount={selectedAccount}
 				networkInfo={networkInfo}
 			/>
-			{/* <EditValidators
-				isOpen={editValidatorModalOpen}
-				close={closeEditValidatorsModal}
-				validators={validators}
-				validatorsLoading={validatorsLoading}
-				currentValidators={allNominationsData}
-				onChill={() => {
-					closeEditValidatorsModal();
-					setTimeout(() => toggleChillAlert(), 500);
-				}}
-				networkInfo={networkInfo}
-			/> */}
-			{/* <ChillAlert isOpen={chillAlertOpen} close={closeChillAlert} /> */}
 			<div className="flex-col">
 				<div className="flex">
 					<OverviewCards
 						stats={isNil(userData) ? null : userData.stats}
-						bondedAmount={bondedAmount}
-						address={stashAccount.address}
-						activeStake={activeStake}
+						stakingInfo={stakingInfo}
 						validators={isNil(userData) ? null : userData.validatorsInfo}
-						unlockingBalances={unlockingBalances}
-						unbondingBalances={unbondingBalances}
-						redeemableBalance={redeemableBalance}
 						bondFunds={() => openFundsUpdateModal("bond")}
 						unbondFunds={() => openFundsUpdateModal("unbond")}
 						rebondFunds={() => openFundsUpdateModal("rebond")}
 						toggleRedeemUnbonded={toggleRedeemUnbonded}
-						openUnbondingListModal={openUnbondingListModal}
+						openUnbondingListModal={() => openUnbondingListModal()}
 						openRewardDestinationModal={toggleRewardDestinationModal}
 						networkInfo={networkInfo}
 					/>
+					{/* TODO: Handle errors */}
 					<div className="flex ml-20 w-1/2">
 						<EarningsOutput
 							networkInfo={networkInfo}
@@ -409,8 +288,12 @@ const Overview = () => {
 											(validator) => validator.isElected
 									  )
 							}
-							inputValue={activeStake}
-							address={stashAccount.address}
+							inputValue={{
+								currency:
+									stakingInfo?.stakingLedger.active /
+									Math.pow(10, networkInfo.decimalPlaces),
+							}}
+							address={selectedAccount?.address}
 						/>
 					</div>
 				</div>
@@ -470,9 +353,9 @@ const Overview = () => {
 									networkInfo={networkInfo}
 								/>
 							) : (
-								allNominationsData && (
+								allNominations && (
 									<AllNominations
-										nominations={allNominationsData}
+										nominations={allNominations}
 										networkInfo={networkInfo}
 									/>
 								)
