@@ -54,7 +54,7 @@ import {
 import Routes from "@lib/routes";
 import { trackEvent, Events } from "@lib/analytics";
 import { getNetworkInfo } from "yieldscan.config";
-import { HelpCircle, AlertCircle } from "react-feather";
+import { HelpCircle, AlertCircle, AlertTriangle } from "react-feather";
 import MinStakeAlert from "./MinStakeAlert";
 import { BottomNextButton } from "@components/setup-accounts/BottomButton";
 import {
@@ -358,7 +358,7 @@ const RewardCalculatorPage = () => {
 					{!Object.values(walletType).every((value) => value === null) &&
 						activeBondedAmount > 0 && (
 							<div
-								className={`w-full flex flex-row mb-4 ${
+								className={`w-full flex flex-row mb-4 rounded items-center ${
 									simulationChecked ? "justify-between" : "justify-end"
 								}`}
 							>
@@ -678,25 +678,16 @@ const SetupAccountsAlert = () => {
 };
 
 const SimulationAlert = () => (
-	<Alert
-		status="warning"
-		color="gray.500"
-		backgroundColor="gray.200"
-		borderRadius="8px"
-		border="1px solid #E2ECF9"
-		zIndex={1}
-	>
-		<AlertIcon name="warning-2" color="gray.500" />
-		<div>
-			<AlertDescription fontSize="xs">
-				<p>
-					<span className="font-semibold">Simulation mode:</span> You can use
-					this calculator ONLY to simulate your expected earnings. To stake,
-					turn off simulation.
-				</p>
-			</AlertDescription>
+	<div className="flex flex-row justify-between items-center bg-gray-200 text-xs text-gray-700 p-4 rounded-lg">
+		<div className="flex flex-row space-x-2">
+			<AlertTriangle size={18} />
+			<p>
+				<span className="font-semibold">Simulation mode:</span> You can use this
+				calculator ONLY to simulate your expected earnings. To stake, turn off
+				simulation.
+			</p>
 		</div>
-	</Alert>
+	</div>
 );
 
 export { GlossaryModal, HelpPopover };
