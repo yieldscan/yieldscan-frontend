@@ -12,6 +12,8 @@ import {
 	useAccountsStakingLedgerInfo,
 	useAccountsControllerStashInfo,
 	useWalletType,
+	useControllerAccountInfo,
+	useSelectedAccountInfo,
 } from "@lib/store";
 import { useRouter } from "next/router";
 import { getNetworkInfo } from "yieldscan.config";
@@ -53,16 +55,8 @@ const Staking = () => {
 	const selectedValidators = get(transactionState, "selectedValidators", []);
 	const stakingAmount = get(transactionState, "stakingAmount", 0);
 
-	const [balances, setBalances] = useState(
-		() => accountsBalances[selectedAccount?.address]
-	);
+	const { balances, stakingInfo, stakingLedgerInfo } = useSelectedAccountInfo();
 
-	const [stakingInfo, setStakingInfo] = useState(
-		() => accountsStakingInfo[selectedAccount?.address]
-	);
-	const [stakingLedgerInfo, setStakingLedgerInfo] = useState(
-		() => accountsStakingLedgerInfo[selectedAccount?.address]
-	);
 	const [controllerStashInfo, setControllerStashInfo] = useState(
 		() => accountsControllerStashInfo[selectedAccount?.address]
 	);
@@ -76,35 +70,7 @@ const Staking = () => {
 	const [chainError, setChainError] = useState(false);
 	const [loaderError, setLoaderError] = useState(false);
 
-	const [controllerAccount, setControllerAccount] = useState(() =>
-		accountsStakingInfo[selectedAccount?.address]?.controllerId
-			? accounts?.filter(
-					(account) =>
-						account.address ===
-						accountsStakingInfo[
-							selectedAccount?.address
-						]?.controllerId.toString()
-			  )[0]
-			: isNil(
-					window?.localStorage.getItem(
-						selectedAccount?.address + networkInfo.network + "Controller"
-					)
-			  )
-			? walletType[selectedAccount?.substrateAddress]
-				? null
-				: selectedAccount
-			: accounts?.filter(
-					(account) =>
-						account.address ===
-						window?.localStorage.getItem(
-							selectedAccount?.address + networkInfo.network + "Controller"
-						)
-			  )[0]
-	);
-
-	const [controllerBalances, setControllerBalances] = useState(
-		() => accountsBalances[controllerAccount?.address]
-	);
+	const { controllerAccount, controllerBalances } = useControllerAccountInfo();
 
 	const updateTransactionData = (
 		stashId,
@@ -298,40 +264,12 @@ const Staking = () => {
 	};
 
 	useEffect(() => {
-		setBalances(accountsBalances[selectedAccount?.address]);
-	}, [
-		selectedAccount?.address,
-		JSON.stringify(accountsBalances[selectedAccount?.address]),
-	]);
-
-	useEffect(() => {
-		setControllerBalances(accountsBalances[controllerAccount?.address]);
-	}, [
-		controllerAccount?.address,
-		JSON.stringify(accountsBalances[controllerAccount?.address]),
-	]);
-
-	useEffect(() => {
 		setControllerStashInfo(
 			accountsControllerStashInfo[selectedAccount?.address]
 		);
 	}, [
 		selectedAccount?.address,
 		JSON.stringify(accountsControllerStashInfo[selectedAccount?.address]),
-	]);
-
-	useEffect(() => {
-		setStakingInfo(accountsStakingInfo[selectedAccount?.address]);
-	}, [
-		selectedAccount?.address,
-		JSON.stringify(accountsStakingInfo[selectedAccount?.address]),
-	]);
-
-	useEffect(() => {
-		setStakingLedgerInfo(accountsStakingLedgerInfo[selectedAccount?.address]);
-	}, [
-		selectedAccount?.address,
-		JSON.stringify(accountsStakingLedgerInfo[selectedAccount?.address]),
 	]);
 
 	useEffect(() => {
@@ -376,17 +314,6 @@ const Staking = () => {
 			return () => clearTimeout(confettiClear);
 		}
 	}, [transactionHash, isSuccessful]);
-
-	useEffect(() => {
-		if (stakingInfo?.controllerId) {
-			setControllerAccount(
-				() =>
-					accounts?.filter(
-						(account) => account.address === stakingInfo.controllerId.toString()
-					)[0]
-			);
-		}
-	}, [stakingInfo?.controllerId]);
 
 	return selectedAccount &&
 		controllerBalances &&
@@ -445,7 +372,6 @@ const Staking = () => {
 			) : parseInt(controllerBalances?.availableBalance) <
 			  apiInstance?.consts.balances.existentialDeposit.toNumber() / 2 ? (
 				<TransferFunds
-					toast={toast}
 					router={router}
 					apiInstance={apiInstance}
 					networkInfo={networkInfo}
@@ -483,61 +409,38 @@ const Staking = () => {
 					/>
 				) : (
 					<StakeToEarn
-						accounts={accounts}
-						balances={balances}
-						controllerBalances={controllerBalances}
 						stakingInfo={stakingInfo}
-						stakingLedgerInfo={stakingLedgerInfo}
-						controllerStashInfo={controllerStashInfo}
 						apiInstance={apiInstance}
 						selectedAccount={selectedAccount}
-						controllerAccount={controllerAccount}
 						networkInfo={networkInfo}
 						transactionState={transactionState}
 						isLedger={isLedger}
-						setTransactionState={setTransactionState}
 						onConfirm={(type) => transact(type)}
 					/>
 				)
 			) : controllerStashInfo.isStash &&
 			  !controllerStashInfo.isSameStashController ? (
 				<StakeToEarn
-					accounts={accounts}
-					balances={balances}
-					controllerBalances={controllerBalances}
 					stakingInfo={stakingInfo}
-					stakingLedgerInfo={stakingLedgerInfo}
-					controllerStashInfo={controllerStashInfo}
 					apiInstance={apiInstance}
 					selectedAccount={selectedAccount}
-					controllerAccount={controllerAccount}
 					networkInfo={networkInfo}
 					transactionState={transactionState}
 					isLedger={isLedger}
-					setTransactionState={setTransactionState}
 					onConfirm={(type) => transact(type)}
 				/>
 			) : (
 				<Confirmation
 					accounts={accounts}
 					balances={balances}
-					controllerBalances={controllerBalances}
 					stakingInfo={stakingInfo}
-					stakingLedgerInfo={stakingLedgerInfo}
-					controllerStashInfo={controllerStashInfo}
 					apiInstance={apiInstance}
 					selectedAccount={selectedAccount}
 					controllerAccount={controllerAccount}
 					networkInfo={networkInfo}
 					transactionState={transactionState}
 					setTransactionState={setTransactionState}
-					// stakingLoading={stakingLoading}
-					// stakingEvent={stakingEvent}
 					onConfirm={(type) => transact(type)}
-					// transactionHash={transactionHash}
-					// isSuccessful={isSuccessful}
-					// chainError={chainError}
-					// loaderError={loaderError}
 				/>
 			)}
 		</div>

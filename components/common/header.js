@@ -113,8 +113,14 @@ const Header = ({ isBase, isSetUp }) => {
 
 	const { setNomMinStake } = useNomMinStake();
 
-	const { balances, setBalances, stakingInfo, setStakingInfo } =
-		useSelectedAccountInfo();
+	const {
+		balances,
+		setBalances,
+		stakingInfo,
+		setStakingInfo,
+		stakingLedgerInfo,
+		setStakingLedgerInfo,
+	} = useSelectedAccountInfo();
 	const {
 		controllerAccount,
 		setControllerAccount,
@@ -233,6 +239,10 @@ const Header = ({ isBase, isSetUp }) => {
 		}
 		setStakingInfo(accountsStakingInfo[selectedAccount?.address]);
 	}, [selectedAccount?.address, JSON.stringify(accountsStakingInfo)]);
+
+	useEffect(() => {
+		setStakingLedgerInfo(accountsStakingLedgerInfo[selectedAccount?.address]);
+	}, [selectedAccount?.address, JSON.stringify(accountsStakingLedgerInfo)]);
 
 	useEffect(() => {
 		if (stakingInfo?.accountId.toString() !== selectedAccount?.address) {

@@ -1,52 +1,17 @@
 import { useState, useEffect } from "react";
 import { get, isNil } from "lodash";
-import {
-	useSelectedAccount,
-	useTransaction,
-	useSelectedNetwork,
-	useTransactionHash,
-	usePolkadotApi,
-	useAccounts,
-	useAccountsBalances,
-	useAccountsStakingInfo,
-	useAccountsStakingLedgerInfo,
-	useAccountsControllerStashInfo,
-} from "@lib/store";
-import { useRouter } from "next/router";
-import { getNetworkInfo } from "yieldscan.config";
-import getFromLocalStorage from "@lib/getFromLocalStorage";
 import { decodeAddress, encodeAddress } from "@polkadot/util-crypto";
-// import StakeToEarn from "./StakeToEarn";
-// import LockFunds from "./LockFunds";
-// import Confirmation from "./Confirmation";
-// import stake from "@lib/stake";
 import { ChevronLeft } from "react-feather";
-import axios from "@lib/axios";
 import {
-	Alert,
-	AlertDescription,
-	AlertIcon,
-	AlertTitle,
 	Modal,
 	ModalBody,
 	ModalCloseButton,
 	ModalContent,
-	ModalHeader,
 	ModalOverlay,
-	Popover,
-	PopoverArrow,
-	PopoverBody,
-	PopoverContent,
-	PopoverTrigger,
 	Spinner,
 	Divider,
-	useDisclosure,
 	useToast,
 } from "@chakra-ui/core";
-// import ConfettiGenerator from "confetti-js";
-// import ChainErrorPage from "./ChainErrorPage";
-// import { BottomNextButton } from "../setup-accounts/BottomButton";
-// import InfoAlert from "./InfoAlert";
 import Account from "@components/wallet-connect/Account";
 import PopoverAccountSelection from "@components/common/PopoverAccountSelection";
 import formatCurrency from "@lib/format-currency";
@@ -55,7 +20,6 @@ import { HelpPopover } from "@components/reward-calculator";
 import transferBalancesKeepAlive from "@lib/polkadot/transfer-balances";
 
 const TransferFunds = ({
-	toast,
 	router,
 	apiInstance,
 	networkInfo,

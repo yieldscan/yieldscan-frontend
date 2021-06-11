@@ -10,18 +10,14 @@ import { ChevronLeft } from "react-feather";
 import Account from "../wallet-connect/Account";
 
 const LockFunds = ({
-	accounts,
 	balances,
 	controllerBalances,
 	stakingInfo,
-	stakingLedgerInfo,
-	controllerStashInfo,
 	apiInstance,
 	selectedAccount,
 	controllerAccount,
 	networkInfo,
 	transactionState,
-	setTransactionState,
 	onConfirm,
 }) => {
 	const selectedValidators = get(transactionState, "selectedValidators", []);

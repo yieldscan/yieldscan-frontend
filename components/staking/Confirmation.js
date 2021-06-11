@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { get, isNil } from "lodash";
 import router from "next/router";
 import formatCurrency from "@lib/format-currency";
-import { GlossaryModal, HelpPopover } from "@components/reward-calculator";
+import { HelpPopover } from "@components/reward-calculator";
 import { Spinner, Divider, Collapse } from "@chakra-ui/core";
 import { decodeAddress, encodeAddress } from "@polkadot/util-crypto";
 import { ChevronLeft, Circle, ChevronRight, Edit } from "react-feather";
@@ -11,29 +11,18 @@ import ValidatorCard from "./ValidatorCard";
 import RewardDestination from "./RewardDestination";
 import EditController from "./EditController";
 import BrowserWalletAlert from "./BrowserWalletAlert";
-import ConfettiGenerator from "confetti-js";
-import ChainErrorPage from "./ChainErrorPage";
 
 const Confirmation = ({
 	accounts,
 	balances,
-	controllerBalances,
 	stakingInfo,
-	stakingLedgerInfo,
-	controllerStashInfo,
 	apiInstance,
 	selectedAccount,
 	controllerAccount,
 	networkInfo,
 	transactionState,
 	setTransactionState,
-	stakingLoading,
-	stakingEvent,
 	onConfirm,
-	transactionHash,
-	isSuccessful,
-	chainError,
-	loaderError,
 }) => {
 	const selectedValidators = get(transactionState, "selectedValidators", []);
 	const stakingAmount = get(transactionState, "stakingAmount", 0);
