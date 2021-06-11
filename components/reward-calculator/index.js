@@ -281,6 +281,10 @@ const RewardCalculatorPage = () => {
 		} else setLoadingNomMinStake(false);
 	}, [networkInfo]);
 
+	useEffect(() => {
+		setSimulationChecked(false);
+	}, [selectedAccount?.address]);
+
 	const updateTransactionState = (eventType = "") => {
 		let _returns = get(result, "returns"),
 			_yieldPercentage = get(result, "yieldPercentage");
@@ -626,10 +630,7 @@ const RewardCalculatorPage = () => {
 						${proceedDisabled ? "opacity-75 cursor-not-allowed" : "opacity-100"}
 					`}
 							disabled={proceedDisabled}
-							hidden={
-								Object.values(walletType).every((value) => value === null) ||
-								simulationChecked
-							}
+							hidden={simulationChecked}
 							onClick={() =>
 								isNil(accounts)
 									? toggle()
