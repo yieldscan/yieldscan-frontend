@@ -26,6 +26,8 @@ import {
 	useAccountsStakingInfo,
 	usePolkadotApi,
 	useIsNewSetup,
+	useControllerAccountInfo,
+	useSelectedAccountInfo,
 } from "@lib/store";
 import { PaymentPopover } from "@components/new-payment";
 import { get, isNil, mapValues, keyBy, cloneDeep, debounce } from "lodash";
@@ -85,20 +87,16 @@ const RewardCalculatorPage = () => {
 		(state) => state.setTransactionState
 	);
 	const transactionState = useTransaction();
-	const { accounts, freeAmount, bondedAmount } = useAccounts();
+	const { accounts } = useAccounts();
 	const { selectedAccount } = useSelectedAccount();
 	const { apiInstance } = usePolkadotApi();
-	const { accountsBalances } = useAccountsBalances();
-	const { accountsStakingInfo } = useAccountsStakingInfo();
 	const { walletType } = useWalletType();
 	const { setHeaderLoading } = useHeaderLoading();
 	const { isInElection } = useNetworkElection();
-	const { isPaymentPopoverOpen, closePaymentPopover } = usePaymentPopover();
 	const { setIsNewSetup } = useIsNewSetup();
 
 	const { isLowBalanceOpen, toggleIsLowBalanceOpen } = useLowBalancePopover();
 	const [loading, setLoading] = useState(false);
-	const [loadingNomMinStake, setLoadingNomMinStake] = useState(true);
 	const [amount, setAmount] = useState(transactionState.stakingAmount || 1000);
 	const [subCurrency, setSubCurrency] = useState(0);
 
@@ -115,90 +113,116 @@ const RewardCalculatorPage = () => {
 	const [selectedValidators, setSelectedValidators] = useState({});
 
 	const { validatorRiskSets, setValidatorRiskSets } = useValidatorData();
-	const { nomMinStake, setNomMinStake } = useNomMinStake();
 	const [result, setResult] = useState({});
-	const [balance, setBalance] = useState();
-	const [stakingBalance, setStakingBalance] = useState();
+
+	const { balances, stakingInfo } = useSelectedAccountInfo();
 	const [simulationChecked, setSimulationChecked] = useState(false);
+	const { controllerAccount, controllerBalances } = useControllerAccountInfo();
 
-	const [controllerAccount, setControllerAccount] = useState(() =>
-		accountsStakingInfo[selectedAccount?.address]?.controllerId
-			? accounts?.filter(
-					(account) =>
-						account.address ===
-						accountsStakingInfo[
-							selectedAccount?.address
-						]?.controllerId.toString()
-			  )[0]
-			: isNil(
-					window?.localStorage.getItem(
-						selectedAccount?.address + networkInfo.network + "Controller"
-					)
-			  )
-			? walletType[selectedAccount?.substrateAddress]
-				? null
-				: selectedAccount
-			: accounts?.filter(
-					(account) =>
-						account.address ===
-						window?.localStorage.getItem(
-							selectedAccount?.address + networkInfo.network + "Controller"
-						)
-			  )[0]
-	);
+	const toStaking = async () => {
+		updateTransactionState(Events.INTENT_STAKING);
+		setTransactionHash(null);
+		if (
+			controllerAccount &&
+			parseInt(controllerBalances?.availableBalance) <
+				apiInstance?.consts.balances.existentialDeposit.toNumber() / 2
+		) {
+			toggleIsLowBalanceOpen();
+		} else router.push("/staking");
+	};
 
-	const [controllerBalances, setControllerBalances] = useState(
-		() => accountsBalances[controllerAccount?.address]
-	);
+	const onAdvancedSelection = () => {
+		updateTransactionState(Events.INTENT_ADVANCED_SELECTION);
+		router.push(`${Routes.VALIDATORS}?advanced=true`);
+	};
 
-	useEffect(() => {
-		setBalance(accountsBalances[selectedAccount?.address]);
-	}, [accountsBalances[selectedAccount?.address]]);
+	const toSetUpAccounts = () => {
+		if (!Object.values(walletType).every((value) => value === null)) {
+			setIsNewSetup(true);
+		}
+		router.push("/setup-accounts");
+	};
 
-	useEffect(() => {
-		setStakingBalance(accountsStakingInfo[selectedAccount?.address]);
-	}, [accountsStakingInfo[selectedAccount?.address]]);
+	const updateTransactionState = (eventType = "") => {
+		let _returns = get(result, "returns"),
+			_yieldPercentage = get(result, "yieldPercentage");
+		const selectedValidatorsList = Object.values(selectedValidators).filter(
+			(v) => !isNil(v)
+		);
+
+		if (eventType) {
+			trackEvent(eventType, {
+				investmentAmount: `${amount} ${get(
+					networkInfo,
+					"denom"
+				)} ($${subCurrency})`,
+				riskPreference: risk,
+				timePeriod: `${timePeriodValue} ${timePeriodUnit}`,
+				compounding,
+				returns: `${get(_returns, "currency")} ${get(
+					networkInfo,
+					"denom"
+				)} ($${get(_returns, "subCurrency")})`,
+				yieldPercentage: `${_yieldPercentage}%`,
+				// selectedValidators: selectedValidatorsList,
+			});
+		}
+
+		setTransactionState({
+			stakingAmount: amount,
+			riskPreference: risk,
+			timePeriodValue,
+			timePeriodUnit,
+			compounding,
+			returns: _returns,
+			yieldPercentage: _yieldPercentage,
+			selectedValidators: selectedValidatorsList,
+			validatorRiskSets,
+		});
+	};
+
+	// const totalBondedAmount =
+	// 	parseInt(get(stakingInfo, "stakingLedger.total", 0)) /
+	// 	Math.pow(10, networkInfo.decimalPlaces);
+
+	const activeBondedAmount =
+		parseInt(get(stakingInfo, "stakingLedger.active", 0)) /
+		Math.pow(10, networkInfo.decimalPlaces);
+
+	const totalAvailableStakingAmount =
+		parseInt(get(balances, "availableBalance", 0)) /
+		Math.pow(10, networkInfo.decimalPlaces);
+
+	const totalPossibleStakingAmount =
+		activeBondedAmount + totalAvailableStakingAmount;
+
+	const proceedDisabled =
+		accounts &&
+		selectedAccount &&
+		!Object.values(walletType).every((value) => value === null)
+			? isNil(controllerAccount) ||
+			  isNil(walletType[selectedAccount?.substrateAddress]) ||
+			  walletType[controllerAccount?.substrateAddress] ||
+			  (walletType[selectedAccount?.substrateAddress] &&
+					selectedAccount?.address === controllerAccount?.address)
+				? false
+				: amount && !isInElection && amount > 0
+				? amount > totalPossibleStakingAmount
+					? true
+					: activeBondedAmount >
+					  totalPossibleStakingAmount - networkInfo.minAmount
+					? totalAvailableStakingAmount < networkInfo.minAmount / 2
+						? true
+						: false
+					: amount > totalPossibleStakingAmount - networkInfo.minAmount
+					? true
+					: false
+				: true
+			: false;
 
 	useEffect(() => {
 		setSubCurrency(amount * coinGeckoPriceUSD);
 	}, [amount, networkInfo, validatorRiskSets]);
-
-	useEffect(() => {
-		setControllerBalances(accountsBalances[controllerAccount?.address]);
-	}, [
-		controllerAccount?.address,
-		JSON.stringify(accountsBalances[controllerAccount?.address]),
-	]);
-
-	useEffect(() => {
-		const account = accountsStakingInfo[selectedAccount?.address]?.controllerId
-			? accounts?.filter(
-					(account) =>
-						account.address ===
-						accountsStakingInfo[
-							selectedAccount?.address
-						]?.controllerId.toString()
-			  )[0]
-			: isNil(
-					window?.localStorage.getItem(
-						selectedAccount?.address + networkInfo.network + "Controller"
-					)
-			  )
-			? walletType[selectedAccount?.substrateAddress]
-				? null
-				: selectedAccount
-			: accounts?.filter(
-					(account) =>
-						account.address ===
-						window?.localStorage.getItem(
-							selectedAccount?.address + networkInfo.network + "Controller"
-						)
-			  )[0];
-		setControllerAccount(account);
-	}, [
-		selectedAccount,
-		JSON.stringify(accountsStakingInfo[selectedAccount?.address]),
-	]);
 
 	useEffect(() => {
 		if (get(validatorRiskSets, risk)) {
@@ -264,127 +288,10 @@ const RewardCalculatorPage = () => {
 		compounding,
 		selectedValidators,
 	]);
-	useEffect(() => {
-		if (isNil(nomMinStake)) {
-			setLoadingNomMinStake(true);
-			axios
-				.get(`/${networkInfo.network}/actors/nominator/stats`)
-				.then(({ data }) => {
-					setNomMinStake(data.stats.nomMinStake);
-				})
-				.catch(() => {
-					console.error("Unable to fetch minimum amount staked");
-				})
-				.finally(() => {
-					setLoadingNomMinStake(false);
-				});
-		} else setLoadingNomMinStake(false);
-	}, [networkInfo]);
 
 	useEffect(() => {
 		setSimulationChecked(false);
 	}, [selectedAccount?.address]);
-
-	const updateTransactionState = (eventType = "") => {
-		let _returns = get(result, "returns"),
-			_yieldPercentage = get(result, "yieldPercentage");
-		const selectedValidatorsList = Object.values(selectedValidators).filter(
-			(v) => !isNil(v)
-		);
-
-		if (eventType) {
-			trackEvent(eventType, {
-				investmentAmount: `${amount} ${get(
-					networkInfo,
-					"denom"
-				)} ($${subCurrency})`,
-				riskPreference: risk,
-				timePeriod: `${timePeriodValue} ${timePeriodUnit}`,
-				compounding,
-				returns: `${get(_returns, "currency")} ${get(
-					networkInfo,
-					"denom"
-				)} ($${get(_returns, "subCurrency")})`,
-				yieldPercentage: `${_yieldPercentage}%`,
-				// selectedValidators: selectedValidatorsList,
-			});
-		}
-
-		setTransactionState({
-			stakingAmount: amount,
-			riskPreference: risk,
-			timePeriodValue,
-			timePeriodUnit,
-			compounding,
-			returns: _returns,
-			yieldPercentage: _yieldPercentage,
-			selectedValidators: selectedValidatorsList,
-			validatorRiskSets,
-		});
-	};
-
-	const toStaking = async () => {
-		updateTransactionState(Events.INTENT_STAKING);
-		setTransactionHash(null);
-		if (
-			controllerAccount &&
-			parseInt(controllerBalances?.availableBalance) <
-				apiInstance?.consts.balances.existentialDeposit.toNumber() / 2
-		) {
-			toggleIsLowBalanceOpen();
-		} else router.push("/staking");
-	};
-
-	const onAdvancedSelection = () => {
-		updateTransactionState(Events.INTENT_ADVANCED_SELECTION);
-		router.push(`${Routes.VALIDATORS}?advanced=true`);
-	};
-
-	const toSetUpAccounts = () => {
-		if (!Object.values(walletType).every((value) => value === null)) {
-			setIsNewSetup(true);
-		}
-		router.push("/setup-accounts");
-	};
-
-	// const totalBondedAmount =
-	// 	parseInt(get(stakingBalance, "stakingLedger.total", 0)) /
-	// 	Math.pow(10, networkInfo.decimalPlaces);
-
-	const activeBondedAmount =
-		parseInt(get(stakingBalance, "stakingLedger.active", 0)) /
-		Math.pow(10, networkInfo.decimalPlaces);
-
-	const totalAvailableStakingAmount =
-		parseInt(get(balance, "availableBalance", 0)) /
-		Math.pow(10, networkInfo.decimalPlaces);
-
-	const totalPossibleStakingAmount =
-		activeBondedAmount + totalAvailableStakingAmount;
-
-	const proceedDisabled =
-		accounts &&
-		selectedAccount &&
-		!Object.values(walletType).every((value) => value === null)
-			? isNil(controllerAccount) ||
-			  isNil(walletType[selectedAccount?.substrateAddress]) ||
-			  walletType[controllerAccount?.substrateAddress] ||
-			  (walletType[selectedAccount?.substrateAddress] &&
-					selectedAccount?.address === controllerAccount?.address)
-				? false
-				: amount && !isInElection && amount > 0
-				? amount > totalPossibleStakingAmount
-					? true
-					: activeBondedAmount >
-					  totalPossibleStakingAmount - networkInfo.minAmount
-					? totalAvailableStakingAmount < networkInfo.minAmount / 2
-						? true
-						: false
-					: amount > totalPossibleStakingAmount - networkInfo.minAmount
-					? true
-					: false
-				: true
-			: false;
 
 	return loading || isNil(apiInstance) ? (
 		<div className="flex-center w-full h-full">
@@ -480,15 +387,14 @@ const RewardCalculatorPage = () => {
 							</h3>
 							<div className="mt-2">
 								{selectedAccount &&
-									balance &&
-									stakingBalance &&
+									balances &&
+									stakingInfo &&
 									!Object.values(walletType).every((value) => value === null) &&
 									(amount >
 										totalPossibleStakingAmount - networkInfo.minAmount ||
 										totalAvailableStakingAmount < networkInfo.minAmount) && (
 										<LowBalanceAlert
 											amount={amount}
-											stakingBalance={stakingBalance}
 											activeBondedAmount={activeBondedAmount}
 											networkInfo={networkInfo}
 											totalPossibleStakingAmount={totalPossibleStakingAmount}
@@ -500,10 +406,10 @@ const RewardCalculatorPage = () => {
 									networkInfo={networkInfo}
 									onChange={setAmount}
 									trackRewardCalculatedEvent={trackRewardCalculatedEvent}
-									balance={balance}
+									balances={balances}
 									simulationChecked={simulationChecked}
 									walletType={walletType}
-									stakingBalance={stakingBalance}
+									stakingInfo={stakingInfo}
 								/>
 							</div>
 							<div className="flex mt-8 items-center">

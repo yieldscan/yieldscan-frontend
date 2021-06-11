@@ -14,6 +14,8 @@ import {
 	useCoinGeckoPriceUSD,
 	useAccountsBalances,
 	useSelectedAccount,
+	useSelectedAccountInfo,
+	useControllerAccountInfo,
 	useAccountsStakingInfo,
 	useAccountsStakingLedgerInfo,
 	useAccountsControllerStashInfo,
@@ -111,10 +113,15 @@ const Header = ({ isBase, isSetUp }) => {
 
 	const { setNomMinStake } = useNomMinStake();
 
-	const [accountsWithoutCurrent, setAccountsWithoutCurrent] = useState([]);
-
-	const stashAddress = get(stashAccount, "address");
-
+	const { balances, setBalances, stakingInfo, setStakingInfo } =
+		useSelectedAccountInfo();
+	const {
+		controllerAccount,
+		setControllerAccount,
+		setControllerBalances,
+		controllerBalances,
+		setControllerStakingInfo,
+	} = useControllerAccountInfo();
 	const [filteredAccounts, setFilteredAccounts] = useState(null);
 
 	const [isStashPopoverOpen, setIsStashPopoverOpen] = useState(false);
@@ -211,6 +218,53 @@ const Header = ({ isBase, isSetUp }) => {
 		JSON.stringify(accounts),
 		JSON.stringify(accountsControllerStashInfo),
 		JSON.stringify(accountsBalances),
+	]);
+
+	useEffect(() => {
+		if (balances?.accountId.toString() !== selectedAccount?.address) {
+			setBalances(null);
+		}
+		setBalances(accountsBalances[selectedAccount?.address]);
+	}, [selectedAccount?.address, JSON.stringify(accountsBalances)]);
+
+	useEffect(() => {
+		if (stakingInfo?.accountId.toString() !== selectedAccount?.address) {
+			setStakingInfo(null);
+		}
+		setStakingInfo(accountsStakingInfo[selectedAccount?.address]);
+	}, [selectedAccount?.address, JSON.stringify(accountsStakingInfo)]);
+
+	useEffect(() => {
+		if (stakingInfo?.accountId.toString() !== selectedAccount?.address) {
+			setControllerAccount(null);
+		}
+		const account = stakingInfo?.controllerId
+			? accounts?.filter(
+					(account) => account.address === stakingInfo?.controllerId.toString()
+			  )[0]
+			: isNil(
+					window?.localStorage.getItem(
+						selectedAccount?.address + networkInfo.network + "Controller"
+					)
+			  )
+			? walletType[selectedAccount?.substrateAddress]
+				? null
+				: selectedAccount
+			: accounts?.filter(
+					(account) =>
+						account.address ===
+						window?.localStorage.getItem(
+							selectedAccount?.address + networkInfo.network + "Controller"
+						)
+			  )[0];
+		setControllerAccount(account);
+	}, [selectedAccount?.address, JSON.stringify(stakingInfo)]);
+
+	useEffect(() => {
+		setControllerBalances(accountsBalances[controllerAccount?.address]);
+	}, [
+		controllerAccount?.address,
+		JSON.stringify(accountsBalances[controllerAccount?.address]),
 	]);
 
 	return (

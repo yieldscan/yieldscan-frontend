@@ -18,7 +18,6 @@ const LowBalanceAlert = ({
 	activeBondedAmount,
 	totalAvailableStakingAmount,
 	totalPossibleStakingAmount,
-	stakingBalance,
 }) => {
 	const [status, setStatus] = useState();
 	const [title, setTitle] = useState();
