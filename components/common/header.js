@@ -226,8 +226,9 @@ const Header = ({ isBase, isSetUp }) => {
 				(isOpen || !isNil(userStorage.getItem("autoConnectEnabled"))) && (
 					<WalletConnectPopover isOpen={isOpen} networkInfo={networkInfo} />
 				)}
-			{(Object.values(walletType).includes(true) ||
-				Object.values(walletType).includes(false)) &&
+			{!isSetUp &&
+				(Object.values(walletType).includes(true) ||
+					Object.values(walletType).includes(false)) &&
 				Object.values(walletType).includes(null) && (
 					<NewAccountsSetupPopover isOpen={isNewSetupOpen} />
 				)}

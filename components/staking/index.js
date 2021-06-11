@@ -11,6 +11,7 @@ import {
 	useAccountsStakingInfo,
 	useAccountsStakingLedgerInfo,
 	useAccountsControllerStashInfo,
+	useWalletType,
 } from "@lib/store";
 import { useRouter } from "next/router";
 import { getNetworkInfo } from "yieldscan.config";
@@ -40,6 +41,7 @@ const Staking = () => {
 	const { accountsBalances } = useAccountsBalances();
 	const { accountsStakingInfo } = useAccountsStakingInfo();
 	const { accountsStakingLedgerInfo } = useAccountsStakingLedgerInfo();
+	const { walletType } = useWalletType();
 
 	const { accountsControllerStashInfo } = useAccountsControllerStashInfo();
 	const [isLedger, setIsLedger] = useState(() =>
@@ -75,20 +77,22 @@ const Staking = () => {
 	const [loaderError, setLoaderError] = useState(false);
 
 	const [controllerAccount, setControllerAccount] = useState(() =>
-		accountsStakingInfo[selectedAccount?.address]?.stakingLedger.controllerId
+		accountsStakingInfo[selectedAccount?.address]?.controllerId
 			? accounts?.filter(
 					(account) =>
 						account.address ===
 						accountsStakingInfo[
 							selectedAccount?.address
-						]?.stakingLedger.controllerId.toString()
+						]?.controllerId.toString()
 			  )[0]
 			: isNil(
 					window?.localStorage.getItem(
 						selectedAccount?.address + networkInfo.network + "Controller"
 					)
 			  )
-			? selectedAccount
+			? walletType[selectedAccount?.substrateAddress]
+				? null
+				: selectedAccount
 			: accounts?.filter(
 					(account) =>
 						account.address ===

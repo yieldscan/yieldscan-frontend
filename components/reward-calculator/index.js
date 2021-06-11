@@ -94,12 +94,14 @@ const RewardCalculatorPage = () => {
 	const { setHeaderLoading } = useHeaderLoading();
 	const { isInElection } = useNetworkElection();
 	const { isPaymentPopoverOpen, closePaymentPopover } = usePaymentPopover();
+	const { setIsNewSetup } = useIsNewSetup();
 
 	const { isLowBalanceOpen, toggleIsLowBalanceOpen } = useLowBalancePopover();
 	const [loading, setLoading] = useState(false);
 	const [loadingNomMinStake, setLoadingNomMinStake] = useState(true);
 	const [amount, setAmount] = useState(transactionState.stakingAmount || 1000);
 	const [subCurrency, setSubCurrency] = useState(0);
+
 	const [risk, setRisk] = useState(transactionState.riskPreference || "Medium");
 	const [timePeriodValue, setTimePeriod] = useState(
 		transactionState.timePeriodValue || 12
@@ -120,20 +122,22 @@ const RewardCalculatorPage = () => {
 	const [simulationChecked, setSimulationChecked] = useState(false);
 
 	const [controllerAccount, setControllerAccount] = useState(() =>
-		accountsStakingInfo[selectedAccount?.address]?.stakingLedger.controllerId
+		accountsStakingInfo[selectedAccount?.address]?.controllerId
 			? accounts?.filter(
 					(account) =>
 						account.address ===
 						accountsStakingInfo[
 							selectedAccount?.address
-						]?.stakingLedger.controllerId.toString()
+						]?.controllerId.toString()
 			  )[0]
 			: isNil(
 					window?.localStorage.getItem(
 						selectedAccount?.address + networkInfo.network + "Controller"
 					)
 			  )
-			? selectedAccount
+			? walletType[selectedAccount?.substrateAddress]
+				? null
+				: selectedAccount
 			: accounts?.filter(
 					(account) =>
 						account.address ===
@@ -167,16 +171,34 @@ const RewardCalculatorPage = () => {
 	]);
 
 	useEffect(() => {
-		if (stakingBalance?.controllerId) {
-			setControllerAccount(
-				() =>
-					accounts?.filter(
-						(account) =>
-							account.address === stakingBalance.controllerId.toString()
-					)[0]
-			);
-		}
-	}, [stakingBalance?.controllerId]);
+		const account = accountsStakingInfo[selectedAccount?.address]?.controllerId
+			? accounts?.filter(
+					(account) =>
+						account.address ===
+						accountsStakingInfo[
+							selectedAccount?.address
+						]?.controllerId.toString()
+			  )[0]
+			: isNil(
+					window?.localStorage.getItem(
+						selectedAccount?.address + networkInfo.network + "Controller"
+					)
+			  )
+			? walletType[selectedAccount?.substrateAddress]
+				? null
+				: selectedAccount
+			: accounts?.filter(
+					(account) =>
+						account.address ===
+						window?.localStorage.getItem(
+							selectedAccount?.address + networkInfo.network + "Controller"
+						)
+			  )[0];
+		setControllerAccount(account);
+	}, [
+		selectedAccount,
+		JSON.stringify(accountsStakingInfo[selectedAccount?.address]),
+	]);
 
 	useEffect(() => {
 		if (get(validatorRiskSets, risk)) {
@@ -315,6 +337,9 @@ const RewardCalculatorPage = () => {
 	};
 
 	const toSetUpAccounts = () => {
+		if (!Object.values(walletType).every((value) => value === null)) {
+			setIsNewSetup(true);
+		}
 		router.push("/setup-accounts");
 	};
 
@@ -342,7 +367,7 @@ const RewardCalculatorPage = () => {
 			  walletType[controllerAccount?.substrateAddress] ||
 			  (walletType[selectedAccount?.substrateAddress] &&
 					selectedAccount?.address === controllerAccount?.address)
-				? true
+				? false
 				: amount && !isInElection && amount > 0
 				? amount > totalPossibleStakingAmount
 					? true
@@ -602,15 +627,23 @@ const RewardCalculatorPage = () => {
 					`}
 							disabled={proceedDisabled}
 							hidden={
-								!Object.values(walletType).every((value) => value === null) &&
-								activeBondedAmount > 0 &&
+								Object.values(walletType).every((value) => value === null) ||
 								simulationChecked
 							}
 							onClick={() =>
 								isNil(accounts)
 									? toggle()
 									: Object.keys(walletType).length === 0 ||
-									  Object.values(walletType).every((value) => value === null)
+									  Object.values(walletType).every(
+											(value) => value === null
+									  ) ||
+									  (selectedAccount &&
+											(isNil(controllerAccount) ||
+												isNil(walletType[selectedAccount?.substrateAddress]) ||
+												walletType[controllerAccount?.substrateAddress] ||
+												(walletType[selectedAccount?.substrateAddress] &&
+													selectedAccount?.address ===
+														controllerAccount?.address)))
 									? toSetUpAccounts()
 									: selectedAccount
 									? toStaking()
@@ -621,10 +654,13 @@ const RewardCalculatorPage = () => {
 								? "Connect Wallet"
 								: Object.keys(walletType).length === 0 ||
 								  Object.values(walletType).every((value) => value === null) ||
-								  isNil(walletType[selectedAccount?.substrateAddress]) ||
-								  walletType[controllerAccount?.substrateAddress] !== false ||
-								  (walletType[selectedAccount?.substrateAddress] &&
-										selectedAccount?.address === controllerAccount?.address)
+								  (selectedAccount &&
+										(isNil(walletType[selectedAccount?.substrateAddress]) ||
+											walletType[controllerAccount?.substrateAddress] !==
+												false ||
+											(walletType[selectedAccount?.substrateAddress] &&
+												selectedAccount?.address ===
+													controllerAccount?.address)))
 								? "Setup Accounts"
 								: isNil(selectedAccount)
 								? "Select Account"
