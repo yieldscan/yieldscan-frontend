@@ -159,6 +159,7 @@ const Staking = () => {
 		} else setIsLockFunds(false);
 		setIsTransferFunds(false);
 		setStakingLoading(true);
+		setTransactionHash(null);
 
 		// trackEvent(Events.INTENT_TRANSACTION, {
 		// 	transactionType: !!transactionState.stakingAmount ? "STAKE" : "NOMINATE",
@@ -383,7 +384,11 @@ const Staking = () => {
 		}
 	}, [stakingInfo?.controllerId]);
 
-	return selectedAccount?.address ? (
+	return selectedAccount &&
+		controllerBalances &&
+		Object.keys(accountsBalances).length > 0 &&
+		Object.keys(accountsControllerStashInfo).length > 0 &&
+		Object.keys(accountsStakingInfo) ? (
 		<div className="w-full h-full flex justify-center max-h-full">
 			{transactionHash && isSuccessful && !isLockFunds && !isTransferFunds && (
 				<canvas id="confetti-holder" className="absolute w-full"></canvas>
@@ -433,10 +438,8 @@ const Staking = () => {
 					// }}
 					networkInfo={networkInfo}
 				/>
-			) : controllerAccount &&
-			  controllerBalances?.availableBalance.lte(
-					apiInstance?.consts.balances.existentialDeposit.toNumber / 2
-			  ) ? (
+			) : parseInt(controllerBalances?.availableBalance) <
+			  apiInstance?.consts.balances.existentialDeposit.toNumber() / 2 ? (
 				<TransferFunds
 					toast={toast}
 					router={router}
@@ -455,6 +458,7 @@ const Staking = () => {
 					setIsSuccessful={setIsSuccessful}
 					setChainError={setChainError}
 					setIsTransferFunds={setIsTransferFunds}
+					setTransactionHash={setTransactionHash}
 				/>
 			) : isLedger ? (
 				stakingInfo.stakingLedger.active.isEmpty ? (

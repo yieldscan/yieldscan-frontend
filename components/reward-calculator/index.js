@@ -299,12 +299,11 @@ const RewardCalculatorPage = () => {
 
 	const toStaking = async () => {
 		updateTransactionState(Events.INTENT_STAKING);
-		if (transactionHash) setTransactionHash(null);
+		setTransactionHash(null);
 		if (
 			controllerAccount &&
-			controllerBalances?.availableBalance.lte(
-				apiInstance?.consts.balances.existentialDeposit.toNumber / 2
-			)
+			parseInt(controllerBalances?.availableBalance) <
+				apiInstance?.consts.balances.existentialDeposit.toNumber() / 2
 		) {
 			toggleIsLowBalanceOpen();
 		} else router.push("/staking");
@@ -338,7 +337,13 @@ const RewardCalculatorPage = () => {
 		accounts &&
 		selectedAccount &&
 		!Object.values(walletType).every((value) => value === null)
-			? amount && !isInElection && amount > 0
+			? isNil(controllerAccount) ||
+			  isNil(walletType[selectedAccount?.substrateAddress]) ||
+			  walletType[controllerAccount?.substrateAddress] ||
+			  (walletType[selectedAccount?.substrateAddress] &&
+					selectedAccount?.address === controllerAccount?.address)
+				? true
+				: amount && !isInElection && amount > 0
 				? amount > totalPossibleStakingAmount
 					? true
 					: activeBondedAmount >
@@ -615,7 +620,11 @@ const RewardCalculatorPage = () => {
 							{isNil(accounts)
 								? "Connect Wallet"
 								: Object.keys(walletType).length === 0 ||
-								  Object.values(walletType).every((value) => value === null)
+								  Object.values(walletType).every((value) => value === null) ||
+								  isNil(walletType[selectedAccount?.substrateAddress]) ||
+								  walletType[controllerAccount?.substrateAddress] !== false ||
+								  (walletType[selectedAccount?.substrateAddress] &&
+										selectedAccount?.address === controllerAccount?.address)
 								? "Setup Accounts"
 								: isNil(selectedAccount)
 								? "Select Account"

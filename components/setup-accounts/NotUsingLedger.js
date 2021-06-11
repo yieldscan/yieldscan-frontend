@@ -45,7 +45,9 @@ const NotUsingLedger = ({ incrementStep, decrementStep }) => {
 		JSON.stringify(accountsControllerStashInfo),
 		JSON.stringify(accountsBalances),
 	]);
-	return (
+	return filteredAccounts &&
+		Object.keys(accountsBalances).length > 0 &&
+		Object.keys(accountsControllerStashInfo).length > 0 ? (
 		<div className="w-full h-full flex justify-center">
 			<div className="w-full max-w-65-rem flex flex-col items-center">
 				<div className="p-2 w-full">
@@ -75,6 +77,10 @@ const NotUsingLedger = ({ incrementStep, decrementStep }) => {
 					</span>
 				</div>
 			</div>
+		</div>
+	) : (
+		<div className="flex h-full w-full text-left text-gray-700 flex-col justify-center items-center">
+			<span className="loader"></span>
 		</div>
 	);
 };

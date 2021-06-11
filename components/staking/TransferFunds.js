@@ -72,6 +72,7 @@ const TransferFunds = ({
 	setIsSuccessful,
 	setChainError,
 	setIsTransferFunds,
+	setTransactionHash,
 }) => {
 	const [isStashPopoverOpen, setIsStashPopoverOpen] = useState(false);
 
@@ -123,6 +124,7 @@ const TransferFunds = ({
 				setIsSuccessful={setIsSuccessful}
 				setChainError={setChainError}
 				setIsTransferFunds={setIsTransferFunds}
+				setTransactionHash={setTransactionHash}
 			/>
 			<div className="w-full max-w-65-rem flex flex-col items-center">
 				<div className="p-2 w-full">
@@ -222,6 +224,7 @@ const ConfirmTransfer = ({
 	setIsSuccessful,
 	setChainError,
 	setIsTransferFunds,
+	setTransactionHash,
 }) => {
 	const toast = useToast();
 	const [selectedControllerAccount, setSelectedControllerAccount] =
@@ -256,7 +259,7 @@ const ConfirmTransfer = ({
 				const transactionHash = get(hash, "message");
 				setLoaderError(false);
 				setTimeout(() => {
-					// setTransactionHash(transactionHash);
+					setTransactionHash(transactionHash);
 					setStakingEvent(
 						"Your transaction is sent to the network. Awaiting confirmation..."
 					);
@@ -271,6 +274,11 @@ const ConfirmTransfer = ({
 					position: "top-right",
 					isClosable: true,
 				});
+
+				setTimeout(() => {
+					setStakingLoading(false);
+				}, 2500);
+
 				if (failed === 0) {
 					setSuccessHeading("Wohoo!");
 					setStakingEvent(
@@ -279,7 +287,7 @@ const ConfirmTransfer = ({
 					setIsSuccessful(true);
 					setTimeout(() => {
 						setIsSuccessful(false);
-						// setTransactionHash(null);
+						setTransactionHash(null);
 					}, 5000);
 				}
 			},

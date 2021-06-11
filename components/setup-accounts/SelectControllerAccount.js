@@ -110,9 +110,10 @@ const SelectControllerAccount = ({
 	useEffect(() => {
 		const filteredAccounts = accounts.filter(
 			(account) =>
-				accountsBalances[account.address]?.freeBalance.gte(
-					apiInstance?.consts.balances.existentialDeposit
-				) &&
+				// allowing 0 balance accounts as a controller selection because low balances are being handled before proceeding to staking
+				// accountsBalances[account.address]?.freeBalance.gte(
+				// 	apiInstance?.consts.balances.existentialDeposit
+				// ) &&
 				!JSON.parse(
 					getFromLocalStorage(account?.substrateAddress, "isLedger")
 				) &&
@@ -129,7 +130,9 @@ const SelectControllerAccount = ({
 		JSON.stringify(accountsBalances),
 	]);
 
-	return (
+	return filteredAccounts &&
+		Object.keys(accountsBalances).length > 0 &&
+		Object.keys(accountsControllerStashInfo).length > 0 ? (
 		<div className="flex-1 w-full max-w-2xl flex flex-col text-gray-700 justify-center p-4 text-gray-700 space-y-6 mb-32">
 			{exisiting &&
 				isLedger &&
@@ -211,6 +214,10 @@ const SelectControllerAccount = ({
 					</BottomNextButton>
 				</div>
 			</div>
+		</div>
+	) : (
+		<div className="flex h-full w-full text-left text-gray-700 flex-col justify-center items-center">
+			<span className="loader"></span>
 		</div>
 	);
 };

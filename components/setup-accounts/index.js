@@ -7,10 +7,11 @@ import SetUpComplete from "./SetUpComplete";
 import NextSteps from "./NextSteps";
 import NewSetUp_AreYouUsingLedger from "./NewSetUp_AreYouUsingLedger";
 import NewSetUp_IdentifyLedgerAccounts from "./NewSetUp_IdentifyLedgerAccounts";
-import { useIsNewSetup, useSelectedNetwork } from "@lib/store";
+import { useAccounts, useIsNewSetup, useSelectedNetwork } from "@lib/store";
 import { getNetworkInfo } from "yieldscan.config";
 
 const SetupAccounts = () => {
+	const { accounts } = useAccounts();
 	const { isNewSetup, setIsNewSetup } = useIsNewSetup();
 	const [step, setStep] = useState(0);
 	const [usingLedger, setUsingLedger] = useState(false);
@@ -48,7 +49,7 @@ const SetupAccounts = () => {
 			/>
 		)
 	) : step === 0 ? (
-		<GettingStarted incrementStep={incrementStep} />
+		<GettingStarted incrementStep={incrementStep} accounts={accounts} />
 	) : step === 1 ? (
 		<AreYouUsingLedger
 			incrementStep={incrementStep}
