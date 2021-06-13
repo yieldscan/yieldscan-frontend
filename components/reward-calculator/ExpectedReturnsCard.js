@@ -8,6 +8,7 @@ import {
 	PopoverArrow,
 } from "@chakra-ui/core";
 import CountUp from "react-countup";
+import { useCoinGeckoPriceUSD } from "@lib/store";
 
 const ResultCardInsight = ({
 	label,
@@ -52,14 +53,13 @@ const ResultCardInsight = ({
 );
 
 const ExpectedReturnsCard = ({ result, networkInfo }) => {
+	const { coinGeckoPriceUSD } = useCoinGeckoPriceUSD();
 	const returns = {
 		currency: get(result, "returns.currency"),
-		subCurrency: get(result, "returns.subCurrency"),
 	};
 
 	const portfolio = {
 		currency: get(result, "portfolioValue.currency"),
-		subCurrency: get(result, "portfolioValue.subCurrency"),
 	};
 
 	return (
@@ -82,7 +82,7 @@ const ExpectedReturnsCard = ({ result, networkInfo }) => {
 							}
 							supportValue={
 								<CountUp
-									end={returns.subCurrency || 0}
+									end={returns.currency * coinGeckoPriceUSD || 0}
 									duration={0.5}
 									decimals={2}
 									separator=","
@@ -122,7 +122,7 @@ const ExpectedReturnsCard = ({ result, networkInfo }) => {
 							}
 							supportValue={
 								<CountUp
-									end={portfolio.subCurrency || 0}
+									end={portfolio.currency * coinGeckoPriceUSD || 0}
 									duration={0.5}
 									decimals={2}
 									separator=","
