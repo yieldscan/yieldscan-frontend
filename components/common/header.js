@@ -248,9 +248,13 @@ const Header = ({ isBase, isSetUp }) => {
 		if (stakingInfo?.accountId.toString() !== selectedAccount?.address) {
 			setControllerAccount(null);
 		}
-		const account = stakingInfo?.controllerId
+		const account = accountsStakingInfo[selectedAccount?.address]?.controllerId
 			? accounts?.filter(
-					(account) => account.address === stakingInfo?.controllerId.toString()
+					(account) =>
+						account.address ===
+						accountsStakingInfo[
+							selectedAccount?.address
+						]?.controllerId.toString()
 			  )[0]
 			: isNil(
 					window?.localStorage.getItem(
@@ -268,7 +272,11 @@ const Header = ({ isBase, isSetUp }) => {
 						)
 			  )[0];
 		setControllerAccount(account);
-	}, [selectedAccount?.address, JSON.stringify(stakingInfo)]);
+	}, [
+		selectedAccount?.address,
+		JSON.stringify(stakingInfo),
+		JSON.stringify(accountsStakingInfo),
+	]);
 
 	useEffect(() => {
 		setControllerBalances(accountsBalances[controllerAccount?.address]);

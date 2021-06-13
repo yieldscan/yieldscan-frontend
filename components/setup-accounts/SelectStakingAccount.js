@@ -1,13 +1,6 @@
 import { useEffect, useState } from "react";
 import { isNil } from "lodash";
 import {
-	useAccounts,
-	useAccountsBalances,
-	useSelectedAccount,
-	useAccountsControllerStashInfo,
-	usePolkadotApi,
-} from "@lib/store";
-import {
 	Alert,
 	AlertDescription,
 	AlertIcon,
@@ -21,24 +14,28 @@ import {
 	NextButtonContent,
 } from "./BottomButton";
 import PopoverAccountSelection from "../common/PopoverAccountSelection";
+import InsufficientBalanceAlert from "./InsufficientBalanceAlert";
 
 const SelectStakingAccount = ({
 	decrementCurrentStep,
 	incrementCurrentStep,
 	networkInfo,
+	accounts,
+	accountsBalances,
+	setSelectedAccount,
+	apiInstance,
+	accountsControllerStashInfo,
+	selectedAccount,
 }) => {
-	const { apiInstance } = usePolkadotApi();
-	const { accounts } = useAccounts();
-	const { accountsBalances } = useAccountsBalances();
-	const { selectedAccount, setSelectedAccount } = useSelectedAccount();
-	const { accountsControllerStashInfo } = useAccountsControllerStashInfo();
 	const [isStashPopoverOpen, setIsStashPopoverOpen] = useState(false);
 
 	const [filteredAccounts, setFilteredAccounts] = useState(null);
+	const [selected, setSelected] = useState(() =>
+		selectedAccount ? selectedAccount : null
+	);
 
 	const handleOnClick = (account) => {
-		setSelectedAccount(account);
-		addToLocalStorage(networkInfo.network, "selectedAccount", account.address);
+		setSelected(account);
 		setIsStashPopoverOpen(false);
 	};
 
@@ -55,12 +52,17 @@ const SelectStakingAccount = ({
 	useEffect(() => {
 		const filteredAccounts = accounts.filter(
 			(account) =>
-				accountsBalances[account.address]?.freeBalance.gte(
-					apiInstance?.consts.balances.existentialDeposit
-				) &&
-				(!accountsControllerStashInfo[account.address]?.isController ||
-					accountsControllerStashInfo[account.address]?.isSameStashController)
+				// accountsBalances[account.address]?.freeBalance.gte(
+				// 	apiInstance?.consts.balances.existentialDeposit
+				// ) &&
+				!accountsControllerStashInfo[account.address]?.isController ||
+				accountsControllerStashInfo[account.address]?.isSameStashController
 		);
+		filteredAccounts.map((account) => {
+			account.disabledSelection = accountsBalances[
+				account.address
+			]?.freeBalance.lte(apiInstance?.consts.balances.existentialDeposit);
+		});
 		setFilteredAccounts(filteredAccounts);
 	}, [
 		JSON.stringify(accounts),
@@ -85,13 +87,14 @@ const SelectStakingAccount = ({
 						{filteredAccounts.length === 0 && (
 							<NoElligibleAccounts networkInfo={networkInfo} />
 						)}
+						{selected?.disabledSelection && <InsufficientBalanceAlert />}
 						<PopoverAccountSelection
 							accounts={filteredAccounts}
 							accountsBalances={accountsBalances}
 							isStashPopoverOpen={isStashPopoverOpen}
 							setIsStashPopoverOpen={setIsStashPopoverOpen}
 							networkInfo={networkInfo}
-							selectedAccount={selectedAccount}
+							selectedAccount={selected}
 							onClick={handleOnClick}
 							isSetUp={true}
 							disabled={filteredAccounts.length === 0}
@@ -110,8 +113,16 @@ const SelectStakingAccount = ({
 				</div>
 				<div>
 					<BottomNextButton
-						onClick={() => incrementCurrentStep()}
-						disabled={isNil(selectedAccount)}
+						onClick={() => {
+							addToLocalStorage(
+								networkInfo.network,
+								"selectedAccount",
+								selected?.address
+							);
+							setSelectedAccount(selected);
+							incrementCurrentStep();
+						}}
+						disabled={isNil(selected) || selected?.disabledSelection}
 					>
 						<NextButtonContent />
 					</BottomNextButton>

@@ -1,27 +1,19 @@
 import { ChevronLeft } from "react-feather";
 import { useRouter } from "next/router";
 import SelectAccount from "../wallet-connect/SelectAccount";
-import {
-	useAccounts,
-	useAccountsBalances,
-	useAccountsControllerStashInfo,
-	usePolkadotApi,
-	useSelectedAccount,
-	useSelectedNetwork,
-} from "@lib/store";
-import { getNetworkInfo } from "yieldscan.config";
 import addToLocalStorage from "lib/addToLocalStorage";
 import { useEffect, useState } from "react";
 
-const NotUsingLedger = ({ incrementStep, decrementStep }) => {
+const NotUsingLedger = ({
+	decrementStep,
+	networkInfo,
+	accounts,
+	accountsBalances,
+	accountsControllerStashInfo,
+	setSelectedAccount,
+	apiInstance,
+}) => {
 	const router = useRouter();
-	const { setSelectedAccount } = useSelectedAccount();
-	const { accounts } = useAccounts();
-	const { apiInstance } = usePolkadotApi();
-	const { selectedNetwork } = useSelectedNetwork();
-	const { accountsBalances } = useAccountsBalances();
-	const { accountsControllerStashInfo } = useAccountsControllerStashInfo();
-	const networkInfo = getNetworkInfo(selectedNetwork);
 	const onAccountSelected = (account) => {
 		setSelectedAccount(account);
 		addToLocalStorage(networkInfo.network, "selectedAccount", account.address);

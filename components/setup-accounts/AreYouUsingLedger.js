@@ -9,12 +9,11 @@ const AreYouUsingLedger = ({
 	incrementStep,
 	decrementStep,
 	setUsingLedger,
+	accounts,
+	walletType,
+	setWalletType,
 }) => {
-	const { accounts } = useAccounts();
-	const { selectedNetwork } = useSelectedNetwork();
-	const { walletType, setWalletType } = useWalletType();
 	const [showLedgerInfo, setShowLedgerInfo] = useState(false);
-	const networkInfo = getNetworkInfo(selectedNetwork);
 	const handleOnClickNext = () => {
 		accounts?.map((account) => {
 			addToLocalStorage(account.substrateAddress, "isLedger", false);

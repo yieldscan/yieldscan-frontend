@@ -7,16 +7,35 @@ import SetUpComplete from "./SetUpComplete";
 import NextSteps from "./NextSteps";
 import NewSetUp_AreYouUsingLedger from "./NewSetUp_AreYouUsingLedger";
 import NewSetUp_IdentifyLedgerAccounts from "./NewSetUp_IdentifyLedgerAccounts";
-import { useAccounts, useIsNewSetup, useSelectedNetwork } from "@lib/store";
+import {
+	useAccounts,
+	useAccountsBalances,
+	useAccountsControllerStashInfo,
+	useAccountsStakingInfo,
+	useIsNewSetup,
+	usePolkadotApi,
+	useSelectedAccount,
+	useSelectedAccountInfo,
+	useSelectedNetwork,
+	useWalletType,
+} from "@lib/store";
 import { getNetworkInfo } from "yieldscan.config";
 
 const SetupAccounts = () => {
 	const { accounts } = useAccounts();
+	const { walletType, setWalletType } = useWalletType();
 	const { isNewSetup, setIsNewSetup } = useIsNewSetup();
+	const { selectedNetwork } = useSelectedNetwork();
+	const { selectedAccount, setSelectedAccount } = useSelectedAccount();
+	const { apiInstance } = usePolkadotApi();
+	const { accountsBalances } = useAccountsBalances();
+	const { accountsStakingInfo } = useAccountsStakingInfo();
+	const { accountsControllerStashInfo } = useAccountsControllerStashInfo();
+	const { balances, stakingInfo } = useSelectedAccountInfo();
+	const networkInfo = getNetworkInfo(selectedNetwork);
+
 	const [step, setStep] = useState(0);
 	const [usingLedger, setUsingLedger] = useState(false);
-	const { selectedNetwork } = useSelectedNetwork();
-	const networkInfo = getNetworkInfo(selectedNetwork);
 
 	const incrementStep = () => setStep((step) => step + 1);
 	const decrementStep = () => setStep((step) => step - 1);
@@ -55,16 +74,36 @@ const SetupAccounts = () => {
 			incrementStep={incrementStep}
 			decrementStep={decrementStep}
 			setUsingLedger={(info) => setUsingLedger(info)}
+			accounts={accounts}
+			walletType={walletType}
+			setWalletType={setWalletType}
 		/>
 	) : step === 2 ? (
 		usingLedger ? (
 			<UsingLedger
 				incrementStep={incrementStep}
 				decrementStep={decrementStep}
+				networkInfo={networkInfo}
+				setSelectedAccount={setSelectedAccount}
+				accounts={accounts}
+				selectedAccount={selectedAccount}
+				accountsBalances={accountsBalances}
+				apiInstance={apiInstance}
+				accountsStakingInfo={accountsStakingInfo}
+				accountsControllerStashInfo={accountsControllerStashInfo}
+				balances={balances}
+				stakingInfo={stakingInfo}
+				walletType={walletType}
+				setWalletType={setWalletType}
 			/>
 		) : (
 			<NotUsingLedger
-				incrementStep={incrementStep}
+				accounts={accounts}
+				setSelectedAccount={setSelectedAccount}
+				networkInfo={networkInfo}
+				apiInstance={apiInstance}
+				accountsBalances={accountsBalances}
+				accountsControllerStashInfo={accountsControllerStashInfo}
 				decrementStep={decrementStep}
 			/>
 		)
