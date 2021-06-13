@@ -26,7 +26,6 @@ import {
 	useAccountsStakingInfo,
 	usePolkadotApi,
 	useIsNewSetup,
-	useControllerAccountInfo,
 	useSelectedAccountInfo,
 } from "@lib/store";
 import { PaymentPopover } from "@components/new-payment";
@@ -95,6 +94,9 @@ const RewardCalculatorPage = () => {
 	const { isInElection } = useNetworkElection();
 	const { setIsNewSetup } = useIsNewSetup();
 
+	const { accountsStakingInfo } = useAccountsStakingInfo();
+	const { accountsBalances } = useAccountsBalances();
+
 	const { isLowBalanceOpen, toggleIsLowBalanceOpen } = useLowBalancePopover();
 	const [loading, setLoading] = useState(false);
 	const [amount, setAmount] = useState(transactionState.stakingAmount || 1000);
@@ -117,7 +119,81 @@ const RewardCalculatorPage = () => {
 
 	const { balances, stakingInfo } = useSelectedAccountInfo();
 	const [simulationChecked, setSimulationChecked] = useState(false);
-	const { controllerAccount, controllerBalances } = useControllerAccountInfo();
+	const [controllerAccount, setControllerAccount] = useState(() =>
+		accountsStakingInfo[selectedAccount?.address]?.controllerId
+			? accounts?.filter(
+					(account) =>
+						account.address ===
+						accountsStakingInfo[
+							selectedAccount?.address
+						]?.controllerId.toString()
+			  )[0]
+			: isNil(
+					window?.localStorage.getItem(
+						selectedAccount?.address + networkInfo.network + "Controller"
+					)
+			  )
+			? walletType[selectedAccount?.substrateAddress]
+				? null
+				: selectedAccount
+			: accounts?.filter(
+					(account) =>
+						account.address ===
+						window?.localStorage.getItem(
+							selectedAccount?.address + networkInfo.network + "Controller"
+						)
+			  )[0]
+	);
+
+	useEffect(() => {
+		if (stakingInfo?.accountId.toString() !== selectedAccount?.address) {
+			setControllerAccount(null);
+		}
+		const account = accountsStakingInfo[selectedAccount?.address]?.controllerId
+			? accounts?.filter(
+					(account) =>
+						account.address ===
+						accountsStakingInfo[
+							selectedAccount?.address
+						]?.controllerId.toString()
+			  )[0]
+			: isNil(
+					window?.localStorage.getItem(
+						selectedAccount?.address + networkInfo.network + "Controller"
+					)
+			  )
+			? walletType[selectedAccount?.substrateAddress]
+				? null
+				: selectedAccount
+			: accounts?.filter(
+					(account) =>
+						account.address ===
+						window?.localStorage.getItem(
+							selectedAccount?.address + networkInfo.network + "Controller"
+						)
+			  )[0];
+		setControllerAccount(account);
+	}, [
+		selectedAccount?.address,
+		JSON.stringify(stakingInfo),
+		JSON.stringify(accountsStakingInfo),
+	]);
+
+	const [controllerBalances, setControllerBalances] = useState(
+		() => accountsBalances[controllerAccount?.address]
+	);
+
+	useEffect(() => {
+		if (stakingInfo?.accountId.toString() !== selectedAccount?.address) {
+			setControllerBalances(null);
+		}
+		setControllerBalances(accountsBalances[controllerAccount?.address]);
+	}, [
+		controllerAccount?.address,
+		selectedAccount?.address,
+		JSON.stringify(stakingInfo),
+		JSON.stringify(accountsBalances[controllerAccount?.address]),
+	]);
 
 	const toStaking = async () => {
 		updateTransactionState(Events.INTENT_STAKING);
@@ -137,7 +213,10 @@ const RewardCalculatorPage = () => {
 	};
 
 	const toSetUpAccounts = () => {
-		if (!Object.values(walletType).every((value) => value === null)) {
+		if (
+			!Object.values(walletType).every((value) => value === null) &&
+			Object.values(walletType).includes(null)
+		) {
 			setIsNewSetup(true);
 		}
 		router.push("/setup-accounts");

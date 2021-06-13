@@ -15,7 +15,6 @@ import {
 	useAccountsBalances,
 	useSelectedAccount,
 	useSelectedAccountInfo,
-	useControllerAccountInfo,
 	useAccountsStakingInfo,
 	useAccountsStakingLedgerInfo,
 	useAccountsControllerStashInfo,
@@ -121,13 +120,6 @@ const Header = ({ isBase, isSetUp }) => {
 		stakingLedgerInfo,
 		setStakingLedgerInfo,
 	} = useSelectedAccountInfo();
-	const {
-		controllerAccount,
-		setControllerAccount,
-		setControllerBalances,
-		controllerBalances,
-		setControllerStakingInfo,
-	} = useControllerAccountInfo();
 	const [filteredAccounts, setFilteredAccounts] = useState(null);
 
 	const [isStashPopoverOpen, setIsStashPopoverOpen] = useState(false);
@@ -243,47 +235,6 @@ const Header = ({ isBase, isSetUp }) => {
 	useEffect(() => {
 		setStakingLedgerInfo(accountsStakingLedgerInfo[selectedAccount?.address]);
 	}, [selectedAccount?.address, JSON.stringify(accountsStakingLedgerInfo)]);
-
-	useEffect(() => {
-		if (stakingInfo?.accountId.toString() !== selectedAccount?.address) {
-			setControllerAccount(null);
-		}
-		const account = accountsStakingInfo[selectedAccount?.address]?.controllerId
-			? accounts?.filter(
-					(account) =>
-						account.address ===
-						accountsStakingInfo[
-							selectedAccount?.address
-						]?.controllerId.toString()
-			  )[0]
-			: isNil(
-					window?.localStorage.getItem(
-						selectedAccount?.address + networkInfo.network + "Controller"
-					)
-			  )
-			? walletType[selectedAccount?.substrateAddress]
-				? null
-				: selectedAccount
-			: accounts?.filter(
-					(account) =>
-						account.address ===
-						window?.localStorage.getItem(
-							selectedAccount?.address + networkInfo.network + "Controller"
-						)
-			  )[0];
-		setControllerAccount(account);
-	}, [
-		selectedAccount?.address,
-		JSON.stringify(stakingInfo),
-		JSON.stringify(accountsStakingInfo),
-	]);
-
-	useEffect(() => {
-		setControllerBalances(accountsBalances[controllerAccount?.address]);
-	}, [
-		controllerAccount?.address,
-		JSON.stringify(accountsBalances[controllerAccount?.address]),
-	]);
 
 	return (
 		<div
