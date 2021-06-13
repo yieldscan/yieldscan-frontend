@@ -204,11 +204,11 @@ const Header = ({ isBase, isSetUp }) => {
 		) {
 			const filteredAccounts = accounts.filter(
 				(account) =>
-					accountsBalances[account.address]?.freeBalance.gte(
-						apiInstance?.consts.balances.existentialDeposit
-					) &&
-					(!accountsControllerStashInfo[account.address]?.isController ||
-						accountsControllerStashInfo[account.address]?.isSameStashController)
+					// accountsBalances[account.address]?.freeBalance.gte(
+					// 	apiInstance?.consts.balances.existentialDeposit
+					// ) &&
+					!accountsControllerStashInfo[account.address]?.isController ||
+					accountsControllerStashInfo[account.address]?.isSameStashController
 			);
 			setFilteredAccounts(filteredAccounts);
 		}

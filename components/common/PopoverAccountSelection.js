@@ -101,11 +101,12 @@ const PopoverAccountSelection = ({
 				maxWidth="20rem"
 				backgroundColor="gray.700"
 				border="none"
+				maxHeight="18rem"
 			>
 				<p className="text-white text-xxs tracking-widest pt-2 pl-2">
 					ACCOUNTS
 				</p>
-				<div className="flex flex-col justify-center my-2 text-white w-full">
+				<div className="flex flex-col justify-center my-2 text-white w-full overflow-y-scroll">
 					{accounts
 						.filter((account) => account.address !== selectedAccount?.address)
 						.map((account) => (
