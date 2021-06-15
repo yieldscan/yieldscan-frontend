@@ -63,7 +63,23 @@ export const getNetworkInfo = (networkName) => {
 };
 
 export const getAllNetworksInfo = () => {
-	return networks;
+	const supportedNetworks = networks.filter(
+		(network) =>
+			JSON.parse(process.env.NEXT_PUBLIC_TESTNETS_ENABLED) ||
+			!network.isTestNetwork
+	);
+	return supportedNetworks;
+};
+
+export const getAllNetworks = () => {
+	const supportedNetworks = networks
+		.filter(
+			(network) =>
+				JSON.parse(process.env.NEXT_PUBLIC_TESTNETS_ENABLED) ||
+				!network.isTestNetwork
+		)
+		.map((network) => network.name);
+	return supportedNetworks;
 };
 
 export const network = networks.find(({ name }) => name === selectedNetwork);
