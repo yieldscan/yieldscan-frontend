@@ -233,7 +233,7 @@ const Overview = () => {
 				type={fundsUpdateModalType}
 				nominations={allNominations}
 				selectedAccount={selectedAccount}
-				balances={balances}
+				balance={balances}
 				stakingInfo={stakingInfo}
 				networkInfo={networkInfo}
 			/>

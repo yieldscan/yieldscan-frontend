@@ -281,7 +281,7 @@ const FundsUpdate = withSlideIn(
 			updateFunds(
 				type,
 				selectedAccount?.address,
-				stakingInfo.controllerId.toString(),
+				stakingInfo?.controllerId?.toString(),
 				amount,
 				apiInstance,
 				handlers,
@@ -376,7 +376,7 @@ const FundsUpdate = withSlideIn(
 														>
 															Available Balance:{" "}
 															{formatCurrency.methods.formatAmount(
-																balance.availableBalance,
+																balance?.availableBalance,
 																networkInfo
 															)}
 														</span>

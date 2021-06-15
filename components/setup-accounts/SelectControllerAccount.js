@@ -20,13 +20,17 @@ import {
 	ModalHeader,
 	Spinner,
 	useToast,
+	Divider,
 	Button,
 	ModalFooter,
 } from "@chakra-ui/core";
+import formatCurrency from "@lib/format-currency";
 import getFromLocalStorage from "@lib/getFromLocalStorage";
 import editController from "@lib/polkadot/edit-controller";
 import InsufficientBalanceAlert from "./InsufficientBalanceAlert";
 import Account from "@components/wallet-connect/Account";
+import { HelpPopover } from "@components/reward-calculator";
+import { decodeAddress, encodeAddress } from "@polkadot/util-crypto";
 
 const SelectControllerAccount = ({
 	decrementCurrentStep,
@@ -175,6 +179,7 @@ const SelectControllerAccount = ({
 		<div className="flex-1 w-full max-w-2xl flex flex-col text-gray-700 justify-center p-4 text-gray-700 space-y-6 mb-32">
 			{controllerAccount &&
 				isLedger &&
+				selected &&
 				controllerAccount.address === selectedAccount.address && (
 					<EditControllerModal
 						isOpen={isOpen}
@@ -365,6 +370,8 @@ const EditControllerModal = ({
 	const [isStashPopoverOpen, setIsStashPopoverOpen] = useState(false);
 	const [loading, setLoading] = useState(false);
 
+	const [transactionFee, setTransactionFee] = useState(0);
+
 	const handleOnClickCancel = (account) => {
 		setLoading(false);
 		close();
@@ -373,7 +380,7 @@ const EditControllerModal = ({
 	const updateController = () => {
 		setLoading(true);
 		const stashId = selectedAccount?.address;
-		const newControllerId = selectedControllerAccount.address;
+		const newControllerId = selectedControllerAccount?.address;
 		editController(newControllerId, stashId, apiInstance, {
 			onEvent: ({ message }) => {
 				toast({
@@ -409,6 +416,24 @@ const EditControllerModal = ({
 			});
 		});
 	};
+
+	useEffect(() => {
+		const substrateStashId = encodeAddress(
+			decodeAddress(selectedAccount?.address),
+			42
+		);
+		const substrateControllerId = encodeAddress(
+			decodeAddress(selectedControllerAccount?.address),
+			42
+		);
+		apiInstance.tx.staking
+			.setController(substrateControllerId)
+			.paymentInfo(substrateStashId)
+			.then((info) => {
+				const fee = info.partialFee.toNumber();
+				setTransactionFee(fee);
+			});
+	}, [selectedAccount, selectedControllerAccount]);
 
 	return (
 		<Modal
@@ -465,6 +490,41 @@ const EditControllerModal = ({
 											}}
 											disabled={true}
 										/>
+									</div>
+									<div className="w-full px-4">
+										<div className="flex justify-between mt-4">
+											<div className="text-xs text-gray-700 flex items-center">
+												<p>Transaction Fee</p>
+												<HelpPopover
+													content={
+														<p className="text-xs text-white">
+															This fee is used to pay for the resources used for
+															processing the transaction on the blockchain
+															network. YieldScan doesn’t profit from this fee in
+															any way.
+														</p>
+													}
+												/>
+											</div>
+
+											<div className="flex flex-col">
+												{transactionFee !== 0 ? (
+													<div>
+														<p className="text-sm font-semibold text-right">
+															{formatCurrency.methods.formatAmount(
+																Math.trunc(transactionFee),
+																networkInfo
+															)}
+														</p>
+														{/* <p className="text-xs text-right text-gray-600">
+									${subFeeCurrency.toFixed(2)}
+								</p> */}
+													</div>
+												) : (
+													<Spinner />
+												)}
+											</div>
+										</div>
 									</div>
 									<div className="w-full mt-4">
 										<button

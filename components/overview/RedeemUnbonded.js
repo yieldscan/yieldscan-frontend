@@ -154,7 +154,7 @@ const RedeemUnbonded = withSlideIn(
 				},
 			};
 			redeemUnbonded(
-				selectedAccount?.address,
+				stakingInfo?.controllerId?.toString(),
 				api,
 				handlers,
 				networkInfo

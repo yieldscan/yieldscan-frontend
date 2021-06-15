@@ -72,7 +72,7 @@ const Validators = () => {
 	const { selectedNetwork } = useSelectedNetwork();
 	const networkInfo = getNetworkInfo(selectedNetwork);
 	const { accounts } = useAccounts();
-	const { toggle: toggleWalletConnect } = useWalletConnect();
+	const { toggle } = useWalletConnect();
 	const { selectedAccount } = useSelectedAccount();
 	const { accountsStakingInfo } = useAccountsStakingInfo();
 	const { accountsBalances } = useAccountsBalances();
