@@ -257,18 +257,12 @@ const WalletConnectPopover = ({ styles, networkInfo }) => {
 					accountsControllerStashInfo[account.address]?.isSameStashController
 			);
 			setFilteredAccounts(filteredAccounts);
-		}
+		} else setFilteredAccounts(null);
 	}, [
 		JSON.stringify(accounts),
 		JSON.stringify(accountsControllerStashInfo),
 		JSON.stringify(accountsBalances),
 	]);
-
-	useEffect(() => {
-		if (filteredAccounts) {
-			setFilteredAccounts(null);
-		}
-	}, [networkInfo.network]);
 
 	const onAccountSelected = async (account) => {
 		if (account) close();

@@ -19,6 +19,7 @@ import {
 	useSelectedAccount,
 	useAccountsBalances,
 	useAccountsStakingInfo,
+	useSelectedAccountInfo,
 } from "@lib/store";
 import { useWalletConnect } from "@components/wallet-connect";
 import { isNil } from "lodash";
@@ -48,8 +49,7 @@ const Overview = () => {
 	const { selectedAccount } = useSelectedAccount();
 	const { accountsBalances } = useAccountsBalances();
 	const { accountsStakingInfo } = useAccountsStakingInfo();
-	const [balance, setBalance] = useState();
-	const [stakingInfo, setStakingInfo] = useState();
+	const { balances, stakingInfo } = useSelectedAccountInfo();
 	const toast = useToast();
 	const [loading, setLoading] = useState(true);
 	const [nominationsLoading, setNominationsLoading] = useState(true); // work-around :(
@@ -87,16 +87,6 @@ const Overview = () => {
 		onToggle: toggleRedeemUnbonded,
 		onClose: closeRedeemUnbonded,
 	} = useDisclosure();
-
-	useEffect(() => {
-		if (balance) setBalance(null);
-		setBalance(accountsBalances[selectedAccount?.address]);
-	}, [selectedAccount, accountsBalances[selectedAccount?.address]]);
-
-	useEffect(() => {
-		if (stakingInfo) setStakingInfo(null);
-		setStakingInfo(accountsStakingInfo[selectedAccount?.address]);
-	}, [selectedAccount, accountsStakingInfo[selectedAccount?.address]]);
 
 	useEffect(() => {
 		if (selectedAccount?.address) {
@@ -179,7 +169,7 @@ const Overview = () => {
 				</button>
 			</div>
 		</div>
-	) : isNil(balance) || isNil(stakingInfo) ? (
+	) : isNil(balances) || isNil(stakingInfo) ? (
 		<div className="flex-center w-full h-full">
 			<div className="flex-center flex-col">
 				<Spinner size="xl" color="teal.500" thickness="4px" />
@@ -237,12 +227,13 @@ const Overview = () => {
 	) : (
 		<div className="py-10 w-full h-full">
 			<FundsUpdate
+				apiInstance={apiInstance}
 				isOpen={fundsUpdateModalOpen}
 				close={closeFundsUpdateModal}
 				type={fundsUpdateModalType}
 				nominations={allNominations}
 				selectedAccount={selectedAccount}
-				balance={balance}
+				balances={balances}
 				stakingInfo={stakingInfo}
 				networkInfo={networkInfo}
 			/>

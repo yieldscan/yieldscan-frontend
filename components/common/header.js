@@ -211,7 +211,7 @@ const Header = ({ isBase, isSetUp }) => {
 					accountsControllerStashInfo[account.address]?.isSameStashController
 			);
 			setFilteredAccounts(filteredAccounts);
-		}
+		} else setFilteredAccounts(null);
 	}, [
 		JSON.stringify(accounts),
 		JSON.stringify(accountsControllerStashInfo),
@@ -233,8 +233,15 @@ const Header = ({ isBase, isSetUp }) => {
 	}, [selectedAccount?.address, JSON.stringify(accountsStakingInfo)]);
 
 	useEffect(() => {
+		if (stakingInfo?.accountId.toString() !== selectedAccount?.address) {
+			setStakingLedgerInfo(null);
+		}
 		setStakingLedgerInfo(accountsStakingLedgerInfo[selectedAccount?.address]);
-	}, [selectedAccount?.address, JSON.stringify(accountsStakingLedgerInfo)]);
+	}, [
+		selectedAccount?.address,
+		stakingInfo,
+		JSON.stringify(accountsStakingLedgerInfo),
+	]);
 
 	return (
 		<div

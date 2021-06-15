@@ -28,6 +28,7 @@ const PopoverAccountSelection = ({
 			  "..." +
 			  selectedAccount?.meta.name.slice(-6)
 			: selectedAccount?.meta.name;
+
 	return (
 		<Popover
 			isOpen={isStashPopoverOpen}
@@ -103,60 +104,65 @@ const PopoverAccountSelection = ({
 				border="none"
 				maxHeight="18rem"
 			>
-				<p className="text-white text-xxs tracking-widest pt-2 pl-2">
-					ACCOUNTS
-				</p>
-				<div className="flex flex-col justify-center my-2 text-white w-full overflow-y-scroll">
-					{accounts
-						.filter((account) => account.address !== selectedAccount?.address)
-						.map((account) => (
-							<React.Fragment key={account.address}>
-								<button
-									className="flex items-center rounded px-4 py-2 w-full bg-gray-800 hover:bg-gray-700 hover:text-gray-200"
-									onClick={() => onClick(account)}
-								>
-									<Identicon address={account.address} size="32" />
-									<span className="flex flex-col items-start w-1/2 ml-2">
-										<span className="truncate w-full text-left pr-1">
-											{account.meta.name}
+				<div className="flex flex-col rounded-lg w-full overflow-y-scroll">
+					<div className="fixed w-full rounded-lg bg-gray-800  p-2 pl-2">
+						<p className="text-white text-xxs">ACCOUNTS</p>
+					</div>
+					{/* TODO: style fixes */}
+					<div className="pt-8 pb-2 rounded-lg text-white w-full">
+						{accounts
+							.filter((account) => account.address !== selectedAccount?.address)
+							.map((account) => (
+								<React.Fragment key={account.address}>
+									<button
+										className="flex items-center justify-center rounded px-4 py-2 w-full bg-gray-800 hover:bg-gray-700 hover:text-gray-200"
+										onClick={() => onClick(account)}
+									>
+										<Identicon address={account.address} size="32" />
+										<span className="flex flex-col items-start w-1/2 ml-2">
+											<span className="truncate w-full text-left pr-1">
+												{account.meta.name}
+											</span>
+											{accountsBalances[account.address] ? (
+												<p className="text-xs text-gray-500">
+													{formatCurrency.methods.formatAmount(
+														parseInt(
+															accountsBalances[account.address].freeBalance
+														) +
+															parseInt(
+																accountsBalances[account.address]
+																	.reservedBalance
+															),
+														networkInfo
+													)}{" "}
+													{formatCurrency.methods.formatAmount(
+														parseInt(
+															accountsBalances[account.address].freeBalance
+														) +
+															parseInt(
+																accountsBalances[account.address]
+																	.reservedBalance
+															),
+														networkInfo
+													) === "0" && get(networkInfo, "denom")}
+												</p>
+											) : (
+												<Skeleton>
+													<p>Loading...</p>
+												</Skeleton>
+											)}
 										</span>
-										{accountsBalances[account.address] ? (
-											<p className="text-xs text-gray-500">
-												{formatCurrency.methods.formatAmount(
-													parseInt(
-														accountsBalances[account.address].freeBalance
-													) +
-														parseInt(
-															accountsBalances[account.address].reservedBalance
-														),
-													networkInfo
-												)}{" "}
-												{formatCurrency.methods.formatAmount(
-													parseInt(
-														accountsBalances[account.address].freeBalance
-													) +
-														parseInt(
-															accountsBalances[account.address].reservedBalance
-														),
-													networkInfo
-												) === "0" && get(networkInfo, "denom")}
-											</p>
-										) : (
-											<Skeleton>
-												<p>Loading...</p>
-											</Skeleton>
-										)}
-									</span>
-									<span className="text-xs text-gray-500 w-1/2 text-right">
-										{account.address.slice(0, 6) +
-											"..." +
-											account.address.slice(-6)}
-									</span>
-								</button>
-								<hr className="border-gray-700" />
-							</React.Fragment>
-						))}
-					<hr className="border-gray-700" />
+										<span className="text-xs text-gray-500 w-1/2 text-right">
+											{account.address.slice(0, 6) +
+												"..." +
+												account.address.slice(-6)}
+										</span>
+									</button>
+									<hr className="border-gray-700" />
+								</React.Fragment>
+							))}
+						<hr className="border-gray-700" />
+					</div>
 				</div>
 			</PopoverContent>
 		</Popover>

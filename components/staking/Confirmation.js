@@ -47,13 +47,38 @@ const Confirmation = ({
 				decodeAddress(controllerAccount?.address),
 				42
 			);
-			apiInstance.tx.staking
-				.nominate(nominatedValidators)
-				.paymentInfo(substrateControllerId)
-				.then((info) => {
-					const fee = info.partialFee.toNumber();
-					setTransactionFee(fee);
-				});
+			const transactions = [];
+			const tranasactionType = stakingInfo?.stakingLedger.active.isEmpty
+				? "bond-and-nominate"
+				: "nominate";
+			if (tranasactionType === "bond-and-nominate") {
+				const amount = Math.trunc(
+					stakingAmount * 10 ** networkInfo.decimalPlaces
+				); // 12 decimal places
+				transactions.push(
+					apiInstance.tx.staking.bond(
+						substrateControllerId,
+						amount,
+						transactionState.rewardDestination
+					),
+					apiInstance.tx.staking.nominate(nominatedValidators)
+				);
+			} else if (tranasactionType === "nominate") {
+				transactions.push(apiInstance.tx.staking.nominate(nominatedValidators));
+			}
+
+			transactions.length > 0
+				? apiInstance.tx.utility
+						.batchAll(transactions)
+						.paymentInfo(substrateControllerId)
+						.then((info) => {
+							const fee = info.partialFee.toNumber();
+							setTransactionFee(fee);
+						})
+				: transactions[0].paymentInfo(substrateControllerId).then((info) => {
+						const fee = info.partialFee.toNumber();
+						setTransactionFee(fee);
+				  });
 		}
 	}, [stakingInfo]);
 

@@ -61,6 +61,82 @@ const Staking = () => {
 		() => accountsControllerStashInfo[selectedAccount?.address]
 	);
 
+	const [controllerAccount, setControllerAccount] = useState(() =>
+		accountsStakingInfo[selectedAccount?.address]?.controllerId
+			? accounts?.filter(
+					(account) =>
+						account.address ===
+						accountsStakingInfo[
+							selectedAccount?.address
+						]?.controllerId.toString()
+			  )[0]
+			: isNil(
+					window?.localStorage.getItem(
+						selectedAccount?.address + networkInfo.network + "Controller"
+					)
+			  )
+			? walletType[selectedAccount?.substrateAddress]
+				? null
+				: selectedAccount
+			: accounts?.filter(
+					(account) =>
+						account.address ===
+						window?.localStorage.getItem(
+							selectedAccount?.address + networkInfo.network + "Controller"
+						)
+			  )[0]
+	);
+
+	useEffect(() => {
+		if (stakingInfo?.accountId.toString() !== selectedAccount?.address) {
+			setControllerAccount(null);
+		}
+		const account = accountsStakingInfo[selectedAccount?.address]?.controllerId
+			? accounts?.filter(
+					(account) =>
+						account.address ===
+						accountsStakingInfo[
+							selectedAccount?.address
+						]?.controllerId.toString()
+			  )[0]
+			: isNil(
+					window?.localStorage.getItem(
+						selectedAccount?.address + networkInfo.network + "Controller"
+					)
+			  )
+			? walletType[selectedAccount?.substrateAddress]
+				? null
+				: selectedAccount
+			: accounts?.filter(
+					(account) =>
+						account.address ===
+						window?.localStorage.getItem(
+							selectedAccount?.address + networkInfo.network + "Controller"
+						)
+			  )[0];
+		setControllerAccount(account);
+	}, [
+		selectedAccount?.address,
+		JSON.stringify(stakingInfo),
+		JSON.stringify(accountsStakingInfo),
+	]);
+
+	const [controllerBalances, setControllerBalances] = useState(
+		() => accountsBalances[controllerAccount?.address]
+	);
+
+	useEffect(() => {
+		if (stakingInfo?.accountId.toString() !== selectedAccount?.address) {
+			setControllerBalances(null);
+		}
+		setControllerBalances(accountsBalances[controllerAccount?.address]);
+	}, [
+		controllerAccount?.address,
+		selectedAccount?.address,
+		JSON.stringify(stakingInfo),
+		JSON.stringify(accountsBalances[controllerAccount?.address]),
+	]);
+
 	const [stakingLoading, setStakingLoading] = useState(false);
 	const [successHeading, setSuccessHeading] = useState("Congratulations");
 	const [stakingEvent, setStakingEvent] = useState();
@@ -69,8 +145,6 @@ const Staking = () => {
 	const [isTransferFunds, setIsTransferFunds] = useState();
 	const [chainError, setChainError] = useState(false);
 	const [loaderError, setLoaderError] = useState(false);
-
-	const { controllerAccount, controllerBalances } = useControllerAccountInfo();
 
 	const updateTransactionData = (
 		stashId,
