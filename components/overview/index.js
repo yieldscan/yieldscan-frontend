@@ -20,6 +20,7 @@ import {
 	useAccountsBalances,
 	useAccountsStakingInfo,
 	useSelectedAccountInfo,
+	useWalletType,
 } from "@lib/store";
 import { useWalletConnect } from "@components/wallet-connect";
 import { isNil } from "lodash";
@@ -47,6 +48,7 @@ const Overview = () => {
 	const { apiInstance } = usePolkadotApi();
 	const { accounts, redeemableBalance } = useAccounts();
 	const { selectedAccount } = useSelectedAccount();
+	const { walletType } = useWalletType();
 	const { accountsBalances } = useAccountsBalances();
 	const { accountsStakingInfo } = useAccountsStakingInfo();
 	const { balances, stakingInfo } = useSelectedAccountInfo();
@@ -87,6 +89,16 @@ const Overview = () => {
 		onToggle: toggleRedeemUnbonded,
 		onClose: closeRedeemUnbonded,
 	} = useDisclosure();
+
+	const toSetUpAccounts = () => {
+		if (
+			!Object.values(walletType).every((value) => value === null) &&
+			Object.values(walletType).includes(null)
+		) {
+			setIsNewSetup(true);
+		}
+		router.push("/setup-accounts");
+	};
 
 	useEffect(() => {
 		if (selectedAccount?.address) {
@@ -163,9 +175,21 @@ const Overview = () => {
 				</span>
 				<button
 					className="border border-teal-500 text-teal-500 px-3 py-2 rounded-full"
-					onClick={toggle}
+					onClick={() =>
+						isNil(accounts)
+							? toggle()
+							: Object.keys(walletType).length === 0 ||
+							  Object.values(walletType).every((value) => value === null)
+							? toSetUpAccounts()
+							: toggle()
+					}
 				>
-					{isNil(accounts) ? "Connect Wallet" : "Select Account"}
+					{isNil(accounts)
+						? "Connect Wallet"
+						: Object.keys(walletType).length === 0 ||
+						  Object.values(walletType).every((value) => value === null)
+						? "Setup Accounts"
+						: "Select Account"}
 				</button>
 			</div>
 		</div>
