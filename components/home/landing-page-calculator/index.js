@@ -70,7 +70,7 @@ const LandingPageCalculator = ({ inputValue, setInputValue, networkInfo }) => {
 					setVol24H(data[networkInfo.coinGeckoDenom].usd_24h_vol);
 				});
 		}
-	});
+	}, [networkInfo.network]);
 
 	return (
 		<form

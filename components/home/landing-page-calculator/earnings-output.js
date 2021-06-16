@@ -163,7 +163,10 @@ const EarningsOutput = ({ inputValue, networkInfo }) => {
 						</p>
 						<p className="text-sm font-medium text-teal-500">
 							<CountUp
-								end={get(yearlyEarning, "returns.subCurrency") || 0}
+								end={
+									(get(yearlyEarning, "returns.currency") || 0) *
+									coinGeckoPriceUSD
+								}
 								duration={0.5}
 								decimals={2}
 								separator=","
@@ -198,7 +201,10 @@ const EarningsOutput = ({ inputValue, networkInfo }) => {
 						</p>
 						<p className="text-sm font-medium text-teal-500">
 							<CountUp
-								end={get(monthlyEarning, "returns.subCurrency") || 0}
+								end={
+									(get(monthlyEarning, "returns.currency") || 0) *
+									coinGeckoPriceUSD
+								}
 								duration={0.5}
 								decimals={2}
 								separator=","
@@ -233,7 +239,10 @@ const EarningsOutput = ({ inputValue, networkInfo }) => {
 						</p>
 						<p className="text-sm font-medium text-teal-500">
 							<CountUp
-								end={get(dailyEarning, "returns.subCurrency") || 0}
+								end={
+									(get(dailyEarning, "returns.currency") || 0) *
+									coinGeckoPriceUSD
+								}
 								duration={0.5}
 								decimals={2}
 								separator=","

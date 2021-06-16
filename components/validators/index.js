@@ -404,6 +404,7 @@ const Validators = () => {
 	};
 
 	const toSetUpAccounts = () => {
+		setIsNewSetup(false);
 		if (
 			!Object.values(walletType).every((value) => value === null) &&
 			Object.values(walletType).includes(null)
