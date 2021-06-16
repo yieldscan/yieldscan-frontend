@@ -184,10 +184,14 @@ const WalletConnectPopover = ({ styles, networkInfo }) => {
 	}, [state, networkInfo]);
 
 	useEffect(() => {
+		let timeoutId;
 		if (redirectToSetUp && accounts) {
-			close();
-			router.push("/setup-accounts");
+			timeoutId = setTimeout(() => {
+				close();
+				router.push("/setup-accounts");
+			}, 2500);
 		}
+		return () => timeoutId && clearTimeout(timeoutId);
 	}, [accounts, redirectToSetUp]);
 
 	useEffect(() => {
@@ -301,6 +305,8 @@ const WalletConnectPopover = ({ styles, networkInfo }) => {
 							? "What you should know"
 							: isNil(state)
 							? "Wallet Connect"
+							: state === "connected" && redirectToSetUp
+							? "Redirecting to setup accounts page"
 							: "Select Account"}
 					</h3>
 				</ModalHeader>
