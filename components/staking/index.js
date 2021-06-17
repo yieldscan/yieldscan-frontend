@@ -14,6 +14,7 @@ import {
 	useWalletType,
 	useControllerAccountInfo,
 	useSelectedAccountInfo,
+	useIsNewSetup,
 } from "@lib/store";
 import { useRouter } from "next/router";
 import { getNetworkInfo } from "yieldscan.config";
@@ -37,6 +38,7 @@ const Staking = () => {
 	const { apiInstance } = usePolkadotApi();
 	const networkInfo = getNetworkInfo(selectedNetwork);
 	const { selectedAccount } = useSelectedAccount();
+	const { setIsNewSetup } = useIsNewSetup();
 	const { transactionHash, setTransactionHash } = useTransactionHash();
 	const { setTransactionState, ...transactionState } = useTransaction();
 	const { accounts } = useAccounts();
@@ -441,6 +443,8 @@ const Staking = () => {
 					// 	setChainError(false);
 					// 	transact();
 					// }}
+					router={router}
+					setIsNewSetup={setIsNewSetup}
 					networkInfo={networkInfo}
 				/>
 			) : parseInt(controllerBalances?.availableBalance) <
