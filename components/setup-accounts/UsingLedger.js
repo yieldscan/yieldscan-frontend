@@ -81,6 +81,7 @@ const UsingLedger = ({
 					<Introduction
 						incrementCurrentStep={incrementCurrentStep}
 						decrementStep={decrementStep}
+						networkInfo={networkInfo}
 					/>
 				) : currentStep === 1 ? (
 					<IdentifyLedgerAccounts

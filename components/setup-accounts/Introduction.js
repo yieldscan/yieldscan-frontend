@@ -7,26 +7,27 @@ import {
 	NextButtonContent,
 } from "./BottomButton";
 import { useState } from "react";
+import startRamp from "@lib/startRamp";
 
-const begginerInfo = [
-	"Make sure you have at least 10 DOT in your main wallet",
+const begginerInfo = (networkInfo) => [
+	`Make sure you have at least 10 ${networkInfo.denom} in your main wallet`,
 	"Create a controller account using the PolkadotJS browser extension to securely manage your staking activities",
 	"Connect your ledger wallet through PolkadotJS",
 ];
 
-const MinAmountInfo = () => (
+const MinAmountInfo = ({ networkInfo }) => (
 	<div>
 		<p className="mt-4 text-xs text-gray-600">
-			We strongly advise you to have at least 10 DOTs in your staking wallet
-			before proceeding. Any amount smaller than this will end up in a net loss
-			for you, as you’ll end up paying more in transaction fees than you will
-			earn as reward.
+			We strongly advise you to have at least 10 {networkInfo.denom} in your
+			staking wallet before proceeding. Any amount smaller than this will end up
+			in a net loss for you, as you’ll end up paying more in transaction fees
+			than you will earn as reward.
 		</p>
 		<button
 			className="flex flex-row space-x-2 items-center rounded-lg font-medium p-3 border border-gray-700 mt-4"
-			// onClick={}
+			onClick={() => startRamp(networkInfo)}
 		>
-			<span>Get DOT</span>
+			<span>Get {networkInfo.denom}</span>
 			<ArrowUpRight size={18} />
 		</button>
 	</div>
@@ -91,9 +92,9 @@ const ControllerInfo = () => (
 	</div>
 );
 
-const ContentArr = ({ index }) => {
+const ContentArr = ({ index, networkInfo }) => {
 	return index === 0 ? (
-		<MinAmountInfo />
+		<MinAmountInfo networkInfo={networkInfo} />
 	) : index === 1 ? (
 		<ControllerInfo />
 	) : (
@@ -101,7 +102,7 @@ const ContentArr = ({ index }) => {
 	);
 };
 
-const Introduction = ({ decrementStep, incrementCurrentStep }) => {
+const Introduction = ({ decrementStep, incrementCurrentStep, networkInfo }) => {
 	const [infoIndex, setInfoIndex] = useState();
 	const [isOpen, setIsOpen] = useState(false);
 	const handleOnClick = (info) => {
@@ -125,7 +126,7 @@ const Introduction = ({ decrementStep, incrementCurrentStep }) => {
 			<div className="row-span-2 w-full h-64 max-h-12 overflow-y-scroll space-y-2">
 				<h2 className="text-xl font-semibold">Before you begin</h2>
 				<div className="w-full space-y-2">
-					{begginerInfo.map((info, index) => (
+					{begginerInfo(networkInfo).map((info, index) => (
 						<div key={index} className="grid grid-cols-10">
 							<div className="grid p-4">
 								<Check
@@ -149,7 +150,7 @@ const Introduction = ({ decrementStep, incrementCurrentStep }) => {
 									</div>
 								</button>
 								<Collapse isOpen={isOpen && infoIndex === index}>
-									<ContentArr index={index} />
+									<ContentArr index={index} networkInfo={networkInfo} />
 								</Collapse>
 							</div>
 						</div>
