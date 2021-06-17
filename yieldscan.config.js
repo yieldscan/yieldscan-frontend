@@ -15,7 +15,7 @@ export const networks = [
 		decimalPlaces: 10,
 		twitterUrl: "@Polkadot",
 		addressPrefix: 0,
-		nodeWs: "wss://rpc.polkadot.io",
+		nodeWs: "wss://polkadot.elara.patract.io",
 		erasPerDay: 1,
 		lockUpPeriod: 28,
 		minAmount: 1,
