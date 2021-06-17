@@ -1,8 +1,9 @@
 import { MetomicProvider } from "@metomic/react";
 import * as Sentry from "@sentry/node";
-import tawkTo from "tawkto-react";
+// import tawkTo from "tawkto-react";
 
 import { ThemeProvider, theme } from "@chakra-ui/core";
+import { IntercomProvider, useIntercom } from "react-use-intercom";
 import "../styles/index.scss";
 import { useEffect } from "react";
 
@@ -169,14 +170,17 @@ if (process.env.NEXT_PUBLIC_SENTRY_DSN) {
 }
 
 export default function YieldScanApp({ Component, pageProps, err }) {
-	useEffect(() => {
-		if (process.env.NEXT_PUBLIC_TAWK_PROP_ID)
-			tawkTo(process.env.NEXT_PUBLIC_TAWK_PROP_ID);
-	}, []);
+	// useEffect(() => {
+	// 	if (process.env.NEXT_PUBLIC_TAWK_PROP_ID)
+	// 		tawkTo(process.env.NEXT_PUBLIC_TAWK_PROP_ID);
+	// }, []);
+	const intercomAppId = process.env.NEXT_PUBLIC_INTERCOM_ID;
 	return (
 		<ThemeProvider theme={customTheme}>
 			<MetomicProvider projectId={process.env.NEXT_PUBLIC_METOMIC_PROJECT_ID}>
-				<Component {...pageProps} err={err} />
+				<IntercomProvider appId={intercomAppId} autoBoot={true}>
+					<Component {...pageProps} err={err} />
+				</IntercomProvider>
 			</MetomicProvider>
 		</ThemeProvider>
 	);
