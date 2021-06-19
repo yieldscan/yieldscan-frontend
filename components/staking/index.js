@@ -173,32 +173,6 @@ const Staking = () => {
 			});
 	};
 
-	// useEffect(() => {
-	// 	setLoading(false);
-	// 	// To prevent the user from switching accounts or networks while in the middle of the payment process
-	// 	setHeaderLoading(true);
-	// 	if (selectedAccount) {
-	// 		getTransactionFee(
-	// 			selectedAccount?.address,
-	// 			selectedAccount?.address,
-	// 			transactionState.stakingAmount,
-	// 			get(bondedAmount, "currency", 0),
-	// 			transactionState.rewardDestination,
-	// 			transactionState.selectedValidators.map((v) => v.stashId),
-	// 			apiInstance,
-	// 			networkInfo
-	// 		).then((info) => {
-	// 			setTransactionFee(info);
-	// 		});
-	// 	}
-	// }, []);
-
-	// useEffect(() => {
-	// 	if (transactionHash && isSuccessful) {
-	// 		setTimeout(() => router.push({ pathname: "/overview" }), 5000);
-	// 	}
-	// }, [transactionHash, isSuccessful]);
-
 	const transact = (transactionType) => {
 		if (["lock-funds", "bond-extra"].includes(transactionType)) {
 			setIsLockFunds(true);
@@ -206,19 +180,6 @@ const Staking = () => {
 		setIsTransferFunds(false);
 		setStakingLoading(true);
 		setTransactionHash(null);
-
-		// trackEvent(Events.INTENT_TRANSACTION, {
-		// 	transactionType: !!transactionState.stakingAmount ? "STAKE" : "NOMINATE",
-		// 	stakingAmount: get(transactionState, "stakingAmount"),
-		// 	riskPreference: get(transactionState, "riskPreference"),
-		// 	selectedValidators: map(
-		// 		get(transactionState, "selectedValidators"),
-		// 		(val) => get(val, "stashId")
-		// 	),
-		// 	numOfSelectedValidators: size(
-		// 		get(transactionState, "selectedValidators")
-		// 	),
-		// });
 
 		const handlers = {
 			onEvent: (eventInfo) => {
@@ -233,13 +194,6 @@ const Staking = () => {
 						"Your transaction is sent to the network. Awaiting confirmation..."
 					);
 				}, 750);
-				// trackEvent(Events.TRANSACTION_SENT, {
-				// 	hash: get(hash, "message"),
-				// 	url: `https://${get(
-				// 		networkInfo,
-				// 		"network"
-				// 	)}.subscan.io/block/${transactionHash}`,
-				// });
 			},
 			onFinish: (status, message, eventLogs, tranHash) => {
 				// status = 0 for success, anything else for error code
@@ -283,14 +237,6 @@ const Staking = () => {
 						tranHash,
 						true
 					);
-					// trackEvent(Events.TRANSACTION_SUCCESS, {
-					// 	stakingAmount: get(transactionState, "stakingAmount"),
-					// 	riskPreference: get(transactionState, "riskPreference"),
-					// 	successMessage: message,
-					// });
-					// To allow the user to switch accounts and networks after the payment process is complete
-					// setHeaderLoading(false);
-					// router.replace("/overview");
 				} else {
 					if (message !== "Cancelled") {
 						updateTransactionData(
@@ -302,13 +248,6 @@ const Staking = () => {
 							tranHash,
 							false
 						);
-						// trackEvent(Events.TRANSACTION_FAILED, {
-						// 	stakingAmount: get(transactionState, "stakingAmount"),
-						// 	riskPreference: get(transactionState, "riskPreference"),
-						// 	errorMessage: message,
-						// 	eventLogs,
-						// });
-
 						setStakingEvent("Transaction failed");
 						setLoaderError(true);
 
@@ -395,7 +334,7 @@ const Staking = () => {
 		controllerBalances &&
 		Object.keys(accountsBalances).length > 0 &&
 		Object.keys(accountsControllerStashInfo).length > 0 &&
-		Object.keys(accountsStakingInfo) ? (
+		Object.keys(accountsStakingInfo).length > 0 ? (
 		<div className="w-full h-full flex justify-center max-h-full">
 			{transactionHash && isSuccessful && !isLockFunds && !isTransferFunds && (
 				<canvas id="confetti-holder" className="absolute w-full"></canvas>

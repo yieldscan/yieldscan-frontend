@@ -78,32 +78,6 @@ const withDashboardLayout = (children, isSetUp) => {
 								: "max-w-screen-xl"
 						}`}
 					>
-						{showBetaMessage && (
-							<Alert
-								status="info"
-								color="blue.500"
-								rounded="lg"
-								mt={4}
-								fontSize="sm"
-								justifyContent="center"
-								flex
-							>
-								<AlertIcon />
-								This platform is currently in beta. Please proceed with
-								discretion.
-								<CloseButton
-									position="absolute"
-									right="8px"
-									top="8px"
-									onClick={() => {
-										setShowBetaMessage(false);
-										setCookie(null, "showBeta", "false", {
-											maxAge: 7 * 24 * 60 * 60,
-										});
-									}}
-								/>
-							</Alert>
-						)}
 						{children()}
 					</div>
 				</div>
