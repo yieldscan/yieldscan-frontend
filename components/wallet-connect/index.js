@@ -184,10 +184,14 @@ const WalletConnectPopover = ({ styles, networkInfo }) => {
 	}, [state, networkInfo]);
 
 	useEffect(() => {
+		let timeoutId;
 		if (redirectToSetUp && accounts) {
-			close();
-			router.push("/setup-accounts");
+			timeoutId = setTimeout(() => {
+				close();
+				router.push("/setup-accounts");
+			}, 2500);
 		}
+		return () => timeoutId && clearTimeout(timeoutId);
 	}, [accounts, redirectToSetUp]);
 
 	useEffect(() => {
@@ -250,25 +254,19 @@ const WalletConnectPopover = ({ styles, networkInfo }) => {
 		) {
 			const filteredAccounts = accounts.filter(
 				(account) =>
-					accountsBalances[account.address]?.freeBalance.gte(
-						apiInstance?.consts.balances.existentialDeposit
-					) &&
-					(!accountsControllerStashInfo[account.address]?.isController ||
-						accountsControllerStashInfo[account.address]?.isSameStashController)
+					// accountsBalances[account.address]?.freeBalance.gte(
+					// 	apiInstance?.consts.balances.existentialDeposit
+					// ) &&
+					!accountsControllerStashInfo[account.address]?.isController ||
+					accountsControllerStashInfo[account.address]?.isSameStashController
 			);
 			setFilteredAccounts(filteredAccounts);
-		}
+		} else setFilteredAccounts(null);
 	}, [
 		JSON.stringify(accounts),
 		JSON.stringify(accountsControllerStashInfo),
 		JSON.stringify(accountsBalances),
 	]);
-
-	useEffect(() => {
-		if (filteredAccounts) {
-			setFilteredAccounts(null);
-		}
-	}, [networkInfo.network]);
 
 	const onAccountSelected = async (account) => {
 		if (account) close();
@@ -307,6 +305,8 @@ const WalletConnectPopover = ({ styles, networkInfo }) => {
 							? "What you should know"
 							: isNil(state)
 							? "Wallet Connect"
+							: state === "connected" && redirectToSetUp
+							? "Redirecting to setup accounts page"
 							: "Select Account"}
 					</h3>
 				</ModalHeader>

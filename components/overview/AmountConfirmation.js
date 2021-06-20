@@ -138,7 +138,12 @@ const AmountConfirmation = ({
 								: formatCurrency.methods.formatAmount(0, networkInfo)}
 						</p>
 						<p className="text-xs text-right text-gray-600">
-							${Number(0).toFixed(2)}
+							$
+							{Number(
+								type === "bond" || type == "rebond"
+									? amount * coinGeckoPriceUSD
+									: 0
+							).toFixed(2)}
 						</p>
 					</div>
 				</div>

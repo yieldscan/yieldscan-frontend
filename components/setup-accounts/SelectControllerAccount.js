@@ -1,12 +1,4 @@
 import { useEffect, useState } from "react";
-import {
-	usePolkadotApi,
-	useAccounts,
-	useAccountsBalances,
-	useSelectedAccount,
-	useAccountsStakingInfo,
-	useAccountsControllerStashInfo,
-} from "@lib/store";
 import { isNil } from "lodash";
 import {
 	BottomBackButton,
@@ -28,42 +20,55 @@ import {
 	ModalHeader,
 	Spinner,
 	useToast,
+	Divider,
 	Button,
 	ModalFooter,
 } from "@chakra-ui/core";
+import formatCurrency from "@lib/format-currency";
 import getFromLocalStorage from "@lib/getFromLocalStorage";
 import editController from "@lib/polkadot/edit-controller";
+import InsufficientBalanceAlert from "./InsufficientBalanceAlert";
+import Account from "@components/wallet-connect/Account";
+import { HelpPopover } from "@components/reward-calculator";
+import { decodeAddress, encodeAddress } from "@polkadot/util-crypto";
 
 const SelectControllerAccount = ({
 	decrementCurrentStep,
-	incrementCurrentStep,
 	incrementStep,
 	networkInfo,
+	accounts,
+	accountsBalances,
+	apiInstance,
+	accountsStakingInfo,
+	accountsControllerStashInfo,
+	selectedAccount,
+	stakingInfo,
+	walletType,
+	isLedger,
 }) => {
-	const { apiInstance } = usePolkadotApi();
-	const { accounts } = useAccounts();
-	const { accountsBalances } = useAccountsBalances();
-	const { accountsStakingInfo } = useAccountsStakingInfo();
-	const { selectedAccount, setSelectedAccount } = useSelectedAccount();
-	const { accountsControllerStashInfo } = useAccountsControllerStashInfo();
-	const [isLedger, setIsLedger] = useState(() =>
-		JSON.parse(
-			getFromLocalStorage(selectedAccount?.substrateAddress, "isLedger")
-		)
-	);
 	const [isStashPopoverOpen, setIsStashPopoverOpen] = useState(false);
-	const [exisiting, setExisiting] = useState();
+
 	const [isOpen, setIsOpen] = useState(false);
 
 	const [filteredAccounts, setFilteredAccounts] = useState(null);
 
-	const [sessionController, setSessionController] = useState(() =>
-		isNil(
-			window?.localStorage.getItem(
-				selectedAccount?.address + networkInfo.network + "Controller"
-			)
-		)
-			? null
+	const [controllerAccount, setControllerAccount] = useState(() =>
+		accountsStakingInfo[selectedAccount?.address]?.controllerId
+			? accounts?.filter(
+					(account) =>
+						account.address ===
+						accountsStakingInfo[
+							selectedAccount?.address
+						]?.controllerId.toString()
+			  )[0]
+			: isNil(
+					window?.localStorage.getItem(
+						selectedAccount?.address + networkInfo.network + "Controller"
+					)
+			  )
+			? walletType[selectedAccount?.substrateAddress]
+				? null
+				: selectedAccount
 			: accounts?.filter(
 					(account) =>
 						account.address ===
@@ -73,8 +78,58 @@ const SelectControllerAccount = ({
 			  )[0]
 	);
 
+	useEffect(() => {
+		if (stakingInfo?.accountId.toString() !== selectedAccount?.address) {
+			setControllerAccount(null);
+		}
+		const account = accountsStakingInfo[selectedAccount?.address]?.controllerId
+			? accounts?.filter(
+					(account) =>
+						account.address ===
+						accountsStakingInfo[
+							selectedAccount?.address
+						]?.controllerId.toString()
+			  )[0]
+			: isNil(
+					window?.localStorage.getItem(
+						selectedAccount?.address + networkInfo.network + "Controller"
+					)
+			  )
+			? walletType[selectedAccount?.substrateAddress]
+				? null
+				: selectedAccount
+			: accounts?.filter(
+					(account) =>
+						account.address ===
+						window?.localStorage.getItem(
+							selectedAccount?.address + networkInfo.network + "Controller"
+						)
+			  )[0];
+		setControllerAccount(account);
+	}, [
+		selectedAccount?.address,
+		JSON.stringify(stakingInfo),
+		JSON.stringify(accountsStakingInfo),
+	]);
+
+	const [selected, setSelected] = useState(() =>
+		isLedger && controllerAccount?.address === selectedAccount?.address
+			? null
+			: controllerAccount
+	);
+
+	const [existing, setExisting] = useState(
+		() => !isNil(accountsStakingInfo[selectedAccount?.address]?.controllerId)
+	);
+
+	useEffect(() => {
+		setExisting(
+			() => !isNil(accountsStakingInfo[selectedAccount?.address]?.controllerId)
+		);
+	}, [selectedAccount, JSON.stringify(accountsStakingInfo)]);
+
 	const handleOnClick = (account) => {
-		setSessionController(account);
+		setSelected(account);
 		window?.localStorage.setItem(
 			selectedAccount?.address + networkInfo.network + "Controller",
 			account.address
@@ -83,36 +138,19 @@ const SelectControllerAccount = ({
 	};
 
 	const handleOnClickNext = () =>
-		exisiting
-			? exisiting.address === selectedAccount.address && isLedger
+		controllerAccount
+			? controllerAccount.address === selectedAccount.address && isLedger
 				? setIsOpen(true)
 				: incrementStep()
 			: incrementStep();
 
 	useEffect(() => {
-		setIsLedger(() =>
-			JSON.parse(
-				getFromLocalStorage(selectedAccount?.substrateAddress, "isLedger")
-			)
-		);
-	}, [selectedAccount?.address]);
-
-	useEffect(() => {
-		const controller =
-			accountsStakingInfo[selectedAccount?.address]?.controllerId?.toString();
-		const controllerInfo = controller
-			? accounts.filter((account) => account.address === controller)[0]
-			: controller;
-
-		setExisiting(controllerInfo);
-	}, [accountsStakingInfo[selectedAccount?.address]]);
-
-	useEffect(() => {
 		const filteredAccounts = accounts.filter(
 			(account) =>
-				accountsBalances[account.address]?.freeBalance.gte(
-					apiInstance?.consts.balances.existentialDeposit
-				) &&
+				// allowing 0 balance accounts as a controller selection because low balances are being handled before proceeding to staking
+				// accountsBalances[account.address]?.freeBalance.gte(
+				// 	apiInstance?.consts.balances.existentialDeposit
+				// ) &&
 				!JSON.parse(
 					getFromLocalStorage(account?.substrateAddress, "isLedger")
 				) &&
@@ -122,6 +160,11 @@ const SelectControllerAccount = ({
 		if (!isLedger) {
 			filteredAccounts?.push(selectedAccount);
 		}
+		filteredAccounts.map((account) => {
+			account.disabledSelection = accountsBalances[
+				account.address
+			]?.freeBalance.lte(apiInstance?.consts.balances.existentialDeposit);
+		});
 		setFilteredAccounts(filteredAccounts);
 	}, [
 		JSON.stringify(accounts),
@@ -129,13 +172,18 @@ const SelectControllerAccount = ({
 		JSON.stringify(accountsBalances),
 	]);
 
-	return (
+	return selectedAccount &&
+		filteredAccounts &&
+		Object.keys(accountsBalances).length > 0 &&
+		Object.keys(accountsControllerStashInfo).length > 0 ? (
 		<div className="flex-1 w-full max-w-2xl flex flex-col text-gray-700 justify-center p-4 text-gray-700 space-y-6 mb-32">
-			{exisiting &&
+			{controllerAccount &&
 				isLedger &&
-				exisiting.address === selectedAccount.address && (
+				selected &&
+				controllerAccount.address === selectedAccount.address && (
 					<EditControllerModal
 						isOpen={isOpen}
+						selectedControllerAccount={selected}
 						eligibleAccounts={filteredAccounts}
 						accountsBalances={accountsBalances}
 						networkInfo={networkInfo}
@@ -154,8 +202,8 @@ const SelectControllerAccount = ({
 				</p>
 			</div>
 			<div className="space-y-4">
-				{exisiting ? (
-					exisiting.address === selectedAccount?.address ? (
+				{existing ? (
+					controllerAccount?.address === selectedAccount?.address ? (
 						<SameStashControllerAlert />
 					) : (
 						<ExistingControllerAlert />
@@ -165,6 +213,7 @@ const SelectControllerAccount = ({
 						<NoElligibleControllerAccounts networkInfo={networkInfo} />
 					)
 				)}
+				{selected?.disabledSelection && <InsufficientBalanceAlert />}
 				{filteredAccounts && (
 					<PopoverAccountSelection
 						accounts={filteredAccounts}
@@ -172,15 +221,18 @@ const SelectControllerAccount = ({
 						isStashPopoverOpen={isStashPopoverOpen}
 						setIsStashPopoverOpen={setIsStashPopoverOpen}
 						networkInfo={networkInfo}
-						selectedAccount={
-							exisiting
-								? accounts.filter((account) => account === exisiting)[0]
-								: sessionController
-						}
+						selectedAccount={selected}
 						onClick={handleOnClick}
 						isSetUp={true}
 						disabled={
-							exisiting ? true : filteredAccounts.length !== 0 ? false : true
+							existing
+								? controllerAccount?.address === selectedAccount.address &&
+								  isLedger
+									? false
+									: true
+								: filteredAccounts.length !== 0
+								? false
+								: true
 						}
 					/>
 				)}
@@ -197,13 +249,14 @@ const SelectControllerAccount = ({
 				<div>
 					<BottomNextButton
 						onClick={() => handleOnClickNext()}
-						disabled={isNil(sessionController) && isNil(exisiting)}
+						disabled={isNil(selected) || selected?.disabledSelection}
 					>
 						<NextButtonContent
 							name={
-								exisiting
-									? exisiting.address === selectedAccount.address && isLedger
-										? "Change controller"
+								controllerAccount
+									? controllerAccount.address === selectedAccount.address &&
+									  isLedger
+										? "Confirm"
 										: "Done"
 									: "Done"
 							}
@@ -211,6 +264,10 @@ const SelectControllerAccount = ({
 					</BottomNextButton>
 				</div>
 			</div>
+		</div>
+	) : (
+		<div className="flex h-full w-full text-left text-gray-700 flex-col justify-center items-center">
+			<span className="loader"></span>
 		</div>
 	);
 };
@@ -228,7 +285,7 @@ const ExistingControllerAlert = () => (
 		<AlertIcon name="info-outline" color />
 		<div>
 			<AlertTitle fontWeight="medium" fontSize="sm">
-				{"Found an exisiting controller"}
+				{"Found an existing controller"}
 			</AlertTitle>
 			<AlertDescription fontSize="xs">
 				<p>
@@ -303,23 +360,19 @@ const EditControllerModal = ({
 	selectedAccount,
 	eligibleAccounts,
 	apiInstance,
+	selectedControllerAccount,
 	accountsBalances,
 	networkInfo,
 	close,
 	isOpen,
 }) => {
 	const toast = useToast();
-	const [selectedControllerAccount, setSelectedControllerAccount] =
-		useState(null);
 	const [isStashPopoverOpen, setIsStashPopoverOpen] = useState(false);
 	const [loading, setLoading] = useState(false);
-	const handleOnClick = (account) => {
-		setSelectedControllerAccount(account);
-		setIsStashPopoverOpen(false);
-	};
+
+	const [transactionFee, setTransactionFee] = useState(0);
 
 	const handleOnClickCancel = (account) => {
-		setSelectedControllerAccount(null);
 		setLoading(false);
 		close();
 	};
@@ -327,7 +380,7 @@ const EditControllerModal = ({
 	const updateController = () => {
 		setLoading(true);
 		const stashId = selectedAccount?.address;
-		const newControllerId = selectedControllerAccount.address;
+		const newControllerId = selectedControllerAccount?.address;
 		editController(newControllerId, stashId, apiInstance, {
 			onEvent: ({ message }) => {
 				toast({
@@ -363,6 +416,24 @@ const EditControllerModal = ({
 			});
 		});
 	};
+
+	useEffect(() => {
+		const substrateStashId = encodeAddress(
+			decodeAddress(selectedAccount?.address),
+			42
+		);
+		const substrateControllerId = encodeAddress(
+			decodeAddress(selectedControllerAccount?.address),
+			42
+		);
+		apiInstance.tx.staking
+			.setController(substrateControllerId)
+			.paymentInfo(substrateStashId)
+			.then((info) => {
+				const fee = info.partialFee.toNumber();
+				setTransactionFee(fee);
+			});
+	}, [selectedAccount, selectedControllerAccount]);
 
 	return (
 		<Modal
@@ -401,42 +472,79 @@ const EditControllerModal = ({
 						mr={4}
 					/>
 				)}
-				<ModalBody height="full" alignItems="center">
+				<ModalBody width="full" height="full" alignItems="center">
 					{eligibleAccounts.length > 0 ? (
 						!loading ? (
-							<div className="h-64 flex text-left text-gray-700 flex-col justify-center items-center">
-								<p className="w-full mb-2">Your controller:</p>
-								<PopoverAccountSelection
-									accounts={eligibleAccounts}
-									accountsBalances={accountsBalances}
-									isStashPopoverOpen={isStashPopoverOpen}
-									setIsStashPopoverOpen={setIsStashPopoverOpen}
-									networkInfo={networkInfo}
-									selectedAccount={selectedControllerAccount}
-									onClick={handleOnClick}
-									isSetUp={true}
-									// disabled={
-									// 	exisiting ? true : filteredAccounts.length !== 0 ? false : true
-									// }
-								/>
-								<div className="w-full mt-4">
+							<div className="h-64 w-full flex text-left text-gray-700 flex-col justify-center items-center">
+								<div className="w-full max-w-lg">
+									<p className="w-full mb-2">Your controller:</p>
+									<div className="w-full">
+										<Account
+											account={selectedControllerAccount}
+											balances={
+												accountsBalances[selectedControllerAccount?.address]
+											}
+											networkInfo={networkInfo}
+											onAccountSelected={() => {
+												return;
+											}}
+											disabled={true}
+										/>
+									</div>
+									<div className="w-full px-4">
+										<div className="flex justify-between mt-4">
+											<div className="text-xs text-gray-700 flex items-center">
+												<p>Transaction Fee</p>
+												<HelpPopover
+													content={
+														<p className="text-xs text-white">
+															This fee is used to pay for the resources used for
+															processing the transaction on the blockchain
+															network. YieldScan doesn’t profit from this fee in
+															any way.
+														</p>
+													}
+												/>
+											</div>
+
+											<div className="flex flex-col">
+												{transactionFee !== 0 ? (
+													<div>
+														<p className="text-sm font-semibold text-right">
+															{formatCurrency.methods.formatAmount(
+																Math.trunc(transactionFee),
+																networkInfo
+															)}
+														</p>
+														{/* <p className="text-xs text-right text-gray-600">
+									${subFeeCurrency.toFixed(2)}
+								</p> */}
+													</div>
+												) : (
+													<Spinner />
+												)}
+											</div>
+										</div>
+									</div>
+									<div className="w-full mt-4">
+										<button
+											className={`w-full rounded-lg min-w-32 font-medium p-3 bg-teal-500 text-white z-20 ${
+												!selectedControllerAccount &&
+												"cursor-not-allowed opacity-50"
+											}`}
+											onClick={updateController}
+											disabled={!selectedControllerAccount}
+										>
+											Set Controller
+										</button>
+									</div>
 									<button
-										className={`w-full rounded-lg min-w-32 font-medium p-3 bg-teal-500 text-white z-20 ${
-											!selectedControllerAccount &&
-											"cursor-not-allowed opacity-50"
-										}`}
-										onClick={updateController}
-										disabled={!selectedControllerAccount}
+										className="w-full rounded-lg min-w-32 text-gray-700 font-medium underline mt-4"
+										onClick={handleOnClickCancel}
 									>
-										Set Controller
+										Cancel
 									</button>
 								</div>
-								<button
-									className="w-full rounded-lg min-w-32 text-gray-700 font-medium underline mt-4"
-									onClick={handleOnClickCancel}
-								>
-									Cancel
-								</button>
 							</div>
 						) : (
 							<div className="h-64 flex text-left text-gray-700 flex-col justify-center items-center">

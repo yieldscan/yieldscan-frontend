@@ -22,14 +22,6 @@ const SocialProofStats = ({ networkInfo }) => {
 	const [nominatorsData, setNominatorsData] = React.useState([]);
 	const { setNomMinStake } = useNomMinStake();
 	const { coinGeckoPriceUSD } = useCoinGeckoPriceUSD();
-	const [
-		totalAmountStakedSubCurrency,
-		setTotalAmountStakedSubCurrency,
-	] = React.useState();
-	const [
-		totalRewardsSubCurrency,
-		setTotalRewardsSubCurrency,
-	] = React.useState();
 
 	React.useEffect(() => {
 		setLoading(true);
@@ -48,17 +40,6 @@ const SocialProofStats = ({ networkInfo }) => {
 			});
 	}, [networkInfo]);
 
-	React.useEffect(() => {
-		if (nominatorsData.stats) {
-			setTotalAmountStakedSubCurrency(
-				nominatorsData.stats.totalAmountStaked * coinGeckoPriceUSD
-			);
-			setTotalRewardsSubCurrency(
-				nominatorsData.stats.totalRewards * coinGeckoPriceUSD
-			);
-		}
-	}, [nominatorsData, networkInfo]);
-
 	return error ? (
 		<div className="flex-center flex-col mt-40">
 			<div className="text-4xl">🧐</div>
@@ -70,10 +51,12 @@ const SocialProofStats = ({ networkInfo }) => {
 		<div className="flex w-full max-w-65-rem mt-32 flex-wrap justify-between">
 			<StatCard
 				stat={
-					loading || isNaN(totalAmountStakedSubCurrency) ? (
+					loading || isNaN(nominatorsData.stats.totalAmountStaked) ? (
 						<Spinner />
 					) : (
-						`$ ${millify(totalAmountStakedSubCurrency)}+`
+						`$ ${millify(
+							nominatorsData.stats.totalAmountStaked * coinGeckoPriceUSD
+						)}+`
 					)
 				}
 				description={`Invested in staking on ${networkInfo.name}`}
@@ -105,10 +88,12 @@ const SocialProofStats = ({ networkInfo }) => {
 			/>
 			<StatCard
 				stat={
-					loading || isNaN(totalRewardsSubCurrency) ? (
+					loading || isNaN(nominatorsData.stats.totalRewards) ? (
 						<Spinner />
 					) : (
-						`$ ${millify(totalRewardsSubCurrency)}+`
+						`$ ${millify(
+							nominatorsData.stats.totalRewards * coinGeckoPriceUSD
+						)}+`
 					)
 				}
 				description="Earned as staking rewards"

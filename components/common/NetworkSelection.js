@@ -58,30 +58,26 @@ const NetworkSelection = ({
 					aria-orientation="vertical"
 					aria-labelledby="options-menu"
 				>
-					{supportedNetworksInfo.map((x) => {
-						if (process.env.NODE_ENV !== "production" || !x.isTestNetwork) {
-							return (
-								<button
-									key={x.name}
-									className={`flex items-center px-4 py-2 text-white text-sm leading-5 ${
-										selectedNetwork === x.name
-											? "cursor-default bg-gray-600"
-											: "hover:bg-gray-700 focus:bg-gray-700"
-									}  focus:outline-none w-full`}
-									role="menuitem"
-									onClick={() => switchNetwork(selectedNetwork, x.name)}
-								>
-									<Avatar
-										name={x.name}
-										src={`/images/${x.network}-logo.png`}
-										size="sm"
-										mr={2}
-									/>
-									<span>{x.name}</span>
-								</button>
-							);
-						} else return <></>;
-					})}
+					{supportedNetworksInfo.map((x) => (
+						<button
+							key={x.name}
+							className={`flex items-center px-4 py-2 text-white text-sm leading-5 ${
+								selectedNetwork === x.name
+									? "cursor-default bg-gray-600"
+									: "hover:bg-gray-700 focus:bg-gray-700"
+							}  focus:outline-none w-full`}
+							role="menuitem"
+							onClick={() => switchNetwork(selectedNetwork, x.name)}
+						>
+							<Avatar
+								name={x.name}
+								src={`/images/${x.network}-logo.png`}
+								size="sm"
+								mr={2}
+							/>
+							<span>{x.name}</span>
+						</button>
+					))}
 				</div>
 			</PopoverContent>
 		</Popover>

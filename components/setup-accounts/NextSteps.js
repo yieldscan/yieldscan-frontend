@@ -2,12 +2,12 @@ import { ArrowRight } from "react-feather";
 import { BottomNextButton } from "./BottomButton";
 import Image from "next/image";
 import { useRouter } from "next/router";
-import { useAccountsBalances, useSelectedAccount } from "@lib/store";
+import { useAccountsStakingInfo, useSelectedAccount } from "@lib/store";
 
 const NextSteps = () => {
 	const router = useRouter();
 	const { selectedAccount } = useSelectedAccount();
-	const { accountsStakingInfo } = useAccountsBalances();
+	const { accountsStakingInfo } = useAccountsStakingInfo();
 
 	return (
 		<div className="w-full h-full flex justify-center">
@@ -34,7 +34,8 @@ const NextSteps = () => {
 						</div>
 						<ArrowRight size={60} />
 						{accountsStakingInfo &&
-							accountsStakingInfo[selectedAccount?.address] && (
+							accountsStakingInfo[selectedAccount?.address]?.stakingLedger
+								?.active.isEmpty && (
 								<div className="flex flex-col w-full h-full items-center p-2 text-gray-700 space-y-6">
 									<Image
 										src="/images/money-withdraw.svg"
@@ -53,9 +54,8 @@ const NextSteps = () => {
 								</div>
 							)}
 						{accountsStakingInfo &&
-							accountsStakingInfo[selectedAccount?.address] && (
-								<ArrowRight size={60} />
-							)}
+							accountsStakingInfo[selectedAccount?.address]?.stakingLedger
+								?.active.isEmpty && <ArrowRight size={60} />}
 						<div className="flex flex-col w-full h-full items-center p-2 text-gray-700 space-y-6">
 							<Image
 								src="/images/coins.svg"

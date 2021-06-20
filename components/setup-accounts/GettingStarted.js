@@ -1,9 +1,11 @@
 import { ChevronLeft } from "react-feather";
 import Image from "next/image";
 import { useRouter } from "next/router";
+import { useWalletConnect } from "@components/wallet-connect";
 
-const GettingStrated = ({ incrementStep }) => {
+const GettingStrated = ({ incrementStep, accounts }) => {
 	const router = useRouter();
+	const { toggle } = useWalletConnect();
 	return (
 		<div className="w-full h-full flex justify-center">
 			<div className="w-full max-w-65-rem flex flex-col items-center">
@@ -34,9 +36,9 @@ const GettingStrated = ({ incrementStep }) => {
 					<div className="w-full text-center">
 						<button
 							className="rounded-lg w-full font-medium px-12 py-3 bg-teal-500 text-white"
-							onClick={incrementStep}
+							onClick={() => (accounts ? incrementStep() : toggle())}
 						>
-							Get Started
+							{accounts ? "Get Started" : "Connect Wallet"}
 						</button>
 					</div>
 				</div>

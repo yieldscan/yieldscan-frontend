@@ -11,6 +11,10 @@ import {
 	useAccountsStakingInfo,
 	useAccountsStakingLedgerInfo,
 	useAccountsControllerStashInfo,
+	useWalletType,
+	useControllerAccountInfo,
+	useSelectedAccountInfo,
+	useIsNewSetup,
 } from "@lib/store";
 import { useRouter } from "next/router";
 import { getNetworkInfo } from "yieldscan.config";
@@ -34,12 +38,14 @@ const Staking = () => {
 	const { apiInstance } = usePolkadotApi();
 	const networkInfo = getNetworkInfo(selectedNetwork);
 	const { selectedAccount } = useSelectedAccount();
+	const { setIsNewSetup } = useIsNewSetup();
 	const { transactionHash, setTransactionHash } = useTransactionHash();
 	const { setTransactionState, ...transactionState } = useTransaction();
 	const { accounts } = useAccounts();
 	const { accountsBalances } = useAccountsBalances();
 	const { accountsStakingInfo } = useAccountsStakingInfo();
 	const { accountsStakingLedgerInfo } = useAccountsStakingLedgerInfo();
+	const { walletType } = useWalletType();
 
 	const { accountsControllerStashInfo } = useAccountsControllerStashInfo();
 	const [isLedger, setIsLedger] = useState(() =>
@@ -51,44 +57,29 @@ const Staking = () => {
 	const selectedValidators = get(transactionState, "selectedValidators", []);
 	const stakingAmount = get(transactionState, "stakingAmount", 0);
 
-	const [balances, setBalances] = useState(
-		() => accountsBalances[selectedAccount?.address]
-	);
+	const { balances, stakingInfo, stakingLedgerInfo } = useSelectedAccountInfo();
 
-	const [stakingInfo, setStakingInfo] = useState(
-		() => accountsStakingInfo[selectedAccount?.address]
-	);
-	const [stakingLedgerInfo, setStakingLedgerInfo] = useState(
-		() => accountsStakingLedgerInfo[selectedAccount?.address]
-	);
 	const [controllerStashInfo, setControllerStashInfo] = useState(
 		() => accountsControllerStashInfo[selectedAccount?.address]
 	);
 
-	const [stakingLoading, setStakingLoading] = useState(false);
-	const [successHeading, setSuccessHeading] = useState("Congratulations");
-	const [stakingEvent, setStakingEvent] = useState();
-	const [isSuccessful, setIsSuccessful] = useState(false);
-	const [isLockFunds, setIsLockFunds] = useState();
-	const [isTransferFunds, setIsTransferFunds] = useState();
-	const [chainError, setChainError] = useState(false);
-	const [loaderError, setLoaderError] = useState(false);
-
 	const [controllerAccount, setControllerAccount] = useState(() =>
-		accountsStakingInfo[selectedAccount?.address]?.stakingLedger.controllerId
+		accountsStakingInfo[selectedAccount?.address]?.controllerId
 			? accounts?.filter(
 					(account) =>
 						account.address ===
 						accountsStakingInfo[
 							selectedAccount?.address
-						]?.stakingLedger.controllerId.toString()
+						]?.controllerId.toString()
 			  )[0]
 			: isNil(
 					window?.localStorage.getItem(
 						selectedAccount?.address + networkInfo.network + "Controller"
 					)
 			  )
-			? selectedAccount
+			? walletType[selectedAccount?.substrateAddress]
+				? null
+				: selectedAccount
 			: accounts?.filter(
 					(account) =>
 						account.address ===
@@ -98,9 +89,64 @@ const Staking = () => {
 			  )[0]
 	);
 
+	useEffect(() => {
+		if (stakingInfo?.accountId.toString() !== selectedAccount?.address) {
+			setControllerAccount(null);
+		}
+		const account = accountsStakingInfo[selectedAccount?.address]?.controllerId
+			? accounts?.filter(
+					(account) =>
+						account.address ===
+						accountsStakingInfo[
+							selectedAccount?.address
+						]?.controllerId.toString()
+			  )[0]
+			: isNil(
+					window?.localStorage.getItem(
+						selectedAccount?.address + networkInfo.network + "Controller"
+					)
+			  )
+			? walletType[selectedAccount?.substrateAddress]
+				? null
+				: selectedAccount
+			: accounts?.filter(
+					(account) =>
+						account.address ===
+						window?.localStorage.getItem(
+							selectedAccount?.address + networkInfo.network + "Controller"
+						)
+			  )[0];
+		setControllerAccount(account);
+	}, [
+		selectedAccount?.address,
+		JSON.stringify(stakingInfo),
+		JSON.stringify(accountsStakingInfo),
+	]);
+
 	const [controllerBalances, setControllerBalances] = useState(
 		() => accountsBalances[controllerAccount?.address]
 	);
+
+	useEffect(() => {
+		if (stakingInfo?.accountId.toString() !== selectedAccount?.address) {
+			setControllerBalances(null);
+		}
+		setControllerBalances(accountsBalances[controllerAccount?.address]);
+	}, [
+		controllerAccount?.address,
+		selectedAccount?.address,
+		JSON.stringify(stakingInfo),
+		JSON.stringify(accountsBalances[controllerAccount?.address]),
+	]);
+
+	const [stakingLoading, setStakingLoading] = useState(false);
+	const [successHeading, setSuccessHeading] = useState("Congratulations");
+	const [stakingEvent, setStakingEvent] = useState();
+	const [isSuccessful, setIsSuccessful] = useState(false);
+	const [isLockFunds, setIsLockFunds] = useState();
+	const [isTransferFunds, setIsTransferFunds] = useState();
+	const [chainError, setChainError] = useState(false);
+	const [loaderError, setLoaderError] = useState(false);
 
 	const updateTransactionData = (
 		stashId,
@@ -127,51 +173,13 @@ const Staking = () => {
 			});
 	};
 
-	// useEffect(() => {
-	// 	setLoading(false);
-	// 	// To prevent the user from switching accounts or networks while in the middle of the payment process
-	// 	setHeaderLoading(true);
-	// 	if (selectedAccount) {
-	// 		getTransactionFee(
-	// 			selectedAccount?.address,
-	// 			selectedAccount?.address,
-	// 			transactionState.stakingAmount,
-	// 			get(bondedAmount, "currency", 0),
-	// 			transactionState.rewardDestination,
-	// 			transactionState.selectedValidators.map((v) => v.stashId),
-	// 			apiInstance,
-	// 			networkInfo
-	// 		).then((info) => {
-	// 			setTransactionFee(info);
-	// 		});
-	// 	}
-	// }, []);
-
-	// useEffect(() => {
-	// 	if (transactionHash && isSuccessful) {
-	// 		setTimeout(() => router.push({ pathname: "/overview" }), 5000);
-	// 	}
-	// }, [transactionHash, isSuccessful]);
-
 	const transact = (transactionType) => {
 		if (["lock-funds", "bond-extra"].includes(transactionType)) {
 			setIsLockFunds(true);
 		} else setIsLockFunds(false);
 		setIsTransferFunds(false);
 		setStakingLoading(true);
-
-		// trackEvent(Events.INTENT_TRANSACTION, {
-		// 	transactionType: !!transactionState.stakingAmount ? "STAKE" : "NOMINATE",
-		// 	stakingAmount: get(transactionState, "stakingAmount"),
-		// 	riskPreference: get(transactionState, "riskPreference"),
-		// 	selectedValidators: map(
-		// 		get(transactionState, "selectedValidators"),
-		// 		(val) => get(val, "stashId")
-		// 	),
-		// 	numOfSelectedValidators: size(
-		// 		get(transactionState, "selectedValidators")
-		// 	),
-		// });
+		setTransactionHash(null);
 
 		const handlers = {
 			onEvent: (eventInfo) => {
@@ -186,13 +194,6 @@ const Staking = () => {
 						"Your transaction is sent to the network. Awaiting confirmation..."
 					);
 				}, 750);
-				// trackEvent(Events.TRANSACTION_SENT, {
-				// 	hash: get(hash, "message"),
-				// 	url: `https://${get(
-				// 		networkInfo,
-				// 		"network"
-				// 	)}.subscan.io/block/${transactionHash}`,
-				// });
 			},
 			onFinish: (status, message, eventLogs, tranHash) => {
 				// status = 0 for success, anything else for error code
@@ -236,14 +237,6 @@ const Staking = () => {
 						tranHash,
 						true
 					);
-					// trackEvent(Events.TRANSACTION_SUCCESS, {
-					// 	stakingAmount: get(transactionState, "stakingAmount"),
-					// 	riskPreference: get(transactionState, "riskPreference"),
-					// 	successMessage: message,
-					// });
-					// To allow the user to switch accounts and networks after the payment process is complete
-					// setHeaderLoading(false);
-					// router.replace("/overview");
 				} else {
 					if (message !== "Cancelled") {
 						updateTransactionData(
@@ -255,13 +248,6 @@ const Staking = () => {
 							tranHash,
 							false
 						);
-						// trackEvent(Events.TRANSACTION_FAILED, {
-						// 	stakingAmount: get(transactionState, "stakingAmount"),
-						// 	riskPreference: get(transactionState, "riskPreference"),
-						// 	errorMessage: message,
-						// 	eventLogs,
-						// });
-
 						setStakingEvent("Transaction failed");
 						setLoaderError(true);
 
@@ -293,40 +279,12 @@ const Staking = () => {
 	};
 
 	useEffect(() => {
-		setBalances(accountsBalances[selectedAccount?.address]);
-	}, [
-		selectedAccount?.address,
-		JSON.stringify(accountsBalances[selectedAccount?.address]),
-	]);
-
-	useEffect(() => {
-		setControllerBalances(accountsBalances[controllerAccount?.address]);
-	}, [
-		controllerAccount?.address,
-		JSON.stringify(accountsBalances[controllerAccount?.address]),
-	]);
-
-	useEffect(() => {
 		setControllerStashInfo(
 			accountsControllerStashInfo[selectedAccount?.address]
 		);
 	}, [
 		selectedAccount?.address,
 		JSON.stringify(accountsControllerStashInfo[selectedAccount?.address]),
-	]);
-
-	useEffect(() => {
-		setStakingInfo(accountsStakingInfo[selectedAccount?.address]);
-	}, [
-		selectedAccount?.address,
-		JSON.stringify(accountsStakingInfo[selectedAccount?.address]),
-	]);
-
-	useEffect(() => {
-		setStakingLedgerInfo(accountsStakingLedgerInfo[selectedAccount?.address]);
-	}, [
-		selectedAccount?.address,
-		JSON.stringify(accountsStakingLedgerInfo[selectedAccount?.address]),
 	]);
 
 	useEffect(() => {
@@ -372,18 +330,11 @@ const Staking = () => {
 		}
 	}, [transactionHash, isSuccessful]);
 
-	useEffect(() => {
-		if (stakingInfo?.controllerId) {
-			setControllerAccount(
-				() =>
-					accounts?.filter(
-						(account) => account.address === stakingInfo.controllerId.toString()
-					)[0]
-			);
-		}
-	}, [stakingInfo?.controllerId]);
-
-	return selectedAccount?.address ? (
+	return selectedAccount &&
+		controllerBalances &&
+		Object.keys(accountsBalances).length > 0 &&
+		Object.keys(accountsControllerStashInfo).length > 0 &&
+		Object.keys(accountsStakingInfo).length > 0 ? (
 		<div className="w-full h-full flex justify-center max-h-full">
 			{transactionHash && isSuccessful && !isLockFunds && !isTransferFunds && (
 				<canvas id="confetti-holder" className="absolute w-full"></canvas>
@@ -431,14 +382,13 @@ const Staking = () => {
 					// 	setChainError(false);
 					// 	transact();
 					// }}
+					router={router}
+					setIsNewSetup={setIsNewSetup}
 					networkInfo={networkInfo}
 				/>
-			) : controllerAccount &&
-			  controllerBalances?.availableBalance.lte(
-					apiInstance?.consts.balances.existentialDeposit.toNumber / 2
-			  ) ? (
+			) : parseInt(controllerBalances?.availableBalance) <
+			  apiInstance?.consts.balances.existentialDeposit.toNumber() / 2 ? (
 				<TransferFunds
-					toast={toast}
 					router={router}
 					apiInstance={apiInstance}
 					networkInfo={networkInfo}
@@ -455,6 +405,7 @@ const Staking = () => {
 					setIsSuccessful={setIsSuccessful}
 					setChainError={setChainError}
 					setIsTransferFunds={setIsTransferFunds}
+					setTransactionHash={setTransactionHash}
 				/>
 			) : isLedger ? (
 				stakingInfo.stakingLedger.active.isEmpty ? (
@@ -475,61 +426,38 @@ const Staking = () => {
 					/>
 				) : (
 					<StakeToEarn
-						accounts={accounts}
-						balances={balances}
-						controllerBalances={controllerBalances}
 						stakingInfo={stakingInfo}
-						stakingLedgerInfo={stakingLedgerInfo}
-						controllerStashInfo={controllerStashInfo}
 						apiInstance={apiInstance}
 						selectedAccount={selectedAccount}
-						controllerAccount={controllerAccount}
 						networkInfo={networkInfo}
 						transactionState={transactionState}
 						isLedger={isLedger}
-						setTransactionState={setTransactionState}
 						onConfirm={(type) => transact(type)}
 					/>
 				)
 			) : controllerStashInfo.isStash &&
 			  !controllerStashInfo.isSameStashController ? (
 				<StakeToEarn
-					accounts={accounts}
-					balances={balances}
-					controllerBalances={controllerBalances}
 					stakingInfo={stakingInfo}
-					stakingLedgerInfo={stakingLedgerInfo}
-					controllerStashInfo={controllerStashInfo}
 					apiInstance={apiInstance}
 					selectedAccount={selectedAccount}
-					controllerAccount={controllerAccount}
 					networkInfo={networkInfo}
 					transactionState={transactionState}
 					isLedger={isLedger}
-					setTransactionState={setTransactionState}
 					onConfirm={(type) => transact(type)}
 				/>
 			) : (
 				<Confirmation
 					accounts={accounts}
 					balances={balances}
-					controllerBalances={controllerBalances}
 					stakingInfo={stakingInfo}
-					stakingLedgerInfo={stakingLedgerInfo}
-					controllerStashInfo={controllerStashInfo}
 					apiInstance={apiInstance}
 					selectedAccount={selectedAccount}
 					controllerAccount={controllerAccount}
 					networkInfo={networkInfo}
 					transactionState={transactionState}
 					setTransactionState={setTransactionState}
-					// stakingLoading={stakingLoading}
-					// stakingEvent={stakingEvent}
 					onConfirm={(type) => transact(type)}
-					// transactionHash={transactionHash}
-					// isSuccessful={isSuccessful}
-					// chainError={chainError}
-					// loaderError={loaderError}
 				/>
 			)}
 		</div>

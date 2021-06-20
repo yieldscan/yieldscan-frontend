@@ -1,52 +1,17 @@
 import { useState, useEffect } from "react";
 import { get, isNil } from "lodash";
-import {
-	useSelectedAccount,
-	useTransaction,
-	useSelectedNetwork,
-	useTransactionHash,
-	usePolkadotApi,
-	useAccounts,
-	useAccountsBalances,
-	useAccountsStakingInfo,
-	useAccountsStakingLedgerInfo,
-	useAccountsControllerStashInfo,
-} from "@lib/store";
-import { useRouter } from "next/router";
-import { getNetworkInfo } from "yieldscan.config";
-import getFromLocalStorage from "@lib/getFromLocalStorage";
 import { decodeAddress, encodeAddress } from "@polkadot/util-crypto";
-// import StakeToEarn from "./StakeToEarn";
-// import LockFunds from "./LockFunds";
-// import Confirmation from "./Confirmation";
-// import stake from "@lib/stake";
 import { ChevronLeft } from "react-feather";
-import axios from "@lib/axios";
 import {
-	Alert,
-	AlertDescription,
-	AlertIcon,
-	AlertTitle,
 	Modal,
 	ModalBody,
 	ModalCloseButton,
 	ModalContent,
-	ModalHeader,
 	ModalOverlay,
-	Popover,
-	PopoverArrow,
-	PopoverBody,
-	PopoverContent,
-	PopoverTrigger,
 	Spinner,
 	Divider,
-	useDisclosure,
 	useToast,
 } from "@chakra-ui/core";
-// import ConfettiGenerator from "confetti-js";
-// import ChainErrorPage from "./ChainErrorPage";
-// import { BottomNextButton } from "../setup-accounts/BottomButton";
-// import InfoAlert from "./InfoAlert";
 import Account from "@components/wallet-connect/Account";
 import PopoverAccountSelection from "@components/common/PopoverAccountSelection";
 import formatCurrency from "@lib/format-currency";
@@ -55,7 +20,6 @@ import { HelpPopover } from "@components/reward-calculator";
 import transferBalancesKeepAlive from "@lib/polkadot/transfer-balances";
 
 const TransferFunds = ({
-	toast,
 	router,
 	apiInstance,
 	networkInfo,
@@ -72,6 +36,7 @@ const TransferFunds = ({
 	setIsSuccessful,
 	setChainError,
 	setIsTransferFunds,
+	setTransactionHash,
 }) => {
 	const [isStashPopoverOpen, setIsStashPopoverOpen] = useState(false);
 
@@ -123,6 +88,7 @@ const TransferFunds = ({
 				setIsSuccessful={setIsSuccessful}
 				setChainError={setChainError}
 				setIsTransferFunds={setIsTransferFunds}
+				setTransactionHash={setTransactionHash}
 			/>
 			<div className="w-full max-w-65-rem flex flex-col items-center">
 				<div className="p-2 w-full">
@@ -222,6 +188,7 @@ const ConfirmTransfer = ({
 	setIsSuccessful,
 	setChainError,
 	setIsTransferFunds,
+	setTransactionHash,
 }) => {
 	const toast = useToast();
 	const [selectedControllerAccount, setSelectedControllerAccount] =
@@ -256,7 +223,7 @@ const ConfirmTransfer = ({
 				const transactionHash = get(hash, "message");
 				setLoaderError(false);
 				setTimeout(() => {
-					// setTransactionHash(transactionHash);
+					setTransactionHash(transactionHash);
 					setStakingEvent(
 						"Your transaction is sent to the network. Awaiting confirmation..."
 					);
@@ -271,6 +238,11 @@ const ConfirmTransfer = ({
 					position: "top-right",
 					isClosable: true,
 				});
+
+				setTimeout(() => {
+					setStakingLoading(false);
+				}, 2500);
+
 				if (failed === 0) {
 					setSuccessHeading("Wohoo!");
 					setStakingEvent(
@@ -279,7 +251,7 @@ const ConfirmTransfer = ({
 					setIsSuccessful(true);
 					setTimeout(() => {
 						setIsSuccessful(false);
-						// setTransactionHash(null);
+						setTransactionHash(null);
 					}, 5000);
 				}
 			},

@@ -11,19 +11,12 @@ import ValidatorCard from "./ValidatorCard";
 import BrowserWalletAlert from "./BrowserWalletAlert";
 
 const StakeToEarn = ({
-	accounts,
-	balances,
-	controllerBalances,
 	stakingInfo,
-	stakingLedgerInfo,
-	controllerStashInfo,
 	apiInstance,
 	selectedAccount,
-	controllerAccount,
 	isLedger,
 	networkInfo,
 	transactionState,
-	setTransactionState,
 	onConfirm,
 }) => {
 	const selectedValidators = get(transactionState, "selectedValidators", []);

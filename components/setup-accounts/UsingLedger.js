@@ -1,12 +1,4 @@
 import { Check, Circle } from "react-feather";
-import { useRouter } from "next/router";
-import {
-	useAccounts,
-	useSelectedAccount,
-	useSelectedNetwork,
-} from "@lib/store";
-import { getNetworkInfo } from "yieldscan.config";
-import addToLocalStorage from "lib/addToLocalStorage";
 import { useState } from "react";
 import Introduction from "./Introduction";
 import IdentifyLedgerAccounts from "./IdentifyLedgerAccounts";
@@ -26,18 +18,29 @@ const begginerInfo = [
 	"Connect your ledger wallet through PolkadotJS",
 ];
 
-const UsingLedger = ({ incrementStep, decrementStep }) => {
-	const router = useRouter();
-	const { setSelectedAccount } = useSelectedAccount();
-	const { accounts } = useAccounts();
-	const { selectedNetwork } = useSelectedNetwork();
-	const networkInfo = getNetworkInfo(selectedNetwork);
+const UsingLedger = ({
+	incrementStep,
+	decrementStep,
+	networkInfo,
+	accounts,
+	accountsBalances,
+	setSelectedAccount,
+	apiInstance,
+	accountsControllerStashInfo,
+	selectedAccount,
+	accountsStakingInfo,
+	balances,
+	stakingInfo,
+	walletType,
+	setWalletType,
+}) => {
+	// const router = useRouter();
+	// const onAccountSelected = (account) => {
+	// 	setSelectedAccount(account);
+	// 	addToLocalStorage(networkInfo.network, "selectedAccount", account.address);
+	// 	router.push({ pathname: "/reward-calculator" });
+	// };
 
-	const onAccountSelected = (account) => {
-		setSelectedAccount(account);
-		addToLocalStorage(networkInfo.network, "selectedAccount", account.address);
-		router.push({ pathname: "/reward-calculator" });
-	};
 	const [currentStep, setCurrentStep] = useState(0);
 
 	const incrementCurrentStep = () => setCurrentStep((step) => step + 1);
@@ -78,9 +81,14 @@ const UsingLedger = ({ incrementStep, decrementStep }) => {
 					<Introduction
 						incrementCurrentStep={incrementCurrentStep}
 						decrementStep={decrementStep}
+						networkInfo={networkInfo}
 					/>
 				) : currentStep === 1 ? (
 					<IdentifyLedgerAccounts
+						accounts={accounts}
+						accountsBalances={accountsBalances}
+						walletType={walletType}
+						setWalletType={setWalletType}
 						incrementCurrentStep={incrementCurrentStep}
 						decrementCurrentStep={decrementCurrentStep}
 						networkInfo={networkInfo}
@@ -90,13 +98,28 @@ const UsingLedger = ({ incrementStep, decrementStep }) => {
 						incrementCurrentStep={incrementCurrentStep}
 						decrementCurrentStep={decrementCurrentStep}
 						networkInfo={networkInfo}
+						setSelectedAccount={setSelectedAccount}
+						accounts={accounts}
+						selectedAccount={selectedAccount}
+						accountsBalances={accountsBalances}
+						apiInstance={apiInstance}
+						accountsControllerStashInfo={accountsControllerStashInfo}
 					/>
 				) : (
 					<SelectControllerAccount
-						incrementCurrentStep={incrementCurrentStep}
 						decrementCurrentStep={decrementCurrentStep}
 						incrementStep={incrementStep}
 						networkInfo={networkInfo}
+						accounts={accounts}
+						selectedAccount={selectedAccount}
+						accountsBalances={accountsBalances}
+						apiInstance={apiInstance}
+						accountsStakingInfo={accountsStakingInfo}
+						accountsControllerStashInfo={accountsControllerStashInfo}
+						balances={balances}
+						stakingInfo={stakingInfo}
+						walletType={walletType}
+						isLedger={walletType[selectedAccount?.substrateAddress]}
 					/>
 				)}
 			</div>

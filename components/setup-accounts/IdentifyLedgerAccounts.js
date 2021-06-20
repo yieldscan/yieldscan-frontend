@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { isNil } from "lodash";
 import { useAccounts, useAccountsBalances, useWalletType } from "@lib/store";
 import getFromLocalStorage from "@lib/getFromLocalStorage";
@@ -15,14 +15,13 @@ const IdentifyLedgerAccounts = ({
 	decrementCurrentStep,
 	incrementCurrentStep,
 	networkInfo,
+	accounts,
+	accountsBalances,
+	walletType,
+	setWalletType,
 }) => {
-	const { accounts } = useAccounts();
-	const { accountsBalances } = useAccountsBalances();
-	const { walletType, setWalletType } = useWalletType();
-	const [infoIndex, setInfoIndex] = useState();
-	const [isOpen, setIsOpen] = useState(false);
 	const [isLedgerWalletObj, setIsLedgerWalletObj] = useState(() =>
-		accounts.reduce((acc, account) => {
+		accounts?.reduce((acc, account) => {
 			if (isNil(getFromLocalStorage(account.substrateAddress, "isLedger"))) {
 				acc[account.substrateAddress] = false;
 			} else
@@ -54,7 +53,19 @@ const IdentifyLedgerAccounts = ({
 		});
 	};
 
-	return (
+	useEffect(() => {
+		accounts?.reduce((acc, account) => {
+			if (isNil(getFromLocalStorage(account.substrateAddress, "isLedger"))) {
+				acc[account.substrateAddress] = false;
+			} else
+				acc[account.substrateAddress] = JSON.parse(
+					getFromLocalStorage(account.substrateAddress, "isLedger")
+				);
+			return acc;
+		}, {});
+	}, [accounts]);
+
+	return isLedgerWalletObj ? (
 		<div className="w-full h-full max-w-2xl grid grid-rows-6 gap-2 text-gray-700 p-4 text-gray-700">
 			<div className="row-span-2 w-full h-full flex flex-col justify-center">
 				<h1 className="text-2xl font-semibold">
@@ -101,6 +112,10 @@ const IdentifyLedgerAccounts = ({
 					</div>
 				</div>
 			</div>
+		</div>
+	) : (
+		<div className="flex h-full w-full text-left text-gray-700 flex-col justify-center items-center">
+			<span className="loader"></span>
 		</div>
 	);
 };

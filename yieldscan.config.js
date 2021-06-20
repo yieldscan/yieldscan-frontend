@@ -15,7 +15,7 @@ export const networks = [
 		decimalPlaces: 10,
 		twitterUrl: "@Polkadot",
 		addressPrefix: 0,
-		nodeWs: "wss://rpc.polkadot.io",
+		nodeWs: process.env.NEXT_PUBLIC_POLKADOT,
 		erasPerDay: 1,
 		lockUpPeriod: 28,
 		minAmount: 1,
@@ -32,7 +32,7 @@ export const networks = [
 		coinGeckoDenom: "kusama",
 		decimalPlaces: 12,
 		addressPrefix: 2,
-		nodeWs: "wss://kusama-rpc.polkadot.io",
+		nodeWs: process.env.NEXT_PUBLIC_KUSAMA,
 		erasPerDay: 4,
 		lockUpPeriod: 7,
 		minAmount: 0.1,
@@ -49,7 +49,7 @@ export const networks = [
 		coinGeckoDenom: undefined,
 		decimalPlaces: 12,
 		addressPrefix: 42,
-		nodeWs: "wss://westend-rpc.polkadot.io",
+		nodeWs: process.env.NEXT_PUBLIC_WESTEND,
 		erasPerDay: 4,
 		lockUpPeriod: 7,
 		minAmount: 0.1,
@@ -63,7 +63,23 @@ export const getNetworkInfo = (networkName) => {
 };
 
 export const getAllNetworksInfo = () => {
-	return networks;
+	const supportedNetworks = networks.filter(
+		(network) =>
+			JSON.parse(process.env.NEXT_PUBLIC_TESTNETS_ENABLED) ||
+			!network.isTestNetwork
+	);
+	return supportedNetworks;
+};
+
+export const getAllNetworks = () => {
+	const supportedNetworks = networks
+		.filter(
+			(network) =>
+				JSON.parse(process.env.NEXT_PUBLIC_TESTNETS_ENABLED) ||
+				!network.isTestNetwork
+		)
+		.map((network) => network.name);
+	return supportedNetworks;
 };
 
 export const network = networks.find(({ name }) => name === selectedNetwork);

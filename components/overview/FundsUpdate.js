@@ -32,6 +32,7 @@ const FundsUpdate = withSlideIn(
 	({
 		styles,
 		type,
+		apiInstance,
 		close,
 		nominations,
 		selectedAccount,
@@ -40,7 +41,6 @@ const FundsUpdate = withSlideIn(
 		networkInfo,
 	}) => {
 		const toast = useToast();
-		const { apiInstance } = usePolkadotApi();
 		const { coinGeckoPriceUSD } = useCoinGeckoPriceUSD();
 		const [currentStep, setCurrentStep] = useState(0);
 		const [amount, setAmount] = useState(0);
@@ -281,7 +281,7 @@ const FundsUpdate = withSlideIn(
 			updateFunds(
 				type,
 				selectedAccount?.address,
-				stakingInfo.controllerId.toString(),
+				stakingInfo?.controllerId?.toString(),
 				amount,
 				apiInstance,
 				handlers,
@@ -376,7 +376,7 @@ const FundsUpdate = withSlideIn(
 														>
 															Available Balance:{" "}
 															{formatCurrency.methods.formatAmount(
-																balance.availableBalance,
+																balance?.availableBalance,
 																networkInfo
 															)}
 														</span>

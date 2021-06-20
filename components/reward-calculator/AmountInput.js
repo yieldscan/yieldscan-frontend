@@ -281,10 +281,10 @@ const AmountInput = memo(
 		networkInfo,
 		onChange,
 		trackRewardCalculatedEvent,
-		balance,
+		balances,
 		walletType,
 		simulationChecked,
-		stakingBalance,
+		stakingInfo,
 	}) => {
 		const { selectedAccount } = useSelectedAccount();
 		const { coinGeckoPriceUSD } = useCoinGeckoPriceUSD();
@@ -301,23 +301,23 @@ const AmountInput = memo(
 					onChange={onChange}
 				/>
 			): ( */}
-				{stakingBalance &&
-				balance &&
+				{stakingInfo &&
+				balances &&
 				!Object.values(walletType).every((value) => value === null) ? (
 					<AmountInputDefault
 						value={value}
 						selectedAccount={selectedAccount}
 						bonded={
-							stakingBalance?.stakingLedger?.active /
+							stakingInfo?.stakingLedger?.active /
 							Math.pow(10, networkInfo.decimalPlaces)
 						}
 						onChange={onChange}
 						availableBalance={
-							parseInt(balance?.availableBalance) /
+							parseInt(balances?.availableBalance) /
 							Math.pow(10, networkInfo.decimalPlaces)
 						}
 						vestingLocked={
-							parseInt(balance?.vestingLocked) /
+							parseInt(balances?.vestingLocked) /
 							Math.pow(10, networkInfo.decimalPlaces)
 						}
 						networkInfo={networkInfo}

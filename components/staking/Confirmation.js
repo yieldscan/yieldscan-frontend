@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { get, isNil } from "lodash";
 import router from "next/router";
 import formatCurrency from "@lib/format-currency";
-import { GlossaryModal, HelpPopover } from "@components/reward-calculator";
+import { HelpPopover } from "@components/reward-calculator";
 import { Spinner, Divider, Collapse } from "@chakra-ui/core";
 import { decodeAddress, encodeAddress } from "@polkadot/util-crypto";
 import { ChevronLeft, Circle, ChevronRight, Edit } from "react-feather";
@@ -11,29 +11,18 @@ import ValidatorCard from "./ValidatorCard";
 import RewardDestination from "./RewardDestination";
 import EditController from "./EditController";
 import BrowserWalletAlert from "./BrowserWalletAlert";
-import ConfettiGenerator from "confetti-js";
-import ChainErrorPage from "./ChainErrorPage";
 
 const Confirmation = ({
 	accounts,
 	balances,
-	controllerBalances,
 	stakingInfo,
-	stakingLedgerInfo,
-	controllerStashInfo,
 	apiInstance,
 	selectedAccount,
 	controllerAccount,
 	networkInfo,
 	transactionState,
 	setTransactionState,
-	stakingLoading,
-	stakingEvent,
 	onConfirm,
-	transactionHash,
-	isSuccessful,
-	chainError,
-	loaderError,
 }) => {
 	const selectedValidators = get(transactionState, "selectedValidators", []);
 	const stakingAmount = get(transactionState, "stakingAmount", 0);
@@ -58,13 +47,38 @@ const Confirmation = ({
 				decodeAddress(controllerAccount?.address),
 				42
 			);
-			apiInstance.tx.staking
-				.nominate(nominatedValidators)
-				.paymentInfo(substrateControllerId)
-				.then((info) => {
-					const fee = info.partialFee.toNumber();
-					setTransactionFee(fee);
-				});
+			const transactions = [];
+			const tranasactionType = stakingInfo?.stakingLedger.active.isEmpty
+				? "bond-and-nominate"
+				: "nominate";
+			if (tranasactionType === "bond-and-nominate") {
+				const amount = Math.trunc(
+					stakingAmount * 10 ** networkInfo.decimalPlaces
+				); // 12 decimal places
+				transactions.push(
+					apiInstance.tx.staking.bond(
+						substrateControllerId,
+						amount,
+						transactionState.rewardDestination
+					),
+					apiInstance.tx.staking.nominate(nominatedValidators)
+				);
+			} else if (tranasactionType === "nominate") {
+				transactions.push(apiInstance.tx.staking.nominate(nominatedValidators));
+			}
+
+			transactions.length > 0
+				? apiInstance.tx.utility
+						.batchAll(transactions)
+						.paymentInfo(substrateControllerId)
+						.then((info) => {
+							const fee = info.partialFee.toNumber();
+							setTransactionFee(fee);
+						})
+				: transactions[0].paymentInfo(substrateControllerId).then((info) => {
+						const fee = info.partialFee.toNumber();
+						setTransactionFee(fee);
+				  });
 		}
 	}, [stakingInfo]);
 

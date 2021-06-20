@@ -1,27 +1,19 @@
 import { ChevronLeft } from "react-feather";
 import { useRouter } from "next/router";
 import SelectAccount from "../wallet-connect/SelectAccount";
-import {
-	useAccounts,
-	useAccountsBalances,
-	useAccountsControllerStashInfo,
-	usePolkadotApi,
-	useSelectedAccount,
-	useSelectedNetwork,
-} from "@lib/store";
-import { getNetworkInfo } from "yieldscan.config";
 import addToLocalStorage from "lib/addToLocalStorage";
 import { useEffect, useState } from "react";
 
-const NotUsingLedger = ({ incrementStep, decrementStep }) => {
+const NotUsingLedger = ({
+	decrementStep,
+	networkInfo,
+	accounts,
+	accountsBalances,
+	accountsControllerStashInfo,
+	setSelectedAccount,
+	apiInstance,
+}) => {
 	const router = useRouter();
-	const { setSelectedAccount } = useSelectedAccount();
-	const { accounts } = useAccounts();
-	const { apiInstance } = usePolkadotApi();
-	const { selectedNetwork } = useSelectedNetwork();
-	const { accountsBalances } = useAccountsBalances();
-	const { accountsControllerStashInfo } = useAccountsControllerStashInfo();
-	const networkInfo = getNetworkInfo(selectedNetwork);
 	const onAccountSelected = (account) => {
 		setSelectedAccount(account);
 		addToLocalStorage(networkInfo.network, "selectedAccount", account.address);
@@ -45,7 +37,9 @@ const NotUsingLedger = ({ incrementStep, decrementStep }) => {
 		JSON.stringify(accountsControllerStashInfo),
 		JSON.stringify(accountsBalances),
 	]);
-	return (
+	return filteredAccounts &&
+		Object.keys(accountsBalances).length > 0 &&
+		Object.keys(accountsControllerStashInfo).length > 0 ? (
 		<div className="w-full h-full flex justify-center">
 			<div className="w-full max-w-65-rem flex flex-col items-center">
 				<div className="p-2 w-full">
@@ -75,6 +69,10 @@ const NotUsingLedger = ({ incrementStep, decrementStep }) => {
 					</span>
 				</div>
 			</div>
+		</div>
+	) : (
+		<div className="flex h-full w-full text-left text-gray-700 flex-col justify-center items-center">
+			<span className="loader"></span>
 		</div>
 	);
 };

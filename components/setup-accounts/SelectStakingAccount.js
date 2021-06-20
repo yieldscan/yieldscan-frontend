@@ -1,13 +1,6 @@
 import { useEffect, useState } from "react";
 import { isNil } from "lodash";
 import {
-	useAccounts,
-	useAccountsBalances,
-	useSelectedAccount,
-	useAccountsControllerStashInfo,
-	usePolkadotApi,
-} from "@lib/store";
-import {
 	Alert,
 	AlertDescription,
 	AlertIcon,
@@ -21,24 +14,28 @@ import {
 	NextButtonContent,
 } from "./BottomButton";
 import PopoverAccountSelection from "../common/PopoverAccountSelection";
+import InsufficientBalanceAlert from "./InsufficientBalanceAlert";
 
 const SelectStakingAccount = ({
 	decrementCurrentStep,
 	incrementCurrentStep,
 	networkInfo,
+	accounts,
+	accountsBalances,
+	setSelectedAccount,
+	apiInstance,
+	accountsControllerStashInfo,
+	selectedAccount,
 }) => {
-	const { apiInstance } = usePolkadotApi();
-	const { accounts } = useAccounts();
-	const { accountsBalances } = useAccountsBalances();
-	const { selectedAccount, setSelectedAccount } = useSelectedAccount();
-	const { accountsControllerStashInfo } = useAccountsControllerStashInfo();
 	const [isStashPopoverOpen, setIsStashPopoverOpen] = useState(false);
 
 	const [filteredAccounts, setFilteredAccounts] = useState(null);
+	const [selected, setSelected] = useState(() =>
+		selectedAccount ? selectedAccount : null
+	);
 
 	const handleOnClick = (account) => {
-		setSelectedAccount(account);
-		addToLocalStorage(networkInfo.network, "selectedAccount", account.address);
+		setSelected(account);
 		setIsStashPopoverOpen(false);
 	};
 
@@ -55,12 +52,17 @@ const SelectStakingAccount = ({
 	useEffect(() => {
 		const filteredAccounts = accounts.filter(
 			(account) =>
-				accountsBalances[account.address]?.freeBalance.gte(
-					apiInstance?.consts.balances.existentialDeposit
-				) &&
-				(!accountsControllerStashInfo[account.address]?.isController ||
-					accountsControllerStashInfo[account.address]?.isSameStashController)
+				// accountsBalances[account.address]?.freeBalance.gte(
+				// 	apiInstance?.consts.balances.existentialDeposit
+				// ) &&
+				!accountsControllerStashInfo[account.address]?.isController ||
+				accountsControllerStashInfo[account.address]?.isSameStashController
 		);
+		filteredAccounts.map((account) => {
+			account.disabledSelection = accountsBalances[
+				account.address
+			]?.freeBalance.lte(apiInstance?.consts.balances.existentialDeposit);
+		});
 		setFilteredAccounts(filteredAccounts);
 	}, [
 		JSON.stringify(accounts),
@@ -68,56 +70,69 @@ const SelectStakingAccount = ({
 		JSON.stringify(accountsBalances),
 	]);
 
-	return (
-		filteredAccounts && (
-			<div className="flex-1 w-full max-w-2xl flex flex-col text-gray-700 justify-center p-4 text-gray-700 space-y-6 mb-32">
+	return filteredAccounts &&
+		Object.keys(accountsBalances).length > 0 &&
+		Object.keys(accountsControllerStashInfo).length > 0 ? (
+		<div className="flex-1 w-full max-w-2xl flex flex-col text-gray-700 justify-center p-4 text-gray-700 space-y-6 mb-32">
+			<div>
+				<h1 className="text-2xl font-semibold">Select staking account</h1>
+				<p className="text-gray-600 text-sm max-w-md">
+					Choose the account you want to use for staking, this would be your
+					main wallet
+				</p>
+			</div>
+			<div className="space-y-4">
+				{filteredAccounts && (
+					<div className="w-full space-y-4">
+						{filteredAccounts.length === 0 && (
+							<NoElligibleAccounts networkInfo={networkInfo} />
+						)}
+						{selected?.disabledSelection && <InsufficientBalanceAlert />}
+						<PopoverAccountSelection
+							accounts={filteredAccounts}
+							accountsBalances={accountsBalances}
+							isStashPopoverOpen={isStashPopoverOpen}
+							setIsStashPopoverOpen={setIsStashPopoverOpen}
+							networkInfo={networkInfo}
+							selectedAccount={selected}
+							onClick={handleOnClick}
+							isSetUp={true}
+							disabled={filteredAccounts.length === 0}
+						/>
+					</div>
+				)}
+				<h2 className="text-md font-semibold underline cursor-pointer">
+					Don’t see your account?
+				</h2>
+			</div>
+			<div className="w-full flex flex-row justify-start space-x-3">
 				<div>
-					<h1 className="text-2xl font-semibold">Select staking account</h1>
-					<p className="text-gray-600 text-sm max-w-md">
-						Choose the account you want to use for staking, this would be your
-						main wallet
-					</p>
+					<BottomBackButton onClick={() => decrementCurrentStep()}>
+						<BackButtonContent />
+					</BottomBackButton>
 				</div>
-				<div className="space-y-4">
-					{filteredAccounts && (
-						<div className="w-full space-y-4">
-							{filteredAccounts.length === 0 && (
-								<NoElligibleAccounts networkInfo={networkInfo} />
-							)}
-							<PopoverAccountSelection
-								accounts={filteredAccounts}
-								accountsBalances={accountsBalances}
-								isStashPopoverOpen={isStashPopoverOpen}
-								setIsStashPopoverOpen={setIsStashPopoverOpen}
-								networkInfo={networkInfo}
-								selectedAccount={selectedAccount}
-								onClick={handleOnClick}
-								isSetUp={true}
-								disabled={filteredAccounts.length === 0}
-							/>
-						</div>
-					)}
-					<h2 className="text-md font-semibold underline cursor-pointer">
-						Don’t see your account?
-					</h2>
-				</div>
-				<div className="w-full flex flex-row justify-start space-x-3">
-					<div>
-						<BottomBackButton onClick={() => decrementCurrentStep()}>
-							<BackButtonContent />
-						</BottomBackButton>
-					</div>
-					<div>
-						<BottomNextButton
-							onClick={() => incrementCurrentStep()}
-							disabled={isNil(selectedAccount)}
-						>
-							<NextButtonContent />
-						</BottomNextButton>
-					</div>
+				<div>
+					<BottomNextButton
+						onClick={() => {
+							addToLocalStorage(
+								networkInfo.network,
+								"selectedAccount",
+								selected?.address
+							);
+							setSelectedAccount(selected);
+							incrementCurrentStep();
+						}}
+						disabled={isNil(selected) || selected?.disabledSelection}
+					>
+						<NextButtonContent />
+					</BottomNextButton>
 				</div>
 			</div>
-		)
+		</div>
+	) : (
+		<div className="flex h-full w-full text-left text-gray-700 flex-col justify-center items-center">
+			<span className="loader"></span>
+		</div>
 	);
 };
 export default SelectStakingAccount;

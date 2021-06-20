@@ -9,12 +9,11 @@ const AreYouUsingLedger = ({
 	incrementStep,
 	decrementStep,
 	setUsingLedger,
+	accounts,
+	walletType,
+	setWalletType,
 }) => {
-	const { accounts } = useAccounts();
-	const { selectedNetwork } = useSelectedNetwork();
-	const { walletType, setWalletType } = useWalletType();
 	const [showLedgerInfo, setShowLedgerInfo] = useState(false);
-	const networkInfo = getNetworkInfo(selectedNetwork);
 	const handleOnClickNext = () => {
 		accounts?.map((account) => {
 			addToLocalStorage(account.substrateAddress, "isLedger", false);
@@ -26,7 +25,7 @@ const AreYouUsingLedger = ({
 		incrementStep();
 	};
 
-	return (
+	return accounts ? (
 		<div className="w-full h-full flex justify-center">
 			<div className="w-full max-w-65-rem flex flex-col items-center">
 				<div className="p-2 w-full">
@@ -86,6 +85,10 @@ const AreYouUsingLedger = ({
 					</div>
 				</div>
 			</div>
+		</div>
+	) : (
+		<div className="flex h-full w-full text-left text-gray-700 flex-col justify-center items-center">
+			<span className="loader"></span>
 		</div>
 	);
 };

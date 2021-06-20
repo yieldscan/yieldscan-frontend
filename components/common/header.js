@@ -1,7 +1,6 @@
 import React from "react";
 import {
 	useAccounts,
-	useHeaderLoading,
 	usePolkadotApi,
 	useSelectedNetwork,
 	useNetworkElection,
@@ -14,13 +13,14 @@ import {
 	useCoinGeckoPriceUSD,
 	useAccountsBalances,
 	useSelectedAccount,
+	useSelectedAccountInfo,
 	useAccountsStakingInfo,
 	useAccountsStakingLedgerInfo,
 	useAccountsControllerStashInfo,
 	useWalletType,
 } from "@lib/store";
-import { get, isNil } from "lodash";
-import { ChevronDown, Settings, Menu } from "react-feather";
+import { isNil } from "lodash";
+import { Settings, Menu } from "react-feather";
 import {
 	WalletConnectPopover,
 	useWalletConnect,
@@ -30,8 +30,6 @@ import {
 	PopoverTrigger,
 	PopoverContent,
 	useDisclosure,
-	Avatar,
-	Image,
 	IconButton,
 	DrawerOverlay,
 	DrawerContent,
@@ -40,22 +38,15 @@ import {
 	DrawerBody,
 	DrawerFooter,
 	Drawer,
-	Skeleton,
-	Text,
 } from "@chakra-ui/core";
-import Identicon from "@components/common/Identicon";
-import EditControllerModal from "@components/overview/EditControllerModal";
 import { useEffect, useState } from "react";
-import formatCurrency from "@lib/format-currency";
 import Routes from "@lib/routes";
 import Link from "next/link";
-import createPolkadotAPIInstance from "@lib/polkadot-api";
 import { getNetworkInfo, getAllNetworksInfo } from "yieldscan.config";
 import { setCookie } from "nookies";
 import Account from "./account";
 import SideMenu from "./sidemenu";
 import SideMenuFooter from "./side-menu-footer";
-import addToLocalStorage from "@lib/addToLocalStorage";
 import YieldScanLogo from "./YieldScanLogo";
 import NetworkSelection from "./NetworkSelection";
 import AccountSelection from "./AccountSelection";
@@ -79,19 +70,7 @@ const Header = ({ isBase, isSetUp }) => {
 	const { isOpen, toggle } = useWalletConnect();
 	const { isNewSetupOpen, toggleNewSetup } = useNewAccountsSetup();
 	const { setIsInElection } = useNetworkElection();
-	const {
-		accounts,
-		accountsWithBalances,
-		stashAccount,
-		freeAmount,
-		setFreeAmount,
-		setBondedAmount,
-		accountInfoLoading,
-		setStashAccount,
-		setAccounts,
-		setAccountsWithBalances,
-		setAccountInfoLoading,
-	} = useAccounts();
+	const { accounts, setAccounts } = useAccounts();
 	const { walletType } = useWalletType();
 	const { selectedAccount, setSelectedAccount } = useSelectedAccount();
 	const { accountsBalances, setAccountsBalances } = useAccountsBalances();
@@ -101,20 +80,17 @@ const Header = ({ isBase, isSetUp }) => {
 		useAccountsStakingLedgerInfo();
 	const { accountsControllerStashInfo, setAccountsControllerStashInfo } =
 		useAccountsControllerStashInfo();
-	const { coinGeckoPriceUSD, setCoinGeckoPriceUSD } = useCoinGeckoPriceUSD();
-	const { headerLoading } = useHeaderLoading();
-	const {
-		isOpen: editControllerModalOpen,
-		onClose: closeEditControllerModal,
-		onToggle: toggleEditControllerModal,
-	} = useDisclosure();
+	const { setCoinGeckoPriceUSD } = useCoinGeckoPriceUSD();
 
 	const { setNomMinStake } = useNomMinStake();
 
-	const [accountsWithoutCurrent, setAccountsWithoutCurrent] = useState([]);
-
-	const stashAddress = get(stashAccount, "address");
-
+	const {
+		balances,
+		setBalances,
+		stakingInfo,
+		setStakingInfo,
+		setStakingLedgerInfo,
+	} = useSelectedAccountInfo();
 	const [filteredAccounts, setFilteredAccounts] = useState(null);
 
 	const [isStashPopoverOpen, setIsStashPopoverOpen] = useState(false);
@@ -137,26 +113,25 @@ const Header = ({ isBase, isSetUp }) => {
 			setAccountsStakingInfo({});
 			setAccountsStakingLedgerInfo({});
 			setAccountsControllerStashInfo({});
+			setBalances(null);
+			setStakingInfo(null);
+			setStakingLedgerInfo(null);
 			setValidatorMap(undefined);
 			setValidatorRiskSets(undefined);
 			setValidators(undefined);
 			setUserData(null);
 			setAllNominations(null);
-			// setNominatorsData(undefined);
+			setNominatorsData(undefined);
 			setNomLoading(true);
+			setIsInElection(null);
 			setCookie(null, "networkName", to, {
 				maxAge: 7 * 24 * 60 * 60,
 			});
 			setCouncilMembers(undefined);
 			setTransactionHash(null);
 			setCouncilLoading(true);
-			setStashAccount(null);
-			setFreeAmount(null);
-			setBondedAmount(null);
 			setAccounts(null);
 			setCoinGeckoPriceUSD(null);
-			setAccountsWithBalances(null);
-			// setAccountInfoLoading(false);
 			setNomMinStake(null);
 			setSelectedNetwork(to);
 		}
@@ -199,18 +174,43 @@ const Header = ({ isBase, isSetUp }) => {
 		) {
 			const filteredAccounts = accounts.filter(
 				(account) =>
-					accountsBalances[account.address]?.freeBalance.gte(
-						apiInstance?.consts.balances.existentialDeposit
-					) &&
-					(!accountsControllerStashInfo[account.address]?.isController ||
-						accountsControllerStashInfo[account.address]?.isSameStashController)
+					// accountsBalances[account.address]?.freeBalance.gte(
+					// 	apiInstance?.consts.balances.existentialDeposit
+					// ) &&
+					!accountsControllerStashInfo[account.address]?.isController ||
+					accountsControllerStashInfo[account.address]?.isSameStashController
 			);
 			setFilteredAccounts(filteredAccounts);
-		}
+		} else setFilteredAccounts(null);
 	}, [
 		JSON.stringify(accounts),
 		JSON.stringify(accountsControllerStashInfo),
 		JSON.stringify(accountsBalances),
+	]);
+
+	useEffect(() => {
+		if (balances?.accountId.toString() !== selectedAccount?.address) {
+			setBalances(null);
+		}
+		setBalances(accountsBalances[selectedAccount?.address]);
+	}, [selectedAccount?.address, JSON.stringify(accountsBalances)]);
+
+	useEffect(() => {
+		if (stakingInfo?.accountId.toString() !== selectedAccount?.address) {
+			setStakingInfo(null);
+		}
+		setStakingInfo(accountsStakingInfo[selectedAccount?.address]);
+	}, [selectedAccount?.address, JSON.stringify(accountsStakingInfo)]);
+
+	useEffect(() => {
+		if (stakingInfo?.accountId.toString() !== selectedAccount?.address) {
+			setStakingLedgerInfo(null);
+		}
+		setStakingLedgerInfo(accountsStakingLedgerInfo[selectedAccount?.address]);
+	}, [
+		selectedAccount?.address,
+		stakingInfo,
+		JSON.stringify(accountsStakingLedgerInfo),
 	]);
 
 	return (
@@ -226,17 +226,12 @@ const Header = ({ isBase, isSetUp }) => {
 				(isOpen || !isNil(userStorage.getItem("autoConnectEnabled"))) && (
 					<WalletConnectPopover isOpen={isOpen} networkInfo={networkInfo} />
 				)}
-			{(Object.values(walletType).includes(true) ||
-				Object.values(walletType).includes(false)) &&
+			{!isSetUp &&
+				(Object.values(walletType).includes(true) ||
+					Object.values(walletType).includes(false)) &&
 				Object.values(walletType).includes(null) && (
 					<NewAccountsSetupPopover isOpen={isNewSetupOpen} />
 				)}
-			{/* Edit Controller */}
-			{/* <EditControllerModal
-				isOpen={editControllerModalOpen}
-				close={closeEditControllerModal}
-				networkInfo={networkInfo}
-			/> */}
 			{/* Account returns null, maybe replace with a custom hook */}
 			{!isNil(apiInstance)
 				? accounts?.map((account) => (

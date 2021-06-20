@@ -18,40 +18,82 @@ import {
 import AmountInput from "@components/reward-calculator/AmountInput";
 import withSlideIn from "@components/common/withSlideIn";
 import { isNil, get } from "lodash";
-import { useAccounts, useCoinGeckoPriceUSD } from "@lib/store";
+import { useCoinGeckoPriceUSD } from "@lib/store";
 import formatCurrency from "@lib/format-currency";
 
 const EditAmountModal = withSlideIn(
 	({
 		styles,
 		onClose,
-		freeAmount,
-		stashAccount,
-		bondedAmount,
+		accounts,
+		selectedAccount,
+		balances,
+		stakingInfo,
+		controllerAccount,
+		walletType,
 		amount = "",
 		setAmount,
 		networkInfo,
 		trackRewardCalculatedEvent,
 	}) => {
 		const { coinGeckoPriceUSD } = useCoinGeckoPriceUSD();
-		const [stakingAmount, setStakingAmount] = useState(amount);
+		const [stakingAmount, setStakingAmount] = useState(() => amount);
 		const [subCurrency, setSubCurrency] = useState(0);
 
 		const onConfirm = () => {
-			if (stakingAmount) setAmount(stakingAmount);
+			if (stakingInfo && stakingInfo?.stakingLedger?.active.isEmpty) {
+				setAmount(stakingAmount);
+			}
 			onClose();
 		};
+
+		useEffect(() => {
+			if (stakingInfo && !stakingInfo?.stakingLedger.active.isEmpty) {
+				setStakingAmount(
+					parseInt(stakingInfo?.stakingLedger.active) /
+						Math.pow(10, networkInfo.decimalPlaces)
+				);
+			}
+		}, [stakingInfo]);
 
 		useEffect(() => {
 			setSubCurrency(stakingAmount * coinGeckoPriceUSD);
 		}, [stakingAmount]);
 
-		const totalBalance = bondedAmount + get(freeAmount, "currency", 0);
-		const calculationDisabled =
-			(!totalBalance ||
-				stakingAmount == 0 ||
-				stakingAmount > totalBalance - networkInfo.minAmount) &&
-			stashAccount;
+		const activeBondedAmount =
+			parseInt(get(stakingInfo, "stakingLedger.active", 0)) /
+			Math.pow(10, networkInfo.decimalPlaces);
+
+		const totalAvailableStakingAmount =
+			parseInt(get(balances, "availableBalance", 0)) /
+			Math.pow(10, networkInfo.decimalPlaces);
+
+		const totalPossibleStakingAmount =
+			activeBondedAmount + totalAvailableStakingAmount;
+
+		// const proceedDisabled =
+		// 	accounts &&
+		// 	selectedAccount &&
+		// 	!Object.values(walletType).every((value) => value === null)
+		// 		? isNil(controllerAccount) ||
+		// 		  isNil(walletType[selectedAccount?.substrateAddress]) ||
+		// 		  walletType[controllerAccount?.substrateAddress] ||
+		// 		  (walletType[selectedAccount?.substrateAddress] &&
+		// 				selectedAccount?.address === controllerAccount?.address)
+		// 			? false
+		// 			: stakingAmount && stakingAmount > 0
+		// 			? stakingAmount > totalPossibleStakingAmount
+		// 				? true
+		// 				: activeBondedAmount >
+		// 				  totalPossibleStakingAmount - networkInfo.minAmount
+		// 				? totalAvailableStakingAmount < networkInfo.minAmount / 2
+		// 					? true
+		// 					: false
+		// 				: stakingAmount > totalPossibleStakingAmount - networkInfo.minAmount
+		// 				? true
+		// 				: false
+		// 			: true
+		// 		: false;
 
 		return (
 			<Modal isOpen={true} onClose={onClose} isCentered>
@@ -65,8 +107,9 @@ const EditAmountModal = withSlideIn(
 					<ModalCloseButton onClick={onClose} />
 					<ModalBody>
 						<div className="mt-4">
-							{stashAccount &&
-								stakingAmount > totalBalance - networkInfo.minAmount && (
+							{selectedAccount &&
+								stakingAmount >
+									totalPossibleStakingAmount - networkInfo.minAmount && (
 									<Alert
 										status="error"
 										rounded="md"
@@ -108,38 +151,33 @@ const EditAmountModal = withSlideIn(
 								)}
 							<div
 								className="m-2 text-gray-600 text-sm"
-								hidden={isNil(stashAccount)}
+								hidden={isNil(selectedAccount)}
 							>
 								Transferrable Balance:{" "}
 								{formatCurrency.methods.formatAmount(
-									Math.trunc(
-										get(freeAmount, "currency", 0) *
-											10 ** networkInfo.decimalPlaces
-									),
+									balances?.availableBalance,
 									networkInfo
 								)}
 							</div>
 							<div className="my-5">
 								<AmountInput
 									value={{ currency: amount, subCurrency: subCurrency }}
-									bonded={bondedAmount}
-									onChange={setStakingAmount}
 									networkInfo={networkInfo}
+									onChange={setStakingAmount}
 									trackRewardCalculatedEvent={trackRewardCalculatedEvent}
+									balances={balances}
+									walletType={walletType}
+									stakingInfo={stakingInfo}
 								/>
 							</div>
 							<div className="">
 								<button
 									className={`
 									bg-teal-500 text-white py-2 px-5 rounded
-						${
-							stashAccount && calculationDisabled
-								? "opacity-75 cursor-not-allowed"
-								: "opacity-100"
-						}
+						${selectedAccount ? "opacity-75 cursor-not-allowed" : "opacity-100"}
 					`}
 									onClick={onConfirm}
-									disabled={calculationDisabled}
+									// disabled={proceedDisabled}
 								>
 									Confirm
 								</button>

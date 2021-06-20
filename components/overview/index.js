@@ -19,6 +19,8 @@ import {
 	useSelectedAccount,
 	useAccountsBalances,
 	useAccountsStakingInfo,
+	useSelectedAccountInfo,
+	useWalletType,
 } from "@lib/store";
 import { useWalletConnect } from "@components/wallet-connect";
 import { isNil } from "lodash";
@@ -46,10 +48,10 @@ const Overview = () => {
 	const { apiInstance } = usePolkadotApi();
 	const { accounts, redeemableBalance } = useAccounts();
 	const { selectedAccount } = useSelectedAccount();
+	const { walletType } = useWalletType();
 	const { accountsBalances } = useAccountsBalances();
 	const { accountsStakingInfo } = useAccountsStakingInfo();
-	const [balance, setBalance] = useState();
-	const [stakingInfo, setStakingInfo] = useState();
+	const { balances, stakingInfo } = useSelectedAccountInfo();
 	const toast = useToast();
 	const [loading, setLoading] = useState(true);
 	const [nominationsLoading, setNominationsLoading] = useState(true); // work-around :(
@@ -88,15 +90,16 @@ const Overview = () => {
 		onClose: closeRedeemUnbonded,
 	} = useDisclosure();
 
-	useEffect(() => {
-		if (balance) setBalance(null);
-		setBalance(accountsBalances[selectedAccount?.address]);
-	}, [selectedAccount, accountsBalances[selectedAccount?.address]]);
-
-	useEffect(() => {
-		if (stakingInfo) setStakingInfo(null);
-		setStakingInfo(accountsStakingInfo[selectedAccount?.address]);
-	}, [selectedAccount, accountsStakingInfo[selectedAccount?.address]]);
+	const toSetUpAccounts = () => {
+		setIsNewSetup(false);
+		if (
+			!Object.values(walletType).every((value) => value === null) &&
+			Object.values(walletType).includes(null)
+		) {
+			setIsNewSetup(true);
+		}
+		router.push("/setup-accounts");
+	};
 
 	useEffect(() => {
 		if (selectedAccount?.address) {
@@ -173,13 +176,25 @@ const Overview = () => {
 				</span>
 				<button
 					className="border border-teal-500 text-teal-500 px-3 py-2 rounded-full"
-					onClick={toggle}
+					onClick={() =>
+						isNil(accounts)
+							? toggle()
+							: Object.keys(walletType).length === 0 ||
+							  Object.values(walletType).every((value) => value === null)
+							? toSetUpAccounts()
+							: toggle()
+					}
 				>
-					{isNil(accounts) ? "Connect Wallet" : "Select Account"}
+					{isNil(accounts)
+						? "Connect Wallet"
+						: Object.keys(walletType).length === 0 ||
+						  Object.values(walletType).every((value) => value === null)
+						? "Setup Accounts"
+						: "Select Account"}
 				</button>
 			</div>
 		</div>
-	) : isNil(balance) || isNil(stakingInfo) ? (
+	) : isNil(balances) || isNil(stakingInfo) ? (
 		<div className="flex-center w-full h-full">
 			<div className="flex-center flex-col">
 				<Spinner size="xl" color="teal.500" thickness="4px" />
@@ -237,12 +252,13 @@ const Overview = () => {
 	) : (
 		<div className="py-10 w-full h-full">
 			<FundsUpdate
+				apiInstance={apiInstance}
 				isOpen={fundsUpdateModalOpen}
 				close={closeFundsUpdateModal}
 				type={fundsUpdateModalType}
 				nominations={allNominations}
 				selectedAccount={selectedAccount}
-				balance={balance}
+				balance={balances}
 				stakingInfo={stakingInfo}
 				networkInfo={networkInfo}
 			/>

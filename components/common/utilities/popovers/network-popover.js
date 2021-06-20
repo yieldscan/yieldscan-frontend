@@ -18,6 +18,10 @@ import {
 	useAccountsBalances,
 	useAccountsStakingInfo,
 	useAccountsStakingLedgerInfo,
+	useSelectedAccount,
+	useAccountsControllerStashInfo,
+	useSelectedAccountInfo,
+	useNetworkElection,
 } from "@lib/store";
 import { setCookie } from "nookies";
 import { useState } from "react";
@@ -33,54 +37,51 @@ const NetworkPopover = ({ isExpanded, hasBorder }) => {
 	const { setTransactionHash } = useTransactionHash();
 	const { setNominatorsData, setNomLoading } = useNominatorsData();
 	const { setCouncilMembers, setCouncilLoading } = useCouncil();
-	const {
-		accounts,
-		accountsWithBalances,
-		stashAccount,
-		freeAmount,
-		setFreeAmount,
-		setBondedAmount,
-		accountInfoLoading,
-		setStashAccount,
-		setAccounts,
-		setAccountsWithBalances,
-		setAccountInfoLoading,
-	} = useAccounts();
+	const { setAccounts } = useAccounts();
 	const { setAccountsBalances } = useAccountsBalances();
+	const { apiInstance } = usePolkadotApi();
 	const { setAccountsStakingInfo } = useAccountsStakingInfo();
 	const { setAccountsStakingLedgerInfo } = useAccountsStakingLedgerInfo();
 	const { selectedNetwork, setSelectedNetwork } = useSelectedNetwork();
 	const { setNomMinStake } = useNomMinStake();
+	const { setSelectedAccount } = useSelectedAccount();
+	const { setIsInElection } = useNetworkElection();
+	const { setAccountsControllerStashInfo } = useAccountsControllerStashInfo();
+	const { setBalances, setStakingInfo, setStakingLedgerInfo } =
+		useSelectedAccountInfo();
 	const networkInfo = getNetworkInfo(selectedNetwork);
 	const supportedNetworksInfo = getAllNetworksInfo();
 	const [isNetworkOpen, setIsNetworkOpen] = useState(false);
 
-	const switchNetwork = (from, to) => {
+	const switchNetwork = async (from, to) => {
 		if (from !== to) {
+			apiInstance &&
+				(await apiInstance.disconnect().catch((err) => console.log(err)));
 			setApiInstance(null);
+			setSelectedAccount(null);
 			setAccountsBalances({});
 			setAccountsStakingInfo({});
 			setAccountsStakingLedgerInfo({});
+			setAccountsControllerStashInfo({});
+			setBalances(null);
+			setStakingInfo(null);
+			setStakingLedgerInfo(null);
 			setValidatorMap(undefined);
 			setValidatorRiskSets(undefined);
 			setValidators(undefined);
 			setUserData(null);
 			setAllNominations(null);
-			// setNominatorsData(undefined);
+			setNominatorsData(undefined);
 			setNomLoading(true);
+			setIsInElection(null);
 			setCookie(null, "networkName", to, {
 				maxAge: 7 * 24 * 60 * 60,
 			});
 			setCouncilMembers(undefined);
 			setTransactionHash(null);
 			setCouncilLoading(true);
-			setStashAccount(null);
-			setFreeAmount(null);
-			setBondedAmount(null);
 			setAccounts(null);
 			setCoinGeckoPriceUSD(null);
-			setAccountsWithBalances(null);
-			setAccountInfoLoading(false);
 			setNomMinStake(null);
 			setSelectedNetwork(to);
 		}
@@ -127,29 +128,25 @@ const NetworkPopover = ({ isExpanded, hasBorder }) => {
 					aria-orientation="vertical"
 					aria-labelledby="options-menu"
 				>
-					{supportedNetworksInfo.map((x) => {
-						if (process.env.NODE_ENV !== "production" || !x.isTestNetwork) {
-							return (
-								<button
-									className={`flex items-center px-4 py-2 text-white text-sm leading-5 ${
-										selectedNetwork === x.name
-											? "cursor-default bg-gray-600"
-											: "hover:bg-gray-700 focus:bg-gray-700"
-									}  focus:outline-none w-full`}
-									role="menuitem"
-									onClick={() => switchNetwork(selectedNetwork, x.name)}
-								>
-									<Avatar
-										name={x.name}
-										src={`/images/${x.network}-logo.png`}
-										size="sm"
-										mr={2}
-									/>
-									<span>{x.name}</span>
-								</button>
-							);
-						} else return <></>;
-					})}
+					{supportedNetworksInfo.map((x) => (
+						<button
+							className={`flex items-center px-4 py-2 text-white text-sm leading-5 ${
+								selectedNetwork === x.name
+									? "cursor-default bg-gray-600"
+									: "hover:bg-gray-700 focus:bg-gray-700"
+							}  focus:outline-none w-full`}
+							role="menuitem"
+							onClick={() => switchNetwork(selectedNetwork, x.name)}
+						>
+							<Avatar
+								name={x.name}
+								src={`/images/${x.network}-logo.png`}
+								size="sm"
+								mr={2}
+							/>
+							<span>{x.name}</span>
+						</button>
+					))}
 				</div>
 			</PopoverContent>
 		</Popover>

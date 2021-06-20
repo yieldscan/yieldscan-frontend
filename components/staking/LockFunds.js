@@ -10,18 +10,14 @@ import { ChevronLeft } from "react-feather";
 import Account from "../wallet-connect/Account";
 
 const LockFunds = ({
-	accounts,
 	balances,
 	controllerBalances,
 	stakingInfo,
-	stakingLedgerInfo,
-	controllerStashInfo,
 	apiInstance,
 	selectedAccount,
 	controllerAccount,
 	networkInfo,
 	transactionState,
-	setTransactionState,
 	onConfirm,
 }) => {
 	const selectedValidators = get(transactionState, "selectedValidators", []);
@@ -45,13 +41,31 @@ const LockFunds = ({
 				decodeAddress(controllerAccount?.address),
 				42
 			);
-			apiInstance.tx.staking
-				.nominate(nominatedValidators)
-				.paymentInfo(substrateControllerId)
-				.then((info) => {
-					const fee = info.partialFee.toNumber();
-					setTransactionFee(fee);
-				});
+			const tranasactionType = stakingInfo?.stakingLedger?.total.isEmpty
+				? "lock-funds"
+				: "bond-extra";
+			const transactions = [];
+			if (tranasactionType === "lock-funds") {
+				const amount = Math.trunc(
+					stakingAmount * 10 ** networkInfo.decimalPlaces
+				);
+				transactions.push(
+					apiInstance.tx.staking.bond(
+						substrateControllerId,
+						amount,
+						transactionState.rewardDestination
+					)
+				);
+			} else if (tranasactionType === "bond-extra") {
+				const amount = Math.trunc(
+					stakingAmount * 10 ** networkInfo.decimalPlaces
+				);
+				transactions.push(apiInstance.tx.staking.bondExtra(amount));
+			}
+			transactions[0].paymentInfo(substrateControllerId).then((info) => {
+				const fee = info.partialFee.toNumber();
+				setTransactionFee(fee);
+			});
 		}
 	}, [stakingInfo]);
 
