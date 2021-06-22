@@ -1,9 +1,6 @@
 /**
  * @jest-environment jsdom
  */
-import HomePage from "../pages/index";
-import { render, act } from "@testing-library/react";
-import addToLocalStorage from "@lib/addToLocalStorage";
 import calculateReward from "@lib/calculate-reward";
 import fetchPrice from "@lib/fetch-price";
 import formatCurrency from "@lib/format-currency";
