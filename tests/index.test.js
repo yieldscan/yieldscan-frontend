@@ -6,6 +6,8 @@ import { render, act } from "@testing-library/react";
 import addToLocalStorage from "@lib/addToLocalStorage";
 import calculateReward from "@lib/calculate-reward";
 import fetchPrice from "@lib/fetch-price";
+import formatCurrency from "@lib/format-currency";
+import getRewards from "@lib/getRewards";
 
 const networkInfo = {
 	id: "polkadot-cc1",
@@ -154,6 +156,32 @@ describe("test fetchPrice", () => {
 	});
 	test("test for kusama", () => {
 		fetchPrice(null, "kusama").then((data) => {
+			expect(data).toBeGreaterThan(0);
+		});
+	});
+});
+
+describe("test format balances", () => {
+	// Each test for the component will get an `it` block
+	test("throw on invalid input", () => {
+		expect(() =>
+			formatCurrency.methods.formatAmount(10.1213, networkInfo)
+		).toThrow();
+	});
+	test("test for Polkadot", () => {
+		expect(
+			formatCurrency.methods.formatAmount(10000000000, networkInfo)
+		).toEqual("1.0000 DOT");
+	});
+});
+
+describe("test fetching rewards", () => {
+	// Each test for the component will get an `it` block
+	test("test for Polkadot address", () => {
+		getRewards(
+			"12VrmvZWmcWR5swfUkirXUBjYmkTZtw3Ue4D25SAFvvmBkEU",
+			networkInfo
+		).then((data) => {
 			expect(data).toBeGreaterThan(0);
 		});
 	});
