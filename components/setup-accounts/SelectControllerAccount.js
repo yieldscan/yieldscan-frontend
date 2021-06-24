@@ -237,7 +237,12 @@ const SelectControllerAccount = ({
 					/>
 				)}
 				<h2 className="text-md font-semibold underline cursor-pointer">
-					Don’t see your account?
+					<a
+						href="https://intercom.help/yieldscan/en/articles/5353506-my-account-is-not-showing-i-can-t-find-my-account-in-the-list"
+						target="_blank"
+					>
+						Don’t see your account?
+					</a>
 				</h2>
 			</div>
 			<div className="w-full flex flex-row justify-start space-x-3">
@@ -294,7 +299,12 @@ const ExistingControllerAlert = () => (
 					your controller later in the settings tab.
 				</p>
 				<h2 className="mt-2 text-md font-semibold underline cursor-pointer">
-					See how to setup a controller
+					<a
+						href="https://intercom.help/yieldscan/en/articles/5353583-setting-up-a-controller-account"
+						target="_blank"
+					>
+						See how to setup a controller
+					</a>
 				</h2>
 			</AlertDescription>
 		</div>
@@ -321,9 +331,14 @@ const SameStashControllerAlert = () => (
 					funds. We recommend having separate storage and controller wallets for
 					better security and accessibility.
 				</p>
-				<h2 className="mt-2 text-md font-semibold underline cursor-pointer">
-					See how to setup a controller
-				</h2>
+				<a
+					href="https://intercom.help/yieldscan/en/articles/5353583-setting-up-a-controller-account"
+					target="_blank"
+				>
+					<h2 className="mt-2 text-md font-semibold underline cursor-pointer">
+						See how to setup a controller
+					</h2>
+				</a>
 			</AlertDescription>
 		</div>
 	</Alert>
