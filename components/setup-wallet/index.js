@@ -35,7 +35,12 @@ const SetupWallet = () => {
 						<div className="w-full text-center">
 							<button
 								className="rounded-lg font-medium w-full py-3 bg-teal-500 text-white"
-								// onClick={() => onConfirm()}
+								onClick={() =>
+									window?.open(
+										"https://intercom.help/yieldscan/en/articles/5341271-take-your-first-steps-create-your-crypto-account",
+										"_blank"
+									)
+								}
 							>
 								Get Started
 							</button>
@@ -61,7 +66,12 @@ const SetupWallet = () => {
 						<div className="w-full text-center">
 							<button
 								className="rounded-lg font-medium w-full py-3 border-2 border-gray-700"
-								// onClick={() => onConfirm()}
+								onClick={() =>
+									window?.open(
+										"https://intercom.help/yieldscan/en/articles/5353170-how-to-connect-your-ledger-device-to-yieldscan-through-polkadot-js-extension",
+										"_blank"
+									)
+								}
 							>
 								Connect your ledger to PolkadotJS
 							</button>
