@@ -45,7 +45,6 @@ import {
 import calculateReward from "@lib/calculate-reward";
 import ValidatorsResult from "./ValidatorsResult";
 import ValidatorsTable from "./ValidatorsTable";
-import { PaymentPopover } from "@components/new-payment";
 import EditAmountModal from "./EditAmountModal";
 import FilterPanel from "./FilterPanel";
 import { useWalletConnect } from "@components/wallet-connect";

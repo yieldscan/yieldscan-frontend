@@ -13,12 +13,10 @@ import {
 	useAccounts,
 	useTransaction,
 	useHeaderLoading,
-	usePaymentPopover,
 	useSelectedNetwork,
 	useNetworkElection,
 	useTransactionHash,
 	useValidatorData,
-	useNomMinStake,
 	useCoinGeckoPriceUSD,
 	useSelectedAccount,
 	useAccountsBalances,
@@ -28,7 +26,6 @@ import {
 	useIsNewSetup,
 	useSelectedAccountInfo,
 } from "@lib/store";
-import { PaymentPopover } from "@components/new-payment";
 import { get, isNil, mapValues, keyBy, cloneDeep, debounce } from "lodash";
 import calculateReward from "@lib/calculate-reward";
 import {
