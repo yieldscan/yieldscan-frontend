@@ -1,11 +1,11 @@
-import { MetomicProvider } from "@metomic/react";
+import { ConfirmicProvider } from "@confirmic/react";
 import * as Sentry from "@sentry/node";
 // import tawkTo from "tawkto-react";
 
 import { ThemeProvider, theme } from "@chakra-ui/core";
 import { IntercomProvider, useIntercom } from "react-use-intercom";
 import "../styles/index.scss";
-import { useEffect } from "react";
+import { isNil } from "lodash";
 
 const customIcons = {
 	secureLogo: {
@@ -170,18 +170,17 @@ if (process.env.NEXT_PUBLIC_SENTRY_DSN) {
 }
 
 export default function YieldScanApp({ Component, pageProps, err }) {
-	// useEffect(() => {
-	// 	if (process.env.NEXT_PUBLIC_TAWK_PROP_ID)
-	// 		tawkTo(process.env.NEXT_PUBLIC_TAWK_PROP_ID);
-	// }, []);
+	const projectId = isNil(process.env.NEXT_PUBLIC_METOMIC_PROJECT_ID)
+		? ""
+		: process.env.NEXT_PUBLIC_METOMIC_PROJECT_ID;
 	const intercomAppId = process.env.NEXT_PUBLIC_INTERCOM_ID;
 	return (
 		<ThemeProvider theme={customTheme}>
-			<MetomicProvider projectId={process.env.NEXT_PUBLIC_METOMIC_PROJECT_ID}>
+			<ConfirmicProvider projectId={projectId}>
 				<IntercomProvider appId={intercomAppId} autoBoot={true}>
 					<Component {...pageProps} err={err} />
 				</IntercomProvider>
-			</MetomicProvider>
+			</ConfirmicProvider>
 		</ThemeProvider>
 	);
 }

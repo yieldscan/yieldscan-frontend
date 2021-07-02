@@ -30,7 +30,7 @@ This project is funded and supported by the [Web3 Foundation](https://web3.found
 ### Pre-requisites <a name = "usage-pre-requisites"></a>
 
 - PolkadotJS browser extension
-- At least one account on Kusama with enough balance to pay for transaction fees and bond funds.
+- At least one account on Kusama or Polkadot with enough balance to pay for transaction fees and bond funds.
 
 Currently, the app can be used on https://yieldscan.app .
 
@@ -81,24 +81,19 @@ Click on "Connect my wallet". You will be prompted by PolkadotJS to authorize Yi
   ```bash
   yarn
   ```
-- Add environment variables in `.env.local`
+- Add environment variables in `.env.local` or `.env` file:
 
   ```env
   # Main API endpoint
   NEXT_PUBLIC_API_BASE_URL=<base-url-of-deployed/local-api>
 
-  # Tracking
-  NEXT_PUBLIC_AMPLITUDE_API_TOKEN=<your-amplitude-api-token> # For development you can pass a string like "none" - to prevent unnecessary data from being logged
-  NEXT_PUBLIC_METOMIC_PROJECT_ID=<your-metomic-project-id>
+  # Manage Testnets
+  NEXT_PUBLIC_TESTNETS_ENABLED=true # if true westend will be enabled
 
-  # Sentry (optional)
-  NEXT_PUBLIC_SENTRY_DSN=<your-sentry-dsn>
-
-  # Only required to upload sourcemaps
-
-  SENTRY_ORG=<your-sentry-org>
-  SENTRY_PROJECT=<your-sentry-project>
-  SENTRY_AUTH_TOKEN=<your-sentry-auth-token>
+  # Network Endpoints
+  NEXT_PUBLIC_POLKADOT="wss://polkadot.api.onfinality.io/public-ws"
+  NEXT_PUBLIC_KUSAMA="wss://kusama-rpc.polkadot.io"
+  NEXT_PUBLIC_WESTEND="wss://westend-rpc.polkadot.io"
   ```
 
   Note: Checkout backend [crawler](https://github.com/buidl-labs/yieldscan-backend-ts) and [api](https://github.com/yieldscan/yieldscan-backend-api).
