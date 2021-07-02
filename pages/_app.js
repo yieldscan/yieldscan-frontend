@@ -1,4 +1,4 @@
-import { ConfirmicProvider } from "@confirmic/react";
+import { MetomicProvider } from "@metomic/react";
 import * as Sentry from "@sentry/node";
 // import tawkTo from "tawkto-react";
 
@@ -176,11 +176,11 @@ export default function YieldScanApp({ Component, pageProps, err }) {
 	const intercomAppId = process.env.NEXT_PUBLIC_INTERCOM_ID;
 	return (
 		<ThemeProvider theme={customTheme}>
-			<ConfirmicProvider projectId={projectId}>
+			<MetomicProvider projectId={process.env.NEXT_PUBLIC_METOMIC_PROJECT_ID}>
 				<IntercomProvider appId={intercomAppId} autoBoot={true}>
 					<Component {...pageProps} err={err} />
 				</IntercomProvider>
-			</ConfirmicProvider>
+			</MetomicProvider>
 		</ThemeProvider>
 	);
 }
