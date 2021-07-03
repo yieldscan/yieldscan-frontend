@@ -1,42 +1,60 @@
 # YieldScan
 
-Maximizing yield on staking. Starting with Kusama.
+Maximizing staking yield on substrate based networks(supported networks: Kusama and Polkadot). Currently, the app can be used on https://yieldscan.app .
 
 ## Table of contents
 
 - [Currently supported networks](#supported_networks)
 - [Description](#description)
 - [Development](#development)
-  - [Pre-requisites](#development-pre-requisites)
-  - [Installation Instructions](#installation)
-  - [Dependencies](#dependencies)
+  - [Contribution Guide](#contribution_guide)
+  - [Codebase Overview](#codebase_verview)
+  - [Pre-requisites](#pre-requisites)
+  - [Development guide](#development_guide)
 - [Gratitude](#gratitude)
 
-## Currently supported networks <a name = "supported_networks"></a>
+## Currently supported networks: <a name = "supported_networks"></a>
 
 - [Kusama Network](https://kusama.network/)
 - [Polkadot Network](https://polkadot.network/)
 
-## Description <a name = "description"></a>
+## Description: <a name = "description"></a>
 
-We aim to solve the problems of information asymmetry in identifying and optimizing returns on staking, reducing time and capital costs for stakers to make staking decisions.
+[YieldScan](https://yieldscan.app) is a portfolio management platform for NPoS (nominated proof-of-stake) networks like Kusama and Polkadot. We aim to simplify portfolio management to make yield optimization easier and more accessible, for technical and non-technical users alike.
 
 This project is funded and supported by the [Web3 Foundation](https://web3.foundation/) - under [Wave 6](https://github.com/w3f/General-Grants-Program/blob/master/grants/accepted_grant_applications.md#wave-6).
 
-## Usage <a name = "usage"></a>
+## Development: <a name = "development"></a>
 
-### Pre-requisites <a name = "usage-pre-requisites"></a>
+We are always working on improving our codebase, and welcome any suggestions or contributions.
 
-- PolkadotJS browser extension
-- At least one account on Kusama or Polkadot with enough balance to pay for transaction fees and bond funds.
+### Contribution Guide: <a name = 'contribution_guide'></a>
 
-Currently, the app can be used on https://yieldscan.app .
+1. Create an issue for the improvement.
 
-## Development <a name = "development"></a>
+2. Fork the repo and make changes. Make sure to checkout from develop branch before starting.
 
-### Getting Started
+3. Make a PR to `develop` branch.
 
-- Clone the repository:
+### Codebase Overview: <a name = 'codebase_overview'></a>
+
+Important packages:
+
+- [components/overview](https://github.com/yieldscan/yieldscan-frontend/tree/master/components/overview): User profile dashboard module. Overview page displays staked amount, nominated validators and estimated APY, it also handles bond-extra, rebond and withdraw operations for the nominator/user.
+- [components/reward-calculator](https://github.com/yieldscan/yieldscan-frontend/tree/master/components/reward-calculator): Reward calulator module. Reward calculator page displays different estimated max yields based on risk-score.
+- [components/setup-accounts](https://github.com/yieldscan/yieldscan-frontend/tree/master/components/setup-accounts): Setup accounts module. User flow for setting up accounts for identifying ledger and browser accounts.
+- [components/staking](https://github.com/yieldscan/yieldscan-frontend/tree/master/components/staking): Staking module. This module handles different staking flows for different cases.
+
+- [components/validators](https://github.com/yieldscan/yieldscan-frontend/tree/master/components/overview): validators page module.
+
+### Pre-requisites: <a name = 'pre-requisites'></a>
+
+- [yieldscan-crawler](https://github.com/yieldscan/yieldscan-backend-crawler)
+- [yieldscan-api](https://github.com/yieldscan/yieldscan-backend-api)
+
+### Development guide: <a name='development_guide'></a>
+
+- Clone this or forked repository:
   ```bash
   git clone https://github.com/yieldscan/yieldscan-frontend.git
   ```
