@@ -100,18 +100,15 @@ const EditControllerModal = ({
 	);
 };
 
-const Transaction = ({
+const EditController = ({
 	accounts,
-	stashAccount,
-	stakingLoading,
+	controller,
 	transactionState,
 	setController,
-	onConfirm,
-	networkInfo,
 }) => {
 	const [editController, setEditController] = useState(false);
 	const compounding = get(transactionState, "compounding", true);
-	const [selectedController, setSelectedController] = useState(stashAccount);
+	const [selectedController, setSelectedController] = useState(controller);
 	const [controllerEdited, setControllerEdited] = useState(false);
 	const { isOpen, onClose, onOpen } = useDisclosure();
 
@@ -202,4 +199,4 @@ const Transaction = ({
 	);
 };
 
-export default Transaction;
+export default EditController;

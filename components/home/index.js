@@ -2,7 +2,11 @@ import React from "react";
 import { Box, Button, Image, Link } from "@chakra-ui/core";
 import { Link as ScrollLink, animateScroll as scroll } from "react-scroll";
 import Footer from "@components/common/footer";
-import { useTransaction, useSelectedNetwork } from "@lib/store";
+import {
+	useTransaction,
+	useSelectedNetwork,
+	useCoinGeckoPriceUSD,
+} from "@lib/store";
 import { getNetworkInfo } from "../../yieldscan.config";
 import SocialProofStats from "./SocialProofStats";
 import LandingPageCalculator from "./landing-page-calculator";
@@ -19,6 +23,7 @@ const HomePage = () => {
 	const { selectedNetwork } = useSelectedNetwork();
 	const networkInfo = getNetworkInfo(selectedNetwork);
 	const { stakingAmount, setStakingAmount } = useTransaction();
+	const { coinGeckoPriceUSD } = useCoinGeckoPriceUSD();
 	const [inputValue, setInputValue] = React.useState(stakingAmount || 1000);
 
 	const [showScroll, setShowScroll] = React.useState(false);
@@ -73,6 +78,7 @@ const HomePage = () => {
 			<LandingPageCalculator
 				inputValue={inputValue}
 				setInputValue={(val) => setInputValue(val)}
+				coinGeckoPriceUSD={coinGeckoPriceUSD}
 				networkInfo={networkInfo}
 			/>
 			<SocialProofStats networkInfo={networkInfo} />

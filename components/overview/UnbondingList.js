@@ -38,14 +38,13 @@ const UnbondingAmountCard = ({
 				<CircularProgress value={progressInPercentage} size={40} color="teal" />
 				<div className="text-gray-700 ml-2">
 					<span className="text-md">
-						{formatCurrency.methods.formatAmount(
-							Math.trunc(value * 10 ** networkInfo.decimalPlaces),
-							networkInfo
-						)}
+						{formatCurrency.methods.formatAmount(value, networkInfo)}
 					</span>
 					<div className="flex items-center">
+						{/* TODO: Add skeleteon for loading time instead of dots */}
 						<span className="text-xs mr-2">
-							Unbonding in {humanizeTimeRemaining}
+							Unbonding in{" "}
+							{eraLength && eraProgress ? humanizeTimeRemaining : "..."}
 						</span>
 					</div>
 				</div>
@@ -55,22 +54,30 @@ const UnbondingAmountCard = ({
 };
 
 const UnbondingList = withSlideIn(
-	({
-		open,
-		close,
-		toggle,
-		unbondingBalances,
-		networkInfo,
-		eraProgress,
-		eraLength,
-	}) => {
+	({ api, close, isOpen, stakingInfo, networkInfo }) => {
 		const handlePopoverClose = () => {
 			close();
 		};
 
+		const [eraLength, setEraLength] = useState();
+		const [eraProgress, setEraProgress] = useState();
+
+		useEffect(() => {
+			let unsubscribe;
+			api?.derive.session
+				.progress((data) => {
+					setEraLength(parseInt(data.eraLength));
+					setEraProgress(parseInt(data.eraProgress));
+				})
+				.then((u) => (unsubscribe = u));
+			return () => {
+				unsubscribe && unsubscribe();
+			};
+		}, [networkInfo]);
+
 		return (
 			<Modal
-				isOpen={true}
+				isOpen={isOpen}
 				onClose={close}
 				isCentered
 				closeOnOverlayClick={true}
@@ -94,7 +101,7 @@ const UnbondingList = withSlideIn(
 								Unlocking Amounts
 							</h3>
 							<div className="py-2 flex items-center flex-wrap">
-								{unbondingBalances.map((data) => (
+								{stakingInfo.unlocking.map((data) => (
 									<UnbondingAmountCard
 										value={data.value}
 										remainingEras={data.remainingEras}

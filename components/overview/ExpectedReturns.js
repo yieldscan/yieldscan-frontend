@@ -2,7 +2,7 @@ import React from "react";
 import { isNil } from "lodash";
 import formatCurrency from "@lib/format-currency";
 import calculateReward from "@lib/calculate-reward";
-import { usePolkadotApi, useAccounts } from "@lib/store";
+import { usePolkadotApi, useAccounts, useCoinGeckoPriceUSD } from "@lib/store";
 import { ChevronDown } from "react-feather";
 import {
 	Popover,
@@ -16,6 +16,7 @@ import CountUp from "react-countup";
 const ExpectedReturns = ({ stats, validators, networkInfo }) => {
 	const { apiInstance } = usePolkadotApi();
 	const { stashAccount } = useAccounts();
+	const { coinGeckoPriceUSD } = useCoinGeckoPriceUSD();
 	const [result, setResult] = React.useState({});
 	const [timePeriodValue, setTimePeriodValue] = React.useState(12);
 	const [timePeriodUnit, setTimePeriodUnit] = React.useState("months");
@@ -26,6 +27,7 @@ const ExpectedReturns = ({ stats, validators, networkInfo }) => {
 	const _calculateReward = (_timePeriodValue, _timePeriodUnit) => {
 		if (validators && stats.totalAmountStaked) {
 			calculateReward(
+				coinGeckoPriceUSD,
 				validators.filter((validator) => validator.isElected),
 				stats.totalAmountStaked,
 				_timePeriodValue,
@@ -50,6 +52,7 @@ const ExpectedReturns = ({ stats, validators, networkInfo }) => {
 	React.useEffect(() => {
 		if (validators && stats.totalAmountStaked) {
 			calculateReward(
+				coinGeckoPriceUSD,
 				validators.filter((validator) => validator.isElected),
 				stats.totalAmountStaked,
 				timePeriodValue,

@@ -11,14 +11,7 @@ import {
 import { get } from "lodash";
 import formatCurrency from "@lib/format-currency";
 
-const MinStakeAlert = ({
-	freeAmount,
-	networkInfo,
-	bondedAmount,
-	amount,
-	nomMinStake,
-	totalBalance,
-}) => (
+const MinStakeAlert = ({ networkInfo, nomMinStake }) => (
 	<Alert
 		status="warning"
 		rounded="md"

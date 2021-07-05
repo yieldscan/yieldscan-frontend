@@ -1,8 +1,7 @@
 import React from "react";
 import { Spinner } from "@chakra-ui/core";
 import axios from "@lib/axios";
-import { useNomMinStake } from "@lib/store";
-import convertCurrency from "@lib/convert-currency";
+import { useNomMinStake, useCoinGeckoPriceUSD } from "@lib/store";
 import formatCurrency from "@lib/format-currency";
 import millify from "millify";
 import Link from "next/link";
@@ -22,14 +21,7 @@ const SocialProofStats = ({ networkInfo }) => {
 	const [loading, setLoading] = React.useState(true);
 	const [nominatorsData, setNominatorsData] = React.useState([]);
 	const { setNomMinStake } = useNomMinStake();
-	const [
-		totalAmountStakedSubCurrency,
-		setTotalAmountStakedSubCurrency,
-	] = React.useState();
-	const [
-		totalRewardsSubCurrency,
-		setTotalRewardsSubCurrency,
-	] = React.useState();
+	const { coinGeckoPriceUSD } = useCoinGeckoPriceUSD();
 
 	React.useEffect(() => {
 		setLoading(true);
@@ -48,19 +40,6 @@ const SocialProofStats = ({ networkInfo }) => {
 			});
 	}, [networkInfo]);
 
-	React.useEffect(() => {
-		if (nominatorsData.stats) {
-			convertCurrency(
-				nominatorsData.stats.totalAmountStaked,
-				networkInfo.coinGeckoDenom
-			).then((value) => setTotalAmountStakedSubCurrency(value));
-			convertCurrency(
-				nominatorsData.stats.totalRewards,
-				networkInfo.coinGeckoDenom
-			).then((value) => setTotalRewardsSubCurrency(value));
-		}
-	}, [nominatorsData, networkInfo]);
-
 	return error ? (
 		<div className="flex-center flex-col mt-40">
 			<div className="text-4xl">🧐</div>
@@ -72,10 +51,12 @@ const SocialProofStats = ({ networkInfo }) => {
 		<div className="flex w-full max-w-65-rem mt-32 flex-wrap justify-between">
 			<StatCard
 				stat={
-					loading || isNaN(totalAmountStakedSubCurrency) ? (
+					loading || isNaN(nominatorsData.stats.totalAmountStaked) ? (
 						<Spinner />
 					) : (
-						`$ ${millify(totalAmountStakedSubCurrency)}+`
+						`$ ${millify(
+							nominatorsData.stats.totalAmountStaked * coinGeckoPriceUSD
+						)}+`
 					)
 				}
 				description={`Invested in staking on ${networkInfo.name}`}
@@ -107,10 +88,12 @@ const SocialProofStats = ({ networkInfo }) => {
 			/>
 			<StatCard
 				stat={
-					loading || isNaN(totalRewardsSubCurrency) ? (
+					loading || isNaN(nominatorsData.stats.totalRewards) ? (
 						<Spinner />
 					) : (
-						`$ ${millify(totalRewardsSubCurrency)}+`
+						`$ ${millify(
+							nominatorsData.stats.totalRewards * coinGeckoPriceUSD
+						)}+`
 					)
 				}
 				description="Earned as staking rewards"

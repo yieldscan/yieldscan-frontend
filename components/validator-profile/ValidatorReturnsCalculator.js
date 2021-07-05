@@ -1,9 +1,11 @@
 import { useState, useEffect } from "react";
+import { useCoinGeckoPriceUSD } from "@lib/store";
 import { get } from "lodash";
 import calculateReward from "@lib/calculate-reward";
 import formatCurrency from "@lib/format-currency";
 
 const ValidatorReturnsCalculator = ({ validatorInfo, networkInfo }) => {
+	const { coinGeckoPriceUSD } = useCoinGeckoPriceUSD();
 	const [amount, _setAmount] = useState(1000);
 	const [returns, setReturns] = useState();
 
@@ -15,6 +17,7 @@ const ValidatorReturnsCalculator = ({ validatorInfo, networkInfo }) => {
 			};
 
 			calculateReward(
+				coinGeckoPriceUSD,
 				[validator],
 				amount,
 				12,

@@ -7,13 +7,7 @@ import { Icon } from "@chakra-ui/core";
 import { HelpPopover } from "@components/reward-calculator";
 import { Events, setUserProperties, trackEvent } from "@lib/analytics";
 
-const RewardDestination = ({
-	stashAccount,
-	transactionState,
-	setTransactionState,
-	onConfirm,
-	networkInfo,
-}) => {
+const RewardDestination = ({ transactionState, setTransactionState }) => {
 	const [compounding] = useState(get(transactionState, "compounding", true));
 	const stakingAmount = get(transactionState, "stakingAmount", 0);
 	const [destination, setDestination] = useState("Stash");
@@ -71,7 +65,9 @@ const RewardDestination = ({
 						onClick={() => {
 							if (!compounding) {
 								setDestination(accountType);
-								trackEvent(Events.ADV_PREFS_EDIT, { rewardDestination: accountType });
+								trackEvent(Events.ADV_PREFS_EDIT, {
+									rewardDestination: accountType,
+								});
 							}
 						}}
 					>
