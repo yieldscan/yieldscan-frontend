@@ -102,7 +102,12 @@ const SelectStakingAccount = ({
 					</div>
 				)}
 				<h2 className="text-md font-semibold underline cursor-pointer">
-					Don’t see your account?
+					<a
+						href="https://intercom.help/yieldscan/en/articles/5353506-my-account-is-not-showing-i-can-t-find-my-account-in-the-list"
+						target="_blank"
+					>
+						Don’t see your account?
+					</a>
 				</h2>
 			</div>
 			<div className="w-full flex flex-row justify-start space-x-3">

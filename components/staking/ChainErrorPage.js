@@ -28,7 +28,9 @@ const ChainErrorPage = ({ router, setIsNewSetup }) => {
 				</button>
 				<button
 					className="w-full rounded-lg min-w-32 font-medium p-3 text-teal-500 border border-teal-500 text-white"
-					// onClick={onConfirm}
+					onClick={() =>
+						window?.open("https://discord.gg/nQYhcg9RPU", "_blank")
+					}
 				>
 					No? Contact Us
 				</button>

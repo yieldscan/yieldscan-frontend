@@ -42,7 +42,12 @@ const ConnectInfo = () => (
 		</p>
 		<button
 			className="flex flex-row space-x-2 items-center rounded-lg font-medium p-3 border border-gray-700 mt-4"
-			// onClick={}
+			onClick={() =>
+				window?.open(
+					"https://intercom.help/yieldscan/en/articles/5353170-how-to-connect-your-ledger-device-to-yieldscan-through-polkadot-js-extension",
+					"_blank"
+				)
+			}
 		>
 			<span>Connect your ledger to PolkadotJS</span>
 			<ArrowUpRight size={18} />
@@ -84,7 +89,12 @@ const ControllerInfo = () => (
 		</p>
 		<button
 			className="flex flex-row space-x-2 items-center rounded-lg font-medium p-3 border border-gray-700 mt-4"
-			// onClick={}
+			onClick={() =>
+				window?.open(
+					"https://intercom.help/yieldscan/en/articles/5353583-setting-up-a-controller-account",
+					"_blank"
+				)
+			}
 		>
 			<span>Setup your controller</span>
 			<ArrowUpRight size={18} />

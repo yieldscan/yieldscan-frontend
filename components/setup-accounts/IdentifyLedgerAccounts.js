@@ -76,7 +76,12 @@ const IdentifyLedgerAccounts = ({
 					device
 				</p>
 				<h2 className="text-md font-semibold underline cursor-pointer">
-					How do I check?
+					<a
+						href="https://intercom.help/yieldscan/en/articles/5353515-how-to-check-which-accounts-on-polkadot-js-wallet-are-imported-through-a-hardware-wallet"
+						target="_blank"
+					>
+						How do I check?
+					</a>
 				</h2>
 			</div>
 			<div className="row-span-4 w-full space-y-4">

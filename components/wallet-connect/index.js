@@ -345,8 +345,8 @@ const WalletConnectPopover = ({ styles, networkInfo }) => {
 								<CheckIconInfo info="You keep ownership of your funds" />
 								<CheckIconInfo info="Staking rewards usually start to show after 2-3 days" />
 								<CheckIconInfo
-									info="Funds will be locked for staking and can be unlocked at any
-										time, but unlocking takes 28 days"
+									info={`Funds will be locked for staking and can be unlocked at any
+										time, but unlocking takes ${networkInfo.lockUpPeriod} days`}
 								/>
 							</Box>
 

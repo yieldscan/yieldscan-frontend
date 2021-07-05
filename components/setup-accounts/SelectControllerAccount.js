@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { isNil } from "lodash";
+import { isNil, get } from "lodash";
 import {
 	BottomBackButton,
 	BottomNextButton,
@@ -51,6 +51,8 @@ const SelectControllerAccount = ({
 	const [isOpen, setIsOpen] = useState(false);
 
 	const [filteredAccounts, setFilteredAccounts] = useState(null);
+
+	const [transactionHash, setTransactionHash] = useState(null);
 
 	const [controllerAccount, setControllerAccount] = useState(() =>
 		accountsStakingInfo[selectedAccount?.address]?.controllerId
@@ -177,21 +179,24 @@ const SelectControllerAccount = ({
 		Object.keys(accountsBalances).length > 0 &&
 		Object.keys(accountsControllerStashInfo).length > 0 ? (
 		<div className="flex-1 w-full max-w-2xl flex flex-col text-gray-700 justify-center p-4 text-gray-700 space-y-6 mb-32">
-			{controllerAccount &&
-				isLedger &&
-				selected &&
-				controllerAccount.address === selectedAccount.address && (
-					<EditControllerModal
-						isOpen={isOpen}
-						selectedControllerAccount={selected}
-						eligibleAccounts={filteredAccounts}
-						accountsBalances={accountsBalances}
-						networkInfo={networkInfo}
-						apiInstance={apiInstance}
-						selectedAccount={selectedAccount}
-						close={() => setIsOpen(false)}
-					/>
-				)}
+			{(transactionHash ||
+				(controllerAccount &&
+					isLedger &&
+					selected &&
+					controllerAccount.address === selectedAccount.address)) && (
+				<EditControllerModal
+					isOpen={isOpen}
+					selectedControllerAccount={selected}
+					eligibleAccounts={filteredAccounts}
+					accountsBalances={accountsBalances}
+					networkInfo={networkInfo}
+					apiInstance={apiInstance}
+					setTransactionHash={setTransactionHash}
+					selectedAccount={selectedAccount}
+					incrementStep={incrementStep}
+					close={() => setIsOpen(false)}
+				/>
+			)}
 			<div>
 				<h1 className="text-2xl font-semibold">
 					Select your controller account
@@ -237,7 +242,12 @@ const SelectControllerAccount = ({
 					/>
 				)}
 				<h2 className="text-md font-semibold underline cursor-pointer">
-					Don’t see your account?
+					<a
+						href="https://intercom.help/yieldscan/en/articles/5353506-my-account-is-not-showing-i-can-t-find-my-account-in-the-list"
+						target="_blank"
+					>
+						Don’t see your account?
+					</a>
 				</h2>
 			</div>
 			<div className="w-full flex flex-row justify-start space-x-3">
@@ -294,7 +304,12 @@ const ExistingControllerAlert = () => (
 					your controller later in the settings tab.
 				</p>
 				<h2 className="mt-2 text-md font-semibold underline cursor-pointer">
-					See how to setup a controller
+					<a
+						href="https://intercom.help/yieldscan/en/articles/5353583-setting-up-a-controller-account"
+						target="_blank"
+					>
+						See how to setup a controller
+					</a>
 				</h2>
 			</AlertDescription>
 		</div>
@@ -321,9 +336,14 @@ const SameStashControllerAlert = () => (
 					funds. We recommend having separate storage and controller wallets for
 					better security and accessibility.
 				</p>
-				<h2 className="mt-2 text-md font-semibold underline cursor-pointer">
-					See how to setup a controller
-				</h2>
+				<a
+					href="https://intercom.help/yieldscan/en/articles/5353583-setting-up-a-controller-account"
+					target="_blank"
+				>
+					<h2 className="mt-2 text-md font-semibold underline cursor-pointer">
+						See how to setup a controller
+					</h2>
+				</a>
 			</AlertDescription>
 		</div>
 	</Alert>
@@ -364,6 +384,8 @@ const EditControllerModal = ({
 	accountsBalances,
 	networkInfo,
 	close,
+	setTransactionHash,
+	incrementStep,
 	isOpen,
 }) => {
 	const toast = useToast();
@@ -372,8 +394,12 @@ const EditControllerModal = ({
 
 	const [transactionFee, setTransactionFee] = useState(0);
 
+	const [isSuccessful, setIsSuccessful] = useState(null);
+
 	const handleOnClickCancel = (account) => {
 		setLoading(false);
+		setIsSuccessful(null);
+		setTransactionHash(null);
 		close();
 	};
 
@@ -392,6 +418,10 @@ const EditControllerModal = ({
 					isClosable: true,
 				});
 			},
+			onSuccessfullSigning: (hash) => {
+				const transactionHash = get(hash, "message");
+				setTransactionHash(transactionHash);
+			},
 			onFinish: (failed, message) => {
 				toast({
 					title: failed ? "Failure" : "Success",
@@ -402,7 +432,12 @@ const EditControllerModal = ({
 					isClosable: true,
 				});
 				setLoading(false);
-				handleOnClickCancel();
+				if (failed) {
+					setIsSuccessful(false);
+				} else {
+					setIsSuccessful(true);
+				}
+				// handleOnClickCancel();
 			},
 		}).catch((error) => {
 			setLoading(false);
@@ -447,20 +482,20 @@ const EditControllerModal = ({
 			<ModalOverlay />
 			<ModalContent
 				rounded="lg"
-				minHeight={"24rem"}
+				height={"36rem"}
 				maxWidth="40rem"
 				py={4}
 				alignItems="center"
 				alignContent="center"
 			>
-				<ModalHeader>
+				{/* <ModalHeader>
 					<div>
 						<h3 className="text-center text-2xl text-gray-700">Confirmation</h3>
 						<p className="text-center text-sm text-gray-700">
 							Please confirm the details below
 						</p>
 					</div>
-				</ModalHeader>
+				</ModalHeader> */}
 				{!loading && (
 					<ModalCloseButton
 						onClick={close}
@@ -474,8 +509,16 @@ const EditControllerModal = ({
 				)}
 				<ModalBody width="full" height="full" alignItems="center">
 					{eligibleAccounts.length > 0 ? (
-						!loading ? (
-							<div className="h-64 w-full flex text-left text-gray-700 flex-col justify-center items-center">
+						!loading && isNil(isSuccessful) ? (
+							<div className="w-full h-full flex text-left text-gray-700 flex-col justify-center items-center space-y-6">
+								<div>
+									<h3 className="text-center text-2xl text-gray-700">
+										Confirmation
+									</h3>
+									<p className="text-center text-sm text-gray-700">
+										Please confirm the details below
+									</p>
+								</div>
 								<div className="w-full max-w-lg">
 									<p className="w-full mb-2">Your controller:</p>
 									<div className="w-full">
@@ -547,8 +590,46 @@ const EditControllerModal = ({
 								</div>
 							</div>
 						) : (
-							<div className="h-64 flex text-left text-gray-700 flex-col justify-center items-center">
-								<span className="loader"></span>
+							<div className="w-full h-full flex text-left text-gray-700 flex-col justify-center items-center space-y-6">
+								<div className="w-full flex justify-center">
+									<span
+										className={`loader ${
+											isNil(isSuccessful)
+												? ""
+												: isSuccessful
+												? "success"
+												: "fail"
+										}`}
+									></span>
+								</div>
+								<div className="w-full max-w-sm flex flex-col items-center space-y-6">
+									<div className="flex flex-col items-center text-center">
+										{!isNil(isSuccessful) && (
+											<h1 className="text-gray-700 text-2xl font-semibold">
+												{isSuccessful ? "Wohoo!" : "Oops!"}
+											</h1>
+										)}
+										<p className="text-gray-700">
+											{loading
+												? "Waiting for you to sign the transaction..."
+												: isSuccessful
+												? "Your controller is successfully set up"
+												: "Failed to set up your controller"}
+										</p>
+									</div>
+									{!isNil(isSuccessful) && (
+										<BottomNextButton
+											onClick={() => {
+												if (isSuccessful) {
+													close();
+													incrementStep();
+												} else handleOnClickCancel();
+											}}
+										>
+											{isSuccessful ? "Done" : "Retry"}
+										</BottomNextButton>
+									)}
+								</div>
 							</div>
 						)
 					) : (
