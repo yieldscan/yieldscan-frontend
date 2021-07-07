@@ -1,6 +1,9 @@
 import { MetomicProvider } from "@metomic/react";
 import * as Sentry from "@sentry/node";
-// import tawkTo from "tawkto-react";
+import { DefaultSeo } from "next-seo";
+
+// import your default seo configuration
+import SEO from "../next-seo.config";
 
 import { ThemeProvider, theme } from "@chakra-ui/core";
 import { IntercomProvider, useIntercom } from "react-use-intercom";
@@ -178,6 +181,7 @@ export default function YieldScanApp({ Component, pageProps, err }) {
 		<ThemeProvider theme={customTheme}>
 			<MetomicProvider projectId={process.env.NEXT_PUBLIC_METOMIC_PROJECT_ID}>
 				<IntercomProvider appId={intercomAppId} autoBoot={true}>
+					<DefaultSeo {...SEO} />
 					<Component {...pageProps} err={err} />
 				</IntercomProvider>
 			</MetomicProvider>

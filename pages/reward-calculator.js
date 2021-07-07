@@ -1,5 +1,6 @@
 import dynamic from "next/dynamic";
 import withDashboardLayout from "@components/common/layouts/dashboard";
+import { NextSeo } from "next-seo";
 
 const Page = dynamic(
 	() => import("@components/common/page").then((mod) => mod.default),
@@ -12,9 +13,22 @@ const RewardCalculatorComponent = dynamic(
 );
 
 const RewardCalculator = () => (
-	<Page title="Reward Calculator" layoutProvider={withDashboardLayout}>
-		{() => <RewardCalculatorComponent />}
-	</Page>
+	<>
+		<NextSeo
+			openGraph={{
+				type: "website",
+				title: "YieldScan: Polkadot staking rewards calculator",
+				locale: "en_IE",
+				url: "https://yieldscan.app/reward-calculator",
+				site_name: "YieldScan",
+				description:
+					"Polkadot staking rewards calculator, DOT staking rewards calculator, kusama staking rewards calculator, KSM staking rewards calculator, staking rewards calculator",
+			}}
+		/>
+		<Page title="Reward Calculator" layoutProvider={withDashboardLayout}>
+			{() => <RewardCalculatorComponent />}
+		</Page>
+	</>
 );
 
 export default RewardCalculator;

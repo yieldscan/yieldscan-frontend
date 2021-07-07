@@ -37,6 +37,7 @@
 		"millify": "^3.3.0",
 		"moment": "^2.29.1",
 		"next": "^10.0.3",
+		"next-seo": "^4.26.0",
 		"nookies": "^2.4.0",
 		"react": "^17.0.1",
 		"react-countup": "^4.3.3",
