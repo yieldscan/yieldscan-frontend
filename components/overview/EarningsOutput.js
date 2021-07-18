@@ -203,6 +203,7 @@ const EarningsOutput = ({
 	}, [address, networkInfo]);
 
 	useEffect(() => {
+		setTweet(null);
 		if (overallStakedAmountMapped) {
 			const overallYield = (
 				(overallStakedAmountMapped.totalReward /
@@ -217,7 +218,7 @@ const EarningsOutput = ({
 			\nDon't forget to tweet your APR! #YieldScan $DOT $KSM`;
 			setTweet("https://twitter.com/intent/tweet?text=" + escape(msg));
 		}
-	}, [overallStakedAmountMapped]);
+	}, [overallStakedAmountMapped, networkInfo, address]);
 
 	return (
 		<Box minW={320} w="full">
