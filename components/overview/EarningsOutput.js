@@ -28,6 +28,7 @@ import { Twitter } from "react-feather";
 import getErasHistoric from "@lib/getErasHistoric";
 import ProgressiveImage from "react-progressive-image";
 import PastEarningsTimeRange from "./PastEarningsTimeRange";
+import getRewardsSum from "@lib/getRewardsSum";
 
 const PastEarningsDisplay = ({ earnings, networkInfo }) =>
 	!isNil(earnings) ? (
@@ -48,171 +49,175 @@ const PastEarningsDisplay = ({ earnings, networkInfo }) =>
 		</Skeleton>
 	);
 
-const EarningsOutput = ({ networkInfo, inputValue, validators, address }) => {
+const EarningsOutput = ({
+	networkInfo,
+	inputValue,
+	validators,
+	eraLength,
+	address,
+	activeEra,
+}) => {
 	const transactionState = useTransaction();
 	const [risk, setRisk] = useState(transactionState.riskPreference || "Medium");
-	const [timeRange, setTimeRange] = useState("all");
-	const [yearlyEarning, setYearlyEarning] = useState();
 	const [totalEarnings, setTotalEarnings] = useState();
 	const [dailyEarnings, setDailyEarnings] = useState();
+	const [monthlyEarnings, setMonthlyEarnings] = useState();
 	const [weeklyEarnings, setWeeklyEarnings] = useState();
+	const [stakedAmountMapped, setStakedAmountMapped] = useState();
+	const [overallStakedAmountMapped, setOverallStakedAmountMapped] = useState();
 	const { transactionHash } = useTransactionHash();
 	const { coinGeckoPriceUSD } = useCoinGeckoPriceUSD();
-	// const yearlyEarning = useYearlyEarning((state) => state.yearlyEarning);
-	// const setYearlyEarning = useYearlyEarning((state) => state.setYearlyEarning);
-
-	const [monthlyEarning, setMonthlyEarning] = useState();
 
 	const [tweet, setTweet] = useState();
-	const [claimableRewards, setClaimableRewards] = useState();
-	const [erasHistoric, setErasHistoric] = useState();
 
-	// const monthlyEarning = useMonthlyEarning((state) => state.monthlyEarning);
-	// const setMonthlyEarning = useMonthlyEarning(
-	// 	(state) => state.setMonthlyEarning
-	// );
+	// useEffect(() => {
+	// 	setDailyEarnings(null);
+	// 	setWeeklyEarnings(null);
+	// 	setTotalEarnings(null);
+	// 	getRewards(address, networkInfo).then((data) => {
+	// 		const currentTimeStamp = Date.now() / 1000;
+	// 		const oneDayEarnings = data
+	// 			.filter((x) => x.block_timestamp > currentTimeStamp - 86400)
+	// 			.reduce((a, b) => a + parseInt(b.amount), 0);
+	// 		setDailyEarnings({
+	// 			currency: oneDayEarnings,
+	// 			subCurrency:
+	// 				(oneDayEarnings / Math.pow(10, networkInfo.decimalPlaces)) *
+	// 				coinGeckoPriceUSD,
+	// 		});
 
-	const [dailyEarning, setDailyEarning] = useState();
+	// 		const weekEarnings = data
+	// 			.filter((x) => x.block_timestamp > currentTimeStamp - 604800)
+	// 			.reduce((a, b) => a + parseInt(b.amount), 0);
+	// 		setWeeklyEarnings({
+	// 			currency: weekEarnings,
+	// 			subCurrency:
+	// 				(weekEarnings / Math.pow(10, networkInfo.decimalPlaces)) *
+	// 				coinGeckoPriceUSD,
+	// 		});
 
-	const [selectedValidators, setSelectedValidators] = useState();
-	const { validatorMap, setValidatorMap } = useValidatorData();
+	// 		const monthEarnings = data
+	// 			.filter((x) => x.block_timestamp > currentTimeStamp - 2592000)
+	// 			.reduce((a, b) => a + parseInt(b.amount), 0);
+	// 		setMonthlyEarnings({
+	// 			currency: monthEarnings,
+	// 			subCurrency:
+	// 				(monthEarnings / Math.pow(10, networkInfo.decimalPlaces)) *
+	// 				coinGeckoPriceUSD,
+	// 		});
+
+	// 		const total = data.reduce((a, b) => a + parseInt(b.amount), 0);
+	// 		setTotalEarnings({
+	// 			currency: total,
+	// 			subCurrency:
+	// 				(total / Math.pow(10, networkInfo.decimalPlaces)) * coinGeckoPriceUSD,
+	// 		});
+	// 	});
+	// }, [networkInfo, address]);
 
 	useEffect(() => {
-		if (validatorMap) {
-			const selectedValidators = cloneDeep(validatorMap[risk]);
-			setSelectedValidators(selectedValidators);
-		}
-	}, [validatorMap]);
-
-	useEffect(() => {
-		setDailyEarnings(null);
-		setWeeklyEarnings(null);
 		setTotalEarnings(null);
-		getRewards(address, networkInfo).then((data) => {
-			const currentTimeStamp = Date.now() / 1000;
-			const oneDayEarnings = data
-				.filter((x) => x.block_timestamp > currentTimeStamp - 86400)
-				.reduce((a, b) => a + parseInt(b.amount), 0);
-			setDailyEarnings({
-				currency: oneDayEarnings,
-				subCurrency:
-					(oneDayEarnings / Math.pow(10, networkInfo.decimalPlaces)) *
-					coinGeckoPriceUSD,
-			});
-
-			const weekEarnings = data
-				.filter((x) => x.block_timestamp > currentTimeStamp - 604800)
-				.reduce((a, b) => a + parseInt(b.amount), 0);
-			setWeeklyEarnings({
-				currency: weekEarnings,
-				subCurrency:
-					(weekEarnings / Math.pow(10, networkInfo.decimalPlaces)) *
-					coinGeckoPriceUSD,
-			});
-
-			const total = data.reduce((a, b) => a + parseInt(b.amount), 0);
+		getRewardsSum(address, networkInfo).then((data) => {
 			setTotalEarnings({
-				currency: total,
+				currency: data,
 				subCurrency:
-					(total / Math.pow(10, networkInfo.decimalPlaces)) * coinGeckoPriceUSD,
+					(data / Math.pow(10, networkInfo.decimalPlaces)) * coinGeckoPriceUSD,
 			});
 		});
-	}, [networkInfo, address]);
+	}, [address, networkInfo]);
 
 	useEffect(() => {
-		if (!validatorMap) {
-			setYearlyEarning(null);
-			setDailyEarning(null);
-			setMonthlyEarning(null);
-			setSelectedValidators(null);
-			axios.get(`/${networkInfo.network}/rewards/risk-set`).then(({ data }) => {
-				/**
-				 * `mapValues(keyBy(array), 'value-key')`:
-				 * 	O(N + N) operation, using since each risk set will have maximum 16 validators
-				 */
-				const validatorMap = {
-					Low: mapValues(keyBy(data.lowriskset, "stashId")),
-					Medium: mapValues(keyBy(data.medriskset, "stashId")),
-					High: mapValues(keyBy(data.highriskset, "stashId")),
-					total: data.totalset,
-				};
+		setStakedAmountMapped(null);
+		if (address && eraLength && activeEra) {
+			axios
+				.get(
+					`/${networkInfo.network}/actors/nominator/history?id=${address}&activeEra=${activeEra}`
+				)
+				.then(({ data }) => {
+					const erasPerDay = Math.floor(1440 / ((eraLength * 6) / 60));
 
-				setValidatorMap(validatorMap);
-				setSelectedValidators(validatorMap["Medium"]);
-			});
-		} else {
-			console.info("Using previous validator map.");
+					const previousDayEras = [...Array(erasPerDay).keys()].map(
+						(i) => activeEra - 1 - i
+					);
+
+					const previousWeekEras = [...Array(erasPerDay * 7).keys()].map(
+						(i) => activeEra - 1 - i
+					);
+
+					const previousDayHistory = {
+						data: data.filter((x) => previousDayEras.includes(x.eraIndex)),
+						totalAmountStaked: data
+							.filter((x) => previousDayEras.includes(x.eraIndex))
+							.reduce((acc, x) => acc + x.nomStake, 0),
+						totalReward: data
+							.filter((x) => previousDayEras.includes(x.eraIndex))
+							.reduce((acc, x) => acc + x.nomReward, 0),
+						erasPerDay: erasPerDay,
+					};
+					const previousWeekHistory = {
+						data: data.filter((x) => previousWeekEras.includes(x.eraIndex)),
+						totalAmountStaked: data
+							.filter((x) => previousWeekEras.includes(x.eraIndex))
+							.reduce((acc, x) => acc + x.nomStake, 0),
+						totalReward: data
+							.filter((x) => previousWeekEras.includes(x.eraIndex))
+							.reduce((acc, x) => acc + x.nomReward, 0),
+						erasPerDay: erasPerDay,
+					};
+					const previousMonthHistory = {
+						data: data,
+						totalAmountStaked: data.reduce((acc, x) => acc + x.nomStake, 0),
+						totalReward: data.reduce((acc, x) => acc + x.nomReward, 0),
+						erasPerDay: erasPerDay,
+					};
+
+					setStakedAmountMapped({
+						previousDayHistory: previousDayHistory,
+						previousWeekHistory: previousWeekHistory,
+						previousMonthHistory: previousMonthHistory,
+					});
+				});
 		}
-	}, [networkInfo]);
+	}, [address, networkInfo]);
 
 	useEffect(() => {
-		if (yearlyEarning) {
-			const msg = `I am earning ${yearlyEarning.yieldPercentage.toFixed(
-				2
-			)}% APR by staking on ${
-				networkInfo.twitterUrl
-			} through @yield_scan - created by @buidllabs. What are you waiting for?
-			\nStake on https://yieldscan.onrender.com/ and be a part of @Polkadot & @kusamanetwork today!
+		setOverallStakedAmountMapped(null);
+		if (address && eraLength && activeEra) {
+			axios
+				.get(
+					`/${networkInfo.network}/actors/nominator/overall_history?id=${address}&activeEra=${activeEra}`
+				)
+				.then(({ data }) => {
+					const erasPerDay = Math.floor(1440 / ((eraLength * 6) / 60));
+
+					const overallRewardInfo = {
+						data: data,
+						totalAmountStaked: data.reduce((acc, x) => acc + x.nomStake, 0),
+						totalReward: data.reduce((acc, x) => acc + x.nomReward, 0),
+						erasPerDay: erasPerDay,
+					};
+
+					setOverallStakedAmountMapped(overallRewardInfo);
+				});
+		}
+	}, [address, networkInfo]);
+
+	useEffect(() => {
+		if (overallStakedAmountMapped) {
+			const overallYield = (
+				(overallStakedAmountMapped.totalReward /
+					overallStakedAmountMapped.totalAmountStaked) *
+				100 *
+				overallStakedAmountMapped.erasPerDay *
+				365
+			).toFixed(2);
+
+			const msg = `I am earning ${overallYield}% APR by staking on ${networkInfo.twitterUrl} through @yield_scan. What are you waiting for?
+			\nStake on https://yieldscan.app/ and be a part of @Polkadot & @kusamanetwork today!
 			\nDon't forget to tweet your APR! #YieldScan $DOT $KSM`;
 			setTweet("https://twitter.com/intent/tweet?text=" + escape(msg));
 		}
-	}, [yearlyEarning]);
-
-	useEffect(() => {
-		if (validators) {
-			const selectedValidatorsList = Object.values(validators).filter(
-				(v) => !isNil(v)
-			);
-			calculateReward(
-				coinGeckoPriceUSD,
-				selectedValidatorsList,
-				inputValue.currency,
-				12,
-				"months",
-				true,
-				networkInfo
-			)
-				.then((result) => {
-					setYearlyEarning(result);
-				})
-				.catch((error) => {
-					// TODO: handle error gracefully with UI toast
-					console.error(error);
-				});
-			calculateReward(
-				coinGeckoPriceUSD,
-				selectedValidatorsList,
-				inputValue.currency,
-				1,
-				"months",
-				true,
-				networkInfo
-			)
-				.then((result) => {
-					setMonthlyEarning(result);
-				})
-				.catch((error) => {
-					// TODO: handle error gracefully with UI toast
-					console.error(error);
-				});
-			calculateReward(
-				coinGeckoPriceUSD,
-				selectedValidatorsList,
-				inputValue.currency,
-				1,
-				"days",
-				true,
-				networkInfo
-			)
-				.then((result) => {
-					setDailyEarning(result);
-				})
-				.catch((error) => {
-					// TODO: handle error gracefully with UI toast
-					console.error(error);
-				});
-		}
-	}, [inputValue, validators]);
+	}, [overallStakedAmountMapped]);
 
 	return (
 		<Box minW={320} w="full">
@@ -259,7 +264,7 @@ const EarningsOutput = ({ networkInfo, inputValue, validators, address }) => {
 				</div>
 			)}
 			<FormLabel fontSize="sm" className="mt-4 font-medium text-gray-700">
-				Your past earnings
+				Your overall yield
 			</FormLabel>
 			<div className="flex justify-between items-center">
 				<h2
@@ -267,82 +272,70 @@ const EarningsOutput = ({ networkInfo, inputValue, validators, address }) => {
 						validators.length !== 0 ? "text-gray-700" : "text-light-gray"
 					} font-bold`}
 				>
-					<PastEarningsDisplay
-						earnings={
-							timeRange === "24h"
-								? dailyEarnings
-								: timeRange === "week"
-								? weeklyEarnings
-								: totalEarnings
-						}
-						networkInfo={networkInfo}
-					/>
+					{!isNil(overallStakedAmountMapped) ? (
+						<>
+							<div className="text-xl justify-between text">
+								{(
+									(overallStakedAmountMapped.totalReward /
+										overallStakedAmountMapped.totalAmountStaked) *
+									100 *
+									overallStakedAmountMapped.erasPerDay *
+									365
+								).toFixed(2)}{" "}
+								%
+							</div>
+						</>
+					) : (
+						<Skeleton>
+							<span>Loading...</span>
+						</Skeleton>
+					)}
 				</h2>
 				<span>
-					<PastEarningsTimeRange
-						unit={timeRange}
-						onUnitChange={(val) => setTimeRange(val)}
-					/>
+					<button
+						className="border rounded-full flex text-sm text-white bg-blue-450 bg-twitter-500 font-medium p-2 px-4 justify-center items-center"
+						onClick={() => window?.open(tweet, "_blank")}
+					>
+						<Twitter
+							className="mr-2"
+							size="16px"
+							color="#ffffff"
+							strokeWidth="2.5"
+						/>
+						<p>Tweet</p>
+					</button>
 				</span>
-
-				{/* <h2
-						className={`${
-							validators.length !== 0 ? "text-gray-700" : "text-light-gray"
-						} font-bold`}
-					>
-						{!isNil(weeklyEarnings) ? (
-							<>
-								<div className="text-xl justify-between text">
-									{formatCurrency.methods.formatAmount(
-										Math.trunc(weeklyEarnings.currency),
-										networkInfo
-									)}
-								</div>
-								<div className="text-sm font-medium text-teal-500">
-									$
-									{formatCurrency.methods.formatNumber(
-										weeklyEarnings.subCurrency.toFixed(2)
-									)}
-								</div>
-							</>
-						) : (
-							<Skeleton>
-								<span>Loading...</span>
-							</Skeleton>
-						)}
-					</h2>
-				</div> */}
-				{/* <div className="mt-4">
-					<FormLabel fontSize="sm" className="font-medium text-gray-700">
-						All time
-					</FormLabel>
-					<h2
-						className={`${
-							validators.length !== 0 ? "text-gray-700" : "text-light-gray"
-						} font-bold`}
-					>
-						{!isNil(totalEarnings) ? (
-							<>
-								<div className="text-xl justify-between text">
-									{formatCurrency.methods.formatAmount(
-										Math.trunc(totalEarnings.currency),
-										networkInfo
-									)}
-								</div>
-								<div className="text-sm font-medium text-teal-500">
-									$
-									{formatCurrency.methods.formatNumber(
-										totalEarnings.subCurrency.toFixed(2)
-									)}
-								</div>
-							</>
-						) : (
-							<Skeleton>
-								<span>Loading...</span>
-							</Skeleton>
-						)}
-					</h2>
-				</div> */}
+			</div>
+			<FormLabel fontSize="sm" className="mt-4 font-medium text-gray-700">
+				Your overall earnings
+			</FormLabel>
+			<div className="flex justify-between items-center">
+				<h2
+					className={`${
+						validators.length !== 0 ? "text-gray-700" : "text-light-gray"
+					} font-bold`}
+				>
+					{!isNil(totalEarnings) ? (
+						<>
+							<div className="text-lg justify-between text">
+								{formatCurrency.methods.formatAmount(
+									Math.trunc(totalEarnings.currency),
+									networkInfo
+								)}
+							</div>
+							<div className="text-sm font-medium text-teal-500">
+								$
+								{formatCurrency.methods.formatNumber(
+									totalEarnings.subCurrency.toFixed(2)
+								)}
+							</div>
+						</>
+					) : (
+						<Skeleton>
+							<span>Loading...</span>
+						</Skeleton>
+					)}
+				</h2>
 			</div>
 			{transactionHash && (
 				<div className="mt-4 flex">
@@ -366,50 +359,21 @@ const EarningsOutput = ({ networkInfo, inputValue, validators, address }) => {
 			)}
 			<div className="mt-8">
 				<FormLabel fontSize="sm" className="font-medium text-gray-700">
-					Estimated Earnings
+					Past Earnings Breakup
 				</FormLabel>
-				<h2 className="text-xl text-gray-700 font-bold">
-					{!isNil(yearlyEarning) ? (
-						<div className="flex justify-between">
-							<CountUp
-								end={get(yearlyEarning, "yieldPercentage") || 0}
-								duration={0.5}
-								decimals={2}
-								separator=","
-								suffix={`% APR`}
-								preserveValue
-							/>
-							<a
-								className="twitter-share-button mt-2 flex text-sm font-medium justify-center items-center"
-								style={{ color: "#1DA1F2" }}
-								href={tweet}
-								target="_blank"
-							>
-								<Twitter
-									className="mr-2"
-									size="16px"
-									color="#1DA1F2"
-									strokeWidth="2.5"
-								/>
-								<p className="mb-1">Tweet APR</p>
-							</a>
-						</div>
-					) : (
-						<Skeleton>
-							<span>Loading...</span>
-						</Skeleton>
-					)}
-				</h2>
 			</div>
 			<div>
-				<FormLabel fontSize="xs" className="text-gray-700" mt={8}>
-					Yearly
+				<FormLabel fontSize="xs" className="text-gray-700">
+					Previous Month
 				</FormLabel>
-				{!isNil(yearlyEarning) ? (
+				{!isNil(stakedAmountMapped) ? (
 					<div className="flex justify-between">
 						<p className="text-sm text-gray-600">
 							<CountUp
-								end={get(yearlyEarning, "returns.currency") || 0}
+								end={
+									stakedAmountMapped.previousMonthHistory.totalReward /
+									Math.pow(10, networkInfo.decimalPlaces)
+								}
 								duration={0.5}
 								decimals={3}
 								separator=","
@@ -420,7 +384,11 @@ const EarningsOutput = ({ networkInfo, inputValue, validators, address }) => {
 						<div className="flex">
 							<p className="text-sm font-medium text-teal-500 mr-2">
 								<CountUp
-									end={get(yearlyEarning, "returns.subCurrency") || 0}
+									end={
+										(stakedAmountMapped.previousMonthHistory.totalReward /
+											Math.pow(10, networkInfo.decimalPlaces)) *
+										coinGeckoPriceUSD
+									}
 									duration={0.5}
 									decimals={2}
 									separator=","
@@ -431,7 +399,14 @@ const EarningsOutput = ({ networkInfo, inputValue, validators, address }) => {
 							<Divider orientation="vertical" />
 							<p className="text-sm text-gray-600 w-12 text-right">
 								<CountUp
-									end={get(yearlyEarning, "yieldPercentage") || 0}
+									end={
+										(stakedAmountMapped.previousMonthHistory.totalReward /
+											stakedAmountMapped.previousMonthHistory
+												.totalAmountStaked) *
+										stakedAmountMapped.previousMonthHistory.erasPerDay *
+										365 *
+										100
+									}
 									duration={0.5}
 									decimals={2}
 									separator=","
@@ -451,13 +426,16 @@ const EarningsOutput = ({ networkInfo, inputValue, validators, address }) => {
 			</div>
 			<div>
 				<FormLabel fontSize="xs" className="text-gray-700" mt={6}>
-					Monthly
+					Previous Week
 				</FormLabel>
-				{!isNil(monthlyEarning) ? (
+				{!isNil(stakedAmountMapped) ? (
 					<div className="flex justify-between">
 						<p className="text-sm text-gray-600">
 							<CountUp
-								end={get(monthlyEarning, "returns.currency") || 0}
+								end={
+									stakedAmountMapped.previousWeekHistory.totalReward /
+									Math.pow(10, networkInfo.decimalPlaces)
+								}
 								duration={0.5}
 								decimals={3}
 								separator=","
@@ -468,7 +446,11 @@ const EarningsOutput = ({ networkInfo, inputValue, validators, address }) => {
 						<div className="flex">
 							<p className="text-sm font-medium text-teal-500 mr-2">
 								<CountUp
-									end={get(monthlyEarning, "returns.subCurrency") || 0}
+									end={
+										(stakedAmountMapped.previousWeekHistory.totalReward /
+											Math.pow(10, networkInfo.decimalPlaces)) *
+										coinGeckoPriceUSD
+									}
 									duration={0.5}
 									decimals={2}
 									separator=","
@@ -479,7 +461,14 @@ const EarningsOutput = ({ networkInfo, inputValue, validators, address }) => {
 							<Divider orientation="vertical" />
 							<p className="text-sm text-gray-600 w-12 text-right">
 								<CountUp
-									end={get(monthlyEarning, "yieldPercentage") || 0}
+									end={
+										(stakedAmountMapped.previousWeekHistory.totalReward /
+											stakedAmountMapped.previousWeekHistory
+												.totalAmountStaked) *
+										stakedAmountMapped.previousWeekHistory.erasPerDay *
+										365 *
+										100
+									}
 									duration={0.5}
 									decimals={2}
 									separator=","
@@ -499,13 +488,16 @@ const EarningsOutput = ({ networkInfo, inputValue, validators, address }) => {
 			</div>
 			<div>
 				<FormLabel fontSize="xs" className="text-gray-700" mt={6}>
-					Daily
+					Previous Day
 				</FormLabel>
-				{!isNil(dailyEarning) ? (
+				{!isNil(stakedAmountMapped) ? (
 					<div className="flex justify-between">
 						<p className="text-sm text-gray-600">
 							<CountUp
-								end={get(dailyEarning, "returns.currency") || 0}
+								end={
+									stakedAmountMapped.previousDayHistory.totalReward /
+									Math.pow(10, networkInfo.decimalPlaces)
+								}
 								duration={0.5}
 								decimals={3}
 								separator=","
@@ -516,7 +508,11 @@ const EarningsOutput = ({ networkInfo, inputValue, validators, address }) => {
 						<div className="flex">
 							<p className="text-sm font-medium text-teal-500 mr-2">
 								<CountUp
-									end={get(dailyEarning, "returns.subCurrency") || 0}
+									end={
+										(stakedAmountMapped.previousDayHistory.totalReward /
+											Math.pow(10, networkInfo.decimalPlaces)) *
+										coinGeckoPriceUSD
+									}
 									duration={0.5}
 									decimals={2}
 									separator=","
@@ -527,7 +523,13 @@ const EarningsOutput = ({ networkInfo, inputValue, validators, address }) => {
 							<Divider orientation="vertical" />
 							<p className="text-sm text-gray-600 w-12 text-right">
 								<CountUp
-									end={get(dailyEarning, "yieldPercentage") || 0}
+									end={
+										(stakedAmountMapped.previousDayHistory.totalReward /
+											stakedAmountMapped.previousDayHistory.totalAmountStaked) *
+										stakedAmountMapped.previousDayHistory.erasPerDay *
+										365 *
+										100
+									}
 									duration={0.5}
 									decimals={2}
 									separator=","

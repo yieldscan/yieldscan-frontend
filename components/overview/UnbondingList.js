@@ -54,26 +54,18 @@ const UnbondingAmountCard = ({
 };
 
 const UnbondingList = withSlideIn(
-	({ api, close, isOpen, stakingInfo, networkInfo }) => {
+	({
+		api,
+		close,
+		isOpen,
+		stakingInfo,
+		eraLength,
+		eraProgress,
+		networkInfo,
+	}) => {
 		const handlePopoverClose = () => {
 			close();
 		};
-
-		const [eraLength, setEraLength] = useState();
-		const [eraProgress, setEraProgress] = useState();
-
-		useEffect(() => {
-			let unsubscribe;
-			api?.derive.session
-				.progress((data) => {
-					setEraLength(parseInt(data.eraLength));
-					setEraProgress(parseInt(data.eraProgress));
-				})
-				.then((u) => (unsubscribe = u));
-			return () => {
-				unsubscribe && unsubscribe();
-			};
-		}, [networkInfo]);
 
 		return (
 			<Modal

@@ -60,6 +60,9 @@ const Overview = () => {
 		useOverviewData();
 	const { validators, setValidators } = useValidatorData();
 	const [showValidators, setShowValidators] = useState(false);
+	const [eraLength, setEraLength] = useState();
+	const [eraProgress, setEraProgress] = useState();
+	const [activeEra, setActiveEra] = useState();
 	const [validatorsLoading, setValidatorsLoading] = useState(true);
 	const [fundsUpdateModalType, setFundsUpdateModalType] = useState();
 	const handleValToggle = () => setShowValidators(!showValidators);
@@ -119,6 +122,23 @@ const Overview = () => {
 			setUserData(null);
 		}
 	}, [selectedAccount?.address]);
+
+	useEffect(() => {
+		setEraLength(null);
+		setEraProgress(null);
+		setActiveEra(null);
+		let unsubscribe;
+		apiInstance?.derive.session
+			.progress((data) => {
+				setEraLength(parseInt(data.eraLength));
+				setEraProgress(parseInt(data.eraProgress));
+				setActiveEra(parseInt(data.activeEra));
+			})
+			.then((u) => (unsubscribe = u));
+		return () => {
+			unsubscribe && unsubscribe();
+		};
+	}, [networkInfo, apiInstance]);
 
 	useEffect(() => {
 		if (stakingInfo?.nominators && stakingInfo?.nominators.length > 0) {
@@ -268,6 +288,8 @@ const Overview = () => {
 				close={closeUnbondingList}
 				stakingInfo={stakingInfo}
 				networkInfo={networkInfo}
+				eraLength={eraLength}
+				eraProgress={eraProgress}
 			/>
 			<RedeemUnbonded
 				isOpen={openRedeemUnbonded}
@@ -310,6 +332,8 @@ const Overview = () => {
 									Math.pow(10, networkInfo.decimalPlaces),
 							}}
 							address={selectedAccount?.address}
+							eraLength={eraLength}
+							activeEra={activeEra}
 						/>
 					</div>
 				</div>
@@ -328,19 +352,6 @@ const Overview = () => {
 							{showValidators ? "Hide" : "See your"} validators
 						</button>
 						<Collapse isOpen={showValidators}>
-							{/* <div className="flex items-center">
-									<h3 className="text-2xl">
-										My validators
-									</h3>
-									{selectedTab === Tabs.NOMINATIONS && (
-										<button
-											className="flex items-center text-gray-600 mr-5 p-1"
-											onClick={toggleEditValidatorsModal}
-										>
-											<Edit2 size="20px" className="ml-2" />
-										</button>
-									)}
-								</div> */}
 							<div className="flex items-center mt-4 mb-2">
 								<button
 									className={
