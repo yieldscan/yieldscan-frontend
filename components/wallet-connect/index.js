@@ -147,12 +147,12 @@ const WalletConnectPopover = ({ styles, networkInfo }) => {
 				// injectedAccounts.push(
 				// 	{
 				// 		address: "5DCYHPEg6gmzTv2bw34ANzKr6DfkCRUjzHUqKd9sNd4RpXYh",
-				// 		meta: { name: "bruno" },
+				// 		meta: { name: "test1" },
 				// 	},
 				// 	{
 				// 		address: "5DyYPZ73qUs5YGkqsBuQ7MZmdkpbXAFbMzA83Tp8bwiRQFpb",
-				// 		meta: { name: "test1" },
-				// 	},
+				// 		meta: { name: "test2" },
+				// 	}
 				// );
 				injectedAccounts?.map((account) => {
 					account.substrateAddress = account.address.toString();

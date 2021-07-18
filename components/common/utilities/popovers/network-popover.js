@@ -56,7 +56,7 @@ const NetworkPopover = ({ isExpanded, hasBorder }) => {
 	const switchNetwork = async (from, to) => {
 		if (from !== to) {
 			apiInstance &&
-				(await apiInstance.disconnect().catch((err) => console.log(err)));
+				(await apiInstance.disconnect().catch((err) => console.error(err)));
 			setApiInstance(null);
 			setSelectedAccount(null);
 			setAccountsBalances({});

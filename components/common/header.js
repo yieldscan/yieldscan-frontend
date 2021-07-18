@@ -106,7 +106,7 @@ const Header = ({ isBase, isSetUp }) => {
 
 	const switchNetwork = async (from, to) => {
 		if (from !== to) {
-			await apiInstance.disconnect().catch((err) => console.log(err));
+			await apiInstance.disconnect().catch((err) => console.error(err));
 			setApiInstance(null);
 			setSelectedAccount(null);
 			setAccountsBalances({});

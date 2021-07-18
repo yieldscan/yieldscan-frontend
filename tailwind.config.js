@@ -49,6 +49,9 @@ module.exports = {
 				warning: {
 					500: "#FFF4DA",
 				},
+				twitter: {
+					500: "#1DA1F2",
+				},
 			},
 			borderRadius: {
 				...borderRadius,
