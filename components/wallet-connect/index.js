@@ -310,17 +310,15 @@ const WalletConnectPopover = ({ styles, networkInfo }) => {
 							: "Select Account"}
 					</h3>
 				</ModalHeader>
-				{state && (
-					<ModalCloseButton
-						onClick={close}
-						boxShadow="0 0 0 0 #fff"
-						color="gray.400"
-						backgroundColor="gray.100"
-						rounded="1rem"
-						mt={4}
-						mr={4}
-					/>
-				)}
+				<ModalCloseButton
+					onClick={close}
+					boxShadow="0 0 0 0 #fff"
+					color="gray.400"
+					backgroundColor="gray.100"
+					rounded="1rem"
+					mt={4}
+					mr={4}
+				/>
 				<ModalBody>
 					{currentStep === "connectWallet" ? (
 						state === WalletConnectStates.GOTACCOUNTS ? (
@@ -343,30 +341,7 @@ const WalletConnectPopover = ({ styles, networkInfo }) => {
 						<SimpleGrid w="100%" columns={1} spacing={8}>
 							<Box w="100%">
 								<CheckIconInfo info="You keep ownership of your funds" />
-								<CheckIconInfo info="Staking rewards usually start to show after 2-3 days" />
-								<CheckIconInfo
-									info={`Funds will be locked for staking and can be unlocked at any
-										time, but unlocking takes ${networkInfo.lockUpPeriod} days`}
-								/>
 							</Box>
-
-							<Flex
-								w="100%"
-								align="center"
-								justify="center"
-								border="1px"
-								borderStyle="dashed"
-								borderColor="gray.700"
-								rounded="md"
-								p={6}
-							>
-								<Icon name="warning" size={10} color="#2BCACA" />
-								<Text ml={2} fontSize="sm" color="gray.700">
-									Your staked funds may be irrevocably lost if the validator
-									doesn’t behave properly, YieldScan mitigates this but does NOT
-									guarantee immunity
-								</Text>
-							</Flex>
 							<Button
 								w="100%"
 								rounded="lg"
@@ -378,7 +353,7 @@ const WalletConnectPopover = ({ styles, networkInfo }) => {
 								p={6}
 								onClick={() => setCurrentStep("connectWallet")}
 							>
-								Continue
+								I understand, continue to authorize
 							</Button>
 						</SimpleGrid>
 					)}
