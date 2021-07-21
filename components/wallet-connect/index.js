@@ -27,7 +27,6 @@ import {
 	useAccountsControllerStashInfo,
 	usePolkadotApi,
 	useSelectedAccount,
-	useWalletType,
 } from "@lib/store";
 import getFromLocalStorage from "@lib/getFromLocalStorage";
 import addToLocalStorage from "@lib/addToLocalStorage";
@@ -69,7 +68,6 @@ const WalletConnectPopover = ({ styles, networkInfo }) => {
 		setStashAccount,
 	} = useAccounts();
 	const { selectedAccount, setSelectedAccount } = useSelectedAccount();
-	const { walletType, setWalletType } = useWalletType();
 	const { accountsBalances } = useAccountsBalances();
 	const { apiInstance } = usePolkadotApi();
 	const { accountsControllerStashInfo } = useAccountsControllerStashInfo();
@@ -111,11 +109,7 @@ const WalletConnectPopover = ({ styles, networkInfo }) => {
 				message,
 				...params,
 			});
-			onEvent(
-				createEventInstance(
-					"Waiting for you to allow access to polkadot-js extension..."
-				)
-			);
+			onEvent(createEventInstance("Waiting for authorization"));
 			web3Enable("YieldScan").then((extension) => {
 				if (extension.length === 0) {
 					setState(WalletConnectStates.REJECTED);
@@ -160,16 +154,6 @@ const WalletConnectPopover = ({ styles, networkInfo }) => {
 						decodeAddress(account.address.toString()),
 						networkInfo.addressPrefix
 					);
-					const accountsType = walletType;
-					accountsType[account.substrateAddress] = isNil(
-						getFromLocalStorage(account.substrateAddress, "isLedger")
-					)
-						? null
-						: JSON.parse(
-								getFromLocalStorage(account.substrateAddress, "isLedger")
-						  );
-
-					setWalletType({ ...accountsType });
 					return account;
 				});
 				setAccounts(injectedAccounts);

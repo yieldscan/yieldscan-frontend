@@ -20,7 +20,6 @@ import {
 	useCoinGeckoPriceUSD,
 	useSelectedAccount,
 	useAccountsBalances,
-	useWalletType,
 	useAccountsStakingInfo,
 	usePolkadotApi,
 	useIsNewSetup,
@@ -86,7 +85,6 @@ const RewardCalculatorPage = () => {
 	const { accounts } = useAccounts();
 	const { selectedAccount } = useSelectedAccount();
 	const { apiInstance } = usePolkadotApi();
-	const { walletType } = useWalletType();
 	const { setHeaderLoading } = useHeaderLoading();
 	const { isInElection } = useNetworkElection();
 	const { setIsNewSetup } = useIsNewSetup();
@@ -125,21 +123,7 @@ const RewardCalculatorPage = () => {
 							selectedAccount?.address
 						]?.controllerId.toString()
 			  )[0]
-			: isNil(
-					window?.localStorage.getItem(
-						selectedAccount?.address + networkInfo.network + "Controller"
-					)
-			  )
-			? walletType[selectedAccount?.substrateAddress]
-				? null
-				: selectedAccount
-			: accounts?.filter(
-					(account) =>
-						account.address ===
-						window?.localStorage.getItem(
-							selectedAccount?.address + networkInfo.network + "Controller"
-						)
-			  )[0]
+			: null
 	);
 
 	useEffect(() => {
@@ -154,21 +138,7 @@ const RewardCalculatorPage = () => {
 							selectedAccount?.address
 						]?.controllerId.toString()
 			  )[0]
-			: isNil(
-					window?.localStorage.getItem(
-						selectedAccount?.address + networkInfo.network + "Controller"
-					)
-			  )
-			? walletType[selectedAccount?.substrateAddress]
-				? null
-				: selectedAccount
-			: accounts?.filter(
-					(account) =>
-						account.address ===
-						window?.localStorage.getItem(
-							selectedAccount?.address + networkInfo.network + "Controller"
-						)
-			  )[0];
+			: null;
 		setControllerAccount(account);
 	}, [
 		selectedAccount?.address,
@@ -207,17 +177,6 @@ const RewardCalculatorPage = () => {
 	const onAdvancedSelection = () => {
 		updateTransactionState(Events.INTENT_ADVANCED_SELECTION);
 		router.push(`${Routes.VALIDATORS}?advanced=true`);
-	};
-
-	const toSetUpAccounts = () => {
-		setIsNewSetup(false);
-		if (
-			!Object.values(walletType).every((value) => value === null) &&
-			Object.values(walletType).includes(null)
-		) {
-			setIsNewSetup(true);
-		}
-		router.push("/setup-accounts");
 	};
 
 	const updateTransactionState = (eventType = "") => {
@@ -274,16 +233,8 @@ const RewardCalculatorPage = () => {
 		activeBondedAmount + totalAvailableStakingAmount;
 
 	const proceedDisabled =
-		accounts &&
-		selectedAccount &&
-		!Object.values(walletType).every((value) => value === null)
-			? isNil(controllerAccount) ||
-			  isNil(walletType[selectedAccount?.substrateAddress]) ||
-			  walletType[controllerAccount?.substrateAddress] ||
-			  (walletType[selectedAccount?.substrateAddress] &&
-					selectedAccount?.address === controllerAccount?.address)
-				? false
-				: amount && !isInElection && amount > 0
+		accounts && selectedAccount
+			? amount && !isInElection && amount > 0
 				? amount > totalPossibleStakingAmount
 					? true
 					: activeBondedAmount >
@@ -426,32 +377,25 @@ const RewardCalculatorPage = () => {
 							networkInfo={networkInfo}
 						/>
 					)}
-					{!Object.values(walletType).every((value) => value === null) &&
-						Object.values(walletType).includes(null) && (
-							<div className="w-full mb-4">
-								<SetupAccountsAlert />
-							</div>
-						)}
-					{!Object.values(walletType).every((value) => value === null) &&
-						activeBondedAmount > 0 && (
-							<div
-								className={`w-full flex flex-row mb-4 rounded items-center ${
-									simulationChecked ? "justify-between" : "justify-end"
-								}`}
-							>
-								{simulationChecked && (
-									<div>
-										<SimulationAlert />
-									</div>
-								)}
-								<div className=" flex items-center justify-center">
-									<SimulationSwitch
-										simulationChecked={simulationChecked}
-										setSimulationChecked={setSimulationChecked}
-									/>
+					{activeBondedAmount > 0 && (
+						<div
+							className={`w-full flex flex-row mb-4 rounded items-center ${
+								simulationChecked ? "justify-between" : "justify-end"
+							}`}
+						>
+							{simulationChecked && (
+								<div>
+									<SimulationAlert />
 								</div>
+							)}
+							<div className=" flex items-center justify-center">
+								<SimulationSwitch
+									simulationChecked={simulationChecked}
+									setSimulationChecked={setSimulationChecked}
+								/>
 							</div>
-						)}
+						</div>
+					)}
 					<div className="w-1/2 space-y-8">
 						{/* <h1 className="font-semibold text-xl text-gray-700">
 							Calculate Returns
@@ -466,7 +410,6 @@ const RewardCalculatorPage = () => {
 								{selectedAccount &&
 									balances &&
 									stakingInfo &&
-									!Object.values(walletType).every((value) => value === null) &&
 									(amount >
 										totalPossibleStakingAmount - networkInfo.minAmount ||
 										totalAvailableStakingAmount < networkInfo.minAmount) && (
@@ -485,7 +428,6 @@ const RewardCalculatorPage = () => {
 									trackRewardCalculatedEvent={trackRewardCalculatedEvent}
 									balances={balances}
 									simulationChecked={simulationChecked}
-									walletType={walletType}
 									stakingInfo={stakingInfo}
 								/>
 							</div>
@@ -617,18 +559,6 @@ const RewardCalculatorPage = () => {
 							onClick={() =>
 								isNil(accounts)
 									? toggle()
-									: Object.keys(walletType).length === 0 ||
-									  Object.values(walletType).every(
-											(value) => value === null
-									  ) ||
-									  (selectedAccount &&
-											(isNil(controllerAccount) ||
-												isNil(walletType[selectedAccount?.substrateAddress]) ||
-												walletType[controllerAccount?.substrateAddress] ||
-												(walletType[selectedAccount?.substrateAddress] &&
-													selectedAccount?.address ===
-														controllerAccount?.address)))
-									? toSetUpAccounts()
 									: selectedAccount
 									? toStaking()
 									: toggle()
@@ -636,16 +566,6 @@ const RewardCalculatorPage = () => {
 						>
 							{isNil(accounts)
 								? "Connect Wallet"
-								: Object.keys(walletType).length === 0 ||
-								  Object.values(walletType).every((value) => value === null) ||
-								  (selectedAccount &&
-										(isNil(walletType[selectedAccount?.substrateAddress]) ||
-											walletType[controllerAccount?.substrateAddress] !==
-												false ||
-											(walletType[selectedAccount?.substrateAddress] &&
-												selectedAccount?.address ===
-													controllerAccount?.address)))
-								? "Setup Accounts"
 								: isNil(selectedAccount)
 								? "Select Account"
 								: isInElection

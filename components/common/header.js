@@ -17,7 +17,6 @@ import {
 	useAccountsStakingInfo,
 	useAccountsStakingLedgerInfo,
 	useAccountsControllerStashInfo,
-	useWalletType,
 } from "@lib/store";
 import { isNil } from "lodash";
 import { Settings, Menu } from "react-feather";
@@ -71,7 +70,6 @@ const Header = ({ isBase, isSetUp }) => {
 	const { isNewSetupOpen, toggleNewSetup } = useNewAccountsSetup();
 	const { setIsInElection } = useNetworkElection();
 	const { accounts, setAccounts } = useAccounts();
-	const { walletType } = useWalletType();
 	const { selectedAccount, setSelectedAccount } = useSelectedAccount();
 	const { accountsBalances, setAccountsBalances } = useAccountsBalances();
 	const { accountsStakingInfo, setAccountsStakingInfo } =
@@ -226,12 +224,6 @@ const Header = ({ isBase, isSetUp }) => {
 				(isOpen || !isNil(userStorage.getItem("autoConnectEnabled"))) && (
 					<WalletConnectPopover isOpen={isOpen} networkInfo={networkInfo} />
 				)}
-			{!isSetUp &&
-				(Object.values(walletType).includes(true) ||
-					Object.values(walletType).includes(false)) &&
-				Object.values(walletType).includes(null) && (
-					<NewAccountsSetupPopover isOpen={isNewSetupOpen} />
-				)}
 			{/* Account returns null, maybe replace with a custom hook */}
 			{!isNil(apiInstance)
 				? accounts?.map((account) => (
@@ -314,7 +306,6 @@ const Header = ({ isBase, isSetUp }) => {
 							toggle={toggle}
 							isStashPopoverOpen={isStashPopoverOpen}
 							selectedAccount={selectedAccount}
-							walletType={walletType}
 							isSetUp={isSetUp}
 							apiInstance={apiInstance}
 							networkInfo={networkInfo}
@@ -329,7 +320,6 @@ const Header = ({ isBase, isSetUp }) => {
 							isNetworkOpen={isNetworkOpen}
 							setIsNetworkOpen={setIsNetworkOpen}
 							networkInfo={networkInfo}
-							walletType={walletType}
 							isSetUp={isSetUp}
 							supportedNetworksInfo={supportedNetworksInfo}
 							switchNetwork={switchNetwork}
