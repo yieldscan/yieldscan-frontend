@@ -3,15 +3,14 @@ import { useRouter } from "next/router";
 import SelectAccount from "@components/wallet-connect/SelectAccount";
 import addToLocalStorage from "@lib/addToLocalStorage";
 import { useEffect, useState } from "react";
+import { isNil } from "lodash";
 
 const SelectStakingAccount = ({
-	decrementStep,
 	networkInfo,
 	accounts,
 	accountsBalances,
 	accountsControllerStashInfo,
 	setSelectedAccount,
-	apiInstance,
 }) => {
 	const router = useRouter();
 	const onAccountSelected = (account) => {
@@ -37,9 +36,19 @@ const SelectStakingAccount = ({
 		JSON.stringify(accountsControllerStashInfo),
 		JSON.stringify(accountsBalances),
 	]);
-	return filteredAccounts &&
-		Object.keys(accountsBalances).length > 0 &&
-		Object.keys(accountsControllerStashInfo).length > 0 ? (
+
+	console.log(accounts);
+
+	return accounts?.length === 0 ? (
+		<div className="flex h-full w-full text-left text-gray-700 text-xl flex-col justify-center items-center space-y-6">
+			<p>
+				Oops! no accounts found. Either create a new account or import an
+				existing one.
+			</p>
+		</div>
+	) : filteredAccounts &&
+	  Object.keys(accountsBalances).length > 0 &&
+	  Object.keys(accountsControllerStashInfo).length > 0 ? (
 		<div className="w-full h-full flex justify-center">
 			<div className="w-full max-w-65-rem flex flex-col items-center">
 				{/* <div className="p-2 w-full">
@@ -70,9 +79,9 @@ const SelectStakingAccount = ({
 			</div>
 		</div>
 	) : (
-		<div className="flex h-full w-full text-left text-gray-700 flex-col justify-center items-center">
+		<div className="flex h-full w-full text-left text-gray-700 flex-col justify-center items-center space-y-6">
 			<span className="loader"></span>
-			<p>Loading accounts and information...</p>
+			<p>Fetching accounts information...</p>
 		</div>
 	);
 };
