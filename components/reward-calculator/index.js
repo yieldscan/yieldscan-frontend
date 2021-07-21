@@ -558,7 +558,7 @@ const RewardCalculatorPage = () => {
 							hidden={simulationChecked}
 							onClick={() =>
 								isNil(accounts)
-									? toggle()
+									? router.push("/setup-wallet")
 									: selectedAccount
 									? toStaking()
 									: toggle()

@@ -4,20 +4,50 @@ import { has, isNil } from "lodash";
 import Image from "next/image";
 import { useRouter } from "next/router";
 import { useWalletConnect } from "@components/wallet-connect";
+import {
+	useAccounts,
+	useAccountsBalances,
+	useAccountsControllerStashInfo,
+	useSelectedAccount,
+	useSelectedNetwork,
+	useWalletConnectState,
+} from "@lib/store";
+import { getNetworkInfo } from "yieldscan.config";
+import SelectStakingAccount from "./SelectStakingAccount";
 
 const SetupWallet = () => {
 	const router = useRouter();
 	const { toggle } = useWalletConnect();
+	const { accounts } = useAccounts();
+	const { selectedNetwork } = useSelectedNetwork();
+	const { setSelectedAccount } = useSelectedAccount();
+	const { accountsBalances } = useAccountsBalances();
+	const { accountsControllerStashInfo } = useAccountsControllerStashInfo();
+	const { walletConnectState } = useWalletConnectState();
+	const networkInfo = getNetworkInfo(selectedNetwork);
 
+	const [connectExtensionCheck, setConnectExtensionCheck] = useState(false);
+	const [currentStep, setCurrentStep] = useState("main");
 	const [hasExtension, setHasExtension] = useState(
 		has(window?.injectedWeb3, "polkadot-js")
 	);
+
+	const handleOnClickConnectPolkadotExtension = () => {
+		walletConnectState !== "connected" && toggle();
+		setConnectExtensionCheck(true);
+	};
 
 	useEffect(() => {
 		setHasExtension(has(window?.injectedWeb3, "polkadot-js"));
 	}, []);
 
-	return (
+	useEffect(() => {
+		walletConnectState === "connected" &&
+			connectExtensionCheck &&
+			setCurrentStep("selectStakingAccount");
+	}, [connectExtensionCheck, walletConnectState]);
+
+	return currentStep === "main" ? (
 		<div className="w-full h-full flex justify-center">
 			<div className="w-full max-w-65-rem flex flex-col space-y-6">
 				<div className="flex flex-row mt-12 font-semibold">
@@ -71,7 +101,7 @@ const SetupWallet = () => {
 						{hasExtension && (
 							<button
 								className="w-full flex rounded-lg border items-center shadow-lg p-8 transform hover:scale-102"
-								onClick={() => toggle()}
+								onClick={handleOnClickConnectPolkadotExtension}
 							>
 								<div className="w-full flex-1 flex flex-row items-center text-left space-x-6">
 									<Image
@@ -151,6 +181,16 @@ const SetupWallet = () => {
 					</div>
 				)}
 			</div>
+		</div>
+	) : (
+		<div className="w-full h-full flex justify-center">
+			<SelectStakingAccount
+				networkInfo={networkInfo}
+				accounts={accounts}
+				accountsBalances={accountsBalances}
+				accountsControllerStashInfo={accountsControllerStashInfo}
+				setSelectedAccount={setSelectedAccount}
+			/>
 		</div>
 	);
 };

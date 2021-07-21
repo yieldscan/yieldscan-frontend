@@ -222,7 +222,11 @@ const Header = ({ isBase, isSetUp }) => {
 			{/* Wallet Connect */}
 			{!isBase &&
 				(isOpen || !isNil(userStorage.getItem("autoConnectEnabled"))) && (
-					<WalletConnectPopover isOpen={isOpen} networkInfo={networkInfo} />
+					<WalletConnectPopover
+						isOpen={isOpen}
+						networkInfo={networkInfo}
+						isSetUp={isSetUp}
+					/>
 				)}
 			{/* Account returns null, maybe replace with a custom hook */}
 			{!isNil(apiInstance)

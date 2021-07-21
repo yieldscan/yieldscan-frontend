@@ -6,7 +6,7 @@ const SelectAccount = ({ accounts, onAccountSelected, networkInfo }) => {
 	return (
 		<div className="w-full">
 			<div className="w-full text-sm p-2 space-y-1 overflow-y-scroll max-h-24-rem">
-				{accounts.map((account) => {
+				{accounts?.map((account) => {
 					return (
 						<Account
 							account={account}
