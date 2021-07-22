@@ -37,8 +37,6 @@ const SelectStakingAccount = ({
 		JSON.stringify(accountsBalances),
 	]);
 
-	console.log(accounts);
-
 	return accounts?.length === 0 ? (
 		<div className="flex h-full w-full text-left text-gray-700 text-xl flex-col justify-center items-center space-y-6">
 			<p>

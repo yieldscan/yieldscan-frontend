@@ -5,6 +5,7 @@ import {
 	ModalBody,
 	ModalCloseButton,
 } from "@chakra-ui/core";
+import { setCookie } from "nookies";
 import withSlideIn from "@components/common/withSlideIn";
 
 const WaitingModal = withSlideIn(({ styles, close, isOpen }) => {
@@ -36,7 +37,12 @@ const WaitingModal = withSlideIn(({ styles, close, isOpen }) => {
 							Already installed?{" "}
 							<span
 								className="font-semibold cursor-pointer"
-								onClick={() => location.reload()}
+								onClick={() => {
+									setCookie(null, "currentStep", "ledgerSetup", {
+										maxAge: 10,
+									});
+									location.reload();
+								}}
 							>
 								Refresh page
 							</span>

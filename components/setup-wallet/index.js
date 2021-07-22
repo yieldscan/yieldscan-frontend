@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { ChevronLeft, RefreshCw } from "react-feather";
 import { has, isNil } from "lodash";
+import { parseCookies } from "nookies";
 import Image from "next/image";
 import { useRouter } from "next/router";
 import { useWalletConnect } from "@components/wallet-connect";
@@ -18,6 +19,7 @@ import LedgerSetup from "./LedgerSetup";
 
 const SetupWallet = () => {
 	const router = useRouter();
+	const cookies = parseCookies();
 	const { toggle } = useWalletConnect();
 	const { accounts } = useAccounts();
 	const { selectedNetwork } = useSelectedNetwork();
@@ -28,7 +30,9 @@ const SetupWallet = () => {
 	const networkInfo = getNetworkInfo(selectedNetwork);
 
 	const [connectExtensionCheck, setConnectExtensionCheck] = useState(false);
-	const [currentStep, setCurrentStep] = useState("ledgerSetup");
+	const [currentStep, setCurrentStep] = useState(() =>
+		isNil(cookies?.currentStep) ? "main" : "ledgerSetup"
+	);
 	const [hasExtension, setHasExtension] = useState(
 		has(window?.injectedWeb3, "polkadot-js")
 	);

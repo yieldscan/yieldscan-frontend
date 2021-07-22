@@ -221,26 +221,30 @@ const LedgerSetup = ({
 				<div className="w-full space-y-2">
 					{begginerInfo(networkInfo).map((info, index) => (
 						<div key={index} className="grid grid-cols-10">
-							<div className="grid p-4">
-								<Check
-									className="p-1 mr-2 rounded-full text-white bg-teal-500 bg-opacity-100"
-									strokeWidth="4px"
-								/>
-							</div>
-							<div className="col-span-9 flex w-full max-w-xl flex-col p-4">
-								<div
-									// onClick={() => handleOnClick(index)}
-									className="grid grid-cols-10 gap-2 w-full text-lg text-gray-700 justify-between items-center"
-								>
-									<p className="text-justify col-span-9 max-w-lg">{info}</p>
-									{/* <div className="w-full grid justify-items-end">
-										<ChevronDown
-											size={16}
-											className={`transition ease-in-out duration-500 ${
-												false && "transform rotate-180"
-											}`}
+							<div className="p-2 flex flex-col items-center space-y-2">
+								{infoIndex <= index && (
+									<div className="h-8 w-8 border-2 border-teal-500 rounded-full text-teal-500 flex items-center text-lg justify-center">
+										{index + 1}
+									</div>
+								)}
+								{infoIndex > index && (
+									<div className="ml-2">
+										<Check
+											className="p-1 mr-2 rounded-full text-white bg-teal-500 bg-opacity-100"
+											strokeWidth="4px"
+											size={30}
 										/>
-									</div> */}
+									</div>
+								)}
+								{index !== begginerInfo(networkInfo).length - 1 && (
+									<div className="h-full min-h-8 w-0 border-r border-gray-500 rounded-full"></div>
+								)}
+							</div>
+							<div className="col-span-9 flex w-full max-w-xl flex-col p-2">
+								<div className="grid grid-cols-10 gap-2 w-full text-md text-gray-700 justify-between items-center">
+									<p className="text-justify col-span-9 mt-1 max-w-lg">
+										{info}
+									</p>
 								</div>
 								<Collapse isOpen={isOpen && infoIndex === index}>
 									<ContentArr
