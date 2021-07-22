@@ -51,7 +51,7 @@ import { trackEvent, Events } from "@lib/analytics";
 import { getNetworkInfo } from "yieldscan.config";
 import { HelpCircle, AlertCircle, AlertTriangle } from "react-feather";
 import MinStakeAlert from "./MinStakeAlert";
-import { BottomNextButton } from "@components/setup-accounts/BottomButton";
+import { BottomNextButton } from "@components/common/BottomButton";
 import {
 	LowBalancePopover,
 	useLowBalancePopover,

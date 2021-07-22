@@ -14,6 +14,7 @@ import {
 } from "@lib/store";
 import { getNetworkInfo } from "yieldscan.config";
 import SelectStakingAccount from "./SelectStakingAccount";
+import LedgerSetup from "./LedgerSetup";
 
 const SetupWallet = () => {
 	const router = useRouter();
@@ -27,7 +28,7 @@ const SetupWallet = () => {
 	const networkInfo = getNetworkInfo(selectedNetwork);
 
 	const [connectExtensionCheck, setConnectExtensionCheck] = useState(false);
-	const [currentStep, setCurrentStep] = useState("main");
+	const [currentStep, setCurrentStep] = useState("ledgerSetup");
 	const [hasExtension, setHasExtension] = useState(
 		has(window?.injectedWeb3, "polkadot-js")
 	);
@@ -44,6 +45,7 @@ const SetupWallet = () => {
 	useEffect(() => {
 		walletConnectState === "connected" &&
 			connectExtensionCheck &&
+			currentStep === "main" &&
 			setCurrentStep("selectStakingAccount");
 	}, [connectExtensionCheck, walletConnectState]);
 
@@ -123,7 +125,13 @@ const SetupWallet = () => {
 								</div>
 							</button>
 						)}
-						<button className="w-full flex rounded-lg border items-center shadow-lg p-8 transform hover:scale-102">
+						<button
+							className="w-full flex rounded-lg border items-center shadow-lg p-8 transform hover:scale-102"
+							onClick={() => {
+								setConnectExtensionCheck(false);
+								setCurrentStep("ledgerSetup");
+							}}
+						>
 							<div className="w-full flex-1 flex flex-row items-center text-left space-x-6">
 								<Image
 									src="/images/ledgerIcon.svg"
@@ -182,7 +190,7 @@ const SetupWallet = () => {
 				)}
 			</div>
 		</div>
-	) : (
+	) : currentStep === "selectStakingAccount" ? (
 		<div className="w-full h-full flex justify-center">
 			<SelectStakingAccount
 				networkInfo={networkInfo}
@@ -190,6 +198,23 @@ const SetupWallet = () => {
 				accountsBalances={accountsBalances}
 				accountsControllerStashInfo={accountsControllerStashInfo}
 				setSelectedAccount={setSelectedAccount}
+			/>
+		</div>
+	) : (
+		<div className="w-full h-full flex justify-center">
+			<LedgerSetup
+				networkInfo={networkInfo}
+				accounts={accounts}
+				accountsBalances={accountsBalances}
+				accountsControllerStashInfo={accountsControllerStashInfo}
+				setSelectedAccount={setSelectedAccount}
+				hasExtension={hasExtension}
+				handleOnClickConnectPolkadotExtension={
+					handleOnClickConnectPolkadotExtension
+				}
+				connectExtensionCheck={connectExtensionCheck}
+				walletConnectState={walletConnectState}
+				setCurrentStep={setCurrentStep}
 			/>
 		</div>
 	);

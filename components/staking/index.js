@@ -27,7 +27,7 @@ import axios from "@lib/axios";
 import { useToast, Spinner, Flex, Button } from "@chakra-ui/core";
 import ConfettiGenerator from "confetti-js";
 import ChainErrorPage from "./ChainErrorPage";
-import { BottomNextButton } from "../setup-accounts/BottomButton";
+import { BottomNextButton } from "../common/BottomButton";
 import InfoAlert from "./InfoAlert";
 import TransferFunds from "./TransferFunds";
 
