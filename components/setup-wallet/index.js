@@ -219,6 +219,7 @@ const SetupWallet = () => {
 				connectExtensionCheck={connectExtensionCheck}
 				walletConnectState={walletConnectState}
 				setCurrentStep={setCurrentStep}
+				setConnectExtensionCheck={setConnectExtensionCheck}
 			/>
 		</div>
 	);
