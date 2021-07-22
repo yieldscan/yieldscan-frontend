@@ -16,7 +16,7 @@ export const networks = [
 		twitterUrl: "@Polkadot",
 		addressPrefix: 0,
 		nodeWs: process.env.NEXT_PUBLIC_POLKADOT,
-		collectionAddress: process.env.process.env.POLKADOT_MULTISIG_COLLECTION_ADDRESS,
+		collectionAddress: process.env.POLKADOT_MULTISIG_COLLECTION_ADDRESS,
 		erasPerDay: 1,
 		lockUpPeriod: 28,
 		minAmount: 1,
