@@ -194,10 +194,10 @@ const LedgerSetup = ({
 	}, [connectExtensionCheck, walletConnectState]);
 
 	return (
-		<div className="flex-1 w-full max-w-2xl grid grid-rows-10 text-gray-700 p-4 text-gray-700">
+		<div className="flex-1 w-full max-w-2xl grid grid-rows-4 text-gray-700 p-4 text-gray-700">
 			<WaitingModal isOpen={isModalOpen} close={closeWaitingModal} />
 			{infoIndex < 3 && (
-				<div className="w-full h-full flex flex-col justify-center">
+				<div className="row-span-1 w-full h-full flex flex-col justify-center">
 					<h1 className="w-full text-2xl font-semibold">
 						To use ledger wallet on YieldScan
 					</h1>
@@ -209,7 +209,7 @@ const LedgerSetup = ({
 				</div>
 			)}
 			<div
-				className={`row-span-9 w-full flex flex-col space-y-2 ${
+				className={`row-span-3 w-full flex flex-col space-y-2 ${
 					connectExtensionCheck &&
 					walletConnectState === "connected" &&
 					"justify-center"
