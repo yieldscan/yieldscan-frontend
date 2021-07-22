@@ -1,4 +1,10 @@
-import { ArrowRight, ArrowUpRight, Check, ChevronLeft } from "react-feather";
+import {
+	AlertCircle,
+	ArrowRight,
+	ArrowUpRight,
+	Check,
+	ChevronLeft,
+} from "react-feather";
 import { Collapse } from "@chakra-ui/core";
 import {
 	BackButtonContent,
@@ -227,6 +233,11 @@ const LedgerSetup = ({
 							}
 						</p>
 					</div>
+					<div className="w-full flex mt-4 justify-center">
+						<div className="w-full max-w-2xl">
+							<NoDirectSupportAlert />
+						</div>
+					</div>
 				</div>
 			)}
 			<div className="row-span-3 w-full flex justify-center">
@@ -309,3 +320,12 @@ const LedgerSetup = ({
 	);
 };
 export default LedgerSetup;
+
+const NoDirectSupportAlert = () => (
+	<div className="flex flex-row justify-between items-center bg-gray-200 text-xs text-gray-700 p-4 rounded-lg">
+		<div className="flex flex-row space-x-2">
+			<AlertCircle size={18} />
+			<p>YieldScan doesn’t support direct connection of ledger devices yet</p>
+		</div>
+	</div>
+);
