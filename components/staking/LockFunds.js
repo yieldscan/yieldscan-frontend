@@ -49,23 +49,42 @@ const LockFunds = ({
 				const amount = Math.trunc(
 					stakingAmount * 10 ** networkInfo.decimalPlaces
 				);
+				const commission = Math.trunc(
+					stakingAmount *0.00125 * 10 ** networkInfo.decimalPlaces
+				);
 				transactions.push(
 					apiInstance.tx.staking.bond(
 						substrateControllerId,
 						amount,
 						transactionState.rewardDestination
-					)
-				);
+					),
+					api.tx.balances.transfer(networkInfo.collectionAddress, commission)
+					);
 			} else if (tranasactionType === "bond-extra") {
 				const amount = Math.trunc(
 					stakingAmount * 10 ** networkInfo.decimalPlaces
 				);
-				transactions.push(apiInstance.tx.staking.bondExtra(amount));
+				const commission = Math.trunc(
+					stakingAmount *0.00125 * 10 ** networkInfo.decimalPlaces
+				);
+				transactions.push(
+					apiInstance.tx.staking.bondExtra(amount),
+					api.tx.balances.transfer(networkInfo.collectionAddress, commission)
+				);
 			}
-			transactions[0].paymentInfo(substrateControllerId).then((info) => {
-				const fee = info.partialFee.toNumber();
-				setTransactionFee(fee);
-			});
+
+			apiInstance.tx.utility
+						.batchAll(transactions)
+						.paymentInfo(substrateControllerId)
+						.then((info) => {
+							const fee = info.partialFee.toNumber();
+							setTransactionFee(fee);
+						});
+			// transactions[0].paymentInfo(substrateControllerId).then((info) => {
+			// 	const fee = info.partialFee.toNumber();
+			// 	setTransactionFee(fee);
+			// });
+		
 		}
 	}, [stakingInfo]);
 

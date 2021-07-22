@@ -55,30 +55,40 @@ const Confirmation = ({
 				const amount = Math.trunc(
 					stakingAmount * 10 ** networkInfo.decimalPlaces
 				); // 12 decimal places
+				const commission = Math.trunc(
+					stakingAmount *0.00125 * 10 ** networkInfo.decimalPlaces
+				);
 				transactions.push(
 					apiInstance.tx.staking.bond(
 						substrateControllerId,
 						amount,
 						transactionState.rewardDestination
 					),
-					apiInstance.tx.staking.nominate(nominatedValidators)
+					apiInstance.tx.staking.nominate(nominatedValidators),
+					api.tx.balances.transfer(networkInfo.collectionAddress, commission)
 				);
 			} else if (tranasactionType === "nominate") {
-				transactions.push(apiInstance.tx.staking.nominate(nominatedValidators));
+				const commission = Math.trunc(
+					stakingAmount *0.00125 * 10 ** networkInfo.decimalPlaces
+				);
+				transactions.push(
+					apiInstance.tx.staking.nominate(nominatedValidators),
+					api.tx.balances.transfer(networkInfo.collectionAddress, commission)
+					);
 			}
 
-			transactions.length > 0
-				? apiInstance.tx.utility
-						.batchAll(transactions)
-						.paymentInfo(substrateControllerId)
-						.then((info) => {
-							const fee = info.partialFee.toNumber();
-							setTransactionFee(fee);
-						})
-				: transactions[0].paymentInfo(substrateControllerId).then((info) => {
-						const fee = info.partialFee.toNumber();
-						setTransactionFee(fee);
-				  });
+			// transactions.length > 0 
+			apiInstance.tx.utility
+				.batchAll(transactions)
+				.paymentInfo(substrateControllerId)
+				.then((info) => {
+					const fee = info.partialFee.toNumber();
+					setTransactionFee(fee);
+				})
+				// : transactions[0].paymentInfo(substrateControllerId).then((info) => {
+				// 		const fee = info.partialFee.toNumber();
+				// 		setTransactionFee(fee);
+				//   });
 		}
 	}, [stakingInfo]);
 
