@@ -1,10 +1,4 @@
-import {
-	AlertCircle,
-	ArrowRight,
-	ArrowUpRight,
-	Check,
-	ChevronLeft,
-} from "react-feather";
+import { AlertCircle, Check, ChevronLeft } from "react-feather";
 import { Collapse } from "@chakra-ui/core";
 import {
 	BackButtonContent,
@@ -13,7 +7,6 @@ import {
 	NextButtonContent,
 } from "@components/common/BottomButton";
 import { useState, useEffect } from "react";
-import startRamp from "@lib/startRamp";
 import Image from "next/image";
 import WaitingModal from "./WaitingModal";
 
@@ -24,7 +17,6 @@ const begginerInfo = (networkInfo) => [
 ];
 
 const MinAmountInfo = ({
-	networkInfo,
 	hasExtension,
 	openWaitingModal,
 	incrementInfoIndex,
@@ -52,7 +44,7 @@ const MinAmountInfo = ({
 
 const ControllerInfo = ({ incrementInfoIndex, decrementInfoIndex }) => (
 	<div className="space-y-4">
-		<p className="mt-4 text-xs text-gray-600">
+		<p className="mt-4 text-sm text-gray-600">
 			{
 				"Follow the video tutorial below to connect your ledger wallet through polkadot{.js}, then continue to the next step"
 			}
@@ -90,12 +82,11 @@ const ControllerInfo = ({ incrementInfoIndex, decrementInfoIndex }) => (
 );
 
 const ConnectInfo = ({
-	incrementInfoIndex,
 	decrementInfoIndex,
 	handleOnClickConnectPolkadotExtension,
 }) => (
 	<div className="space-y-4">
-		<p className="mt-4 text-xs text-gray-600">
+		<p className="mt-4 text-sm text-gray-600">
 			{
 				"Click the Connect polkadot{.js} button below, then allow polkadot{.js} to connect to YieldScan as shown in the image."
 			}
@@ -170,17 +161,6 @@ const LedgerSetup = ({
 	const [infoIndex, setInfoIndex] = useState(0);
 	const [isOpen, setIsOpen] = useState(true);
 	const [isModalOpen, setIsModalOpen] = useState(false);
-
-	const [ledgerSetupStep, setLedgerSetupStep] = useState("installExt");
-
-	const handleOnClick = (info) => {
-		if (isOpen) {
-			infoIndex !== info ? setInfoIndex(info) : setIsOpen(false);
-		} else {
-			setIsOpen(true);
-			setInfoIndex(info);
-		}
-	};
 
 	const incrementInfoIndex = () => {
 		setInfoIndex((state) => state + 1);
@@ -279,7 +259,11 @@ const LedgerSetup = ({
 										<div className="h-full min-h-8 w-0 border-r border-gray-500 rounded-full"></div>
 									)}
 								</div>
-								<div className="col-span-9 flex w-full max-w-xl flex-col p-2">
+								<div
+									className={`col-span-9 flex w-full max-w-xl flex-col p-2 ${
+										index === begginerInfo(networkInfo).length - 1 && "mb-12"
+									}`}
+								>
 									<div className="grid grid-cols-10 gap-2 w-full text-md text-gray-700 justify-between items-center">
 										<p className="text-justify col-span-9 mt-1 max-w-lg">
 											{info}
