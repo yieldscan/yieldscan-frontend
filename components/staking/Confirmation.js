@@ -64,16 +64,17 @@ const Confirmation = ({
 						transactionState.rewardDestination
 					),
 					apiInstance.tx.staking.nominate(nominatedValidators),
-					apiInstance.tx.balances.transferKeepAlive(networkInfo.collectionAddress, yieldscanCommission)
+					apiInstance.tx.balances.transferKeepAlive(networkInfo.collectionAddress, yieldscanCommission),
+					apiInstance.tx.system.remark("Sent with YieldScan")
 				);
 			} else if (transactionType === "nominate") {
 				transactions.push(
 					apiInstance.tx.staking.nominate(nominatedValidators),
-					apiInstance.tx.balances.transferKeepAlive(networkInfo.collectionAddress, 9876543210)
+					apiInstance.tx.balances.transferKeepAlive(networkInfo.collectionAddress, yieldscanCommission),
+					apiInstance.tx.system.remark("Sent with YieldScan")
 					);
 			}
 
-			// transactions.length > 0 
 			apiInstance.tx.utility
 				.batchAll(transactions)
 				.paymentInfo(substrateControllerId)
@@ -81,10 +82,6 @@ const Confirmation = ({
 					const fee = info.partialFee.toNumber();
 					setTransactionFee(fee);
 				})
-				// : transactions[0].paymentInfo(substrateControllerId).then((info) => {
-				// 		const fee = info.partialFee.toNumber();
-				// 		setTransactionFee(fee);
-				//   });
 		}
 	}, [stakingInfo]);
 	return (
@@ -244,7 +241,7 @@ const Confirmation = ({
 									<HelpPopover
 										content={
 											<p className="text-xs text-white">
-												This fee is used to pay for the operating costs of running Yieldscan.
+												This fee is used to pay for the costs of building and running Yieldscan.
 											</p>
 										}
 									/>
