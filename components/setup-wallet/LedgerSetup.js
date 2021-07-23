@@ -199,6 +199,12 @@ const LedgerSetup = ({
 	};
 
 	useEffect(() => {
+		if (hasExtension && infoIndex === 0) {
+			incrementInfoIndex();
+		}
+	}, []);
+
+	useEffect(() => {
 		walletConnectState === "connected" &&
 			connectExtensionCheck &&
 			incrementInfoIndex();
