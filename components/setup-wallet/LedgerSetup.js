@@ -10,13 +10,13 @@ import { useState, useEffect } from "react";
 import Image from "next/image";
 import WaitingModal from "./WaitingModal";
 
-const begginerInfo = (networkInfo) => [
-	`Install polkadot{.js} browser wallet`,
+const stepHeadings = () => [
+	"Install polkadot{.js} browser wallet",
 	"Connect your ledger wallet through polkadot{.js}",
 	"Authorize polkadot{.js} to connect to YieldScan",
 ];
 
-const MinAmountInfo = ({
+const InstallPolkadotExtension = ({
 	hasExtension,
 	openWaitingModal,
 	incrementInfoIndex,
@@ -42,7 +42,7 @@ const MinAmountInfo = ({
 	</div>
 );
 
-const ControllerInfo = ({ incrementInfoIndex, decrementInfoIndex }) => (
+const ConnectLedgerWallet = ({ incrementInfoIndex, decrementInfoIndex }) => (
 	<div className="space-y-4">
 		<p className="mt-4 text-sm text-gray-600">
 			{
@@ -81,7 +81,7 @@ const ControllerInfo = ({ incrementInfoIndex, decrementInfoIndex }) => (
 	</div>
 );
 
-const ConnectInfo = ({
+const AuthorizePolkadotExtension = ({
 	decrementInfoIndex,
 	handleOnClickConnectPolkadotExtension,
 }) => (
@@ -117,7 +117,7 @@ const ConnectInfo = ({
 	</div>
 );
 
-const ContentArr = ({
+const StepsArr = ({
 	index,
 	networkInfo,
 	hasExtension,
@@ -127,19 +127,19 @@ const ContentArr = ({
 	handleOnClickConnectPolkadotExtension,
 }) => {
 	return index === 0 ? (
-		<MinAmountInfo
+		<InstallPolkadotExtension
 			networkInfo={networkInfo}
 			hasExtension={hasExtension}
 			openWaitingModal={openWaitingModal}
 			incrementInfoIndex={incrementInfoIndex}
 		/>
 	) : index === 1 ? (
-		<ControllerInfo
+		<ConnectLedgerWallet
 			incrementInfoIndex={incrementInfoIndex}
 			decrementInfoIndex={decrementInfoIndex}
 		/>
 	) : (
-		<ConnectInfo
+		<AuthorizePolkadotExtension
 			incrementInfoIndex={incrementInfoIndex}
 			decrementInfoIndex={decrementInfoIndex}
 			handleOnClickConnectPolkadotExtension={
@@ -148,6 +148,15 @@ const ContentArr = ({
 		/>
 	);
 };
+
+const NoDirectSupportAlert = () => (
+	<div className="flex flex-row justify-between items-center bg-gray-200 text-xs text-gray-700 p-4 rounded-lg">
+		<div className="flex flex-row space-x-2">
+			<AlertCircle size={18} />
+			<p>YieldScan doesn’t support direct connection of ledger devices yet</p>
+		</div>
+	</div>
+);
 
 const LedgerSetup = ({
 	networkInfo,
@@ -238,7 +247,7 @@ const LedgerSetup = ({
 						<h2 className="text-xl font-semibold">Step by step</h2>
 					)}
 					<div className="w-full space-y-2">
-						{begginerInfo(networkInfo).map((info, index) => (
+						{stepHeadings(networkInfo).map((info, index) => (
 							<div key={index} className="grid grid-cols-10">
 								<div className="p-2 flex flex-col items-center space-y-2">
 									{infoIndex <= index && (
@@ -255,13 +264,13 @@ const LedgerSetup = ({
 											/>
 										</div>
 									)}
-									{index !== begginerInfo(networkInfo).length - 1 && (
+									{index !== stepHeadings(networkInfo).length - 1 && (
 										<div className="h-full min-h-8 w-0 border-r border-gray-500 rounded-full"></div>
 									)}
 								</div>
 								<div
 									className={`col-span-9 flex w-full max-w-xl flex-col p-2 ${
-										index === begginerInfo(networkInfo).length - 1 && "mb-12"
+										index === stepHeadings(networkInfo).length - 1 && "mb-12"
 									}`}
 								>
 									<div className="grid grid-cols-10 gap-2 w-full text-md text-gray-700 justify-between items-center">
@@ -269,8 +278,8 @@ const LedgerSetup = ({
 											{info}
 										</p>
 									</div>
-									<Collapse isOpen={isOpen && infoIndex === index}>
-										<ContentArr
+									<Collapse isOpen={infoIndex === index}>
+										<StepsArr
 											index={index}
 											networkInfo={networkInfo}
 											hasExtension={hasExtension}
@@ -310,12 +319,3 @@ const LedgerSetup = ({
 	);
 };
 export default LedgerSetup;
-
-const NoDirectSupportAlert = () => (
-	<div className="flex flex-row justify-between items-center bg-gray-200 text-xs text-gray-700 p-4 rounded-lg">
-		<div className="flex flex-row space-x-2">
-			<AlertCircle size={18} />
-			<p>YieldScan doesn’t support direct connection of ledger devices yet</p>
-		</div>
-	</div>
-);
