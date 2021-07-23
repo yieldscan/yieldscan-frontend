@@ -116,7 +116,7 @@ const data = [
 		id: 5,
 		question: "What are your fees?",
 		answer:
-			"As of right now, YieldScan is 100% free to use. If this changes in the future, then the fees would be displayed on the confirmation page before sending your transaction.",
+			"Yieldscan charges a 0.125% fee on all transactions. For context, it is roughly equivalent to the staking rewards earned in 3-4 days.",
 	},
 	{
 		id: 6,
