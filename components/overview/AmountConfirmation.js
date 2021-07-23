@@ -2,6 +2,7 @@ import { ArrowRight } from "react-feather";
 import { Divider, Spinner } from "@chakra-ui/core";
 import formatCurrency from "@lib/format-currency";
 import { useEffect, useState } from "react";
+import { HelpPopover } from "@components/reward-calculator";
 import { useCoinGeckoPriceUSD } from "@lib/store";
 import getUpdateFundsTransactionFee from "@lib/getUpdateFundsTransactionFee";
 import { isNil } from "lodash";
@@ -80,8 +81,6 @@ const AmountConfirmation = ({
 			setYieldscanCommission(amount*networkInfo.commissionRatio)
 		}
 	}, [amount, type]);
-
-	//console.log(`amount = ${amount}\tcommission= ${yieldscanCommission}`)
 
 	return (
 		<div className="flex flex-col">
