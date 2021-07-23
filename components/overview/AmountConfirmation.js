@@ -23,6 +23,7 @@ const AmountConfirmation = ({
 	const [subFeeCurrency, setSubFeeCurrency] = useState();
 	const [totalAmount, setTotalAmount] = useState(0);
 	const [totalAmountFiat, setTotalAmountFiat] = useState(0);
+	const [yieldscanCommission, setYieldscanCommission] = useState(amount*networkInfo.commissionRatio);
 	useEffect(() => {
 		if (!transactionFee) {
 			getUpdateFundsTransactionFee(
@@ -73,6 +74,14 @@ const AmountConfirmation = ({
 				  );
 		}
 	}, [amount, stakingInfo]);
+
+	useEffect(() => {
+		if (type==='bond'){
+			setYieldscanCommission(amount*networkInfo.commissionRatio)
+		}
+	}, [amount, type]);
+
+	//console.log(`amount = ${amount}\tcommission= ${yieldscanCommission}`)
 
 	return (
 		<div className="flex flex-col">
@@ -147,9 +156,32 @@ const AmountConfirmation = ({
 						</p>
 					</div>
 				</div>
+
+				<div className="flex justify-between mt-4">
+					<p className="text-gray-700 text-xs">Yieldscan .125% Fees</p>
+					<div className="flex flex-col">
+						{!isNil(yieldscanCommission) ? (
+							<div>
+								<p className="text-sm text-right">
+									{formatCurrency.methods.formatAmount(
+										Math.trunc(Math.trunc(yieldscanCommission * 10 ** networkInfo.decimalPlaces)),
+										networkInfo
+									)}
+								</p>
+								{!isNil(subFeeCurrency) && (
+									<p className="text-xs text-right text-gray-600">
+										${subFeeCurrency.toFixed(2)}
+									</p>
+								)}
+							</div>
+						) : (
+							<Spinner />
+						)}
+					</div>
+				</div>
+
 				<div className="flex justify-between mt-4">
 					<p className="text-gray-700 text-xs">Transaction Fee</p>
-
 					<div className="flex flex-col">
 						{!isNil(transactionFee) ? (
 							<div>
@@ -179,6 +211,7 @@ const AmountConfirmation = ({
 								{type === "bond" || type == "rebond"
 									? formatCurrency.methods.formatAmount(
 											Math.trunc(amount * 10 ** networkInfo.decimalPlaces) +
+											Math.trunc(yieldscanCommission*10**networkInfo.decimalPlaces) +
 												transactionFee,
 											networkInfo
 									  )

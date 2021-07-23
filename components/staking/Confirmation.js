@@ -55,8 +55,8 @@ const Confirmation = ({
 				const amount = Math.trunc(
 					stakingAmount * 10 ** networkInfo.decimalPlaces
 				); // 12 decimal places
-				const commission = Math.trunc(
-					stakingAmount *0.00125 * 10 ** networkInfo.decimalPlaces
+				const yieldscanCommission = Math.trunc(
+					stakingAmount *networkInfo.commissionRatio
 				);
 				transactions.push(
 					apiInstance.tx.staking.bond(
@@ -65,15 +65,15 @@ const Confirmation = ({
 						transactionState.rewardDestination
 					),
 					apiInstance.tx.staking.nominate(nominatedValidators),
-					api.tx.balances.transfer(networkInfo.collectionAddress, commission)
+					api.tx.balances.transferKeepAlive(networkInfo.collectionAddress, yieldscanCommission)
 				);
 			} else if (tranasactionType === "nominate") {
-				const commission = Math.trunc(
-					stakingAmount *0.00125 * 10 ** networkInfo.decimalPlaces
+				const yieldscanCommission = Math.trunc(
+					stakingAmount *networkInfo.commissionRatio
 				);
 				transactions.push(
 					apiInstance.tx.staking.nominate(nominatedValidators),
-					api.tx.balances.transfer(networkInfo.collectionAddress, commission)
+					api.tx.balances.transferKeepAlive(networkInfo.collectionAddress, yieldscanCommission)
 					);
 			}
 

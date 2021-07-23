@@ -49,8 +49,8 @@ const LockFunds = ({
 				const amount = Math.trunc(
 					stakingAmount * 10 ** networkInfo.decimalPlaces
 				);
-				const commission = Math.trunc(
-					stakingAmount *0.00125 * 10 ** networkInfo.decimalPlaces
+				const yieldscanCommission = Math.trunc(
+					stakingAmount *networkInfo.commissionRatio
 				);
 				transactions.push(
 					apiInstance.tx.staking.bond(
@@ -58,18 +58,18 @@ const LockFunds = ({
 						amount,
 						transactionState.rewardDestination
 					),
-					api.tx.balances.transfer(networkInfo.collectionAddress, commission)
+					api.tx.balances.transferKeepAlive(networkInfo.collectionAddress, yieldscanCommission)
 					);
 			} else if (tranasactionType === "bond-extra") {
 				const amount = Math.trunc(
 					stakingAmount * 10 ** networkInfo.decimalPlaces
 				);
-				const commission = Math.trunc(
-					stakingAmount *0.00125 * 10 ** networkInfo.decimalPlaces
+				const yieldscanCommission = Math.trunc(
+					stakingAmount *networkInfo.commissionRatio
 				);
 				transactions.push(
 					apiInstance.tx.staking.bondExtra(amount),
-					api.tx.balances.transfer(networkInfo.collectionAddress, commission)
+					api.tx.balances.transferKeepAlive(networkInfo.collectionAddress, yieldscanCommission)
 				);
 			}
 
