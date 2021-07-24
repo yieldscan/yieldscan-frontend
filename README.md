@@ -75,6 +75,14 @@ Important packages:
   NEXT_PUBLIC_POLKADOT="wss://polkadot.api.onfinality.io/public-ws"
   NEXT_PUBLIC_KUSAMA="wss://kusama-rpc.polkadot.io"
   NEXT_PUBLIC_WESTEND="wss://westend-rpc.polkadot.io"
+
+  # Collection Addresses
+  NEXT_PUBLIC_POLKADOT_MULTISIG_COLLECTION_ADDRESS=<polkadot-collection-address>
+  NEXT_PUBLIC_KUSAMA_MULTISIG_COLLECTION_ADDRESS=<kusama-collection-address>
+  NEXT_PUBLIC_WESTEND_MULTISIG_COLLECTION_ADDRESS=<westend-collection-address>
+
+  #Commission ratio
+  NEXT_PUBLIC_YIELDSCAN_COMMISSION_RATIO=<decimal-number-greater-than-equal-to-zero>
   ```
 
   Note: Checkout backend [crawler](https://github.com/yieldscan/yieldscan-backend-crawler) and [api](https://github.com/yieldscan/yieldscan-backend-api).
