@@ -82,6 +82,9 @@ const FundsUpdate = withSlideIn(
 			network,
 			alreadyBonded,
 			stakeAmount,
+			collectionAddress,
+			commissionRatio, 
+			yieldscanCommission,
 			tranHash,
 			successful
 		) => {
@@ -91,6 +94,9 @@ const FundsUpdate = withSlideIn(
 					network: network,
 					alreadyBonded: alreadyBonded,
 					stake: stakeAmount,
+					collectionAddress: collectionAddress,
+					commissionRatio: commissionRatio, 
+					yieldscanCommission: yieldscanCommission,
 					transactionHash: tranHash,
 					successful: successful,
 				})
@@ -223,7 +229,7 @@ const FundsUpdate = withSlideIn(
 					// setCloseOnOverlayClick(true);
 					setTransactionHash(hash.message);
 				},
-				onFinish: (status, message, eventLogs, tranHash) => {
+				onFinish: (status, message, eventLogs, tranHash, collectionAddress, commissionRatio, yieldscanCommission) => {
 					// status = 0 for success, anything else for error code
 					toast({
 						title: status === 0 ? "Successful!" : "Error!",
@@ -247,6 +253,9 @@ const FundsUpdate = withSlideIn(
 								: stakingInfo.stakingLedger.active /
 										Math.pow(10, networkInfo.decimalPlaces) -
 										amount,
+							collectionAddress,
+							commissionRatio, 
+							yieldscanCommission,
 							tranHash,
 							true
 						);
@@ -270,6 +279,9 @@ const FundsUpdate = withSlideIn(
 									: stakingInfo.stakingLedger.active /
 											Math.pow(10, networkInfo.decimalPlaces) -
 											amount,
+								collectionAddress,
+								commissionRatio, 
+								yieldscanCommission,
 								tranHash,
 								false
 							);

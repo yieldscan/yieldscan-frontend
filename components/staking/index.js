@@ -153,6 +153,9 @@ const Staking = () => {
 		network,
 		alreadyBonded,
 		stakeAmount,
+		collectionAddress,
+		commissionRatio, 
+		yieldscanCommission,
 		tranHash,
 		successful
 	) => {
@@ -162,6 +165,9 @@ const Staking = () => {
 				network: network,
 				alreadyBonded: alreadyBonded,
 				stake: stakeAmount,
+				collectionAddress: collectionAddress,
+				commissionRatio: commissionRatio, 
+				yieldscanCommission: yieldscanCommission,
 				transactionHash: tranHash,
 				successful: successful,
 			})
@@ -195,7 +201,7 @@ const Staking = () => {
 					);
 				}, 750);
 			},
-			onFinish: (status, message, eventLogs, tranHash) => {
+			onFinish: (status, message, eventLogs, tranHash, collectionAddress, commissionRatio, yieldscanCommission) => {
 				// status = 0 for success, anything else for error code
 				if (status === 0) {
 					["lock-funds", "bond-extra"].includes(transactionType)
@@ -234,6 +240,9 @@ const Staking = () => {
 						parseInt(stakingInfo.stakingLedger.active) /
 							Math.pow(10, networkInfo.decimalPlaces),
 						get(transactionState, "stakingAmount", 0),
+						collectionAddress,
+						commissionRatio, 
+						yieldscanCommission,
 						tranHash,
 						true
 					);
@@ -245,6 +254,9 @@ const Staking = () => {
 							parseInt(stakingInfo.stakingLedger.active) /
 								Math.pow(10, networkInfo.decimalPlaces),
 							get(transactionState, "stakingAmount", 0),
+							collectionAddress,
+							commissionRatio, 
+							yieldscanCommission,
 							tranHash,
 							false
 						);

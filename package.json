@@ -61,6 +61,8 @@
 		"@testing-library/react": "^11.2.7",
 		"@types/jest": "^26.0.23",
 		"babel-jest": "^27.0.2",
+		"eslint": "^7.31.0",
+		"eslint-plugin-react": "^7.24.0",
 		"git-cz": "^4.7.1",
 		"jest": "^27.0.4",
 		"jest-dom": "^4.0.0",
