@@ -5,6 +5,7 @@ import RiskSelect from "./RiskSelect";
 import AmountInput from "./AmountInput";
 import TimePeriodInput from "./TimePeriodInput";
 import ExpectedReturnsCard from "./ExpectedReturnsCard";
+import EstimatedFeesCard from "./EstimatedFeesCard";
 import CompoundRewardSlider from "./CompoundRewardSlider";
 import SimulationSwitch from "./SimulationSwitch";
 import LowBalanceAlert from "./LowBalanceAlert";
@@ -27,6 +28,7 @@ import {
 } from "@lib/store";
 import { get, isNil, mapValues, keyBy, cloneDeep, debounce } from "lodash";
 import calculateReward from "@lib/calculate-reward";
+import getTransactionFee from "@lib/getTransactionFee";
 import {
 	Alert,
 	AlertDescription,
@@ -125,6 +127,9 @@ const RewardCalculatorPage = () => {
 			  )[0]
 			: null
 	);
+
+	const [transactionFees, setTransactionFees] = useState();
+	const [yieldScanFees, setYieldScanFees] = useState();
 
 	useEffect(() => {
 		if (stakingInfo?.accountId.toString() !== selectedAccount?.address) {
@@ -320,6 +325,25 @@ const RewardCalculatorPage = () => {
 	useEffect(() => {
 		setSimulationChecked(false);
 	}, [selectedAccount?.address]);
+
+	useEffect(async () => {
+		setYieldScanFees(null);
+		setTransactionFees(null);
+		if (amount && selectedValidators && selectedAccount) {
+			const { ysFees, networkFees } = await getTransactionFee(
+				networkInfo,
+				stakingInfo,
+				amount,
+				selectedAccount,
+				Object.values(selectedValidators),
+				controllerAccount,
+				apiInstance
+			);
+
+			setYieldScanFees(ysFees);
+			setTransactionFees(networkFees);
+		}
+	}, [stakingInfo, amount, selectedAccount]);
 
 	return loading || isNil(apiInstance) ? (
 		<div className="flex-center w-full h-full">
@@ -525,28 +549,16 @@ const RewardCalculatorPage = () => {
 							</div>
 						</div>
 					</div>
-					<div className="w-1/2">
+					<div className="w-1/2 space-y-6">
 						<ExpectedReturnsCard result={result} networkInfo={networkInfo} />
-						<div className="mt-3">
-							<Alert
-								color="gray.500"
-								backgroundColor="white"
-								border="1px solid #E2ECF9"
-								borderRadius="8px"
-								zIndex={1}
-							>
-								<AlertIcon name="secureLogo" />
-								<div>
-									<AlertTitle fontWeight="medium" fontSize="sm">
-										{"Non-custodial & Secure"}
-									</AlertTitle>
-									<AlertDescription fontSize="xs">
-										We do not own your private keys and cannot access your
-										funds. You are always in control.
-									</AlertDescription>
-								</div>
-							</Alert>
-						</div>
+						{selectedAccount && (
+							<EstimatedFeesCard
+								result={result}
+								transactionFees={transactionFees}
+								yieldScanFees={yieldScanFees}
+								networkInfo={networkInfo}
+							/>
+						)}
 					</div>
 					<div className="w-full bg-white bottom-0 p-8 left-0 flex-center">
 						<button
@@ -570,7 +582,7 @@ const RewardCalculatorPage = () => {
 								? "Select Account"
 								: isInElection
 								? "Ongoing elections, can't invest now!"
-								: "Proceed to confirmation"}
+								: "Looks good, let’s stake"}
 						</button>
 					</div>
 				</div>

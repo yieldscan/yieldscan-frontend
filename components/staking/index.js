@@ -9,10 +9,7 @@ import {
 	useAccounts,
 	useAccountsBalances,
 	useAccountsStakingInfo,
-	useAccountsStakingLedgerInfo,
 	useAccountsControllerStashInfo,
-	useWalletType,
-	useControllerAccountInfo,
 	useSelectedAccountInfo,
 	useIsNewSetup,
 } from "@lib/store";
@@ -24,7 +21,7 @@ import LockFunds from "./LockFunds";
 import Confirmation from "./Confirmation";
 import stake from "@lib/stake";
 import axios from "@lib/axios";
-import { useToast, Spinner, Flex, Button } from "@chakra-ui/core";
+import { useToast } from "@chakra-ui/core";
 import ConfettiGenerator from "confetti-js";
 import ChainErrorPage from "./ChainErrorPage";
 import { BottomNextButton } from "../common/BottomButton";
@@ -44,8 +41,6 @@ const Staking = () => {
 	const { accounts } = useAccounts();
 	const { accountsBalances } = useAccountsBalances();
 	const { accountsStakingInfo } = useAccountsStakingInfo();
-	const { accountsStakingLedgerInfo } = useAccountsStakingLedgerInfo();
-	const { walletType } = useWalletType();
 
 	const { accountsControllerStashInfo } = useAccountsControllerStashInfo();
 	const [isLedger, setIsLedger] = useState(() =>
@@ -77,9 +72,7 @@ const Staking = () => {
 						selectedAccount?.address + networkInfo.network + "Controller"
 					)
 			  )
-			? walletType[selectedAccount?.substrateAddress]
-				? null
-				: selectedAccount
+			? selectedAccount
 			: accounts?.filter(
 					(account) =>
 						account.address ===
@@ -106,9 +99,7 @@ const Staking = () => {
 						selectedAccount?.address + networkInfo.network + "Controller"
 					)
 			  )
-			? walletType[selectedAccount?.substrateAddress]
-				? null
-				: selectedAccount
+			? selectedAccount
 			: accounts?.filter(
 					(account) =>
 						account.address ===
