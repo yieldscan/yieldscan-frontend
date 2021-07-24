@@ -18,7 +18,7 @@ const BrowserWalletAlert = ({ networkInfo, stakingAmount }) => (
 			<AlertTitle fontSize="sm">{"CAUTION: Funds at risk"}</AlertTitle>
 			<AlertDescription fontSize="xs">
 				<p>
-					You’re trying to stake {stakingAmount.toFixed(4)} {networkInfo.denom}{" "}
+					You’re trying to stake {stakingAmount} {networkInfo.denom}{" "}
 					using a software wallet. We recommend using a Ledger hardware wallet
 					to store your funds securely, isolated from your easy-to-hack
 					computer.

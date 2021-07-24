@@ -280,13 +280,19 @@ const ConfirmTransfer = ({
 			const amountRaw = Math.trunc(
 				amount * Math.pow(10, networkInfo.decimalPlaces)
 			);
-			apiInstance?.tx.balances
-				.transferKeepAlive(substrateControllerId, amountRaw)
-				.paymentInfo(substrateSenderId)
-				.then((info) => {
-					const fee = info.partialFee.toNumber();
-					setTransactionFee(fee);
-				});
+			const transactions = []
+			transactions.push(
+				apiInstance?.tx.balances.transferKeepAlive(substrateControllerId, amountRaw),
+				apiInstance.tx.system.remark("Sent with YieldScan")
+			);
+
+			apiInstance.tx.utility
+						.batchAll(transactions)
+						.paymentInfo(substrateControllerId)
+						.then((info) => {
+							const fee = info.partialFee.toNumber();
+							setTransactionFee(fee);
+						});
 		}
 	}, [amount, senderAccount, controllerAccount]);
 

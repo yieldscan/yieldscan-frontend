@@ -282,10 +282,7 @@ const Staking = () => {
 		setControllerStashInfo(
 			accountsControllerStashInfo[selectedAccount?.address]
 		);
-	}, [
-		selectedAccount?.address,
-		JSON.stringify(accountsControllerStashInfo[selectedAccount?.address]),
-	]);
+	});
 
 	useEffect(() => {
 		setIsLedger(() =>
@@ -435,8 +432,8 @@ const Staking = () => {
 						onConfirm={(type) => transact(type)}
 					/>
 				)
-			) : controllerStashInfo.isStash &&
-			  !controllerStashInfo.isSameStashController ? (
+			) : accountsControllerStashInfo[selectedAccount?.address].isStash &&
+			  !accountsControllerStashInfo[selectedAccount?.address].isSameStashController ? (
 				<StakeToEarn
 					stakingInfo={stakingInfo}
 					apiInstance={apiInstance}

@@ -254,6 +254,7 @@ const RedeemUnbonded = withSlideIn(
 							)}
 							{processComplete && (
 								<SuccessfullyBonded
+									network={networkInfo.network}
 									transactionHash={transactionHash}
 									onConfirm={handleOnClickForSuccessfulTransaction}
 								/>

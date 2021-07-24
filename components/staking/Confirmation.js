@@ -29,6 +29,7 @@ const Confirmation = ({
 	const [transactionFee, setTransactionFee] = useState(0);
 	const [showValidators, setShowValidators] = useState(false);
 	const [showAdvPrefs, setShowAdvPrefs] = useState(false);
+	const [yieldscanCommission, setYieldscanCommission] = useState(stakingAmount * networkInfo.commissionRatio * 10 ** networkInfo.decimalPlaces);
 
 	const handleAdvPrefsToggle = () => {
 		setShowAdvPrefs((show) => !show);
@@ -48,40 +49,41 @@ const Confirmation = ({
 				42
 			);
 			const transactions = [];
-			const tranasactionType = stakingInfo?.stakingLedger.active.isEmpty
+			const amount = Math.trunc(stakingAmount * 10 ** networkInfo.decimalPlaces);
+			setYieldscanCommission(Math.trunc(
+				amount * networkInfo.commissionRatio
+			));
+			const transactionType = stakingInfo?.stakingLedger.active.isEmpty
 				? "bond-and-nominate"
 				: "nominate";
-			if (tranasactionType === "bond-and-nominate") {
-				const amount = Math.trunc(
-					stakingAmount * 10 ** networkInfo.decimalPlaces
-				); // 12 decimal places
+			if (transactionType === "bond-and-nominate") {
 				transactions.push(
 					apiInstance.tx.staking.bond(
 						substrateControllerId,
 						amount,
 						transactionState.rewardDestination
 					),
-					apiInstance.tx.staking.nominate(nominatedValidators)
+					apiInstance.tx.staking.nominate(nominatedValidators),
+					apiInstance.tx.balances.transferKeepAlive(networkInfo.collectionAddress, yieldscanCommission),
+					apiInstance.tx.system.remark("Sent with YieldScan")
 				);
-			} else if (tranasactionType === "nominate") {
-				transactions.push(apiInstance.tx.staking.nominate(nominatedValidators));
+			} else if (transactionType === "nominate") {
+				transactions.push(
+					apiInstance.tx.staking.nominate(nominatedValidators),
+					apiInstance.tx.balances.transferKeepAlive(networkInfo.collectionAddress, yieldscanCommission),
+					apiInstance.tx.system.remark("Sent with YieldScan")
+					);
 			}
 
-			transactions.length > 0
-				? apiInstance.tx.utility
-						.batchAll(transactions)
-						.paymentInfo(substrateControllerId)
-						.then((info) => {
-							const fee = info.partialFee.toNumber();
-							setTransactionFee(fee);
-						})
-				: transactions[0].paymentInfo(substrateControllerId).then((info) => {
-						const fee = info.partialFee.toNumber();
-						setTransactionFee(fee);
-				  });
+			apiInstance.tx.utility
+				.batchAll(transactions)
+				.paymentInfo(substrateControllerId)
+				.then((info) => {
+					const fee = info.partialFee.toNumber();
+					setTransactionFee(fee);
+				})
 		}
 	}, [stakingInfo]);
-
 	return (
 		<div className="w-full h-full flex justify-center max-h-full">
 			<div className="flex flex-col w-full max-w-65-rem h-full space-y-evenly">
@@ -235,6 +237,30 @@ const Confirmation = ({
 
 							<div className="flex justify-between mt-4">
 								<div className="text-xs text-gray-700 flex items-center">
+									<p>Yieldscan .125% Fee</p>
+									<HelpPopover
+										content={
+											<p className="text-xs text-white">
+												This fee is used to pay for the costs of building and running Yieldscan.
+											</p>
+										}
+									/>
+								</div>
+								<div className="flex flex-col">
+									<p className="text-sm font-semibold text-right">
+												{formatCurrency.methods.formatAmount(
+													Math.trunc(yieldscanCommission),
+													networkInfo
+												)}
+												</p>
+									{/* <p className="text-xs text-right text-gray-600">
+								${subCurrency.toFixed(2)}
+							</p> */}
+								</div>
+							</div>
+
+							<div className="flex justify-between mt-4">
+								<div className="text-xs text-gray-700 flex items-center">
 									<p>Transaction Fee</p>
 									<HelpPopover
 										content={
@@ -246,7 +272,6 @@ const Confirmation = ({
 										}
 									/>
 								</div>
-
 								<div className="flex flex-col">
 									{transactionFee !== 0 ? (
 										<div>
@@ -266,24 +291,26 @@ const Confirmation = ({
 								</div>
 							</div>
 							<Divider my={6} />
+
 							<div className="flex justify-between">
 								<p className="text-gray-700 text-sm font-semibold">
 									Total Amount
 								</p>
 								<div className="flex flex-col">
-									<p className="text-lg text-right font-bold">
+									{transactionFee !== 0 ? (
+										<p className="text-lg text-right font-bold">
 										{formatCurrency.methods.formatAmount(
 											Math.trunc(
 												stakingAmount * 10 ** networkInfo.decimalPlaces
-											) + transactionFee,
+											) + transactionFee + yieldscanCommission,
 											networkInfo
 										)}
 									</p>
-									{/* <p className="text-sm text-right text-gray-600 font-medium">
-							${(subCurrency + subFeeCurrency).toFixed(2)}
-						</p> */}
+									) : (
+										<Spinner />
+									)}
 								</div>
-							</div>
+							</div>	
 						</div>
 						<div className="mt-4 w-full text-center">
 							<button

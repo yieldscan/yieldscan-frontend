@@ -49,23 +49,40 @@ const LockFunds = ({
 				const amount = Math.trunc(
 					stakingAmount * 10 ** networkInfo.decimalPlaces
 				);
+				const yieldscanCommission = Math.trunc(
+					amount *networkInfo.commissionRatio
+				);
 				transactions.push(
 					apiInstance.tx.staking.bond(
 						substrateControllerId,
 						amount,
 						transactionState.rewardDestination
-					)
-				);
+					),
+					apiInstance.tx.balances.transferKeepAlive(networkInfo.collectionAddress, yieldscanCommission),
+					apiInstance.tx.system.remark("Sent with YieldScan")
+					);
 			} else if (tranasactionType === "bond-extra") {
 				const amount = Math.trunc(
 					stakingAmount * 10 ** networkInfo.decimalPlaces
 				);
-				transactions.push(apiInstance.tx.staking.bondExtra(amount));
+				const yieldscanCommission = Math.trunc(
+					amount *networkInfo.commissionRatio
+				);
+				transactions.push(
+					apiInstance.tx.staking.bondExtra(amount),
+					apiInstance.tx.balances.transferKeepAlive(networkInfo.collectionAddress, yieldscanCommission),
+					apiInstance.tx.system.remark("Sent with YieldScan")
+				);
 			}
-			transactions[0].paymentInfo(substrateControllerId).then((info) => {
-				const fee = info.partialFee.toNumber();
-				setTransactionFee(fee);
-			});
+
+			apiInstance.tx.utility
+						.batchAll(transactions)
+						.paymentInfo(substrateControllerId)
+						.then((info) => {
+							const fee = info.partialFee.toNumber();
+							setTransactionFee(fee);
+						});
+		
 		}
 	}, [stakingInfo]);
 

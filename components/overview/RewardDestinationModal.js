@@ -233,6 +233,7 @@ const RewardDestinationModal = withSlideIn(
 							)}
 							{processComplete && (
 								<SuccessfullyBonded
+									network={networkInfo.network}
 									transactionHash={transactionHash}
 									onConfirm={handleOnClickForSuccessfulTransaction}
 								/>
