@@ -58,6 +58,10 @@ import {
 	LowBalancePopover,
 	useLowBalancePopover,
 } from "../staking/LowBalancePopover";
+import {
+	StakingPathPopover,
+	useStakingPathPopover,
+} from "@components/staking/StakingPathPopover";
 
 const trackRewardCalculatedEvent = debounce((eventData) => {
 	trackEvent(Events.REWARD_CALCULATED, eventData);
@@ -95,6 +99,8 @@ const RewardCalculatorPage = () => {
 	const { accountsBalances } = useAccountsBalances();
 
 	const { isLowBalanceOpen, toggleIsLowBalanceOpen } = useLowBalancePopover();
+	const { isStakingPathPopoverOpen, toggleIsStakingPathPopoverOpen } =
+		useStakingPathPopover();
 	const [loading, setLoading] = useState(false);
 	const [amount, setAmount] = useState(transactionState.stakingAmount || 1000);
 	const [subCurrency, setSubCurrency] = useState(0);
@@ -176,7 +182,8 @@ const RewardCalculatorPage = () => {
 				apiInstance?.consts.balances.existentialDeposit.toNumber() / 2
 		) {
 			toggleIsLowBalanceOpen();
-		} else router.push("/staking");
+		} else toggleIsStakingPathPopoverOpen();
+		// router.push("/staking");
 	};
 
 	const onAdvancedSelection = () => {
@@ -397,6 +404,14 @@ const RewardCalculatorPage = () => {
 					{controllerAccount && controllerBalances && (
 						<LowBalancePopover
 							isOpen={isLowBalanceOpen}
+							toStaking={toStaking}
+							networkInfo={networkInfo}
+						/>
+					)}
+					{controllerAccount && controllerBalances && (
+						<StakingPathPopover
+							isOpen={true}
+							// isOpen={isStakingPathPopoverOpen}
 							toStaking={toStaking}
 							networkInfo={networkInfo}
 						/>
