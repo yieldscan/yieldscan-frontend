@@ -182,7 +182,8 @@ const RewardCalculatorPage = () => {
 				apiInstance?.consts.balances.existentialDeposit.toNumber() / 2
 		) {
 			toggleIsLowBalanceOpen();
-		} else toggleIsStakingPathPopoverOpen();
+		} else toggleIsLowBalanceOpen();
+		// toggleIsStakingPathPopoverOpen();
 		// router.push("/staking");
 	};
 
