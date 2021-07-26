@@ -176,7 +176,8 @@ const EarningsOutput = ({
 						previousWeekHistory: previousWeekHistory,
 						previousMonthHistory: previousMonthHistory,
 					});
-				});
+				})
+				.catch((err) => console.error(err));
 		}
 	}, [address, networkInfo]);
 
@@ -198,7 +199,8 @@ const EarningsOutput = ({
 					};
 
 					setOverallStakedAmountMapped(overallRewardInfo);
-				});
+				})
+				.catch((err) => console.error(err));
 		}
 	}, [address, networkInfo]);
 

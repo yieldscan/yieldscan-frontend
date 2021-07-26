@@ -137,55 +137,9 @@ const RewardCalculatorPage = () => {
 	const [transactionFees, setTransactionFees] = useState();
 	const [yieldScanFees, setYieldScanFees] = useState();
 
-	useEffect(() => {
-		if (stakingInfo?.accountId.toString() !== selectedAccount?.address) {
-			setControllerAccount(null);
-		}
-		const account = accountsStakingInfo[selectedAccount?.address]?.controllerId
-			? accounts?.filter(
-					(account) =>
-						account.address ===
-						accountsStakingInfo[
-							selectedAccount?.address
-						]?.controllerId.toString()
-			  )[0]
-			: null;
-		setControllerAccount(account);
-	}, [
-		selectedAccount?.address,
-		JSON.stringify(stakingInfo),
-		JSON.stringify(accountsStakingInfo),
-	]);
-
 	const [controllerBalances, setControllerBalances] = useState(
 		() => accountsBalances[controllerAccount?.address]
 	);
-
-	useEffect(() => {
-		if (stakingInfo?.accountId.toString() !== selectedAccount?.address) {
-			setControllerBalances(null);
-		}
-		setControllerBalances(accountsBalances[controllerAccount?.address]);
-	}, [
-		controllerAccount?.address,
-		selectedAccount?.address,
-		JSON.stringify(stakingInfo),
-		JSON.stringify(accountsBalances[controllerAccount?.address]),
-	]);
-
-	const toStaking = async () => {
-		updateTransactionState(Events.INTENT_STAKING);
-		setTransactionHash(null);
-		if (
-			controllerAccount &&
-			parseInt(controllerBalances?.availableBalance) <
-				apiInstance?.consts.balances.existentialDeposit.toNumber() / 2
-		) {
-			toggleIsLowBalanceOpen();
-		} else toggleIsLowBalanceOpen();
-		// toggleIsStakingPathPopoverOpen();
-		// router.push("/staking");
-	};
 
 	const onAdvancedSelection = () => {
 		updateTransactionState(Events.INTENT_ADVANCED_SELECTION);
@@ -260,6 +214,53 @@ const RewardCalculatorPage = () => {
 					: false
 				: true
 			: false;
+
+	const toStaking = async () => {
+		updateTransactionState(Events.INTENT_STAKING);
+		setTransactionHash(null);
+
+		if (
+			controllerAccount &&
+			parseInt(controllerBalances?.availableBalance) <
+				apiInstance?.consts.balances.existentialDeposit.toNumber() / 2
+		) {
+			toggleIsLowBalanceOpen();
+		} else toggleIsLowBalanceOpen();
+		// toggleIsStakingPathPopoverOpen();
+		// router.push("/staking");
+	};
+
+	useEffect(() => {
+		if (stakingInfo?.accountId.toString() !== selectedAccount?.address) {
+			setControllerAccount(null);
+		}
+		const account = accountsStakingInfo[selectedAccount?.address]?.controllerId
+			? accounts?.filter(
+					(account) =>
+						account.address ===
+						accountsStakingInfo[
+							selectedAccount?.address
+						]?.controllerId.toString()
+			  )[0]
+			: null;
+		setControllerAccount(account);
+	}, [
+		selectedAccount?.address,
+		JSON.stringify(stakingInfo),
+		JSON.stringify(accountsStakingInfo),
+	]);
+
+	useEffect(() => {
+		if (stakingInfo?.accountId.toString() !== selectedAccount?.address) {
+			setControllerBalances(null);
+		}
+		setControllerBalances(accountsBalances[controllerAccount?.address]);
+	}, [
+		controllerAccount?.address,
+		selectedAccount?.address,
+		JSON.stringify(stakingInfo),
+		JSON.stringify(accountsBalances[controllerAccount?.address]),
+	]);
 
 	useEffect(() => {
 		setSubCurrency(amount * coinGeckoPriceUSD);

@@ -12,6 +12,7 @@ import {
 	useAccountsControllerStashInfo,
 	useSelectedAccountInfo,
 	useIsNewSetup,
+	useStakingPath,
 } from "@lib/store";
 import { useRouter } from "next/router";
 import { getNetworkInfo } from "yieldscan.config";
@@ -39,6 +40,7 @@ const Staking = () => {
 	const { transactionHash, setTransactionHash } = useTransactionHash();
 	const { setTransactionState, ...transactionState } = useTransaction();
 	const { accounts } = useAccounts();
+	const { stakingPath, setStakingPath } = useStakingPath();
 	const { accountsBalances } = useAccountsBalances();
 	const { accountsStakingInfo } = useAccountsStakingInfo();
 
