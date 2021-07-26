@@ -37,7 +37,6 @@ import {
 	useCoinGeckoPriceUSD,
 	useSelectedAccount,
 	useSelectedAccountInfo,
-	useWalletType,
 	useAccountsStakingInfo,
 	useAccountsBalances,
 	usePolkadotApi,
@@ -75,7 +74,6 @@ const Validators = () => {
 	const { selectedAccount } = useSelectedAccount();
 	const { accountsStakingInfo } = useAccountsStakingInfo();
 	const { accountsBalances } = useAccountsBalances();
-	const { walletType } = useWalletType();
 	const { balances, stakingInfo } = useSelectedAccountInfo();
 	const { coinGeckoPriceUSD } = useCoinGeckoPriceUSD();
 	const { validatorMap, setValidatorMap } = useValidatorData();
@@ -142,21 +140,7 @@ const Validators = () => {
 							selectedAccount?.address
 						]?.controllerId.toString()
 			  )[0]
-			: isNil(
-					window?.localStorage.getItem(
-						selectedAccount?.address + networkInfo.network + "Controller"
-					)
-			  )
-			? walletType[selectedAccount?.substrateAddress]
-				? null
-				: selectedAccount
-			: accounts?.filter(
-					(account) =>
-						account.address ===
-						window?.localStorage.getItem(
-							selectedAccount?.address + networkInfo.network + "Controller"
-						)
-			  )[0]
+			: null
 	);
 
 	useEffect(() => {
@@ -171,21 +155,7 @@ const Validators = () => {
 							selectedAccount?.address
 						]?.controllerId.toString()
 			  )[0]
-			: isNil(
-					window?.localStorage.getItem(
-						selectedAccount?.address + networkInfo.network + "Controller"
-					)
-			  )
-			? walletType[selectedAccount?.substrateAddress]
-				? null
-				: selectedAccount
-			: accounts?.filter(
-					(account) =>
-						account.address ===
-						window?.localStorage.getItem(
-							selectedAccount?.address + networkInfo.network + "Controller"
-						)
-			  )[0];
+			: null;
 		setControllerAccount(account);
 	}, [
 		selectedAccount?.address,
@@ -402,17 +372,6 @@ const Validators = () => {
 		} else router.push("/staking");
 	};
 
-	const toSetUpAccounts = () => {
-		setIsNewSetup(false);
-		if (
-			!Object.values(walletType).every((value) => value === null) &&
-			Object.values(walletType).includes(null)
-		) {
-			setIsNewSetup(true);
-		}
-		router.push("/setup-accounts");
-	};
-
 	const onPayment = async () => {
 		updateTransactionState(Events.INTENT_STAKING);
 		if (transactionHash) setTransactionHash(null);
@@ -435,16 +394,8 @@ const Validators = () => {
 		activeBondedAmount + totalAvailableStakingAmount;
 
 	const proceedDisabled =
-		accounts &&
-		selectedAccount &&
-		!Object.values(walletType).every((value) => value === null)
-			? isNil(controllerAccount) ||
-			  isNil(walletType[selectedAccount?.substrateAddress]) ||
-			  walletType[controllerAccount?.substrateAddress] ||
-			  (walletType[selectedAccount?.substrateAddress] &&
-					selectedAccount?.address === controllerAccount?.address)
-				? false
-				: amount && !isInElection && amount > 0
+		accounts && selectedAccount
+			? amount && !isInElection && amount > 0
 				? amount > totalPossibleStakingAmount
 					? true
 					: activeBondedAmount >
@@ -510,7 +461,6 @@ const Validators = () => {
 				amount={amount}
 				setAmount={setAmount}
 				stakingInfo={stakingInfo}
-				walletType={walletType}
 				balances={balances}
 				accounts={accounts}
 				proceedDisabled={proceedDisabled}
@@ -638,16 +588,6 @@ const Validators = () => {
 						onClick={() =>
 							isNil(accounts)
 								? toggle()
-								: Object.keys(walletType).length === 0 ||
-								  Object.values(walletType).every((value) => value === null) ||
-								  (selectedAccount &&
-										(isNil(controllerAccount) ||
-											isNil(walletType[selectedAccount?.substrateAddress]) ||
-											walletType[controllerAccount?.substrateAddress] ||
-											(walletType[selectedAccount?.substrateAddress] &&
-												selectedAccount?.address ===
-													controllerAccount?.address)))
-								? toSetUpAccounts()
 								: selectedAccount
 								? toStaking()
 								: toggle()
@@ -655,14 +595,6 @@ const Validators = () => {
 					>
 						{isNil(accounts)
 							? "Connect Wallet"
-							: Object.keys(walletType).length === 0 ||
-							  Object.values(walletType).every((value) => value === null) ||
-							  (selectedAccount &&
-									(isNil(walletType[selectedAccount?.substrateAddress]) ||
-										walletType[controllerAccount?.substrateAddress] !== false ||
-										(walletType[selectedAccount?.substrateAddress] &&
-											selectedAccount?.address === controllerAccount?.address)))
-							? "Setup Accounts"
 							: isNil(selectedAccount)
 							? "Select Account"
 							: isInElection

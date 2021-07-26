@@ -12,7 +12,6 @@ const NetworkSelection = ({
 	supportedNetworksInfo,
 	switchNetwork,
 	isSetUp,
-	walletType,
 	selectedNetwork,
 }) => {
 	return (

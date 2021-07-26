@@ -8,7 +8,7 @@ import {
 	BottomBackButton,
 	BottomNextButton,
 	NextButtonContent,
-} from "./BottomButton";
+} from "../common/BottomButton";
 import AccountButton from "./AccountButton";
 
 const IdentifyLedgerAccounts = ({

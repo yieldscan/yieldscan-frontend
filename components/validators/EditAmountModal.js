@@ -30,7 +30,6 @@ const EditAmountModal = withSlideIn(
 		balances,
 		stakingInfo,
 		controllerAccount,
-		walletType,
 		amount = "",
 		setAmount,
 		networkInfo,
@@ -70,30 +69,6 @@ const EditAmountModal = withSlideIn(
 
 		const totalPossibleStakingAmount =
 			activeBondedAmount + totalAvailableStakingAmount;
-
-		// const proceedDisabled =
-		// 	accounts &&
-		// 	selectedAccount &&
-		// 	!Object.values(walletType).every((value) => value === null)
-		// 		? isNil(controllerAccount) ||
-		// 		  isNil(walletType[selectedAccount?.substrateAddress]) ||
-		// 		  walletType[controllerAccount?.substrateAddress] ||
-		// 		  (walletType[selectedAccount?.substrateAddress] &&
-		// 				selectedAccount?.address === controllerAccount?.address)
-		// 			? false
-		// 			: stakingAmount && stakingAmount > 0
-		// 			? stakingAmount > totalPossibleStakingAmount
-		// 				? true
-		// 				: activeBondedAmount >
-		// 				  totalPossibleStakingAmount - networkInfo.minAmount
-		// 				? totalAvailableStakingAmount < networkInfo.minAmount / 2
-		// 					? true
-		// 					: false
-		// 				: stakingAmount > totalPossibleStakingAmount - networkInfo.minAmount
-		// 				? true
-		// 				: false
-		// 			: true
-		// 		: false;
 
 		return (
 			<Modal isOpen={true} onClose={onClose} isCentered>
@@ -166,7 +141,6 @@ const EditAmountModal = withSlideIn(
 									onChange={setStakingAmount}
 									trackRewardCalculatedEvent={trackRewardCalculatedEvent}
 									balances={balances}
-									walletType={walletType}
 									stakingInfo={stakingInfo}
 								/>
 							</div>
