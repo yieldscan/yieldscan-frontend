@@ -27,7 +27,7 @@ const SetupAccounts = () => {
 	const { isNewSetup, setIsNewSetup } = useIsNewSetup();
 	const { selectedNetwork } = useSelectedNetwork();
 	const { selectedAccount, setSelectedAccount } = useSelectedAccount();
-	const { apiInstance } = usePolkadotApi();
+	const { api } = usePolkadotApi();
 	const { accountsBalances } = useAccountsBalances();
 	const { accountsStakingInfo } = useAccountsStakingInfo();
 	const { accountsControllerStashInfo } = useAccountsControllerStashInfo();
@@ -88,7 +88,7 @@ const SetupAccounts = () => {
 				accounts={accounts}
 				selectedAccount={selectedAccount}
 				accountsBalances={accountsBalances}
-				apiInstance={apiInstance}
+				api={api}
 				accountsStakingInfo={accountsStakingInfo}
 				accountsControllerStashInfo={accountsControllerStashInfo}
 				balances={balances}
@@ -101,7 +101,7 @@ const SetupAccounts = () => {
 				accounts={accounts}
 				setSelectedAccount={setSelectedAccount}
 				networkInfo={networkInfo}
-				apiInstance={apiInstance}
+				api={api}
 				accountsBalances={accountsBalances}
 				accountsControllerStashInfo={accountsControllerStashInfo}
 				decrementStep={decrementStep}

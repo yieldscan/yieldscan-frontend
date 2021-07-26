@@ -23,7 +23,7 @@ const SelectStakingAccount = ({
 	accounts,
 	accountsBalances,
 	setSelectedAccount,
-	apiInstance,
+	api,
 	accountsControllerStashInfo,
 	selectedAccount,
 }) => {
@@ -40,10 +40,10 @@ const SelectStakingAccount = ({
 	};
 
 	// useEffect(() => {
-	// 	if (apiInstance) {
+	// 	if (api) {
 	// 		setExistentialDeposit(
 	// 			() =>
-	// 				apiInstance.consts.balances.existentialDeposit.toNumber() /
+	// 				api.consts.balances.existentialDeposit.toNumber() /
 	// 				Math.pow(10, networkInfo.decimalPlaces)
 	// 		);
 	// 	}
@@ -53,7 +53,7 @@ const SelectStakingAccount = ({
 		const filteredAccounts = accounts.filter(
 			(account) =>
 				// accountsBalances[account.address]?.freeBalance.gte(
-				// 	apiInstance?.consts.balances.existentialDeposit
+				// 	api?.consts.balances.existentialDeposit
 				// ) &&
 				!accountsControllerStashInfo[account.address]?.isController ||
 				accountsControllerStashInfo[account.address]?.isSameStashController
@@ -61,7 +61,7 @@ const SelectStakingAccount = ({
 		filteredAccounts.map((account) => {
 			account.disabledSelection = accountsBalances[
 				account.address
-			]?.freeBalance.lte(apiInstance?.consts.balances.existentialDeposit);
+			]?.freeBalance.lte(api?.consts.balances.existentialDeposit);
 		});
 		setFilteredAccounts(filteredAccounts);
 	}, [

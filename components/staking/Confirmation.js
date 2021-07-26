@@ -16,7 +16,7 @@ const Confirmation = ({
 	accounts,
 	balances,
 	stakingInfo,
-	apiInstance,
+	api,
 	selectedAccount,
 	controllerAccount,
 	networkInfo,
@@ -58,24 +58,24 @@ const Confirmation = ({
 				: "nominate";
 			if (transactionType === "bond-and-nominate") {
 				transactions.push(
-					apiInstance.tx.staking.bond(
+					api.tx.staking.bond(
 						substrateControllerId,
 						amount,
 						transactionState.rewardDestination
 					),
-					apiInstance.tx.staking.nominate(nominatedValidators),
-					apiInstance.tx.balances.transferKeepAlive(networkInfo.collectionAddress, yieldscanCommission),
-					apiInstance.tx.system.remark("Sent with YieldScan")
+					api.tx.staking.nominate(nominatedValidators),
+					api.tx.balances.transferKeepAlive(networkInfo.collectionAddress, yieldscanCommission),
+					api.tx.system.remark("Sent with YieldScan")
 				);
 			} else if (transactionType === "nominate") {
 				transactions.push(
-					apiInstance.tx.staking.nominate(nominatedValidators),
-					apiInstance.tx.balances.transferKeepAlive(networkInfo.collectionAddress, yieldscanCommission),
-					apiInstance.tx.system.remark("Sent with YieldScan")
+					api.tx.staking.nominate(nominatedValidators),
+					api.tx.balances.transferKeepAlive(networkInfo.collectionAddress, yieldscanCommission),
+					api.tx.system.remark("Sent with YieldScan")
 					);
 			}
 
-			apiInstance.tx.utility
+			api.tx.utility
 				.batchAll(transactions)
 				.paymentInfo(substrateControllerId)
 				.then((info) => {

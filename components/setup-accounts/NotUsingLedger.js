@@ -11,7 +11,7 @@ const NotUsingLedger = ({
 	accountsBalances,
 	accountsControllerStashInfo,
 	setSelectedAccount,
-	apiInstance,
+	api,
 }) => {
 	const router = useRouter();
 	const onAccountSelected = (account) => {
@@ -26,7 +26,7 @@ const NotUsingLedger = ({
 		const filteredAccounts = accounts.filter(
 			(account) =>
 				// accountsBalances[account.address]?.freeBalance.gte(
-				// 	apiInstance?.consts.balances.existentialDeposit
+				// 	api?.consts.balances.existentialDeposit
 				// ) &&
 				!accountsControllerStashInfo[account.address]?.isController ||
 				accountsControllerStashInfo[account.address]?.isSameStashController

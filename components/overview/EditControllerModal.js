@@ -19,14 +19,14 @@ import Identicon from "@components/common/Identicon";
 
 const EditControllerModal = withSlideIn(({ styles, close, networkInfo }) => {
 	const toast = useToast();
-	const { apiInstance } = usePolkadotApi();
+	const { api } = usePolkadotApi();
 	const { stashAccount, accounts } = useAccounts();
 	const [selectedAccount, setSelected] = useState();
 	const [loadingAccount, setLoading] = useState(true);
 	const [editLoading, setEditLoading] = useState(false);
 
 	useEffect(() => {
-		apiInstance.query.staking
+		api.query.staking
 			.bonded(stashAccount.address)
 			.then((account) => {
 				if (account.isSome) {
@@ -46,7 +46,7 @@ const EditControllerModal = withSlideIn(({ styles, close, networkInfo }) => {
 	useEffect(() => {
 		// setIsFilteringAccounts(true);
 		if (accounts && accounts.length > 0) {
-			const api = apiInstance;
+			const api = api;
 			const queries = accounts.map((account) => [
 				api.query.staking.ledger,
 				account.address,
@@ -90,7 +90,7 @@ const EditControllerModal = withSlideIn(({ styles, close, networkInfo }) => {
 		setEditLoading(true);
 		const stashId = stashAccount.address;
 		const newControllerId = selectedAccount;
-		editController(newControllerId, stashId, apiInstance, {
+		editController(newControllerId, stashId, api, {
 			onEvent: ({ message }) => {
 				toast({
 					title: "Info",

@@ -23,7 +23,7 @@ import Identicon from "@components/common/Identicon";
 const RewardDestinationModal = withSlideIn(
 	({ close, styles, onEditController }) => {
 		const toast = useToast();
-		const { apiInstance } = usePolkadotApi();
+		const { api } = usePolkadotApi();
 		const { stashAccount } = useAccounts();
 		const [updatingFunds, setUpdatingFunds] = useState(false);
 		const [stakingEvent, setStakingEvent] = useState();
@@ -39,7 +39,7 @@ const RewardDestinationModal = withSlideIn(
 		if (!compounding) accounts.push("Controller");
 
 		useEffect(() => {
-			apiInstance.query.staking.payee(stashAccount.address).then((payee) => {
+			api.query.staking.payee(stashAccount.address).then((payee) => {
 				if (payee.isStaked) setCompounding(true);
 				else {
 					setCompounding(false);
@@ -98,7 +98,7 @@ const RewardDestinationModal = withSlideIn(
 					}
 				},
 			};
-			updatePayee(stashAccount.address, payee, apiInstance, handlers).catch(
+			updatePayee(stashAccount.address, payee, api, handlers).catch(
 				(error) => {
 					handlers.onFinish(1, error.message);
 				}

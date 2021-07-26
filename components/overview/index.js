@@ -45,7 +45,7 @@ const Overview = () => {
 	const { selectedNetwork } = useSelectedNetwork();
 	const networkInfo = getNetworkInfo(selectedNetwork);
 	const { toggle } = useWalletConnect();
-	const { apiInstance } = usePolkadotApi();
+	const { api } = usePolkadotApi();
 	const { accounts, redeemableBalance } = useAccounts();
 	const { selectedAccount } = useSelectedAccount();
 	const { walletType } = useWalletType();
@@ -128,7 +128,7 @@ const Overview = () => {
 		setEraProgress(null);
 		setActiveEra(null);
 		let unsubscribe;
-		apiInstance?.derive.session
+		api?.derive.session
 			.progress((data) => {
 				setEraLength(parseInt(data.eraLength));
 				setEraProgress(parseInt(data.eraProgress));
@@ -138,7 +138,7 @@ const Overview = () => {
 		return () => {
 			unsubscribe && unsubscribe();
 		};
-	}, [networkInfo, apiInstance]);
+	}, [networkInfo, api]);
 
 	useEffect(() => {
 		if (stakingInfo?.nominators && stakingInfo?.nominators.length > 0) {
@@ -180,7 +180,7 @@ const Overview = () => {
 		toggleUnbondingList();
 	};
 
-	return isNil(apiInstance) ? (
+	return isNil(api) ? (
 		<div className="flex-center w-full h-full">
 			<div className="flex-center flex-col">
 				<Spinner size="xl" color="teal.500" thickness="4px" />
@@ -272,7 +272,7 @@ const Overview = () => {
 	) : (
 		<div className="py-10 w-full h-full">
 			<FundsUpdate
-				apiInstance={apiInstance}
+				api={api}
 				isOpen={fundsUpdateModalOpen}
 				close={closeFundsUpdateModal}
 				type={fundsUpdateModalType}
@@ -283,7 +283,7 @@ const Overview = () => {
 				networkInfo={networkInfo}
 			/>
 			<UnbondingList
-				api={apiInstance}
+				api={api}
 				isOpen={openUnbondingList}
 				close={closeUnbondingList}
 				stakingInfo={stakingInfo}
@@ -294,7 +294,7 @@ const Overview = () => {
 			<RedeemUnbonded
 				isOpen={openRedeemUnbonded}
 				close={closeRedeemUnbonded}
-				api={apiInstance}
+				api={api}
 				toggle={toggleRedeemUnbonded}
 				redeemableBalance={stakingInfo?.redeemable}
 				stakingInfo={stakingInfo}

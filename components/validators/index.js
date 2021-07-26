@@ -82,7 +82,7 @@ const Validators = () => {
 	const { isLowBalanceOpen, toggleIsLowBalanceOpen } = useLowBalancePopover();
 	const { transactionHash, setTransactionHash } = useTransactionHash();
 	const { isOpen, onClose, onToggle } = useDisclosure();
-	const { apiInstance } = usePolkadotApi();
+	const { api } = usePolkadotApi();
 	const [errorFetching, setErrorFetching] = useState(false);
 	const transactionState = useTransaction((state) => {
 		let _returns = get(result, "returns"),
@@ -396,7 +396,7 @@ const Validators = () => {
 		if (
 			controllerAccount &&
 			parseInt(controllerBalances?.availableBalance) <
-				apiInstance?.consts.balances.existentialDeposit.toNumber() / 2
+				api?.consts.balances.existentialDeposit.toNumber() / 2
 		) {
 			toggleIsLowBalanceOpen();
 		} else router.push("/staking");

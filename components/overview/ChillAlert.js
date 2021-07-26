@@ -18,14 +18,14 @@ const ChillAlert = withSlideIn(({ styles, close }) => {
 	const toast = useToast();
 	const cancelRef = useRef();
 	const { stashAccount } = useAccounts();
-	const { apiInstance } = usePolkadotApi();
+	const { api } = usePolkadotApi();
 	const [chilling, setChilling] = useState(false);
 	const [closeOnOverlayClick, setCloseOnOverlayClick] = useState(true);
 
 	const onConfirm = () => {
 		setChilling(true);
 		setCloseOnOverlayClick(false);
-		chill(stashAccount.address, apiInstance, {
+		chill(stashAccount.address, api, {
 			onEvent: ({ message }) => {
 				toast({
 					title: "Info",

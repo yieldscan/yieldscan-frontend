@@ -14,7 +14,7 @@ import {
 import CountUp from "react-countup";
 
 const ExpectedReturns = ({ stats, validators, networkInfo }) => {
-	const { apiInstance } = usePolkadotApi();
+	const { api } = usePolkadotApi();
 	const { stashAccount } = useAccounts();
 	const { coinGeckoPriceUSD } = useCoinGeckoPriceUSD();
 	const [result, setResult] = React.useState({});
@@ -39,15 +39,15 @@ const ExpectedReturns = ({ stats, validators, networkInfo }) => {
 	};
 
 	React.useEffect(() => {
-		if (!isNil(apiInstance)) {
-			apiInstance.query.staking.payee(stashAccount.address).then((payee) => {
+		if (!isNil(api)) {
+			api.query.staking.payee(stashAccount.address).then((payee) => {
 				if (payee.isStaked) setCompounding(true);
 				else {
 					setCompounding(false);
 				}
 			});
 		}
-	}, [stashAccount, apiInstance]);
+	}, [stashAccount, api]);
 
 	React.useEffect(() => {
 		if (validators && stats.totalAmountStaked) {

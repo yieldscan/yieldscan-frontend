@@ -32,7 +32,7 @@ const FundsUpdate = withSlideIn(
 	({
 		styles,
 		type,
-		apiInstance,
+		api,
 		close,
 		nominations,
 		selectedAccount,
@@ -125,7 +125,7 @@ const FundsUpdate = withSlideIn(
 		}, [nominations]);
 
 		useEffect(() => {
-			apiInstance.query.staking
+			api.query.staking
 				.payee(selectedAccount?.address)
 				.then((payee) => {
 					if (payee.isStaked) setCompounding(true);
@@ -295,7 +295,7 @@ const FundsUpdate = withSlideIn(
 				selectedAccount?.address,
 				stakingInfo?.controllerId?.toString(),
 				amount,
-				apiInstance,
+				api,
 				handlers,
 				networkInfo
 			).catch((error) => {
@@ -482,7 +482,7 @@ const FundsUpdate = withSlideIn(
 											handlePopoverClose={handlePopoverClose}
 											stakingInfo={stakingInfo}
 											networkInfo={networkInfo}
-											api={apiInstance}
+											api={api}
 											onConfirm={onConfirm}
 										/>
 									)}

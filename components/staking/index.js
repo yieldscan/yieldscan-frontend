@@ -35,7 +35,7 @@ const Staking = () => {
 	const toast = useToast();
 	const router = useRouter();
 	const { selectedNetwork } = useSelectedNetwork();
-	const { apiInstance } = usePolkadotApi();
+	const { api } = usePolkadotApi();
 	const networkInfo = getNetworkInfo(selectedNetwork);
 	const { selectedAccount } = useSelectedAccount();
 	const { setIsNewSetup } = useIsNewSetup();
@@ -280,7 +280,7 @@ const Staking = () => {
 				transactionState.stakingAmount,
 				transactionState.rewardDestination,
 				transactionState.selectedValidators.map((v) => v.stashId),
-				apiInstance,
+				api,
 				handlers,
 				transactionType,
 				networkInfo
@@ -396,10 +396,10 @@ const Staking = () => {
 					networkInfo={networkInfo}
 				/>
 			) : parseInt(controllerBalances?.availableBalance) <
-			  apiInstance?.consts.balances.existentialDeposit.toNumber() / 2 ? (
+			  api?.consts.balances.existentialDeposit.toNumber() / 2 ? (
 				<TransferFunds
 					router={router}
-					apiInstance={apiInstance}
+					api={api}
 					networkInfo={networkInfo}
 					selectedAccount={selectedAccount}
 					accounts={accounts}
@@ -425,7 +425,7 @@ const Staking = () => {
 						stakingInfo={stakingInfo}
 						stakingLedgerInfo={stakingLedgerInfo}
 						controllerStashInfo={controllerStashInfo}
-						apiInstance={apiInstance}
+						api={api}
 						selectedAccount={selectedAccount}
 						controllerAccount={controllerAccount}
 						networkInfo={networkInfo}
@@ -436,7 +436,7 @@ const Staking = () => {
 				) : (
 					<StakeToEarn
 						stakingInfo={stakingInfo}
-						apiInstance={apiInstance}
+						api={api}
 						selectedAccount={selectedAccount}
 						networkInfo={networkInfo}
 						transactionState={transactionState}
@@ -448,7 +448,7 @@ const Staking = () => {
 			  !accountsControllerStashInfo[selectedAccount?.address].isSameStashController ? (
 				<StakeToEarn
 					stakingInfo={stakingInfo}
-					apiInstance={apiInstance}
+					api={api}
 					selectedAccount={selectedAccount}
 					networkInfo={networkInfo}
 					transactionState={transactionState}
@@ -460,7 +460,7 @@ const Staking = () => {
 					accounts={accounts}
 					balances={balances}
 					stakingInfo={stakingInfo}
-					apiInstance={apiInstance}
+					api={api}
 					selectedAccount={selectedAccount}
 					controllerAccount={controllerAccount}
 					networkInfo={networkInfo}

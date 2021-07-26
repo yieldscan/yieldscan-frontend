@@ -29,7 +29,7 @@ import { ChevronDown } from "react-feather";
 import { getNetworkInfo, getAllNetworksInfo } from "yieldscan.config";
 
 const NetworkPopover = ({ isExpanded, hasBorder }) => {
-	const { setApiInstance } = usePolkadotApi();
+	const { setapi } = usePolkadotApi();
 	const { setValidatorMap, setValidators, setValidatorRiskSets } =
 		useValidatorData();
 	const { setUserData, setAllNominations } = useOverviewData();
@@ -39,7 +39,7 @@ const NetworkPopover = ({ isExpanded, hasBorder }) => {
 	const { setCouncilMembers, setCouncilLoading } = useCouncil();
 	const { setAccounts } = useAccounts();
 	const { setAccountsBalances } = useAccountsBalances();
-	const { apiInstance } = usePolkadotApi();
+	const { api } = usePolkadotApi();
 	const { setAccountsStakingInfo } = useAccountsStakingInfo();
 	const { setAccountsStakingLedgerInfo } = useAccountsStakingLedgerInfo();
 	const { selectedNetwork, setSelectedNetwork } = useSelectedNetwork();
@@ -55,9 +55,9 @@ const NetworkPopover = ({ isExpanded, hasBorder }) => {
 
 	const switchNetwork = async (from, to) => {
 		if (from !== to) {
-			apiInstance &&
-				(await apiInstance.disconnect().catch((err) => console.error(err)));
-			setApiInstance(null);
+			api &&
+				(await api.disconnect().catch((err) => console.error(err)));
+			setapi(null);
 			setSelectedAccount(null);
 			setAccountsBalances({});
 			setAccountsStakingInfo({});

@@ -38,7 +38,7 @@ const SelectControllerAccount = ({
 	networkInfo,
 	accounts,
 	accountsBalances,
-	apiInstance,
+	api,
 	accountsStakingInfo,
 	accountsControllerStashInfo,
 	selectedAccount,
@@ -151,7 +151,7 @@ const SelectControllerAccount = ({
 			(account) =>
 				// allowing 0 balance accounts as a controller selection because low balances are being handled before proceeding to staking
 				// accountsBalances[account.address]?.freeBalance.gte(
-				// 	apiInstance?.consts.balances.existentialDeposit
+				// 	api?.consts.balances.existentialDeposit
 				// ) &&
 				!JSON.parse(
 					getFromLocalStorage(account?.substrateAddress, "isLedger")
@@ -165,7 +165,7 @@ const SelectControllerAccount = ({
 		filteredAccounts.map((account) => {
 			account.disabledSelection = accountsBalances[
 				account.address
-			]?.freeBalance.lte(apiInstance?.consts.balances.existentialDeposit);
+			]?.freeBalance.lte(api?.consts.balances.existentialDeposit);
 		});
 		setFilteredAccounts(filteredAccounts);
 	}, [
@@ -190,7 +190,7 @@ const SelectControllerAccount = ({
 					eligibleAccounts={filteredAccounts}
 					accountsBalances={accountsBalances}
 					networkInfo={networkInfo}
-					apiInstance={apiInstance}
+					api={api}
 					setTransactionHash={setTransactionHash}
 					selectedAccount={selectedAccount}
 					incrementStep={incrementStep}
@@ -379,7 +379,7 @@ const NoElligibleControllerAccounts = ({ networkInfo }) => (
 const EditControllerModal = ({
 	selectedAccount,
 	eligibleAccounts,
-	apiInstance,
+	api,
 	selectedControllerAccount,
 	accountsBalances,
 	networkInfo,
@@ -407,7 +407,7 @@ const EditControllerModal = ({
 		setLoading(true);
 		const stashId = selectedAccount?.address;
 		const newControllerId = selectedControllerAccount?.address;
-		editController(newControllerId, stashId, apiInstance, {
+		editController(newControllerId, stashId, api, {
 			onEvent: ({ message }) => {
 				toast({
 					title: "Info",
@@ -461,7 +461,7 @@ const EditControllerModal = ({
 			decodeAddress(selectedControllerAccount?.address),
 			42
 		);
-		apiInstance.tx.staking
+		api.tx.staking
 			.setController(substrateControllerId)
 			.paymentInfo(substrateStashId)
 			.then((info) => {

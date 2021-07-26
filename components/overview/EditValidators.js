@@ -130,7 +130,7 @@ const EditValidators = withSlideIn(
 		networkInfo,
 	}) => {
 		const toast = useToast();
-		const { apiInstance } = usePolkadotApi();
+		const { api } = usePolkadotApi();
 		const [compounding, setCompounding] = useState(false);
 		const { stashAccount, freeAmount, bondedAmount } = useAccounts();
 		const { coinGeckoPriceUSD } = useCoinGeckoPriceUSD();
@@ -148,7 +148,7 @@ const EditValidators = withSlideIn(
 		);
 
 		useEffect(() => {
-			apiInstance.query.staking.payee(stashAccount.address).then((payee) => {
+			api.query.staking.payee(stashAccount.address).then((payee) => {
 				if (payee.isStaked) setCompounding(true);
 				else {
 					setCompounding(false);
@@ -249,7 +249,7 @@ const EditValidators = withSlideIn(
 				stashAccount.address,
 				stashIds,
 				true,
-				apiInstance,
+				api,
 				handlers
 			).catch((error) => {
 				handlers.onFinish(1, error.message);

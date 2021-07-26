@@ -12,7 +12,7 @@ const AccountSelection = ({
 	selectedAccount,
 	networkInfo,
 	accountsBalances,
-	apiInstance,
+	api,
 	setTransactionHash,
 	walletType,
 	isSetUp,
@@ -45,13 +45,13 @@ const AccountSelection = ({
 			<div className="flex flex-row items-center justify-center space-x-2">
 				<Circle
 					className={`rounded-full ${
-						apiInstance
+						api
 							? "bg-teal-500 text-teal-500"
 							: "bg-gray-500 text-gray-500"
 					}`}
 					size={12}
 				/>
-				<span>{apiInstance ? "Connected" : "Connecting..."}</span>
+				<span>{api ? "Connected" : "Connecting..."}</span>
 			</div>
 		</button>
 	) : Object.keys(walletType).length === 0 ||

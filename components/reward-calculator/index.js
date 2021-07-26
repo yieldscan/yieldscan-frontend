@@ -85,7 +85,7 @@ const RewardCalculatorPage = () => {
 	const transactionState = useTransaction();
 	const { accounts } = useAccounts();
 	const { selectedAccount } = useSelectedAccount();
-	const { apiInstance } = usePolkadotApi();
+	const { api } = usePolkadotApi();
 	const { walletType } = useWalletType();
 	const { setHeaderLoading } = useHeaderLoading();
 	const { isInElection } = useNetworkElection();
@@ -198,7 +198,7 @@ const RewardCalculatorPage = () => {
 		if (
 			controllerAccount &&
 			parseInt(controllerBalances?.availableBalance) <
-				apiInstance?.consts.balances.existentialDeposit.toNumber() / 2
+				api?.consts.balances.existentialDeposit.toNumber() / 2
 		) {
 			toggleIsLowBalanceOpen();
 		} else router.push("/staking");
@@ -370,7 +370,7 @@ const RewardCalculatorPage = () => {
 		setSimulationChecked(false);
 	}, [selectedAccount?.address]);
 
-	return loading || isNil(apiInstance) ? (
+	return loading || isNil(api) ? (
 		<div className="flex-center w-full h-full">
 			<div className="flex-center flex-col">
 				<Spinner size="xl" color="teal.500" thickness="4px" />

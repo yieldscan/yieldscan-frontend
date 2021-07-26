@@ -25,7 +25,7 @@ const UsingLedger = ({
 	accounts,
 	accountsBalances,
 	setSelectedAccount,
-	apiInstance,
+	api,
 	accountsControllerStashInfo,
 	selectedAccount,
 	accountsStakingInfo,
@@ -102,7 +102,7 @@ const UsingLedger = ({
 						accounts={accounts}
 						selectedAccount={selectedAccount}
 						accountsBalances={accountsBalances}
-						apiInstance={apiInstance}
+						api={api}
 						accountsControllerStashInfo={accountsControllerStashInfo}
 					/>
 				) : (
@@ -113,7 +113,7 @@ const UsingLedger = ({
 						accounts={accounts}
 						selectedAccount={selectedAccount}
 						accountsBalances={accountsBalances}
-						apiInstance={apiInstance}
+						api={api}
 						accountsStakingInfo={accountsStakingInfo}
 						accountsControllerStashInfo={accountsControllerStashInfo}
 						balances={balances}

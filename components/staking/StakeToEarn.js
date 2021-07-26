@@ -12,7 +12,7 @@ import BrowserWalletAlert from "./BrowserWalletAlert";
 
 const StakeToEarn = ({
 	stakingInfo,
-	apiInstance,
+	api,
 	selectedAccount,
 	isLedger,
 	networkInfo,
@@ -24,7 +24,7 @@ const StakeToEarn = ({
 	const [transactionFee, setTransactionFee] = useState(0);
 
 	useEffect(() => {
-		if (selectedAccount && apiInstance) {
+		if (selectedAccount && api) {
 			const nominatedValidators = transactionState.selectedValidators.map(
 				(v) => v.stashId
 			);
@@ -32,7 +32,7 @@ const StakeToEarn = ({
 				decodeAddress(stakingInfo?.controllerId),
 				42
 			);
-			apiInstance.tx.staking
+			api.tx.staking
 				.nominate(nominatedValidators)
 				.paymentInfo(substrateControllerId)
 				.then((info) => {

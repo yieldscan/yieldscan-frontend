@@ -71,7 +71,7 @@ const WalletConnectPopover = ({ styles, networkInfo }) => {
 	const { selectedAccount, setSelectedAccount } = useSelectedAccount();
 	const { walletType, setWalletType } = useWalletType();
 	const { accountsBalances } = useAccountsBalances();
-	const { apiInstance } = usePolkadotApi();
+	const { api } = usePolkadotApi();
 	const { accountsControllerStashInfo } = useAccountsControllerStashInfo();
 	const [state, setState] = useState();
 	const [extensionEvent, setExtensionEvent] = useState();
@@ -255,7 +255,7 @@ const WalletConnectPopover = ({ styles, networkInfo }) => {
 			const filteredAccounts = accounts.filter(
 				(account) =>
 					// accountsBalances[account.address]?.freeBalance.gte(
-					// 	apiInstance?.consts.balances.existentialDeposit
+					// 	api?.consts.balances.existentialDeposit
 					// ) &&
 					!accountsControllerStashInfo[account.address]?.isController ||
 					accountsControllerStashInfo[account.address]?.isSameStashController

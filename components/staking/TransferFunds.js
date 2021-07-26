@@ -21,7 +21,7 @@ import transferBalancesKeepAlive from "@lib/polkadot/transfer-balances";
 
 const TransferFunds = ({
 	router,
-	apiInstance,
+	api,
 	networkInfo,
 	selectedAccount,
 	accounts,
@@ -49,7 +49,7 @@ const TransferFunds = ({
 	useEffect(() => {
 		const filteredAccounts = accounts.filter((account) =>
 			accountsBalances[account.address]?.availableBalance.gt(
-				apiInstance?.consts.balances.existentialDeposit
+				api?.consts.balances.existentialDeposit
 			)
 		);
 		setFilteredAccounts(filteredAccounts);
@@ -78,7 +78,7 @@ const TransferFunds = ({
 				controllerBalances={controllerBalances}
 				networkInfo={networkInfo}
 				close={close}
-				apiInstance={apiInstance}
+				api={api}
 				isOpen={isOpen}
 				amount={amount}
 				setStakingLoading={setStakingLoading}
@@ -179,7 +179,7 @@ const ConfirmTransfer = ({
 	networkInfo,
 	close,
 	isOpen,
-	apiInstance,
+	api,
 	styles,
 	setStakingLoading,
 	setStakingEvent,
@@ -207,7 +207,7 @@ const ConfirmTransfer = ({
 		setIsTransferFunds(true);
 		const from = senderAccount?.address;
 		const to = controllerAccount.address;
-		transferBalancesKeepAlive(from, to, apiInstance, amount, networkInfo, {
+		transferBalancesKeepAlive(from, to, api, amount, networkInfo, {
 			onEvent: ({ message }) => {
 				toast({
 					title: "Info",
@@ -282,11 +282,11 @@ const ConfirmTransfer = ({
 			);
 			const transactions = []
 			transactions.push(
-				apiInstance?.tx.balances.transferKeepAlive(substrateControllerId, amountRaw),
-				apiInstance.tx.system.remark("Sent with YieldScan")
+				api?.tx.balances.transferKeepAlive(substrateControllerId, amountRaw),
+				api.tx.system.remark("Sent with YieldScan")
 			);
 
-			apiInstance.tx.utility
+			api.tx.utility
 						.batchAll(transactions)
 						.paymentInfo(substrateControllerId)
 						.then((info) => {

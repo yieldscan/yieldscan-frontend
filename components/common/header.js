@@ -66,7 +66,7 @@ const Header = ({ isBase, isSetUp }) => {
 	const { setCouncilMembers, setCouncilLoading } = useCouncil();
 	const networkInfo = getNetworkInfo(selectedNetwork);
 	const supportedNetworksInfo = getAllNetworksInfo();
-	const { apiInstance, setApiInstance } = usePolkadotApi();
+	const { api, setapi } = usePolkadotApi();
 	const { isOpen, toggle } = useWalletConnect();
 	const { isNewSetupOpen, toggleNewSetup } = useNewAccountsSetup();
 	const { setIsInElection } = useNetworkElection();
@@ -106,8 +106,8 @@ const Header = ({ isBase, isSetUp }) => {
 
 	const switchNetwork = async (from, to) => {
 		if (from !== to) {
-			await apiInstance.disconnect().catch((err) => console.error(err));
-			setApiInstance(null);
+			await api.disconnect().catch((err) => console.error(err));
+			setapi(null);
 			setSelectedAccount(null);
 			setAccountsBalances({});
 			setAccountsStakingInfo({});
@@ -175,7 +175,7 @@ const Header = ({ isBase, isSetUp }) => {
 			const filteredAccounts = accounts.filter(
 				(account) =>
 					// accountsBalances[account.address]?.freeBalance.gte(
-					// 	apiInstance?.consts.balances.existentialDeposit
+					// 	api?.consts.balances.existentialDeposit
 					// ) &&
 					!accountsControllerStashInfo[account.address]?.isController ||
 					accountsControllerStashInfo[account.address]?.isSameStashController
@@ -233,12 +233,12 @@ const Header = ({ isBase, isSetUp }) => {
 					<NewAccountsSetupPopover isOpen={isNewSetupOpen} />
 				)}
 			{/* Account returns null, maybe replace with a custom hook */}
-			{!isNil(apiInstance)
+			{!isNil(api)
 				? accounts?.map((account) => (
 						<Account
 							account={account}
 							key={account.address}
-							api={apiInstance}
+							api={api}
 							accountsBalances={accountsBalances}
 							setAccountsBalances={(info) => setAccountsBalances(info)}
 							accountsStakingInfo={accountsStakingInfo}
@@ -316,7 +316,7 @@ const Header = ({ isBase, isSetUp }) => {
 							selectedAccount={selectedAccount}
 							walletType={walletType}
 							isSetUp={isSetUp}
-							apiInstance={apiInstance}
+							api={api}
 							networkInfo={networkInfo}
 							accountsBalances={accountsBalances}
 							setTransactionHash={(info) => setTransactionHash(info)}

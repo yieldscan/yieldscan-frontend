@@ -13,7 +13,7 @@ const LockFunds = ({
 	balances,
 	controllerBalances,
 	stakingInfo,
-	apiInstance,
+	api,
 	selectedAccount,
 	controllerAccount,
 	networkInfo,
@@ -33,7 +33,7 @@ const LockFunds = ({
 	};
 
 	useEffect(() => {
-		if (selectedAccount && apiInstance) {
+		if (selectedAccount && api) {
 			const nominatedValidators = transactionState.selectedValidators.map(
 				(v) => v.stashId
 			);
@@ -53,13 +53,13 @@ const LockFunds = ({
 					amount *networkInfo.commissionRatio
 				);
 				transactions.push(
-					apiInstance.tx.staking.bond(
+					api.tx.staking.bond(
 						substrateControllerId,
 						amount,
 						transactionState.rewardDestination
 					),
-					apiInstance.tx.balances.transferKeepAlive(networkInfo.collectionAddress, yieldscanCommission),
-					apiInstance.tx.system.remark("Sent with YieldScan")
+					api.tx.balances.transferKeepAlive(networkInfo.collectionAddress, yieldscanCommission),
+					api.tx.system.remark("Sent with YieldScan")
 					);
 			} else if (tranasactionType === "bond-extra") {
 				const amount = Math.trunc(
@@ -69,13 +69,13 @@ const LockFunds = ({
 					amount *networkInfo.commissionRatio
 				);
 				transactions.push(
-					apiInstance.tx.staking.bondExtra(amount),
-					apiInstance.tx.balances.transferKeepAlive(networkInfo.collectionAddress, yieldscanCommission),
-					apiInstance.tx.system.remark("Sent with YieldScan")
+					api.tx.staking.bondExtra(amount),
+					api.tx.balances.transferKeepAlive(networkInfo.collectionAddress, yieldscanCommission),
+					api.tx.system.remark("Sent with YieldScan")
 				);
 			}
 
-			apiInstance.tx.utility
+			api.tx.utility
 						.batchAll(transactions)
 						.paymentInfo(substrateControllerId)
 						.then((info) => {
