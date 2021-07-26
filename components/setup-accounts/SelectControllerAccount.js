@@ -5,7 +5,7 @@ import {
 	BottomNextButton,
 	BackButtonContent,
 	NextButtonContent,
-} from "./BottomButton";
+} from "../common/BottomButton";
 import PopoverAccountSelection from "../common/PopoverAccountSelection";
 import {
 	Alert,

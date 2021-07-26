@@ -1,5 +1,5 @@
 import { ArrowRight } from "react-feather";
-import { BottomNextButton } from "./BottomButton";
+import { BottomNextButton } from "../common/BottomButton";
 import Image from "next/image";
 import { useRouter } from "next/router";
 import { useAccountsStakingInfo, useSelectedAccount } from "@lib/store";

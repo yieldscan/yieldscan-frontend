@@ -5,7 +5,7 @@ import {
 	BottomBackButton,
 	BottomNextButton,
 	NextButtonContent,
-} from "./BottomButton";
+} from "../common/BottomButton";
 import { useState } from "react";
 import startRamp from "@lib/startRamp";
 

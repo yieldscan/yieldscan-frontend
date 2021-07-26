@@ -1,7 +1,7 @@
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import { Check } from "react-feather";
-import { BottomNextButton } from "./BottomButton";
+import { BottomNextButton } from "../common/BottomButton";
 
 const SetUpComplete = ({ incrementStep, isNewSetup, setIsNewSetup }) => {
 	const router = useRouter();
