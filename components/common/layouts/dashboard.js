@@ -8,7 +8,7 @@ import {
 	useBetaInfo,
 	useCoinGeckoPriceUSD,
 } from "@lib/store";
-import createPolkadotapi from "@lib/polkadot-api";
+import createPolkadotApi from "@lib/polkadot-api";
 import fetchPrice from "@lib/fetch-price";
 import { get, includes, isNil, pick } from "lodash";
 import { useMe, useEffect } from "react";
@@ -31,7 +31,7 @@ import { setCookie } from "nookies";
 const withDashboardLayout = (children, isSetUp) => {
 	const router = useRouter();
 	const { showBetaMessage, setShowBetaMessage } = useBetaInfo();
-	const { api, setapi } = usePolkadotApi();
+	const { api, setApi } = usePolkadotApi();
 	const { selectedNetwork, setSelectedNetwork } = useSelectedNetwork();
 	const networkInfo = getNetworkInfo(selectedNetwork);
 	const { coinGeckoPriceUSD, setCoinGeckoPriceUSD } = useCoinGeckoPriceUSD();
@@ -43,8 +43,8 @@ const withDashboardLayout = (children, isSetUp) => {
 	}, [networkInfo]);
 
 	useEffect(() => {
-		createPolkadotapi(networkInfo, api).then((api) => {
-			setapi(api);
+		createPolkadotApi(networkInfo, api).then((api) => {
+			setApi(api);
 		});
 	}, [networkInfo]);
 

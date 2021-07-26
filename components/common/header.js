@@ -66,7 +66,7 @@ const Header = ({ isBase, isSetUp }) => {
 	const { setCouncilMembers, setCouncilLoading } = useCouncil();
 	const networkInfo = getNetworkInfo(selectedNetwork);
 	const supportedNetworksInfo = getAllNetworksInfo();
-	const { api, setapi } = usePolkadotApi();
+	const { api, setApi } = usePolkadotApi();
 	const { isOpen, toggle } = useWalletConnect();
 	const { isNewSetupOpen, toggleNewSetup } = useNewAccountsSetup();
 	const { setIsInElection } = useNetworkElection();
@@ -107,7 +107,7 @@ const Header = ({ isBase, isSetUp }) => {
 	const switchNetwork = async (from, to) => {
 		if (from !== to) {
 			await api.disconnect().catch((err) => console.error(err));
-			setapi(null);
+			setApi(null);
 			setSelectedAccount(null);
 			setAccountsBalances({});
 			setAccountsStakingInfo({});

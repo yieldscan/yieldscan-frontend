@@ -6,7 +6,7 @@ import {
 	useSelectedNetwork,
 	useCoinGeckoPriceUSD,
 } from "@lib/store";
-import createPolkadotapi from "@lib/polkadot-api";
+import createPolkadotApi from "@lib/polkadot-api";
 import fetchPrice from "@lib/fetch-price";
 import { isNil, pick } from "lodash";
 import { useEffect } from "react";
@@ -20,7 +20,7 @@ import { getNetworkInfo } from "yieldscan.config";
 import { Box, Flex } from "@chakra-ui/core";
 
 const withBaseLayout = (children) => {
-	const { api, setapi } = usePolkadotApi();
+	const { api, setApi } = usePolkadotApi();
 	const { selectedNetwork, setSelectedNetwork } = useSelectedNetwork();
 	const networkInfo = getNetworkInfo(selectedNetwork);
 
@@ -35,8 +35,8 @@ const withBaseLayout = (children) => {
 	}, [networkInfo, coinGeckoPriceUSD]);
 
 	useEffect(() => {
-		createPolkadotapi(networkInfo, api).then((api) => {
-			setapi(api);
+		createPolkadotApi(networkInfo, api).then((api) => {
+			setApi(api);
 		});
 	}, [networkInfo]);
 
