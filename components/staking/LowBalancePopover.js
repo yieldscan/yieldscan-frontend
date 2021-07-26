@@ -33,12 +33,12 @@ const LowBalancePopover = ({ styles, networkInfo, toStaking }) => {
 			isOpen={isLowBalanceOpen}
 			onClose={close}
 			isCentered
+			size={"lg"}
 			closeOnEsc={true}
-			scrollBehavior={"inside"}
 			closeOnOverlayClick={true}
 		>
 			<ModalOverlay />
-			<ModalContent rounded="lg" maxWidth="lg" {...styles} py={4}>
+			<ModalContent rounded="lg" {...styles} py={4}>
 				<ModalCloseButton
 					onClick={close}
 					boxShadow="0 0 0 0 #fff"

@@ -337,7 +337,7 @@ const RewardCalculatorPage = () => {
 	useEffect(async () => {
 		setYieldScanFees(null);
 		setTransactionFees(null);
-		if (amount && selectedValidators && selectedAccount) {
+		if (amount && selectedValidators && selectedAccount && apiInstance) {
 			const { ysFees, networkFees } = await getTransactionFee(
 				networkInfo,
 				stakingInfo,
@@ -351,7 +351,7 @@ const RewardCalculatorPage = () => {
 			setYieldScanFees(ysFees);
 			setTransactionFees(networkFees);
 		}
-	}, [stakingInfo, amount, selectedAccount]);
+	}, [stakingInfo, amount, selectedAccount, apiInstance]);
 
 	return loading || isNil(apiInstance) ? (
 		<div className="flex-center w-full h-full">
