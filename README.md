@@ -89,6 +89,8 @@ Click on "Connect my wallet". You will be prompted by PolkadotJS to authorize Yi
 	# Tracking
 	NEXT_PUBLIC_AMPLITUDE_API_TOKEN=<your-amplitude-api-token> # For development you can pass a string like "none" - to prevent unnecessary data from being logged
 	NEXT_PUBLIC_METOMIC_PROJECT_ID=<your-metomic-project-id>
+	NEXT_PUBLIC_FATHOM_ID=<your-fathom-site-id>
+	NEXT_PUBLIC_FATHOM_SUBDOMAIN=<fathom-script-location>
 
 	# Sentry (optional)
 	NEXT_PUBLIC_SENTRY_DSN=<your-sentry-dsn>

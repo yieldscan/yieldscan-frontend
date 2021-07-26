@@ -1,10 +1,11 @@
 import { ConsentGate, MetomicProvider } from "@metomic/react";
 import * as Sentry from "@sentry/node";
 import tawkTo from "tawkto-react";
-
+import { useRouter } from 'next/router';
 import { ThemeProvider, theme } from "@chakra-ui/core";
 import "../styles/index.scss";
 import { useEffect } from "react";
+import * as Fathom from 'fathom-client';
 
 const customIcons = {
 	secureLogo: {
@@ -153,9 +154,31 @@ if (process.env.NEXT_PUBLIC_SENTRY_DSN) {
 }
 
 export default function YieldScanApp({ Component, pageProps, err }) {
+	const router = useRouter();
+
 	useEffect(() => {
 		tawkTo(process.env.NEXT_PUBLIC_TAWK_PROP_ID);
 	}, []);
+
+  useEffect(() => {
+    Fathom.load(process.env.NEXT_PUBLIC_FATHOM_ID, {
+      includedDomains: ["yieldscan.app"],
+      url: process.env.NEXT_PUBLIC_FATHOM_SUBDOMAIN,
+    });
+	
+	function onRouteChangeComplete() {
+		Fathom.trackPageview();
+	  }
+
+	  // Record a pageview when route changes
+	  router.events.on('routeChangeComplete', onRouteChangeComplete);
+  
+	  // Unassign event listener
+	  return () => {
+		router.events.off('routeChangeComplete', onRouteChangeComplete);
+	  };
+	}, []);
+
 	return (
 		<ThemeProvider theme={customTheme}>
 			<MetomicProvider projectId={process.env.NEXT_PUBLIC_METOMIC_PROJECT_ID}>
