@@ -162,7 +162,7 @@ export default function YieldScanApp({ Component, pageProps, err }) {
 
   useEffect(() => {
     Fathom.load(process.env.NEXT_PUBLIC_FATHOM_ID, {
-      includedDomains: ["yieldscan.app"],
+      includedDomains: ["yieldscan.app", "dev.yieldscan.app"],
       url: process.env.NEXT_PUBLIC_FATHOM_SUBDOMAIN,
     });
 	
