@@ -22,11 +22,16 @@ const useStakingPathPopover = create((set) => ({
 	open: () => set(() => ({ isStakingPathPopoverOpen: true })),
 }));
 
-const StakingPathPopover = ({ styles, networkInfo, toStaking }) => {
+const StakingPathPopover = ({
+	styles,
+	networkInfo,
+	toStaking,
+	setStakingPath,
+}) => {
 	const router = useRouter();
 	const { isStakingPathPopoverOpen, close } = useStakingPathPopover();
-	// const { setIsLowBalance } = useIsLowBalance();
-	const handleOnClick = () => {
+	const handleOnClick = (path) => {
+		setStakingPath(path);
 		router.push("/staking");
 		close();
 	};
@@ -58,7 +63,7 @@ const StakingPathPopover = ({ styles, networkInfo, toStaking }) => {
 						<div className="w-full h-full flex flex-row justify-center items-center p-2 space-x-4">
 							<button
 								className="w-full flex-1 flex rounded-lg border items-center shadow-lg py-8 transform hover:scale-102"
-								// onClick={handleOnClickConnectPolkadotExtension}
+								onClick={() => handleOnClick("express")}
 							>
 								<div className="w-full flex-1 flex flex-col items-center text-left space-y-4 px-4">
 									<Image
@@ -91,7 +96,7 @@ const StakingPathPopover = ({ styles, networkInfo, toStaking }) => {
 							</button>
 							<button
 								className="w-full flex-1 flex rounded-lg border items-center shadow-lg py-8 transform hover:scale-102"
-								// onClick={handleOnClickConnectPolkadotExtension}
+								onClick={() => handleOnClick("secure")}
 							>
 								<div className="w-full flex-1 flex flex-col items-center text-left space-y-4 px-4">
 									<Image

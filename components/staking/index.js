@@ -28,6 +28,7 @@ import ChainErrorPage from "./ChainErrorPage";
 import { BottomNextButton } from "../common/BottomButton";
 import InfoAlert from "./InfoAlert";
 import TransferFunds from "./TransferFunds";
+import SecureStakingSetup from "./SecureStakingSetup";
 
 const Staking = () => {
 	const toast = useToast();
@@ -50,6 +51,8 @@ const Staking = () => {
 			getFromLocalStorage(selectedAccount?.substrateAddress, "isLedger")
 		)
 	);
+
+	const [initialStakingPath, setInitialStakingPath] = useState(stakingPath);
 
 	const selectedValidators = get(transactionState, "selectedValidators", []);
 	const stakingAmount = get(transactionState, "stakingAmount", 0);
@@ -323,141 +326,184 @@ const Staking = () => {
 		}
 	}, [transactionHash, isSuccessful]);
 
-	return selectedAccount &&
-		controllerBalances &&
-		Object.keys(accountsBalances).length > 0 &&
-		Object.keys(accountsControllerStashInfo).length > 0 &&
-		Object.keys(accountsStakingInfo).length > 0 ? (
-		<div className="w-full h-full flex justify-center max-h-full">
-			{transactionHash && isSuccessful && !isLockFunds && !isTransferFunds && (
-				<canvas id="confetti-holder" className="absolute w-full"></canvas>
-			)}
-			{stakingLoading || isSuccessful ? (
-				<div className="grid grid-rows-2 gap-2 h-full items-center justify-content justify-center">
-					<div className="w-full h-full flex justify-center items-end">
-						<span
-							className={`loader ${
-								loaderError
-									? "fail"
-									: transactionHash && isSuccessful && "success"
-							}`}
-						></span>
-					</div>
-					<div className="w-full max-w-sm flex flex-col items-center h-full justify-between pb-12">
-						<div className="flex flex-col items-center text-center">
-							{isSuccessful && (
-								<h1 className="text-gray-700 text-2xl font-semibold">
-									{successHeading}
-								</h1>
-							)}
-							<p className="text-gray-700">{stakingEvent}</p>
-						</div>
-						<div className="w-full mb-32">
-							{" "}
-							{isSuccessful && !isLockFunds && !isTransferFunds && (
-								<InfoAlert />
-							)}
-						</div>
-						{isSuccessful && !isLockFunds && !isTransferFunds && (
-							<BottomNextButton
-								onClick={() => router.push({ pathname: "/overview" })}
-							>
-								Continue
-							</BottomNextButton>
-						)}
-					</div>
-				</div>
-			) : chainError ? (
-				<ChainErrorPage
-					// back={backToConfirmation}
-					// onConfirm={() => {
-					// 	setStakingLoading(true);
-					// 	setChainError(false);
-					// 	transact();
-					// }}
-					router={router}
-					setIsNewSetup={setIsNewSetup}
-					networkInfo={networkInfo}
-				/>
-			) : parseInt(controllerBalances?.availableBalance) <
-			  apiInstance?.consts.balances.existentialDeposit.toNumber() / 2 ? (
-				<TransferFunds
-					router={router}
-					apiInstance={apiInstance}
-					networkInfo={networkInfo}
-					selectedAccount={selectedAccount}
-					accounts={accounts}
-					accountsBalances={accountsBalances}
-					accountsStakingInfo={accountsStakingInfo}
-					controllerAccount={controllerAccount}
-					controllerBalances={controllerBalances}
-					setStakingLoading={setStakingLoading}
-					setStakingEvent={setStakingEvent}
-					setLoaderError={setLoaderError}
-					setSuccessHeading={setSuccessHeading}
-					setIsSuccessful={setIsSuccessful}
-					setChainError={setChainError}
-					setIsTransferFunds={setIsTransferFunds}
-					setTransactionHash={setTransactionHash}
-				/>
-			) : isLedger ? (
-				stakingInfo.stakingLedger.active.isEmpty ? (
-					<LockFunds
-						accounts={accounts}
-						balances={balances}
-						controllerBalances={controllerBalances}
-						stakingInfo={stakingInfo}
-						stakingLedgerInfo={stakingLedgerInfo}
-						controllerStashInfo={controllerStashInfo}
-						apiInstance={apiInstance}
-						selectedAccount={selectedAccount}
-						controllerAccount={controllerAccount}
-						networkInfo={networkInfo}
-						transactionState={transactionState}
-						setTransactionState={setTransactionState}
-						onConfirm={(type) => transact(type)}
-					/>
-				) : (
-					<StakeToEarn
-						stakingInfo={stakingInfo}
-						apiInstance={apiInstance}
-						selectedAccount={selectedAccount}
-						networkInfo={networkInfo}
-						transactionState={transactionState}
-						isLedger={isLedger}
-						onConfirm={(type) => transact(type)}
-					/>
-				)
-			) : controllerStashInfo.isStash &&
-			  !controllerStashInfo.isSameStashController ? (
-				<StakeToEarn
-					stakingInfo={stakingInfo}
-					apiInstance={apiInstance}
-					selectedAccount={selectedAccount}
-					networkInfo={networkInfo}
-					transactionState={transactionState}
-					isLedger={isLedger}
-					onConfirm={(type) => transact(type)}
-				/>
-			) : (
-				<Confirmation
-					accounts={accounts}
-					balances={balances}
-					stakingInfo={stakingInfo}
-					apiInstance={apiInstance}
-					selectedAccount={selectedAccount}
-					controllerAccount={controllerAccount}
-					networkInfo={networkInfo}
-					transactionState={transactionState}
-					setTransactionState={setTransactionState}
-					onConfirm={(type) => transact(type)}
-				/>
-			)}
-		</div>
-	) : (
+	console.log("stakingPath");
+	console.log(stakingPath);
+
+	// return selectedAccount &&
+	// 	controllerBalances &&
+	// 	Object.keys(accountsBalances).length > 0 &&
+	// 	Object.keys(accountsControllerStashInfo).length > 0 &&
+	// 	Object.keys(accountsStakingInfo).length > 0 ? (
+	// 	<div className="w-full h-full flex justify-center max-h-full">
+	// 		{transactionHash && isSuccessful && !isLockFunds && !isTransferFunds && (
+	// 			<canvas id="confetti-holder" className="absolute w-full"></canvas>
+	// 		)}
+	// 		{stakingLoading || isSuccessful ? (
+	// 			<div className="grid grid-rows-2 gap-2 h-full items-center justify-content justify-center">
+	// 				<div className="w-full h-full flex justify-center items-end">
+	// 					<span
+	// 						className={`loader ${
+	// 							loaderError
+	// 								? "fail"
+	// 								: transactionHash && isSuccessful && "success"
+	// 						}`}
+	// 					></span>
+	// 				</div>
+	// 				<div className="w-full max-w-sm flex flex-col items-center h-full justify-between pb-12">
+	// 					<div className="flex flex-col items-center text-center">
+	// 						{isSuccessful && (
+	// 							<h1 className="text-gray-700 text-2xl font-semibold">
+	// 								{successHeading}
+	// 							</h1>
+	// 						)}
+	// 						<p className="text-gray-700">{stakingEvent}</p>
+	// 					</div>
+	// 					<div className="w-full mb-32">
+	// 						{" "}
+	// 						{isSuccessful && !isLockFunds && !isTransferFunds && (
+	// 							<InfoAlert />
+	// 						)}
+	// 					</div>
+	// 					{isSuccessful && !isLockFunds && !isTransferFunds && (
+	// 						<BottomNextButton
+	// 							onClick={() => router.push({ pathname: "/overview" })}
+	// 						>
+	// 							Continue
+	// 						</BottomNextButton>
+	// 					)}
+	// 				</div>
+	// 			</div>
+	// 		) : chainError ? (
+	// 			<ChainErrorPage
+	// 				// back={backToConfirmation}
+	// 				// onConfirm={() => {
+	// 				// 	setStakingLoading(true);
+	// 				// 	setChainError(false);
+	// 				// 	transact();
+	// 				// }}
+	// 				router={router}
+	// 				setIsNewSetup={setIsNewSetup}
+	// 				networkInfo={networkInfo}
+	// 			/>
+	// 		) : parseInt(controllerBalances?.availableBalance) <
+	// 		  apiInstance?.consts.balances.existentialDeposit.toNumber() / 2 ? (
+	// 			<TransferFunds
+	// 				router={router}
+	// 				apiInstance={apiInstance}
+	// 				networkInfo={networkInfo}
+	// 				selectedAccount={selectedAccount}
+	// 				accounts={accounts}
+	// 				accountsBalances={accountsBalances}
+	// 				accountsStakingInfo={accountsStakingInfo}
+	// 				controllerAccount={controllerAccount}
+	// 				controllerBalances={controllerBalances}
+	// 				setStakingLoading={setStakingLoading}
+	// 				setStakingEvent={setStakingEvent}
+	// 				setLoaderError={setLoaderError}
+	// 				setSuccessHeading={setSuccessHeading}
+	// 				setIsSuccessful={setIsSuccessful}
+	// 				setChainError={setChainError}
+	// 				setIsTransferFunds={setIsTransferFunds}
+	// 				setTransactionHash={setTransactionHash}
+	// 			/>
+	// 		) : isLedger ? (
+	// 			stakingInfo.stakingLedger.active.isEmpty ? (
+	// 				<LockFunds
+	// 					accounts={accounts}
+	// 					balances={balances}
+	// 					controllerBalances={controllerBalances}
+	// 					stakingInfo={stakingInfo}
+	// 					stakingLedgerInfo={stakingLedgerInfo}
+	// 					controllerStashInfo={controllerStashInfo}
+	// 					apiInstance={apiInstance}
+	// 					selectedAccount={selectedAccount}
+	// 					controllerAccount={controllerAccount}
+	// 					networkInfo={networkInfo}
+	// 					transactionState={transactionState}
+	// 					setTransactionState={setTransactionState}
+	// 					onConfirm={(type) => transact(type)}
+	// 				/>
+	// 			) : (
+	// 				<StakeToEarn
+	// 					stakingInfo={stakingInfo}
+	// 					apiInstance={apiInstance}
+	// 					selectedAccount={selectedAccount}
+	// 					networkInfo={networkInfo}
+	// 					transactionState={transactionState}
+	// 					isLedger={isLedger}
+	// 					onConfirm={(type) => transact(type)}
+	// 				/>
+	// 			)
+	// 		) : controllerStashInfo.isStash &&
+	// 		  !controllerStashInfo.isSameStashController ? (
+	// 			<StakeToEarn
+	// 				stakingInfo={stakingInfo}
+	// 				apiInstance={apiInstance}
+	// 				selectedAccount={selectedAccount}
+	// 				networkInfo={networkInfo}
+	// 				transactionState={transactionState}
+	// 				isLedger={isLedger}
+	// 				onConfirm={(type) => transact(type)}
+	// 			/>
+	// 		) : (
+	// 			<Confirmation
+	// 				accounts={accounts}
+	// 				balances={balances}
+	// 				stakingInfo={stakingInfo}
+	// 				apiInstance={apiInstance}
+	// 				selectedAccount={selectedAccount}
+	// 				controllerAccount={controllerAccount}
+	// 				networkInfo={networkInfo}
+	// 				transactionState={transactionState}
+	// 				setTransactionState={setTransactionState}
+	// 				onConfirm={(type) => transact(type)}
+	// 			/>
+	// 		)}
+	// 	</div>
+	// ) : (
+	// 	<div className="w-full h-full flex justify-center items-center max-h-full">
+	// 		<span className="loader"></span>
+	// 	</div>
+	// );
+
+	return isNil(transactionState) || isNil(selectedAccount) ? (
 		<div className="w-full h-full flex justify-center items-center max-h-full">
 			<span className="loader"></span>
 		</div>
+	) : isNil(stakingInfo) || isNil(balances) || isNil(accountsBalances) ? (
+		<div className="w-full h-full flex justify-center items-center max-h-full">
+			<span className="loader"></span>
+		</div>
+	) : stakingPath === "secure" ? (
+		<SecureStakingSetup
+			accounts={accounts}
+			balances={balances}
+			stakingInfo={stakingInfo}
+			apiInstance={apiInstance}
+			selectedAccount={selectedAccount}
+			controllerAccount={controllerAccount}
+			networkInfo={networkInfo}
+			transactionState={transactionState}
+			accountsControllerStashInfo={accountsControllerStashInfo}
+			accountsBalances={accountsBalances}
+			setTransactionState={setTransactionState}
+			onConfirm={(type) => transact(type)}
+		/>
+	) : stakingPath === "express" ? (
+		<Confirmation
+			accounts={accounts}
+			balances={balances}
+			stakingInfo={stakingInfo}
+			apiInstance={apiInstance}
+			selectedAccount={selectedAccount}
+			controllerAccount={controllerAccount}
+			networkInfo={networkInfo}
+			transactionState={transactionState}
+			setTransactionState={setTransactionState}
+			onConfirm={(type) => transact(type)}
+		/>
+	) : (
+		<></>
 	);
 };
 
