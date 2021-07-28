@@ -26,20 +26,19 @@ const AccountSelection = ({
 		setIsStashPopoverOpen(false);
 	};
 	const handleOnClickSetUp = () => {
-		router.push("/setup-accounts");
+		router.push("/setup-wallet");
 	};
 
 	return isNil(accounts) ? (
 		<button
 			className="rounded-full border border-gray-300 p-2 px-4 font-medium text-gray-800"
-			onClick={toggle}
+			onClick={handleOnClickSetUp}
 		>
 			Connect Wallet
 		</button>
 	) : isSetUp ? (
 		<button
 			className="p-2 px-4 cursor-default font-medium text-gray-800"
-			// onClick={handleOnClickSetUp}
 		>
 			<div className="flex flex-row items-center justify-center space-x-2">
 				<Circle
