@@ -51,11 +51,14 @@ import {
 	LowBalancePopover,
 	useLowBalancePopover,
 } from "../staking/LowBalancePopover";
-
 import { useRouter } from "next/router";
 import axios from "@lib/axios";
 import { getNetworkInfo } from "yieldscan.config";
 import { trackEvent, Events } from "@lib/analytics";
+import {
+	StakingPathPopover,
+	useStakingPathPopover,
+} from "@components/staking/StakingPathPopover";
 
 const DEFAULT_FILTER_OPTIONS = {
 	numOfNominators: { min: "", max: "" },
@@ -82,6 +85,9 @@ const Validators = () => {
 	const { isOpen, onClose, onToggle } = useDisclosure();
 	const { apiInstance } = usePolkadotApi();
 	const [errorFetching, setErrorFetching] = useState(false);
+	const { isStakingPathPopoverOpen, toggleIsStakingPathPopoverOpen } =
+		useStakingPathPopover();
+
 	const transactionState = useTransaction((state) => {
 		let _returns = get(result, "returns"),
 			_yieldPercentage = get(result, "yieldPercentage");
@@ -369,7 +375,9 @@ const Validators = () => {
 				apiInstance?.consts.balances.existentialDeposit.toNumber() / 2
 		) {
 			toggleIsLowBalanceOpen();
-		} else router.push("/staking");
+		} else toggleIsLowBalanceOpen();
+		//toggleIsStakingPathPopoverOpen();
+		//router.push("/staking");
 	};
 
 	const onPayment = async () => {
@@ -454,6 +462,14 @@ const Validators = () => {
 					toStaking={toStaking}
 					networkInfo={networkInfo}
 				/>
+			)}
+			{controllerAccount && controllerBalances && (
+					<StakingPathPopover
+						isOpen={true}
+						// isOpen={isStakingPathPopoverOpen}
+						toStaking={toStaking}
+						networkInfo={networkInfo}
+					/>
 			)}
 			<EditAmountModal
 				isOpen={isOpen}
@@ -587,10 +603,10 @@ const Validators = () => {
 						// hidden={simulationChecked}
 						onClick={() =>
 							isNil(accounts)
-								? toggle()
-								: selectedAccount
-								? toStaking()
-								: toggle()
+							? router.push("/setup-wallet")
+							: selectedAccount
+							? toStaking()
+							: toggle()
 						}
 					>
 						{isNil(accounts)
