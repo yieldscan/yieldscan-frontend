@@ -25,6 +25,7 @@ import {
 	usePolkadotApi,
 	useIsNewSetup,
 	useSelectedAccountInfo,
+	useStakingPath,
 } from "@lib/store";
 import { get, isNil, mapValues, keyBy, cloneDeep, debounce } from "lodash";
 import calculateReward from "@lib/calculate-reward";
@@ -101,6 +102,7 @@ const RewardCalculatorPage = () => {
 	const { isLowBalanceOpen, toggleIsLowBalanceOpen } = useLowBalancePopover();
 	const { isStakingPathPopoverOpen, toggleIsStakingPathPopoverOpen } =
 		useStakingPathPopover();
+	const { setStakingPath } = useStakingPath();
 	const [loading, setLoading] = useState(false);
 	const [amount, setAmount] = useState(transactionState.stakingAmount || 1000);
 	const [subCurrency, setSubCurrency] = useState(0);
@@ -218,14 +220,26 @@ const RewardCalculatorPage = () => {
 	const toStaking = async () => {
 		updateTransactionState(Events.INTENT_STAKING);
 		setTransactionHash(null);
+		setStakingPath(null);
 
 		if (
 			controllerAccount &&
 			parseInt(controllerBalances?.availableBalance) <
-				apiInstance?.consts.balances.existentialDeposit.toNumber() / 2
+				apiInstance?.consts.balances.existentialDeposit.toNumber() / 2 +
+					yieldScanFees
 		) {
+			console.log("lowBalance");
 			toggleIsLowBalanceOpen();
-		} else toggleIsLowBalanceOpen();
+		} else if (
+			isNil(controllerAccount) ||
+			selectedAccount?.address === controllerAccount?.address
+		) {
+			console.log("stakingPath");
+			toggleIsStakingPathPopoverOpen();
+		} else {
+			console.log("toStaking");
+			router.push("/staking");
+		}
 		// toggleIsStakingPathPopoverOpen();
 		// router.push("/staking");
 	};
@@ -354,6 +368,15 @@ const RewardCalculatorPage = () => {
 		}
 	}, [stakingInfo, amount, selectedAccount, apiInstance]);
 
+	// console.log("selectedAccount");
+	// console.log(selectedAccount);
+	// console.log("controllerAccount");
+	// console.log(controllerAccount);
+	// console.log("stakingInfo");
+	// console.log(stakingInfo);
+	// console.log("balances");
+	// console.log(balances);
+
 	return loading || isNil(apiInstance) ? (
 		<div className="flex-center w-full h-full">
 			<div className="flex-center flex-col">
@@ -410,12 +433,12 @@ const RewardCalculatorPage = () => {
 							networkInfo={networkInfo}
 						/>
 					)}
-					{controllerAccount && controllerBalances && (
+					{selectedAccount && (
 						<StakingPathPopover
-							isOpen={true}
-							// isOpen={isStakingPathPopoverOpen}
+							isOpen={isStakingPathPopoverOpen}
 							toStaking={toStaking}
 							networkInfo={networkInfo}
+							setStakingPath={setStakingPath}
 						/>
 					)}
 					{activeBondedAmount > 0 && (
