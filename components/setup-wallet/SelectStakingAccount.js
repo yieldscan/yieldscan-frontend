@@ -16,7 +16,7 @@ const SelectStakingAccount = ({
 	const onAccountSelected = (account) => {
 		setSelectedAccount(account);
 		addToLocalStorage(networkInfo.network, "selectedAccount", account.address);
-		router.push({ pathname: "/reward-calculator" });
+		router.back();
 	};
 
 	const [filteredAccounts, setFilteredAccounts] = useState(null);
