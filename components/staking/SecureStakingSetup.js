@@ -32,7 +32,10 @@ const SecureStakingSetup = ({
 	transactionState,
 	accountsControllerStashInfo,
 	accountsBalances,
-	setTransactionState,
+	selected,
+	setSelected,
+	confirmedControllerAccount,
+	setConfirmedControllerAccount,
 	onConfirm,
 }) => {
 	const selectedValidators = get(transactionState, "selectedValidators", []);
@@ -41,7 +44,9 @@ const SecureStakingSetup = ({
 	const [showValidators, setShowValidators] = useState(false);
 	const [showAdvPrefs, setShowAdvPrefs] = useState(false);
 
-	const [currentStep, setCurrentStep] = useState(0);
+	const [currentStep, setCurrentStep] = useState(() =>
+		confirmedControllerAccount && selected ? 2 : 0
+	);
 	const [isStashPopoverOpen, setIsStashPopoverOpen] = useState(false);
 
 	const incrementCurrentStep = () => setCurrentStep((step) => step + 1);
@@ -56,15 +61,15 @@ const SecureStakingSetup = ({
 	};
 
 	const [filteredAccounts, setFilteredAccounts] = useState(null);
-	const [selected, setSelected] = useState(null);
+	// const [selected, setSelected] = useState(null);
+
+	// const [confirmedControllerAccount, setConfirmedControllerAccount] =
+	// 	useState(null);
+
 	const handleOnClick = (account) => {
 		setSelected(account);
 		setIsStashPopoverOpen(false);
 	};
-
-	const [confirmedControllerAccount, setConfirmedControllerAccount] =
-		useState(null);
-
 	const handleOnClickNext = (account) => {
 		setConfirmedControllerAccount(account);
 		incrementCurrentStep();
@@ -136,7 +141,7 @@ const SecureStakingSetup = ({
 		}
 	}, [stakingInfo]);
 
-	console.log(filteredAccounts);
+	// console.log(filteredAccounts);
 
 	return (
 		<div className="w-full h-full grid grid-cols-4 justify-center gap-4">
@@ -200,8 +205,13 @@ const SecureStakingSetup = ({
 						selectedAccount={selectedAccount}
 						networkInfo={networkInfo}
 						transactionState={transactionState}
-						// isLedger={isLedger}
+						balances={balances}
+						confirmedControllerBalances={
+							accountsBalances[confirmedControllerAccount?.address]
+						}
+						decrementCurrentStep={decrementCurrentStep}
 						onConfirm={onConfirm}
+						confirmedControllerAccount={confirmedControllerAccount}
 					/>
 				)}
 			</div>

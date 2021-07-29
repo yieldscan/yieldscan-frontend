@@ -10,6 +10,7 @@ import { useRouter } from "next/router";
 import { AlertCircle, AlertTriangle, AlertOctagon, Check } from "react-feather";
 import create from "zustand";
 import Image from "next/image";
+import { useStakingPath } from "@lib/store";
 
 const useAuthPopover = create((set) => ({
 	isAuthPopoverOpen: false,
@@ -19,7 +20,15 @@ const useAuthPopover = create((set) => ({
 	open: () => set(() => ({ isAuthPopoverOpen: true })),
 }));
 
-const AuthPopover = ({ styles, networkInfo, isAuthPopoverOpen, close }) => {
+const AuthPopover = ({
+	styles,
+	networkInfo,
+	isAuthPopoverOpen,
+	close,
+	onConfirm,
+	type,
+}) => {
+	const { setStakingPath } = useStakingPath();
 	return (
 		<Modal
 			isOpen={isAuthPopoverOpen}
@@ -48,7 +57,9 @@ const AuthPopover = ({ styles, networkInfo, isAuthPopoverOpen, close }) => {
 						<div className="w-full flex flex-col space-y-2 p-2">
 							<CheckCard content="You keep complete ownership of your funds" />
 							<CheckCard content="Staking rewards usually start to show after 2-3 days" />
-							<CheckCard content="Funds will be locked for staking and can be unlocked at any time, but unlocking takes 28 days" />
+							<CheckCard
+								content={`Funds will be locked for staking and can be unlocked at any time, but unlocking takes ${networkInfo.lockUpPeriod} days`}
+							/>
 						</div>
 						<div className="w-full flex flex-row text-gray-700 bg-gray-200 justify-center items-center space-x-2 p-4 rounded-lg">
 							<div>
@@ -60,6 +71,16 @@ const AuthPopover = ({ styles, networkInfo, isAuthPopoverOpen, close }) => {
 								guarantee immunity
 							</p>
 						</div>
+						<button
+							className="w-full rounded-lg font-medium py-3 bg-teal-500 transform hover:bg-teal-700 text-white"
+							onClick={() => {
+								onConfirm(type);
+								setStakingPath("loadingPage");
+								close();
+							}}
+						>
+							Continue to authorize
+						</button>
 					</div>
 				</ModalBody>
 			</ModalContent>

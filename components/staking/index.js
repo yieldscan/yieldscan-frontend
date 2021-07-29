@@ -144,6 +144,11 @@ const Staking = () => {
 	const [chainError, setChainError] = useState(false);
 	const [loaderError, setLoaderError] = useState(false);
 
+	const [selected, setSelected] = useState(null);
+
+	const [confirmedControllerAccount, setConfirmedControllerAccount] =
+		useState(null);
+
 	const updateTransactionData = (
 		stashId,
 		network,
@@ -252,7 +257,7 @@ const Staking = () => {
 							setLoaderError(false);
 							setStakingLoading(false);
 						}, 2000);
-					}
+					} else setStakingPath(initialStakingPath);
 				}
 			},
 		};
@@ -326,8 +331,8 @@ const Staking = () => {
 		}
 	}, [transactionHash, isSuccessful]);
 
-	console.log("stakingPath");
-	console.log(stakingPath);
+	// console.log("stakingPath");
+	// console.log(stakingPath);
 
 	// return selectedAccount &&
 	// 	controllerBalances &&
@@ -474,36 +479,94 @@ const Staking = () => {
 		<div className="w-full h-full flex justify-center items-center max-h-full">
 			<span className="loader"></span>
 		</div>
-	) : stakingPath === "secure" ? (
-		<SecureStakingSetup
-			accounts={accounts}
-			balances={balances}
-			stakingInfo={stakingInfo}
-			apiInstance={apiInstance}
-			selectedAccount={selectedAccount}
-			controllerAccount={controllerAccount}
-			networkInfo={networkInfo}
-			transactionState={transactionState}
-			accountsControllerStashInfo={accountsControllerStashInfo}
-			accountsBalances={accountsBalances}
-			setTransactionState={setTransactionState}
-			onConfirm={(type) => transact(type)}
-		/>
-	) : stakingPath === "express" ? (
-		<Confirmation
-			accounts={accounts}
-			balances={balances}
-			stakingInfo={stakingInfo}
-			apiInstance={apiInstance}
-			selectedAccount={selectedAccount}
-			controllerAccount={controllerAccount}
-			networkInfo={networkInfo}
-			transactionState={transactionState}
-			setTransactionState={setTransactionState}
-			onConfirm={(type) => transact(type)}
-		/>
 	) : (
-		<></>
+		<div className="w-full h-full justify-center items-center">
+			{transactionHash && isSuccessful && !isLockFunds && !isTransferFunds && (
+				<canvas id="confetti-holder" className="absolute w-full"></canvas>
+			)}
+			{stakingPath === "loadingPage" ? (
+				<div className="grid grid-rows-2 gap-2 h-full items-center justify-content justify-center">
+					<div className="w-full h-full flex justify-center items-end">
+						<span
+							className={`loader ${
+								loaderError
+									? "fail"
+									: transactionHash && isSuccessful && "success"
+							}`}
+						></span>
+					</div>
+					<div className="w-full max-w-sm flex flex-col items-center h-full justify-between pb-12">
+						<div className="flex flex-col items-center text-center">
+							{isSuccessful && (
+								<h1 className="text-gray-700 text-2xl font-semibold">
+									{successHeading}
+								</h1>
+							)}
+							<p className="text-gray-700">{stakingEvent}</p>
+						</div>
+						<div className="w-full mb-32">
+							{" "}
+							{isSuccessful && !isLockFunds && !isTransferFunds && (
+								<InfoAlert />
+							)}
+						</div>
+						{isSuccessful && !isLockFunds && !isTransferFunds && (
+							<BottomNextButton
+								onClick={() => router.push({ pathname: "/overview" })}
+							>
+								Continue
+							</BottomNextButton>
+						)}
+					</div>
+				</div>
+			) : stakingPath === "errorPage" ? (
+				<ChainErrorPage
+					// back={backToConfirmation}
+					// onConfirm={() => {
+					// 	setStakingLoading(true);
+					// 	setChainError(false);
+					// 	transact();
+					// }}
+					router={router}
+					setIsNewSetup={setIsNewSetup}
+					networkInfo={networkInfo}
+				/>
+			) : stakingPath === "secure" ? (
+				<SecureStakingSetup
+					accounts={accounts}
+					balances={balances}
+					stakingInfo={stakingInfo}
+					apiInstance={apiInstance}
+					selectedAccount={selectedAccount}
+					controllerAccount={controllerAccount}
+					networkInfo={networkInfo}
+					transactionState={transactionState}
+					accountsControllerStashInfo={accountsControllerStashInfo}
+					accountsBalances={accountsBalances}
+					setTransactionState={setTransactionState}
+					selected={selected}
+					confirmedControllerAccount={confirmedControllerAccount}
+					setSelected={setSelected}
+					setConfirmedControllerAccount={setConfirmedControllerAccount}
+					onConfirm={(type) => transact(type)}
+				/>
+			) : stakingPath === "express" ? (
+				<Confirmation
+					accounts={accounts}
+					balances={balances}
+					stakingInfo={stakingInfo}
+					apiInstance={apiInstance}
+					selectedAccount={selectedAccount}
+					controllerAccount={controllerAccount}
+					networkInfo={networkInfo}
+					transactionState={transactionState}
+					setTransactionState={setTransactionState}
+					onConfirm={(type) => transact(type)}
+				/>
+			) : (
+				<></>
+			)}
+		</div>
 	);
 };
 

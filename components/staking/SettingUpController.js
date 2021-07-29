@@ -104,7 +104,7 @@ const SelectControllerAccount = ({
 			</div>
 			<div>
 				<BottomNextButton
-					onClick={() => handleOnClickNext()}
+					onClick={() => handleOnClickNext(selected)}
 					disabled={isNil(selected) || selected?.disabledSelection}
 				>
 					<NextButtonContent name="Confirm" />
