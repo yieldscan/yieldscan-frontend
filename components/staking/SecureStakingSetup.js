@@ -187,8 +187,6 @@ const SecureStakingSetup = ({
 		}
 	}, [stakingInfo, selected, controllerTransferAmount]);
 
-	// console.log(filteredAccounts);
-
 	return (
 		<div className="w-full h-full grid grid-cols-4 justify-center gap-4">
 			<div className="w-full flex flex-col justify-center items-center shadow-lg">

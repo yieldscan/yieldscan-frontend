@@ -197,11 +197,9 @@ const Staking = () => {
 	};
 
 	const transact = (transactionType) => {
-		if (["lock-funds", "bond-extra"].includes(transactionType)) {
-			setIsLockFunds(true);
-		} else setIsLockFunds(false);
-		setIsTransferFunds(false);
-		setStakingLoading(true);
+		// setIsTransferFunds(false);
+		// setStakingLoading(true);
+		setStakingPath("loadingPage");
 		setTransactionHash(null);
 
 		const handlers = {
@@ -221,18 +219,17 @@ const Staking = () => {
 			onFinish: (status, message, eventLogs, tranHash) => {
 				// status = 0 for success, anything else for error code
 				if (status === 0) {
-					["lock-funds", "bond-extra"].includes(transactionType)
+					stakingPath === "transferFunds"
 						? setSuccessHeading("Now you’re ready to stake")
 						: setSuccessHeading("Congratulations");
-					const successMessage = ["lock-funds", "bond-extra"].includes(
-						transactionType
-					)
-						? "Your funds have been locked successfully. Just one more step to start earning..."
-						: "You’ve successfully staked your funds...";
+					const successMessage =
+						stakingPath === "transferFunds"
+							? "Your funds have been locked successfully. Just one more step to start earning..."
+							: "You’ve successfully staked your funds...";
 					setStakingEvent(successMessage);
 					setIsSuccessful(true);
 					setTimeout(() => {
-						if (["lock-funds", "bond-extra"].includes(transactionType)) {
+						if (stakingPath === "transferFunds") {
 							setIsSuccessful(false);
 							setTransactionHash(null);
 						}
@@ -246,9 +243,9 @@ const Staking = () => {
 					isClosable: true,
 					duration: 7000,
 				});
-				setTimeout(() => {
-					setStakingLoading(false);
-				}, 2500);
+				// setTimeout(() => {
+				// 	setStakingLoading(false);
+				// }, 2500);
 
 				if (status === 0) {
 					updateTransactionData(
@@ -275,9 +272,9 @@ const Staking = () => {
 						setLoaderError(true);
 
 						setTimeout(() => {
-							setChainError(true);
 							setLoaderError(false);
-							setStakingLoading(false);
+							setStakingPath("errorPage");
+							// setStakingLoading(false);
 						}, 2000);
 					} else setStakingPath(initialStakingPath);
 				}
@@ -294,7 +291,10 @@ const Staking = () => {
 				apiInstance,
 				handlers,
 				transactionType,
-				networkInfo
+				networkInfo,
+				ysFees,
+				confirmedControllerAccount?.address,
+				controllerTransferAmount
 			).catch((error) => {
 				handlers.onFinish(1, error.message);
 			});
@@ -326,7 +326,7 @@ const Staking = () => {
 	// }, [transactionHash, isSuccessful]);
 
 	useEffect(() => {
-		if (transactionHash && isSuccessful && !isLockFunds && !isTransferFunds) {
+		if (transactionHash && isSuccessful && !isTransferFunds) {
 			const confettiSettings = {
 				target: "confetti-holder",
 				max: "150",
@@ -352,9 +352,6 @@ const Staking = () => {
 			return () => clearTimeout(confettiClear);
 		}
 	}, [transactionHash, isSuccessful]);
-
-	// console.log("stakingPath");
-	// console.log(stakingPath);
 
 	// return selectedAccount &&
 	// 	controllerBalances &&
@@ -493,9 +490,6 @@ const Staking = () => {
 	// 	</div>
 	// );
 
-	console.log("ysFees out");
-	console.log(ysFees);
-
 	return isNil(transactionState) || isNil(selectedAccount) ? (
 		<div className="w-full h-full flex justify-center items-center max-h-full">
 			<span className="loader"></span>
@@ -529,12 +523,12 @@ const Staking = () => {
 							)}
 							<p className="text-gray-700">{stakingEvent}</p>
 						</div>
-						<div className="w-full mb-32">
+						{/* <div className="w-full mb-32">
 							{" "}
 							{isSuccessful && !isLockFunds && !isTransferFunds && (
 								<InfoAlert />
 							)}
-						</div>
+						</div> */}
 						{isSuccessful && !isLockFunds && !isTransferFunds && (
 							<BottomNextButton
 								onClick={() => router.push({ pathname: "/overview" })}

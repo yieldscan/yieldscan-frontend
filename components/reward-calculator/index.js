@@ -365,15 +365,6 @@ const RewardCalculatorPage = () => {
 		}
 	}, [stakingInfo, amount, selectedAccount, apiInstance]);
 
-	// console.log("selectedAccount");
-	// console.log(selectedAccount);
-	// console.log("controllerAccount");
-	// console.log(controllerAccount);
-	// console.log("stakingInfo");
-	// console.log(stakingInfo);
-	// console.log("balances");
-	// console.log(balances);
-
 	return loading || isNil(apiInstance) ? (
 		<div className="flex-center w-full h-full">
 			<div className="flex-center flex-col">

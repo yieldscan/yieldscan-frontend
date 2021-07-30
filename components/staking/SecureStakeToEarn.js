@@ -68,7 +68,7 @@ const SecureStakeToEarn = ({
 				networkInfo={networkInfo}
 				onConfirm={onConfirm}
 				close={close}
-				type={transactionType}
+				transactionType={transactionType}
 			/>
 			<div className="space-y-2">
 				<h1 className="text-2xl  font-semibold">Stake to start earning</h1>
