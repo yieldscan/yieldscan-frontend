@@ -1,14 +1,15 @@
 import { MetomicProvider } from "@metomic/react";
 import * as Sentry from "@sentry/node";
 import { DefaultSeo } from "next-seo";
-
+import { useEffect } from "react";
 // import your default seo configuration
 import SEO from "../next-seo.config";
-
+import { useRouter } from 'next/router';
 import { ThemeProvider, theme } from "@chakra-ui/core";
 import { IntercomProvider, useIntercom } from "react-use-intercom";
 import "../styles/index.scss";
 import { isNil } from "lodash";
+import * as Fathom from 'fathom-client';
 
 const customIcons = {
 	secureLogo: {
@@ -173,10 +174,31 @@ if (process.env.NEXT_PUBLIC_SENTRY_DSN) {
 }
 
 export default function YieldScanApp({ Component, pageProps, err }) {
+	const router = useRouter();
 	const projectId = isNil(process.env.NEXT_PUBLIC_METOMIC_PROJECT_ID)
 		? ""
 		: process.env.NEXT_PUBLIC_METOMIC_PROJECT_ID;
 	const intercomAppId = process.env.NEXT_PUBLIC_INTERCOM_ID;
+
+	useEffect(() => {
+		Fathom.load(process.env.NEXT_PUBLIC_FATHOM_ID, {
+		  //includedDomains: ["yieldscan.app", "dev.yieldscan.app"],
+		  url: process.env.NEXT_PUBLIC_FATHOM_SUBDOMAIN,
+		});
+	
+		function onRouteChangeComplete() {
+			Fathom.trackPageview();
+		  }
+	
+		  // Record a pageview when route changes
+		  router.events.on('routeChangeComplete', onRouteChangeComplete);
+	
+		  // Unassign event listener
+		  return () => {
+			router.events.off('routeChangeComplete', onRouteChangeComplete);
+		  };
+		}, []);
+
 	return (
 		<ThemeProvider theme={customTheme}>
 			<MetomicProvider projectId={process.env.NEXT_PUBLIC_METOMIC_PROJECT_ID}>
