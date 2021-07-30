@@ -197,6 +197,13 @@ const SettingUpController = ({
 	const decrementInfoIndex = () => {
 		setInfoIndex((state) => Math.max(state - 1, 0));
 	};
+
+	useEffect(() => {
+		if (selected) {
+			setInfoIndex(1);
+		}
+	}, []);
+
 	return (
 		<div className="w-full flex flex-col text-gray-700 p-4 text-gray-700 space-y-6">
 			<div className="w-full flex flex-col justify-center">

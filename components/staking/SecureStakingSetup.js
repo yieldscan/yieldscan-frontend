@@ -187,16 +187,23 @@ const SecureStakingSetup = ({
 		}
 	}, [stakingInfo, selected, controllerTransferAmount]);
 
-	// console.log(filteredAccounts);
-
 	return (
 		<div className="w-full h-full grid grid-cols-4 justify-center gap-4">
-			<div className="w-full flex flex-col items-center shadow-lg">
-				<div className="w-full flex-1 flex flex-col text-gray-700 justify-center content-center p-4 text-gray-700 space-y-6 mb-32">
+			<div className="w-full flex flex-col justify-center items-center shadow-lg">
+				<div className="p-8 w-full">
+					<button
+						className="flex items-center bg-gray-200 text-gray-600 rounded-full px-2 py-1"
+						onClick={() => router.back()}
+					>
+						<ChevronLeft size={16} className="text-gray-600" />
+						<span className="mx-2 text-sm">back</span>
+					</button>
+				</div>
+				<div className="w-full flex-1 flex flex-col text-gray-700 justify-center items-center p-4 text-gray-700 space-y-6 mb-32">
 					{stepsMenu.map((step, index) => (
 						<div
 							key={index}
-							className="grid grid-cols-8 items-center space-x-2"
+							className="w-full grid grid-cols-8 items-center space-x-2 px-4"
 						>
 							{currentStep > index ? (
 								<Check
