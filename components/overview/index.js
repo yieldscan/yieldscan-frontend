@@ -186,8 +186,6 @@ const Overview = () => {
 					onClick={() => 
 						isNil(accounts)
 							? router.push("/setup-wallet")
-							: selectedAccount
-							? toStaking()
 							: toggle()
 					}
 				>
