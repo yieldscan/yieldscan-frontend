@@ -56,6 +56,7 @@ const CreateNewAccount = ({ networkInfo, incrementInfoIndex }) => (
 
 const SelectControllerAccount = ({
 	networkInfo,
+	apiInstance,
 	incrementInfoIndex,
 	decrementInfoIndex,
 	filteredAccounts,
@@ -63,66 +64,86 @@ const SelectControllerAccount = ({
 	isStashPopoverOpen,
 	setIsStashPopoverOpen,
 	selected,
+	ysFees,
 	handleOnClick,
 	handleOnClickNext,
-}) => (
-	<div className="space-y-4">
-		<p className="mt-4 text-sm text-gray-600">
-			{"We recommend selecting the account you created in the previous step"}
-		</p>
-		{filteredAccounts && (
-			<PopoverAccountSelection
-				accounts={filteredAccounts}
-				accountsBalances={accountsBalances}
-				isStashPopoverOpen={isStashPopoverOpen}
-				setIsStashPopoverOpen={setIsStashPopoverOpen}
-				networkInfo={networkInfo}
-				selectedAccount={selected}
-				onClick={handleOnClick}
-				isSetUp={true}
-				// disabled={
-				// 	existing
-				// 		? controllerAccount?.address === selectedAccount.address &&
-				// 		  isLedger
-				// 			? false
-				// 			: true
-				// 		: filteredAccounts.length !== 0
-				// 		? false
-				// 		: true
-				// }
-			/>
-		)}
-		<div className="w-full flex flex-row justify-start space-x-3">
-			<div>
-				<BottomBackButton
-					onClick={() => {
-						decrementInfoIndex();
-					}}
-				>
-					<BackButtonContent />
-				</BottomBackButton>
-			</div>
-			<div>
-				<BottomNextButton
-					onClick={() => handleOnClickNext()}
-					disabled={isNil(selected) || selected?.disabledSelection}
-				>
-					<NextButtonContent name="Confirm" />
-				</BottomNextButton>
+	controllerTransferAmount,
+}) => {
+	return (
+		<div className="space-y-4">
+			<p className="mt-4 text-sm text-gray-600">
+				{"We recommend selecting the account you created in the previous step"}
+			</p>
+			{filteredAccounts && (
+				<PopoverAccountSelection
+					accounts={filteredAccounts}
+					accountsBalances={accountsBalances}
+					isStashPopoverOpen={isStashPopoverOpen}
+					setIsStashPopoverOpen={setIsStashPopoverOpen}
+					networkInfo={networkInfo}
+					selectedAccount={selected}
+					onClick={handleOnClick}
+					isSetUp={true}
+					// disabled={
+					// 	existing
+					// 		? controllerAccount?.address === selectedAccount.address &&
+					// 		  isLedger
+					// 			? false
+					// 			: true
+					// 		: filteredAccounts.length !== 0
+					// 		? false
+					// 		: true
+					// }
+				/>
+			)}
+			{controllerTransferAmount > 0 && (
+				<div className="w-full flex flex-row justify-center items-center text-gray-700 bg-gray-200 rounded-lg p-4 space-x-3">
+					<div>
+						<AlertCircle />
+					</div>
+					<p className="text-sm font-light">
+						Your selected account needs additional funds to maintain the minimum
+						balance required by the network and to pay for the transaction fees.
+						We will auto-transfer the required amount from your “cold” wallet in
+						the next step.
+					</p>
+				</div>
+			)}
+			<div className="w-full flex flex-row justify-start space-x-3">
+				<div>
+					<BottomBackButton
+						onClick={() => {
+							decrementInfoIndex();
+						}}
+					>
+						<BackButtonContent />
+					</BottomBackButton>
+				</div>
+				<div>
+					<BottomNextButton
+						onClick={() => handleOnClickNext(selected)}
+						disabled={isNil(selected) || selected?.disabledSelection}
+					>
+						<NextButtonContent name="Confirm" />
+					</BottomNextButton>
+				</div>
 			</div>
 		</div>
-	</div>
-);
+	);
+};
 
 const StepsArr = ({
 	index,
 	networkInfo,
+	apiInstance,
 	incrementInfoIndex,
 	decrementInfoIndex,
+	ysFees,
 	filteredAccounts,
 	accountsBalances,
 	isStashPopoverOpen,
 	setIsStashPopoverOpen,
+	controllerTransferAmount,
 	selected,
 	handleOnClick,
 	handleOnClickNext,
@@ -136,12 +157,15 @@ const StepsArr = ({
 		<SelectControllerAccount
 			networkInfo={networkInfo}
 			incrementInfoIndex={incrementInfoIndex}
+			apiInstance={apiInstance}
 			decrementInfoIndex={decrementInfoIndex}
 			filteredAccounts={filteredAccounts}
 			accountsBalances={accountsBalances}
 			isStashPopoverOpen={isStashPopoverOpen}
+			controllerTransferAmount={controllerTransferAmount}
 			setIsStashPopoverOpen={setIsStashPopoverOpen}
 			selected={selected}
+			ysFees={ysFees}
 			handleOnClick={handleOnClick}
 			handleOnClickNext={handleOnClickNext}
 		/>
@@ -152,10 +176,13 @@ const SettingUpController = ({
 	incrementCurrentStep,
 	decrementCurrentStep,
 	networkInfo,
+	apiInstance,
 	filteredAccounts,
 	accountsBalances,
+	ysFees,
 	isStashPopoverOpen,
 	setIsStashPopoverOpen,
+	controllerTransferAmount,
 	selected,
 	handleOnClick,
 	handleOnClickNext,
@@ -223,8 +250,11 @@ const SettingUpController = ({
 									filteredAccounts={filteredAccounts}
 									accountsBalances={accountsBalances}
 									isStashPopoverOpen={isStashPopoverOpen}
+									apiInstance={apiInstance}
 									setIsStashPopoverOpen={setIsStashPopoverOpen}
 									selected={selected}
+									controllerTransferAmount={controllerTransferAmount}
+									ysFees={ysFees}
 									handleOnClick={handleOnClick}
 									handleOnClickNext={handleOnClickNext}
 								/>

@@ -228,16 +228,13 @@ const RewardCalculatorPage = () => {
 				apiInstance?.consts.balances.existentialDeposit.toNumber() / 2 +
 					yieldScanFees
 		) {
-			console.log("lowBalance");
 			toggleIsLowBalanceOpen();
 		} else if (
 			isNil(controllerAccount) ||
 			selectedAccount?.address === controllerAccount?.address
 		) {
-			console.log("stakingPath");
 			toggleIsStakingPathPopoverOpen();
 		} else {
-			console.log("toStaking");
 			router.push("/staking");
 		}
 		// toggleIsStakingPathPopoverOpen();
