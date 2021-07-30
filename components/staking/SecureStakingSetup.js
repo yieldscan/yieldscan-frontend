@@ -32,10 +32,12 @@ const SecureStakingSetup = ({
 	transactionState,
 	accountsControllerStashInfo,
 	accountsBalances,
+	ysFees,
 	selected,
 	setSelected,
 	confirmedControllerAccount,
 	setConfirmedControllerAccount,
+	controllerTransferAmount,
 	onConfirm,
 }) => {
 	const selectedValidators = get(transactionState, "selectedValidators", []);
@@ -43,6 +45,7 @@ const SecureStakingSetup = ({
 	const [transactionFee, setTransactionFee] = useState(0);
 	const [showValidators, setShowValidators] = useState(false);
 	const [showAdvPrefs, setShowAdvPrefs] = useState(false);
+	const [transactionType, setTransactionType] = useState(null);
 
 	const [currentStep, setCurrentStep] = useState(() =>
 		confirmedControllerAccount && selected ? 2 : 0
@@ -97,49 +100,92 @@ const SecureStakingSetup = ({
 		JSON.stringify(accountsBalances),
 	]);
 
-	useEffect(() => {
-		if (!isNil(stakingInfo)) {
+	useEffect(async () => {
+		if (!isNil(stakingInfo) && selected && controllerTransferAmount) {
 			const nominatedValidators = transactionState.selectedValidators.map(
 				(v) => v.stashId
 			);
-			const substrateControllerId = encodeAddress(
-				decodeAddress(controllerAccount?.address),
-				42
+
+			const substrateStashId = encodeAddress(
+				decodeAddress(selectedAccount?.address)
 			);
+			const substrateSelectedControllerId = encodeAddress(
+				decodeAddress(selected?.address)
+			);
+
 			const transactions = [];
-			const tranasactionType = stakingInfo?.stakingLedger.active.isEmpty
-				? "bond-and-nominate"
-				: "nominate";
-			if (tranasactionType === "bond-and-nominate") {
-				const amount = Math.trunc(
-					stakingAmount * 10 ** networkInfo.decimalPlaces
-				); // 12 decimal places
+			stakingInfo?.stakingLedger.active.isEmpty
+				? setTransactionType("secure-bond-nominate")
+				: setTransactionType("secure-nominate");
+
+			if (controllerTransferAmount > 0) {
 				transactions.push(
-					apiInstance.tx.staking.bond(
-						substrateControllerId,
-						amount,
-						transactionState.rewardDestination
-					),
-					apiInstance.tx.staking.nominate(nominatedValidators)
+					apiInstance.tx.balances.transferKeepAlive(
+						substrateSelectedControllerId,
+						controllerTransferAmount
+					)
 				);
-			} else if (tranasactionType === "nominate") {
-				transactions.push(apiInstance.tx.staking.nominate(nominatedValidators));
 			}
 
-			transactions.length > 0
-				? apiInstance.tx.utility
-						.batchAll(transactions)
-						.paymentInfo(substrateControllerId)
-						.then((info) => {
-							const fee = info.partialFee.toNumber();
-							setTransactionFee(fee);
-						})
-				: transactions[0].paymentInfo(substrateControllerId).then((info) => {
-						const fee = info.partialFee.toNumber();
-						setTransactionFee(fee);
-				  });
+			const amount = Math.trunc(
+				stakingAmount * 10 ** networkInfo.decimalPlaces
+			);
+
+			transactionType === "secure-bond-nominate"
+				? transactions.push(
+						apiInstance.tx.staking.bond(
+							substrateStashId,
+							amount,
+							transactionState.rewardDestination
+						),
+						apiInstance.tx.staking.nominate(nominatedValidators)
+				  )
+				: transactions.push(
+						apiInstance.tx.staking.nominate(nominatedValidators)
+				  );
+
+			transactions.push(
+				apiInstance.tx.staking.setController(substrateSelectedControllerId),
+				apiInstance.tx.balances.transferKeepAlive(
+					networkInfo.feesAddress,
+					ysFees
+				)
+			);
+			// const substrateControllerId = encodeAddress(
+			// 	decodeAddress(controllerAccount?.address),
+			// 	42
+			// );
+
+			// const tranasactionType = stakingInfo?.stakingLedger.active.isEmpty
+			// 	? "bond-and-nominate"
+			// 	: "nominate";
+			// if (tranasactionType === "bond-nominate-transfer") {
+			// 	const amount = Math.trunc(
+			// 		stakingAmount * 10 ** networkInfo.decimalPlaces
+			// 	); // 12 decimal places
+			// 	transactions.push(
+			// 		apiInstance.tx.staking.bond(
+			// 			substrateControllerId,
+			// 			amount,
+			// 			transactionState.rewardDestination
+			// 		),
+			// 		apiInstance.tx.staking.nominate(nominatedValidators)
+			// 	);
+			// } else if (tranasactionType === "nominate") {
+			// 	transactions.push(apiInstance.tx.staking.nominate(nominatedValidators));
+			// }
+
+			const fee = await apiInstance.tx.utility
+				.batchAll(transactions)
+				.paymentInfo(substrateStashId);
+			// .then((info) => {
+			// 	const fee = info.partialFee.toNumber();
+			// 	setTransactionFee(fee);
+			// });
+
+			setTransactionFee(() => fee.partialFee.toNumber() + ysFees);
 		}
-	}, [stakingInfo]);
+	}, [stakingInfo, selected, controllerTransferAmount]);
 
 	// console.log(filteredAccounts);
 
@@ -190,12 +236,15 @@ const SecureStakingSetup = ({
 						incrementCurrentStep={incrementCurrentStep}
 						decrementCurrentStep={decrementCurrentStep}
 						networkInfo={networkInfo}
+						apiInstance={apiInstance}
 						filteredAccounts={filteredAccounts}
 						accountsBalances={accountsBalances}
 						isStashPopoverOpen={isStashPopoverOpen}
 						setIsStashPopoverOpen={setIsStashPopoverOpen}
 						selected={selected}
+						ysFees={ysFees}
 						handleOnClick={handleOnClick}
+						controllerTransferAmount={controllerTransferAmount}
 						handleOnClickNext={handleOnClickNext}
 					/>
 				) : (
@@ -209,9 +258,13 @@ const SecureStakingSetup = ({
 						confirmedControllerBalances={
 							accountsBalances[confirmedControllerAccount?.address]
 						}
+						controllerTransferAmount={controllerTransferAmount}
 						decrementCurrentStep={decrementCurrentStep}
 						onConfirm={onConfirm}
+						ysFees={ysFees}
 						confirmedControllerAccount={confirmedControllerAccount}
+						transactionFee={transactionFee}
+						transactionType={transactionType}
 					/>
 				)}
 			</div>

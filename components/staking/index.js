@@ -87,6 +87,12 @@ const Staking = () => {
 			  )[0]
 	);
 
+	const ysFees = Math.trunc(
+		get(transactionState, "stakingAmount", 0) *
+			0.00125 *
+			Math.pow(10, networkInfo.decimalPlaces)
+	);
+
 	useEffect(() => {
 		if (stakingInfo?.accountId.toString() !== selectedAccount?.address) {
 			setControllerAccount(null);
@@ -148,6 +154,22 @@ const Staking = () => {
 
 	const [confirmedControllerAccount, setConfirmedControllerAccount] =
 		useState(null);
+
+	const [controllerTransferAmount, setControllerTransferAmount] = useState(0);
+
+	useEffect(() => {
+		if (selected && apiInstance && accountsBalances) {
+			accountsBalances[selected?.address].availableBalance <
+			ysFees + apiInstance?.consts.balances.existentialDeposit
+				? setControllerTransferAmount(
+						() =>
+							ysFees +
+							2 * apiInstance?.consts.balances.existentialDeposit -
+							accountsBalances[selected?.address].availableBalance
+				  )
+				: setControllerTransferAmount(0);
+		}
+	}, [selected?.address]);
 
 	const updateTransactionData = (
 		stashId,
@@ -471,6 +493,9 @@ const Staking = () => {
 	// 	</div>
 	// );
 
+	console.log("ysFees out");
+	console.log(ysFees);
+
 	return isNil(transactionState) || isNil(selectedAccount) ? (
 		<div className="w-full h-full flex justify-center items-center max-h-full">
 			<span className="loader"></span>
@@ -543,11 +568,13 @@ const Staking = () => {
 					transactionState={transactionState}
 					accountsControllerStashInfo={accountsControllerStashInfo}
 					accountsBalances={accountsBalances}
+					ysFees={ysFees}
 					setTransactionState={setTransactionState}
 					selected={selected}
 					confirmedControllerAccount={confirmedControllerAccount}
 					setSelected={setSelected}
 					setConfirmedControllerAccount={setConfirmedControllerAccount}
+					controllerTransferAmount={controllerTransferAmount}
 					onConfirm={(type) => transact(type)}
 				/>
 			) : stakingPath === "express" ? (

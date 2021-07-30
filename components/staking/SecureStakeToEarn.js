@@ -23,10 +23,13 @@ const SecureStakeToEarn = ({
 	onConfirm,
 	decrementCurrentStep,
 	confirmedControllerAccount,
+	controllerTransferAmount,
+	transactionFee,
+	transactionType,
 }) => {
 	const selectedValidators = get(transactionState, "selectedValidators", []);
 	const stakingAmount = get(transactionState, "stakingAmount", 0);
-	const [transactionFee, setTransactionFee] = useState(0);
+	// const [transactionFee, setTransactionFee] = useState(0);
 	const [showValidators, setShowValidators] = useState(false);
 
 	const { isAuthPopoverOpen, toggleIsAuthPopoverOpen, close } =
@@ -36,33 +39,27 @@ const SecureStakeToEarn = ({
 		setShowValidators((show) => !show);
 	};
 
-	const type = "nominate";
+	// const type = "nominate";
 
-	useEffect(() => {
-		if (selectedAccount && apiInstance) {
-			const nominatedValidators = transactionState.selectedValidators.map(
-				(v) => v.stashId
-			);
-			const substrateControllerId = encodeAddress(
-				decodeAddress(stakingInfo?.controllerId),
-				42
-			);
-			apiInstance.tx.staking
-				.nominate(nominatedValidators)
-				.paymentInfo(substrateControllerId)
-				.then((info) => {
-					const fee = info.partialFee.toNumber();
-					setTransactionFee(fee);
-				});
-		}
-	}, [stakingInfo]);
+	// useEffect(() => {
+	// 	if (selectedAccount && apiInstance) {
+	// 		const nominatedValidators = transactionState.selectedValidators.map(
+	// 			(v) => v.stashId
+	// 		);
+	// 		const substrateControllerId = encodeAddress(
+	// 			decodeAddress(stakingInfo?.controllerId),
+	// 			42
+	// 		);
 
-	// console.log("isAuthPopoverOpen");
-	// console.log(isAuthPopoverOpen);
-	console.log("selectedAccount");
-	console.log(selectedAccount);
-	console.log("confirmedControllerAccount");
-	console.log(confirmedControllerAccount);
+	// 		apiInstance.tx.staking
+	// 			.nominate(nominatedValidators)
+	// 			.paymentInfo(substrateControllerId)
+	// 			.then((info) => {
+	// 				const fee = info.partialFee.toNumber();
+	// 				setTransactionFee(fee);
+	// 			});
+	// 	}
+	// }, [stakingInfo]);
 
 	return (
 		<div className="flex flex-col w-full justify-center text-gray-700 space-y-4 p-4">
@@ -71,7 +68,7 @@ const SecureStakeToEarn = ({
 				networkInfo={networkInfo}
 				onConfirm={onConfirm}
 				close={close}
-				type={type}
+				type={transactionType}
 			/>
 			<div className="space-y-2">
 				<h1 className="text-2xl  font-semibold">Stake to start earning</h1>
@@ -149,6 +146,22 @@ const SecureStakeToEarn = ({
 						</div>
 					</Collapse>
 				</div>
+				{controllerTransferAmount > 0 && (
+					<div className="flex justify-between">
+						<p className="text-gray-700 text-xs">Controller transfer amount</p>
+						<div className="flex flex-col">
+							<p className="text-sm font-semibold text-right">
+								{formatCurrency.methods.formatAmount(
+									controllerTransferAmount,
+									networkInfo
+								)}
+							</p>
+							{/* <p className="text-xs text-right text-gray-600">
+								${subCurrency.toFixed(2)}
+							</p> */}
+						</div>
+					</div>
+				)}
 				<div className="flex justify-between">
 					<p className="text-gray-700 text-xs">Staking amount</p>
 					<div className="flex flex-col">
@@ -170,8 +183,7 @@ const SecureStakeToEarn = ({
 							content={
 								<p className="text-xs text-white">
 									This fee is used to pay for the resources used for processing
-									the transaction on the blockchain network. YieldScan doesn’t
-									profit from this fee in any way.
+									the transaction on the blockchain network.
 								</p>
 							}
 						/>
@@ -202,7 +214,8 @@ const SecureStakeToEarn = ({
 						<p className="text-lg text-right font-bold">
 							{formatCurrency.methods.formatAmount(
 								Math.trunc(stakingAmount * 10 ** networkInfo.decimalPlaces) +
-									transactionFee,
+									transactionFee +
+									controllerTransferAmount,
 								networkInfo
 							)}
 						</p>
