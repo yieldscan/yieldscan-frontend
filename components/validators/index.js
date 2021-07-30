@@ -40,6 +40,7 @@ import {
 	useAccountsStakingInfo,
 	useAccountsBalances,
 	usePolkadotApi,
+	useStakingPath,
 } from "@lib/store";
 import calculateReward from "@lib/calculate-reward";
 import ValidatorsResult from "./ValidatorsResult";
@@ -51,11 +52,15 @@ import {
 	LowBalancePopover,
 	useLowBalancePopover,
 } from "../staking/LowBalancePopover";
-
 import { useRouter } from "next/router";
 import axios from "@lib/axios";
 import { getNetworkInfo } from "yieldscan.config";
 import { trackEvent, Events } from "@lib/analytics";
+import {
+	StakingPathPopover,
+	useStakingPathPopover,
+} from "@components/staking/StakingPathPopover";
+import getTransactionFee from "@lib/getTransactionFee";
 
 const DEFAULT_FILTER_OPTIONS = {
 	numOfNominators: { min: "", max: "" },
@@ -82,6 +87,10 @@ const Validators = () => {
 	const { isOpen, onClose, onToggle } = useDisclosure();
 	const { apiInstance } = usePolkadotApi();
 	const [errorFetching, setErrorFetching] = useState(false);
+	const { isStakingPathPopoverOpen, toggleIsStakingPathPopoverOpen } =
+		useStakingPathPopover();
+	const { setStakingPath } = useStakingPath();
+
 	const transactionState = useTransaction((state) => {
 		let _returns = get(result, "returns"),
 			_yieldPercentage = get(result, "yieldPercentage");
@@ -131,6 +140,9 @@ const Validators = () => {
 	const [sortKey, setSortKey] = useState("rewardsPer100KSM");
 	const [result, setResult] = useState({});
 
+	const [yieldScanFees, setYieldScanFees] = useState();
+	const [transactionFees, setTransactionFees] = useState();
+
 	const [controllerAccount, setControllerAccount] = useState(() =>
 		accountsStakingInfo[selectedAccount?.address]?.controllerId
 			? accounts?.filter(
@@ -178,6 +190,27 @@ const Validators = () => {
 		JSON.stringify(stakingInfo),
 		JSON.stringify(accountsBalances[controllerAccount?.address]),
 	]);
+
+	useEffect(async () => {
+		setYieldScanFees(null);
+		setTransactionFees(null);
+		const selectedValidatorsList = Object.values(selectedValidatorsMap).filter(
+			(v) => !isNil(v)
+		);
+		if (amount && selectedValidatorsList && selectedAccount && apiInstance) {
+			const { ysFees, networkFees } = await getTransactionFee(
+				networkInfo,
+				stakingInfo,
+				amount,
+				selectedAccount,
+				selectedValidatorsList,
+				controllerAccount,
+				apiInstance
+			);
+			setYieldScanFees(ysFees);
+			setTransactionFees(networkFees);
+		}
+	}, [stakingInfo, amount, selectedAccount, apiInstance, selectedValidatorsMap]);
 
 	useEffect(() => {
 		if (!validatorMap) {
@@ -363,13 +396,23 @@ const Validators = () => {
 	const toStaking = async () => {
 		updateTransactionState(Events.INTENT_STAKING);
 		setTransactionHash(null);
+		setStakingPath(null);
+
 		if (
 			controllerAccount &&
-			parseInt(controllerBalances?.availableBalance) <
-				apiInstance?.consts.balances.existentialDeposit.toNumber() / 2
+			controllerBalances?.availableBalance < 
+				apiInstance?.consts.balances.existentialDeposit.toNumber() + 
+				yieldScanFees + transactionFees
 		) {
 			toggleIsLowBalanceOpen();
-		} else router.push("/staking");
+		} else if (
+			isNil(controllerAccount) ||
+			selectedAccount?.address === controllerAccount?.address
+		) {
+			toggleIsStakingPathPopoverOpen();
+		} else {
+			router.push("/staking");
+		}
 	};
 
 	const onPayment = async () => {
@@ -453,6 +496,15 @@ const Validators = () => {
 					isOpen={isLowBalanceOpen}
 					toStaking={toStaking}
 					networkInfo={networkInfo}
+				/>
+			)}
+			{selectedAccount && (
+				<StakingPathPopover
+					// isOpen={true}
+					isOpen={isStakingPathPopoverOpen}
+					toStaking={toStaking}
+					networkInfo={networkInfo}
+					setStakingPath={setStakingPath}
 				/>
 			)}
 			<EditAmountModal
@@ -587,10 +639,10 @@ const Validators = () => {
 						// hidden={simulationChecked}
 						onClick={() =>
 							isNil(accounts)
-								? toggle()
-								: selectedAccount
-								? toStaking()
-								: toggle()
+							? router.push("/setup-wallet")
+							: selectedAccount
+							? toStaking()
+							: toggle()
 						}
 					>
 						{isNil(accounts)

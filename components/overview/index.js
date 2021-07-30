@@ -183,7 +183,11 @@ const Overview = () => {
 				</span>
 				<button
 					className="border border-teal-500 text-teal-500 px-3 py-2 rounded-full"
-					onClick={() => toggle()}
+					onClick={() => 
+						isNil(accounts)
+							? router.push("/setup-wallet")
+							: toggle()
+					}
 				>
 					{isNil(accounts) ? "Connect Wallet" : "Select Account"}
 				</button>
