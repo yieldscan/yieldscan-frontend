@@ -207,7 +207,6 @@ const Validators = () => {
 				controllerAccount,
 				apiInstance
 			);
-			console.log("fee set")
 			setYieldScanFees(ysFees);
 			setTransactionFees(networkFees);
 		}
@@ -401,20 +400,17 @@ const Validators = () => {
 
 		if (
 			controllerAccount &&
-			parseInt(controllerBalances?.availableBalance) <
-				apiInstance?.consts.balances.existentialDeposit.toNumber() / 2 +
-					yieldScanFees
+			controllerBalances?.availableBalance < 
+				apiInstance?.consts.balances.existentialDeposit.toNumber() + 
+				yieldScanFees + transactionFees
 		) {
-			console.log("lowBalance");
 			toggleIsLowBalanceOpen();
 		} else if (
 			isNil(controllerAccount) ||
 			selectedAccount?.address === controllerAccount?.address
 		) {
-			console.log("stakingPath");
 			toggleIsStakingPathPopoverOpen();
 		} else {
-			console.log("toStaking");
 			router.push("/staking");
 		}
 	};
