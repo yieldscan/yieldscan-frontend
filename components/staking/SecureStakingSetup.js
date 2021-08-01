@@ -1,17 +1,9 @@
 import { useState, useEffect } from "react";
-import { get, isNil } from "lodash";
+import { get } from "lodash";
 import router from "next/router";
-import formatCurrency from "@lib/format-currency";
-import { HelpPopover } from "@components/reward-calculator";
-import { Spinner, Divider, Collapse } from "@chakra-ui/core";
 import { decodeAddress, encodeAddress } from "@polkadot/util-crypto";
-import { ChevronLeft, Check, Circle, ChevronRight, Edit } from "react-feather";
-import Account from "../wallet-connect/Account";
+import { ChevronLeft, Check } from "react-feather";
 import IntroductionToStaking from "./IntroductionToStaking";
-import ValidatorCard from "./ValidatorCard";
-import RewardDestination from "./RewardDestination";
-import EditController from "./EditController";
-import BrowserWalletAlert from "./BrowserWalletAlert";
 import SettingUpController from "./SettingUpController";
 import SecureStakeToEarn from "./SecureStakeToEarn";
 
@@ -39,14 +31,12 @@ const SecureStakingSetup = ({
 	setConfirmedControllerAccount,
 	controllerTransferAmount,
 	onConfirm,
+	toggleIsAuthPopoverOpen,
+	transactionFee,
+	setTransactionFee,
+	transactionType,
+	setTransactionType,
 }) => {
-	const selectedValidators = get(transactionState, "selectedValidators", []);
-	const stakingAmount = get(transactionState, "stakingAmount", 0);
-	const [transactionFee, setTransactionFee] = useState(0);
-	const [showValidators, setShowValidators] = useState(false);
-	const [showAdvPrefs, setShowAdvPrefs] = useState(false);
-	const [transactionType, setTransactionType] = useState(null);
-
 	const [currentStep, setCurrentStep] = useState(() =>
 		confirmedControllerAccount && selected ? 2 : 0
 	);
@@ -55,20 +45,7 @@ const SecureStakingSetup = ({
 	const incrementCurrentStep = () => setCurrentStep((step) => step + 1);
 	const decrementCurrentStep = () => setCurrentStep((step) => step - 1);
 
-	const handleAdvPrefsToggle = () => {
-		setShowAdvPrefs((show) => !show);
-	};
-
-	const handleValToggle = () => {
-		setShowValidators((show) => !show);
-	};
-
 	const [filteredAccounts, setFilteredAccounts] = useState(null);
-	// const [selected, setSelected] = useState(null);
-
-	// const [confirmedControllerAccount, setConfirmedControllerAccount] =
-	// 	useState(null);
-
 	const handleOnClick = (account) => {
 		setSelected(account);
 		setIsStashPopoverOpen(false);
@@ -86,7 +63,8 @@ const SecureStakingSetup = ({
 				// 	apiInstance?.consts.balances.existentialDeposit
 				// )
 				!accountsControllerStashInfo[account.address]?.isController &&
-				!accountsControllerStashInfo[account.address]?.isStash
+				!accountsControllerStashInfo[account.address]?.isStash &&
+				account.address !== selectedAccount?.address
 		);
 		// filteredAccounts.map((account) => {
 		// 	account.disabledSelection = accountsBalances[
@@ -101,7 +79,7 @@ const SecureStakingSetup = ({
 	]);
 
 	useEffect(async () => {
-		if (!isNil(stakingInfo) && selected && controllerTransferAmount) {
+		if (selected) {
 			const nominatedValidators = transactionState.selectedValidators.map(
 				(v) => v.stashId
 			);
@@ -128,7 +106,8 @@ const SecureStakingSetup = ({
 			}
 
 			const amount = Math.trunc(
-				stakingAmount * 10 ** networkInfo.decimalPlaces
+				get(transactionState, "stakingAmount", 0) *
+					10 ** networkInfo.decimalPlaces
 			);
 
 			transactionType === "secure-bond-nominate"
@@ -151,37 +130,9 @@ const SecureStakingSetup = ({
 					ysFees
 				)
 			);
-			// const substrateControllerId = encodeAddress(
-			// 	decodeAddress(controllerAccount?.address),
-			// 	42
-			// );
-
-			// const tranasactionType = stakingInfo?.stakingLedger.active.isEmpty
-			// 	? "bond-and-nominate"
-			// 	: "nominate";
-			// if (tranasactionType === "bond-nominate-transfer") {
-			// 	const amount = Math.trunc(
-			// 		stakingAmount * 10 ** networkInfo.decimalPlaces
-			// 	); // 12 decimal places
-			// 	transactions.push(
-			// 		apiInstance.tx.staking.bond(
-			// 			substrateControllerId,
-			// 			amount,
-			// 			transactionState.rewardDestination
-			// 		),
-			// 		apiInstance.tx.staking.nominate(nominatedValidators)
-			// 	);
-			// } else if (tranasactionType === "nominate") {
-			// 	transactions.push(apiInstance.tx.staking.nominate(nominatedValidators));
-			// }
-
 			const fee = await apiInstance.tx.utility
 				.batchAll(transactions)
 				.paymentInfo(substrateStashId);
-			// .then((info) => {
-			// 	const fee = info.partialFee.toNumber();
-			// 	setTransactionFee(fee);
-			// });
 
 			setTransactionFee(() => fee.partialFee.toNumber() + ysFees);
 		}
@@ -272,6 +223,7 @@ const SecureStakingSetup = ({
 						confirmedControllerAccount={confirmedControllerAccount}
 						transactionFee={transactionFee}
 						transactionType={transactionType}
+						toggleIsAuthPopoverOpen={toggleIsAuthPopoverOpen}
 					/>
 				)}
 			</div>

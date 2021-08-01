@@ -1,75 +1,34 @@
-import { useState, useEffect } from "react";
-import { get, isNil } from "lodash";
-import Image from "next/image";
-import router from "next/router";
+import { useState } from "react";
+import { get } from "lodash";
 import formatCurrency from "@lib/format-currency";
-import { GlossaryModal, HelpPopover } from "@components/reward-calculator";
+import { HelpPopover } from "@components/reward-calculator";
 import { Spinner, Divider, Collapse } from "@chakra-ui/core";
-import { decodeAddress, encodeAddress } from "@polkadot/util-crypto";
 import { ArrowLeft, ChevronRight } from "react-feather";
 import ValidatorCard from "./ValidatorCard";
-import BrowserWalletAlert from "./BrowserWalletAlert";
-import { AuthPopover, useAuthPopover } from "./AuthPopover";
 import Account from "../wallet-connect/Account";
 
 const SecureStakeToEarn = ({
-	stakingInfo,
-	apiInstance,
 	selectedAccount,
 	networkInfo,
 	balances,
 	confirmedControllerBalances,
 	transactionState,
-	onConfirm,
 	decrementCurrentStep,
 	confirmedControllerAccount,
 	controllerTransferAmount,
 	transactionFee,
-	transactionType,
+	toggleIsAuthPopoverOpen,
 }) => {
 	const selectedValidators = get(transactionState, "selectedValidators", []);
 	const stakingAmount = get(transactionState, "stakingAmount", 0);
-	// const [transactionFee, setTransactionFee] = useState(0);
 	const [showValidators, setShowValidators] = useState(false);
-
-	const { isAuthPopoverOpen, toggleIsAuthPopoverOpen, close } =
-		useAuthPopover();
 
 	const handleValToggle = () => {
 		setShowValidators((show) => !show);
 	};
 
-	// const type = "nominate";
-
-	// useEffect(() => {
-	// 	if (selectedAccount && apiInstance) {
-	// 		const nominatedValidators = transactionState.selectedValidators.map(
-	// 			(v) => v.stashId
-	// 		);
-	// 		const substrateControllerId = encodeAddress(
-	// 			decodeAddress(stakingInfo?.controllerId),
-	// 			42
-	// 		);
-
-	// 		apiInstance.tx.staking
-	// 			.nominate(nominatedValidators)
-	// 			.paymentInfo(substrateControllerId)
-	// 			.then((info) => {
-	// 				const fee = info.partialFee.toNumber();
-	// 				setTransactionFee(fee);
-	// 			});
-	// 	}
-	// }, [stakingInfo]);
-
 	return (
 		<div className="flex flex-col w-full justify-center text-gray-700 space-y-4 p-4">
-			<AuthPopover
-				isAuthPopoverOpen={isAuthPopoverOpen}
-				networkInfo={networkInfo}
-				onConfirm={onConfirm}
-				close={close}
-				transactionType={transactionType}
-			/>
 			<div className="space-y-2">
 				<h1 className="text-2xl  font-semibold">Stake to start earning</h1>
 				<p className="text-gray-600 max-w-lg text-sm">
@@ -167,7 +126,9 @@ const SecureStakeToEarn = ({
 					<div className="flex flex-col">
 						<p className="text-sm font-semibold text-right">
 							{formatCurrency.methods.formatAmount(
-								Math.trunc(stakingAmount * 10 ** networkInfo.decimalPlaces),
+								Math.trunc(
+									stakingAmount * Math.pow(10, networkInfo.decimalPlaces)
+								),
 								networkInfo
 							)}
 						</p>
@@ -213,7 +174,9 @@ const SecureStakeToEarn = ({
 					<div className="flex flex-col">
 						<p className="text-lg text-right font-bold">
 							{formatCurrency.methods.formatAmount(
-								Math.trunc(stakingAmount * 10 ** networkInfo.decimalPlaces) +
+								Math.trunc(
+									stakingAmount * Math.pow(10, networkInfo.decimalPlaces)
+								) +
 									transactionFee +
 									controllerTransferAmount,
 								networkInfo

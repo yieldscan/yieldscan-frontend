@@ -56,15 +56,12 @@ const CreateNewAccount = ({ networkInfo, incrementInfoIndex }) => (
 
 const SelectControllerAccount = ({
 	networkInfo,
-	apiInstance,
-	incrementInfoIndex,
 	decrementInfoIndex,
 	filteredAccounts,
 	accountsBalances,
 	isStashPopoverOpen,
 	setIsStashPopoverOpen,
 	selected,
-	ysFees,
 	handleOnClick,
 	handleOnClickNext,
 	controllerTransferAmount,
@@ -173,7 +170,6 @@ const StepsArr = ({
 };
 
 const SettingUpController = ({
-	incrementCurrentStep,
 	decrementCurrentStep,
 	networkInfo,
 	apiInstance,

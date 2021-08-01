@@ -235,6 +235,7 @@ const RewardCalculatorPage = () => {
 		) {
 			toggleIsStakingPathPopoverOpen();
 		} else {
+			setStakingPath("distinct");
 			router.push("/staking");
 		}
 		// toggleIsStakingPathPopoverOpen();
