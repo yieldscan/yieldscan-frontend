@@ -18,9 +18,9 @@ module.exports = withSourceMaps({
 	serverRuntimeConfig: {
 		rootDir: __dirname,
 	},
-	future: {
-		webpack5: true,
-	},
+	
+	webpack5: true,
+	
 	webpack: (config, options) => {
 		config.module.rules.push({
 			type: "javascript/auto",
