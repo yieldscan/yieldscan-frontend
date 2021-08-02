@@ -10,6 +10,8 @@ import {
 } from "@lib/store";
 import calculateReward from "@lib/calculate-reward";
 import { HelpPopover } from "@components/reward-calculator";
+import { track, goalCodes } from "@lib/analytics";
+
 
 const OverviewCards = ({
 	stats,
@@ -104,7 +106,10 @@ const OverviewCards = ({
 							className={`confirm rounded-lg mt-40 mb-40 text-white bg-teal-500 p-1 ${
 								isInElection ? "opacity-75 cursor-not-allowed" : "opacity-100"
 							}`}
-							onClick={bondFunds}
+							onClick={()=>{
+								bondFunds();
+								track(goalCodes.OVERVIEW.INTENT_BOND_EXTRA);}
+							}
 							disabled={isInElection}
 						>
 							Invest more
@@ -114,7 +119,11 @@ const OverviewCards = ({
 							className={`confirm rounded-lg mt-40 mb-40 border-teal border-solid-1 bg-white text-teal-500 p-1 ${
 								isInElection ? "opacity-75 cursor-not-allowed" : "opacity-100"
 							}`}
-							onClick={unbondFunds}
+							onClick={() => {
+								unbondFunds();
+								track(goalCodes.OVERVIEW.INTENT_UNBOND);
+								}
+							}
 							disabled={isInElection}
 						>
 							Withdraw
@@ -185,14 +194,21 @@ const OverviewCards = ({
 							<div className="flex">
 								<button
 									className={`text-teal-500 p-1 mr-2`}
-									onClick={rebondFunds}
+									onClick={() => {
+										rebondFunds();
+										track(goalCodes.OVERVIEW.INTENT_REBOND);
+									}}
 									disabled={isInElection}
 								>
 									Rebond
 								</button>
 								<button
 									className={`text-teal-500 p-1`}
-									onClick={openUnbondingListModal}
+									onClick={() => {
+										track(goalCodes.OVERVIEW.CHECKED_UNBONDING_PERIOD);
+										openUnbondingListModal();
+										}
+									}
 									disabled={isInElection}
 								>
 									View All

@@ -30,7 +30,7 @@ import { useRouter } from "next/router";
 import AllNominations from "./AllNominations";
 import { getNetworkInfo } from "yieldscan.config";
 import EarningsOutput from "./EarningsOutput";
-import { Events, trackEvent } from "@lib/analytics";
+import { Events, trackEvent, track, goalCodes } from "@lib/analytics";
 import ProgressiveImage from "react-progressive-image";
 import RedeemUnbonded from "./RedeemUnbonded";
 
@@ -185,7 +185,7 @@ const Overview = () => {
 					className="border border-teal-500 text-teal-500 px-3 py-2 rounded-full"
 					onClick={() => 
 						isNil(accounts)
-							? router.push("/setup-wallet")
+							? (router.push("/setup-wallet"), track(goalCodes.OVERVIEW.INTENT_CONNECT_WALLET))
 							: toggle()
 					}
 				>
@@ -319,7 +319,12 @@ const Overview = () => {
 				<div className="w-full">
 					<div className="flex flex-col h-full mb-2">
 						<button
-							onClick={handleValToggle}
+							onClick={() => {
+								handleValToggle();
+								if(!showValidators)
+								track(goalCodes.OVERVIEW.CHECKED_VALIDATORS);
+								}
+							}
 							className="flex text-gray-600 text-xs mt-12"
 						>
 							<ChevronRight
