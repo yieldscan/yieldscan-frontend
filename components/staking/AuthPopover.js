@@ -26,7 +26,6 @@ const AuthPopover = ({
 	isAuthPopoverOpen,
 	close,
 	onConfirm,
-	transactionType,
 }) => {
 	const { setStakingPath } = useStakingPath();
 	return (
@@ -74,7 +73,7 @@ const AuthPopover = ({
 						<button
 							className="w-full rounded-lg font-medium py-3 bg-teal-500 transform hover:bg-teal-700 text-white"
 							onClick={() => {
-								onConfirm(transactionType);
+								onConfirm();
 								// setStakingPath("loadingPage");
 								close();
 							}}

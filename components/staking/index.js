@@ -29,6 +29,7 @@ import { BottomNextButton } from "../common/BottomButton";
 import InfoAlert from "./InfoAlert";
 import TransferFunds from "./TransferFunds";
 import SecureStakingSetup from "./SecureStakingSetup";
+import { AuthPopover, useAuthPopover } from "./AuthPopover";
 
 const Staking = () => {
 	const toast = useToast();
@@ -52,7 +53,12 @@ const Staking = () => {
 		)
 	);
 
+	const { isAuthPopoverOpen, toggleIsAuthPopoverOpen, close } =
+		useAuthPopover();
+
 	const [initialStakingPath, setInitialStakingPath] = useState(stakingPath);
+	const [transactionFee, setTransactionFee] = useState(0);
+	const [transactionType, setTransactionType] = useState(null);
 
 	const selectedValidators = get(transactionState, "selectedValidators", []);
 	const stakingAmount = get(transactionState, "stakingAmount", 0);
@@ -196,7 +202,7 @@ const Staking = () => {
 			});
 	};
 
-	const transact = (transactionType) => {
+	const transact = () => {
 		// setIsTransferFunds(false);
 		// setStakingLoading(true);
 		setStakingPath("loadingPage");
@@ -500,6 +506,13 @@ const Staking = () => {
 		</div>
 	) : (
 		<div className="w-full h-full justify-center items-center">
+			<AuthPopover
+				isAuthPopoverOpen={isAuthPopoverOpen}
+				networkInfo={networkInfo}
+				onConfirm={() => transact()}
+				close={close}
+				// transactionType={transactionType}
+			/>
 			{transactionHash && isSuccessful && !isLockFunds && !isTransferFunds && (
 				<canvas id="confetti-holder" className="absolute w-full"></canvas>
 			)}
@@ -570,6 +583,11 @@ const Staking = () => {
 					setConfirmedControllerAccount={setConfirmedControllerAccount}
 					controllerTransferAmount={controllerTransferAmount}
 					onConfirm={(type) => transact(type)}
+					toggleIsAuthPopoverOpen={toggleIsAuthPopoverOpen}
+					transactionFee={transactionFee}
+					setTransactionFee={setTransactionFee}
+					transactionType={transactionType}
+					setTransactionType={setTransactionType}
 				/>
 			) : stakingPath === "express" ? (
 				<Confirmation
@@ -583,6 +601,18 @@ const Staking = () => {
 					transactionState={transactionState}
 					setTransactionState={setTransactionState}
 					onConfirm={(type) => transact(type)}
+					toggleIsAuthPopoverOpen={toggleIsAuthPopoverOpen}
+				/>
+			) : stakingPath === "distinct" ? (
+				<StakeToEarn
+					stakingInfo={stakingInfo}
+					apiInstance={apiInstance}
+					selectedAccount={selectedAccount}
+					networkInfo={networkInfo}
+					transactionState={transactionState}
+					isLedger={isLedger}
+					onConfirm={(type) => transact(type)}
+					toggleIsAuthPopoverOpen={toggleIsAuthPopoverOpen}
 				/>
 			) : (
 				<></>
