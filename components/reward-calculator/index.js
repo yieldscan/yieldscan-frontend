@@ -50,7 +50,7 @@ import {
 	useDisclosure,
 } from "@chakra-ui/core";
 import Routes from "@lib/routes";
-import { trackEvent, Events } from "@lib/analytics";
+import { trackEvent, Events, track, goalCodes} from "@lib/analytics";
 import { getNetworkInfo } from "yieldscan.config";
 import { HelpCircle, AlertCircle, AlertTriangle } from "react-feather";
 import MinStakeAlert from "./MinStakeAlert";
@@ -65,6 +65,7 @@ import {
 } from "@components/staking/StakingPathPopover";
 
 const trackRewardCalculatedEvent = debounce((eventData) => {
+	track(goalCodes.REWARD_CALCULATOR.VALUE_CHANGED)
 	trackEvent(Events.REWARD_CALCULATED, eventData);
 }, 1000);
 
@@ -223,10 +224,9 @@ const RewardCalculatorPage = () => {
 		setStakingPath(null);
 
 		if (
-			controllerAccount &&
-			parseInt(controllerBalances?.availableBalance) <
-				apiInstance?.consts.balances.existentialDeposit.toNumber() / 2 +
-					yieldScanFees
+			controllerAccount && controllerBalances?.availableBalance <
+				apiInstance?.consts.balances.existentialDeposit.toNumber()  +
+					yieldScanFees + transactionFees
 		) {
 			toggleIsLowBalanceOpen();
 		} else if (
@@ -239,8 +239,6 @@ const RewardCalculatorPage = () => {
 			setStakingPath("distinct");
 			router.push("/staking");
 		}
-		// toggleIsStakingPathPopoverOpen();
-		// router.push("/staking");
 	};
 
 	useEffect(() => {
@@ -600,9 +598,11 @@ const RewardCalculatorPage = () => {
 							hidden={simulationChecked}
 							onClick={() =>
 								isNil(accounts)
-									? router.push("/setup-wallet")
+									? (track(goalCodes.REWARD_CALCULATOR.INTENT_CONNECT_WALLET), 
+										router.push("/setup-wallet"))
 									: selectedAccount
-									? toStaking()
+									? (track(goalCodes.REWARD_CALCULATOR.INTENT_STAKING),
+										toStaking())
 									: toggle()
 							}
 						>
