@@ -11,6 +11,7 @@ import { AlertCircle, AlertTriangle, AlertOctagon, Check } from "react-feather";
 import create from "zustand";
 import Image from "next/image";
 import { useStakingPath } from "@lib/store";
+import { NextButton } from "@components/common/BottomButton";
 
 const useAuthPopover = create((set) => ({
 	isAuthPopoverOpen: false,
@@ -70,8 +71,7 @@ const AuthPopover = ({
 								guarantee immunity
 							</p>
 						</div>
-						<button
-							className="w-full rounded-lg font-medium py-3 bg-teal-500 transform hover:bg-teal-700 text-white"
+						<NextButton
 							onClick={() => {
 								onConfirm();
 								// setStakingPath("loadingPage");
@@ -79,7 +79,7 @@ const AuthPopover = ({
 							}}
 						>
 							Continue to authorize
-						</button>
+						</NextButton>
 					</div>
 				</ModalBody>
 			</ModalContent>

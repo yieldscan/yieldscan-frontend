@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { get } from "lodash";
+import { isNil } from "lodash";
 import router from "next/router";
 import { decodeAddress, encodeAddress } from "@polkadot/util-crypto";
 import { ChevronLeft, Check } from "react-feather";
@@ -19,7 +19,6 @@ const SecureStakingSetup = ({
 	stakingInfo,
 	apiInstance,
 	selectedAccount,
-	controllerAccount,
 	networkInfo,
 	transactionState,
 	accountsControllerStashInfo,
@@ -36,6 +35,10 @@ const SecureStakingSetup = ({
 	setTransactionFee,
 	transactionType,
 	setTransactionType,
+	setTransactions,
+	setInjectorAccount,
+	stakingAmount,
+	selectedValidators,
 }) => {
 	const [currentStep, setCurrentStep] = useState(() =>
 		confirmedControllerAccount && selected ? 2 : 0
@@ -79,22 +82,24 @@ const SecureStakingSetup = ({
 	]);
 
 	useEffect(async () => {
-		if (selected) {
-			const nominatedValidators = transactionState.selectedValidators.map(
-				(v) => v.stashId
-			);
+		if (confirmedControllerAccount) {
+			setTransactionFee(0);
+			setTransactions(null);
+			setInjectorAccount(null);
+			const nominatedValidators = selectedValidators.map((v) => v.stashId);
 
 			const substrateStashId = encodeAddress(
 				decodeAddress(selectedAccount?.address)
 			);
 			const substrateSelectedControllerId = encodeAddress(
-				decodeAddress(selected?.address)
+				decodeAddress(confirmedControllerAccount?.address)
+			);
+
+			const amount = Math.trunc(
+				stakingAmount * Math.pow(10, networkInfo.decimalPlaces)
 			);
 
 			const transactions = [];
-			stakingInfo?.stakingLedger.active.isEmpty
-				? setTransactionType("secure-bond-nominate")
-				: setTransactionType("secure-nominate");
 
 			if (controllerTransferAmount > 0) {
 				transactions.push(
@@ -105,38 +110,51 @@ const SecureStakingSetup = ({
 				);
 			}
 
-			const amount = Math.trunc(
-				get(transactionState, "stakingAmount", 0) *
-					10 ** networkInfo.decimalPlaces
-			);
-
-			transactionType === "secure-bond-nominate"
-				? transactions.push(
-						apiInstance.tx.staking.bond(
-							substrateStashId,
-							amount,
-							transactionState.rewardDestination
-						),
-						apiInstance.tx.staking.nominate(nominatedValidators)
-				  )
-				: transactions.push(
-						apiInstance.tx.staking.nominate(nominatedValidators)
-				  );
+			// if no staking history then bond else bondExtra or setController depending on
+			// whether controller is
+			// same as stash or active stake is empty or not
+			if (isNil(stakingInfo?.controllerId)) {
+				transactions.push(
+					apiInstance.tx.staking.bond(
+						substrateStashId,
+						amount,
+						transactionState.rewardDestination
+					)
+				);
+			} else {
+				if (stakingInfo?.controllerId.toString() !== selectedAccount?.address) {
+					transactions.push(
+						apiInstance.tx.staking.setController(selectedAccount?.address)
+					);
+				}
+				if (stakingInfo?.stakingLedger.active.isEmpty) {
+					transactions.push(apiInstance.tx.staking.bondExtra(amount));
+				}
+			}
 
 			transactions.push(
-				apiInstance.tx.staking.setController(substrateSelectedControllerId),
-				apiInstance.tx.balances.transferKeepAlive(
-					networkInfo.feesAddress,
-					ysFees
-				)
+				apiInstance.tx.staking.nominate(nominatedValidators),
+				apiInstance.tx.staking.setController(substrateSelectedControllerId)
 			);
+
+			if (ysFees > 0 && networkInfo?.feesEnabled) {
+				transactions.push(
+					apiInstance.tx.balances.transferKeepAlive(
+						networkInfo.feesAddress,
+						ysFees
+					)
+				);
+			}
+
 			const fee = await apiInstance.tx.utility
 				.batchAll(transactions)
 				.paymentInfo(substrateStashId);
 
+			setTransactions([...transactions]);
+			setInjectorAccount(substrateStashId);
 			setTransactionFee(() => fee.partialFee.toNumber() + ysFees);
 		}
-	}, [stakingInfo, selected, controllerTransferAmount]);
+	}, [stakingInfo, confirmedControllerAccount, controllerTransferAmount]);
 
 	return (
 		<div className="w-full h-full grid grid-cols-4 justify-center gap-4">
@@ -207,8 +225,6 @@ const SecureStakingSetup = ({
 					/>
 				) : (
 					<SecureStakeToEarn
-						stakingInfo={stakingInfo}
-						apiInstance={apiInstance}
 						selectedAccount={selectedAccount}
 						networkInfo={networkInfo}
 						transactionState={transactionState}
@@ -218,11 +234,8 @@ const SecureStakingSetup = ({
 						}
 						controllerTransferAmount={controllerTransferAmount}
 						decrementCurrentStep={decrementCurrentStep}
-						onConfirm={onConfirm}
-						ysFees={ysFees}
-						confirmedControllerAccount={confirmedControllerAccount}
 						transactionFee={transactionFee}
-						transactionType={transactionType}
+						confirmedControllerAccount={confirmedControllerAccount}
 						toggleIsAuthPopoverOpen={toggleIsAuthPopoverOpen}
 					/>
 				)}
