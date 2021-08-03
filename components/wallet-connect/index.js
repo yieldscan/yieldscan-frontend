@@ -31,7 +31,7 @@ import {
 } from "@lib/store";
 import getFromLocalStorage from "@lib/getFromLocalStorage";
 import addToLocalStorage from "@lib/addToLocalStorage";
-import { trackEvent, Events, setUserProperties } from "@lib/analytics";
+import { trackEvent, Events, setUserProperties, track, goalCodes } from "@lib/analytics";
 import { setCookie } from "nookies";
 import RecoverAuthInfo from "./RecoverAuthInfo";
 import { useRouter } from "next/router";
@@ -86,6 +86,8 @@ const WalletConnectPopover = ({ styles, networkInfo, isSetUp }) => {
 	const userStorage = !isNil(typeof window) ? window.localStorage : null;
 	const autoConnectEnabled = userStorage.getItem("autoConnectEnabled");
 	const setAuthForAutoConnect = () => {
+		if(!autoConnectEnabled || autoConnectEnabled!=="true")
+		track(goalCodes.GLOBAL.WALLET_CONNECTED)
 		userStorage.setItem("autoConnectEnabled", "true");
 	};
 
@@ -258,6 +260,7 @@ const WalletConnectPopover = ({ styles, networkInfo, isSetUp }) => {
 	const onAccountSelected = async (account) => {
 		if (account) close();
 		if (typeof window !== undefined) {
+			track(goalCodes.GLOBAL.ACCOUNT_SELECTED);
 			trackEvent(Events.ACCOUNT_SELECTED, {
 				path: window.location.pathname,
 				address: account.address,
