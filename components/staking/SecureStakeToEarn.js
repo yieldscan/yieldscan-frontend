@@ -6,6 +6,7 @@ import { Spinner, Divider, Collapse } from "@chakra-ui/core";
 import { ArrowLeft, ChevronRight } from "react-feather";
 import ValidatorCard from "./ValidatorCard";
 import Account from "../wallet-connect/Account";
+import { NextButton } from "@components/common/BottomButton";
 
 const SecureStakeToEarn = ({
 	selectedAccount,
@@ -188,12 +189,13 @@ const SecureStakeToEarn = ({
 					</div>
 				</div>
 				<div className="mt-4 w-full text-center">
-					<button
-						className="w-full rounded-lg font-medium px-12 py-3 bg-teal-500 transform hover:bg-teal-700 text-white"
+					<NextButton
+						// className="w-full rounded-lg font-medium px-12 py-3 bg-teal-500 transform hover:bg-teal-700 text-white"
 						onClick={() => toggleIsAuthPopoverOpen()}
+						disabled={transactionFee === 0}
 					>
 						Just stake, baby!
-					</button>
+					</NextButton>
 				</div>
 			</div>
 			<div className="w-full flex flex-row justify-start pt-4 space-x-2">

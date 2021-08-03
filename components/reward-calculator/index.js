@@ -231,7 +231,8 @@ const RewardCalculatorPage = () => {
 			toggleIsLowBalanceOpen();
 		} else if (
 			isNil(controllerAccount) ||
-			selectedAccount?.address === controllerAccount?.address
+			selectedAccount?.address === controllerAccount?.address ||
+			stakingInfo?.stakingLedger.active.isEmpty
 		) {
 			toggleIsStakingPathPopoverOpen();
 		} else {

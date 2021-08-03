@@ -13,7 +13,19 @@ const BottomNextButton = ({ onClick, children, disabled = false }) => (
 	<button
 		className={`rounded-lg min-w-32 font-medium p-3 bg-teal-500 text-white z-20 ${
 			disabled && "cursor-not-allowed opacity-50"
-		}`}
+		} transform hover:bg-teal-700`}
+		onClick={onClick}
+		disabled={disabled}
+	>
+		{children}
+	</button>
+);
+
+const NextButton = ({ onClick, children, disabled = false }) => (
+	<button
+		className={`w-full rounded-lg min-w-32 font-medium p-3 bg-teal-500 text-white z-20 ${
+			disabled && "cursor-not-allowed opacity-50"
+		} transform hover:bg-teal-700`}
 		onClick={onClick}
 		disabled={disabled}
 	>
@@ -39,5 +51,6 @@ export {
 	BottomNextButton,
 	BottomBackButton,
 	NextButtonContent,
+	NextButton,
 	BackButtonContent,
 };
