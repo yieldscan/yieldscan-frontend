@@ -55,7 +55,7 @@ import {
 import { useRouter } from "next/router";
 import axios from "@lib/axios";
 import { getNetworkInfo } from "yieldscan.config";
-import { trackEvent, Events } from "@lib/analytics";
+import { trackEvent, Events, track, goalCodes } from "@lib/analytics";
 import {
 	StakingPathPopover,
 	useStakingPathPopover,
@@ -190,6 +190,11 @@ const Validators = () => {
 		JSON.stringify(stakingInfo),
 		JSON.stringify(accountsBalances[controllerAccount?.address]),
 	]);
+
+	useEffect(() =>
+	{
+		track(goalCodes.VALIDATOR.VALIDATOR_SELECTION_CHANGED);
+	}, [selectedValidatorsMap]);
 
 	useEffect(async () => {
 		setYieldScanFees(null);
@@ -422,6 +427,7 @@ const Validators = () => {
 	};
 
 	const trackRewardCalculatedEvent = debounce((eventData) => {
+		track(goalCodes.VALIDATOR.VALUE_CHANGED);
 		trackEvent(Events.REWARD_CALCULATED, eventData);
 	}, 1000);
 
@@ -527,6 +533,7 @@ const Validators = () => {
 				compounding={compounding}
 				timePeriodValue={timePeriodValue}
 				timePeriodUnit={timePeriodUnit}
+				trackRewardCalculatedEvent={trackRewardCalculatedEvent}
 				onCompoundingChange={setCompounding}
 				onTimePeriodValueChange={setTimePeriod}
 				onTimePeriodUnitChange={setTimePeriodUnit}
@@ -639,9 +646,11 @@ const Validators = () => {
 						// hidden={simulationChecked}
 						onClick={() =>
 							isNil(accounts)
-							? router.push("/setup-wallet")
+							? (track(goalCodes.VALIDATOR.INTENT_CONNECT_WALLET), 
+								router.push("/setup-wallet"))
 							: selectedAccount
-							? toStaking()
+							? (track(goalCodes.VALIDATOR.INTENT_STAKING),
+								toStaking())
 							: toggle()
 						}
 					>
