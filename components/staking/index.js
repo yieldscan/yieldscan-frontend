@@ -236,7 +236,7 @@ const Staking = () => {
 						networkInfo.network,
 						parseInt(stakingInfo.stakingLedger.active) /
 							Math.pow(10, networkInfo.decimalPlaces),
-						get(transactionState, "stakingAmount", 0),
+						stakingAmount,
 						tranHash,
 						true
 					);
@@ -247,7 +247,7 @@ const Staking = () => {
 							networkInfo.network,
 							parseInt(stakingInfo.stakingLedger.active) /
 								Math.pow(10, networkInfo.decimalPlaces),
-							get(transactionState, "stakingAmount", 0),
+							stakingAmount,
 							tranHash,
 							false
 						);
@@ -575,6 +575,10 @@ const Staking = () => {
 					setTransactionFee={setTransactionFee}
 					transactionType={transactionType}
 					setTransactionType={setTransactionType}
+					setTransactions={setTransactions}
+					setInjectorAccount={setInjectorAccount}
+					stakingAmount={stakingAmount}
+					selectedValidators={selectedValidators}
 				/>
 			) : stakingPath === "express" ? (
 				<Confirmation
@@ -583,7 +587,6 @@ const Staking = () => {
 					stakingInfo={stakingInfo}
 					apiInstance={apiInstance}
 					selectedAccount={selectedAccount}
-					controllerAccount={controllerAccount}
 					networkInfo={networkInfo}
 					transactionState={transactionState}
 					setTransactionState={setTransactionState}
@@ -595,6 +598,8 @@ const Staking = () => {
 					setInjectorAccount={setInjectorAccount}
 					setTransactionFee={setTransactionFee}
 					transactionType={transactionType}
+					stakingAmount={stakingAmount}
+					selectedValidators={selectedValidators}
 					setTransactionType={setTransactionType}
 				/>
 			) : stakingPath === "distinct" ? (
@@ -602,11 +607,20 @@ const Staking = () => {
 					stakingInfo={stakingInfo}
 					apiInstance={apiInstance}
 					selectedAccount={selectedAccount}
+					controllerAccount={controllerAccount}
+					balances={balances}
+					controllerBalances={controllerBalances}
 					networkInfo={networkInfo}
 					transactionState={transactionState}
-					isLedger={isLedger}
-					onConfirm={transact}
 					toggleIsAuthPopoverOpen={toggleIsAuthPopoverOpen}
+					toggleIsAuthPopoverOpen={toggleIsAuthPopoverOpen}
+					ysFees={ysFees}
+					transactionFee={transactionFee}
+					setTransactionFee={setTransactionFee}
+					setTransactions={setTransactions}
+					setInjectorAccount={setInjectorAccount}
+					stakingAmount={stakingAmount}
+					selectedValidators={selectedValidators}
 				/>
 			) : (
 				<></>

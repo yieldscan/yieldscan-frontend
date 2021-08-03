@@ -28,20 +28,17 @@ const Confirmation = ({
 	ysFees,
 	transactionFee,
 	setTransactionFee,
-	transactionType,
-	setTransactionType,
 	setTransactions,
 	setInjectorAccount,
+	stakingAmount,
+	selectedValidators,
 }) => {
-	const selectedValidators = get(transactionState, "selectedValidators", []);
-	const stakingAmount = get(transactionState, "stakingAmount", 0);
-	// const [transactionFee, setTransactionFee] = useState(0);
 	const [showValidators, setShowValidators] = useState(false);
-	const [showAdvPrefs, setShowAdvPrefs] = useState(false);
+	// const [showAdvPrefs, setShowAdvPrefs] = useState(false);
 
-	const handleAdvPrefsToggle = () => {
-		setShowAdvPrefs((show) => !show);
-	};
+	// const handleAdvPrefsToggle = () => {
+	// 	setShowAdvPrefs((show) => !show);
+	// };
 
 	const handleValToggle = () => {
 		setShowValidators((show) => !show);
@@ -51,9 +48,7 @@ const Confirmation = ({
 		if (!isNil(stakingInfo)) {
 			setTransactions(null);
 			setInjectorAccount(null);
-			const nominatedValidators = transactionState.selectedValidators.map(
-				(v) => v.stashId
-			);
+			const nominatedValidators = selectedValidators.map((v) => v.stashId);
 
 			// same stash and controller for express staking path
 			const substrateStashId = encodeAddress(
@@ -67,8 +62,8 @@ const Confirmation = ({
 
 			const transactions = [];
 
-			if (!isNil(controllerAccount)) {
-				if (controllerAccount?.address !== selectedAccount?.address) {
+			if (!isNil(stakingInfo?.controllerId)) {
+				if (stakingInfo?.controllerId.toString() !== selectedAccount?.address) {
 					transactions.push(
 						apiInstance.tx.staking.setController(selectedAccount?.address)
 					);
@@ -120,7 +115,7 @@ const Confirmation = ({
 					</button>
 				</div>
 				<div className="flex-1 flex justify-center items-center pb-4">
-					<div className="flex flex-col w-full max-w-xl items-center justify-center space-y-4">
+					<div className="flex flex-col w-full max-w-lg items-center justify-center space-y-4">
 						<div className="w-full flex justify-center items-center">
 							<Circle size={60} color="#2BCACA" />
 						</div>
@@ -168,7 +163,7 @@ const Confirmation = ({
 							</button>
 							<Collapse isOpen={showValidators}>
 								<div className="mt-2 rounded-xl">
-									<div className="overflow-auto">
+									<div className="h-48 w-full overflow-scroll">
 										{selectedValidators.map((validator) => (
 											<ValidatorCard
 												key={validator.stashId}
