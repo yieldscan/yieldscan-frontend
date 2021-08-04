@@ -137,8 +137,8 @@ const RewardCalculatorPage = () => {
 			: null
 	);
 
-	const [transactionFees, setTransactionFees] = useState();
-	const [yieldScanFees, setYieldScanFees] = useState();
+	const [transactionFees, setTransactionFees] = useState(0);
+	const [ysFees, setYsFees] = useState(0);
 
 	const [controllerBalances, setControllerBalances] = useState(
 		() => accountsBalances[controllerAccount?.address]
@@ -204,7 +204,7 @@ const RewardCalculatorPage = () => {
 
 	const proceedDisabled =
 		accounts && selectedAccount
-			? amount && !isInElection && amount > 0
+			? amount && !isInElection && amount > 0 && transactionFees > 0
 				? amount > totalPossibleStakingAmount
 					? true
 					: activeBondedAmount >
@@ -224,9 +224,11 @@ const RewardCalculatorPage = () => {
 		setStakingPath(null);
 
 		if (
-			controllerAccount && controllerBalances?.availableBalance <
-				apiInstance?.consts.balances.existentialDeposit.toNumber()  +
-					yieldScanFees + transactionFees
+			controllerAccount &&
+			controllerBalances?.availableBalance <
+				apiInstance?.consts.balances.existentialDeposit.toNumber() +
+					ysFees +
+					transactionFees
 		) {
 			toggleIsLowBalanceOpen();
 		} else if (
@@ -346,11 +348,22 @@ const RewardCalculatorPage = () => {
 		setSimulationChecked(false);
 	}, [selectedAccount?.address]);
 
+	useEffect(() => {
+		if (networkInfo.feesEnabled) {
+			setYsFees(() =>
+				Math.trunc(
+					amount *
+						Math.pow(10, networkInfo.decimalPlaces) *
+						networkInfo.feesRatio
+				)
+			);
+		} else setYsFees(0);
+	}, [amount, networkInfo]);
+
 	useEffect(async () => {
-		setYieldScanFees(null);
-		setTransactionFees(null);
+		setTransactionFees(0);
 		if (amount && selectedValidators && selectedAccount && apiInstance) {
-			const { ysFees, networkFees } = await getTransactionFee(
+			const networkFees = await getTransactionFee(
 				networkInfo,
 				stakingInfo,
 				amount,
@@ -360,7 +373,6 @@ const RewardCalculatorPage = () => {
 				apiInstance
 			);
 
-			setYieldScanFees(ysFees);
 			setTransactionFees(networkFees);
 		}
 	}, [stakingInfo, amount, selectedAccount, apiInstance]);
@@ -414,11 +426,20 @@ const RewardCalculatorPage = () => {
 			/>
 			<div>
 				<div className="flex flex-wrap">
-					{controllerAccount && controllerBalances && (
+					{controllerAccount && controllerBalances && isLowBalanceOpen && (
 						<LowBalancePopover
 							isOpen={isLowBalanceOpen}
 							toStaking={toStaking}
 							networkInfo={networkInfo}
+							setStakingPath={setStakingPath}
+							transferAmount={
+								controllerBalances
+									? Math.pow(10, networkInfo.decimalPlaces) +
+									  apiInstance?.consts.balances.existentialDeposit.toNumber() -
+									  controllerBalances?.availableBalance
+									: 0
+							}
+							controllerAccount={controllerAccount}
 						/>
 					)}
 					{selectedAccount && (
@@ -583,7 +604,7 @@ const RewardCalculatorPage = () => {
 							<EstimatedFeesCard
 								result={result}
 								transactionFees={transactionFees}
-								yieldScanFees={yieldScanFees}
+								ysFees={ysFees}
 								networkInfo={networkInfo}
 							/>
 						)}

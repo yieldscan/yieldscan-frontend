@@ -25,7 +25,7 @@ const CreateNewAccount = ({ networkInfo, incrementInfoIndex }) => (
 		<iframe
 			width="420"
 			height="280"
-			src="https://www.youtube.com/embed/N8V4D2PpuLk"
+			src="https://www.youtube.com/embed/NlUxkSkFH2U"
 			title="YouTube video player"
 			frameBorder="0"
 			// allow="autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"

@@ -21,6 +21,8 @@ const PopoverAccountSelection = ({
 	defaultHeading = "Select Account",
 	isSetUp = false,
 	disabled = false,
+	isInvalid = false,
+	widthFull = false,
 }) => {
 	const metaName =
 		selectedAccount?.meta.name.length > 15
@@ -42,9 +44,9 @@ const PopoverAccountSelection = ({
 							isSetUp
 								? "border-2 border-gray-500 rounded-lg"
 								: "rounded-full border"
-						}  ${
-							disabled ? "cursor-not-allowed opacity-50" : ""
-						} w-full max-w-xs py-2 px-4 flex items-center justify-between font-medium`}
+						}  ${disabled ? "cursor-not-allowed opacity-50" : ""} w-full ${
+							!widthFull && "max-w-xs"
+						} py-2 px-4 flex items-center justify-between font-medium`}
 						disabled={disabled}
 					>
 						{defaultHeading}
@@ -53,10 +55,16 @@ const PopoverAccountSelection = ({
 				) : (
 					<button
 						className={`flex flex-row ${
-							isSetUp ? "border-2 border-gray-500 rounded-lg" : "rounded-full"
+							isSetUp
+								? `border-2 ${
+										isInvalid ? "border-red-600" : "border - gray - 500"
+								  } rounded-lg`
+								: "rounded-full"
 						} ${
 							disabled && "cursor-not-allowed opacity-50"
-						} items-center w-full max-w-xs justify-between py-2 px-4`}
+						} items-center w-full ${
+							!widthFull && "max-w-xs"
+						} justify-between py-2 px-4`}
 						disabled={disabled}
 					>
 						<div className="flex flex-row items-center justify-center">

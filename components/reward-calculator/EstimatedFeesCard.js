@@ -9,7 +9,7 @@ const EstimatedFeesCard = ({
 	result,
 	networkInfo,
 	transactionFees,
-	yieldScanFees,
+	ysFees,
 }) => {
 	// const { coinGeckoPriceUSD } = useCoinGeckoPriceUSD();
 	// const returns = {
@@ -44,10 +44,10 @@ const EstimatedFeesCard = ({
 							}`}
 						/>
 					</button>
-					{transactionFees && yieldScanFees ? (
+					{transactionFees > 0 && (ysFees > 0 || !networkInfo.feesEnabled) ? (
 						<p>
 							{formatCurrency.methods.formatAmount(
-								yieldScanFees + transactionFees,
+								ysFees + transactionFees,
 								networkInfo
 							)}
 						</p>
@@ -63,7 +63,7 @@ const EstimatedFeesCard = ({
 							<Minus size={18} className="mb-1" />
 							<p>{networkInfo.name} Network</p>
 						</div>
-						{transactionFees ? (
+						{transactionFees > 0 ? (
 							<p>
 								{formatCurrency.methods.formatAmount(
 									transactionFees,
@@ -76,24 +76,23 @@ const EstimatedFeesCard = ({
 							</Skeleton>
 						)}
 					</div>
-					<div className="flex flex-row text-gray-600 text-sm justify-between items-center">
-						<div className="flex flex-row items-center space-x-2">
-							<Minus size={18} className="mb-1" />
-							<p>YieldScan</p>
+					{networkInfo.feesEnabled && (
+						<div className="flex flex-row text-gray-600 text-sm justify-between items-center">
+							<div className="flex flex-row items-center space-x-2">
+								<Minus size={18} className="mb-1" />
+								<p>YieldScan</p>
+							</div>
+							{ysFees > 0 ? (
+								<p>
+									{formatCurrency.methods.formatAmount(ysFees, networkInfo)}
+								</p>
+							) : (
+								<Skeleton>
+									<p>Loading ...</p>
+								</Skeleton>
+							)}
 						</div>
-						{yieldScanFees ? (
-							<p>
-								{formatCurrency.methods.formatAmount(
-									yieldScanFees,
-									networkInfo
-								)}
-							</p>
-						) : (
-							<Skeleton>
-								<p>Loading ...</p>
-							</Skeleton>
-						)}
-					</div>
+					)}
 				</Collapse>
 			</div>
 		</>
