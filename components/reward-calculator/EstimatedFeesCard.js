@@ -9,7 +9,7 @@ const EstimatedFeesCard = ({
 	result,
 	networkInfo,
 	transactionFees,
-	yieldScanFees,
+	ysFees,
 }) => {
 	// const { coinGeckoPriceUSD } = useCoinGeckoPriceUSD();
 	// const returns = {
@@ -42,10 +42,10 @@ const EstimatedFeesCard = ({
 							}`}
 						/>
 					</button>
-					{transactionFees && yieldScanFees ? (
+					{transactionFees > 0 && ysFees > 0 ? (
 						<p>
 							{formatCurrency.methods.formatAmount(
-								yieldScanFees + transactionFees,
+								ysFees + transactionFees,
 								networkInfo
 							)}
 						</p>
@@ -61,7 +61,7 @@ const EstimatedFeesCard = ({
 							<Minus size={18} className="mb-1" />
 							<p>{networkInfo.name} Network</p>
 						</div>
-						{transactionFees ? (
+						{transactionFees > 0 ? (
 							<p>
 								{formatCurrency.methods.formatAmount(
 									transactionFees,
@@ -79,13 +79,8 @@ const EstimatedFeesCard = ({
 							<Minus size={18} className="mb-1" />
 							<p>YieldScan</p>
 						</div>
-						{yieldScanFees ? (
-							<p>
-								{formatCurrency.methods.formatAmount(
-									yieldScanFees,
-									networkInfo
-								)}
-							</p>
+						{ysFees > 0 ? (
+							<p>{formatCurrency.methods.formatAmount(ysFees, networkInfo)}</p>
 						) : (
 							<Skeleton>
 								<p>Loading ...</p>

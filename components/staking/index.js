@@ -61,6 +61,7 @@ const Staking = () => {
 	const [injectorAccount, setInjectorAccount] = useState(null);
 	const [transactionFee, setTransactionFee] = useState(0);
 	const [transactionType, setTransactionType] = useState(null);
+	const [senderAccount, setSenderAccount] = useState(null);
 
 	const selectedValidators = get(transactionState, "selectedValidators", []);
 	const stakingAmount = get(transactionState, "stakingAmount", 0);
@@ -153,6 +154,26 @@ const Staking = () => {
 				: setControllerTransferAmount(0);
 		}
 	}, [selected?.address, JSON.stringify(accountsBalances[selected?.address])]);
+
+	const [transferFundsAmount, setTransferFundsAmount] = useState(0);
+
+	useEffect(() => {
+		if (stakingPath === "transfer" && controllerBalances) {
+			controllerBalances?.availableBalance <
+			Math.pow(10, networkInfo.decimalPlaces) +
+				apiInstance?.consts.balances.existentialDeposit.toNumber()
+				? setTransferFundsAmount(
+						() =>
+							Math.pow(10, networkInfo.decimalPlaces) +
+							apiInstance?.consts.balances.existentialDeposit.toNumber() -
+							controllerBalances?.availableBalance
+						// ysFees +
+						// 2 * apiInstance?.consts.balances.existentialDeposit -
+						// accountsBalances[selected?.address].availableBalance
+				  )
+				: setTransferFundsAmount(0);
+		}
+	}, [controllerAccount]);
 
 	const updateTransactionData = (
 		stashId,
@@ -271,6 +292,72 @@ const Staking = () => {
 				}
 			);
 		}
+	};
+
+	const transferFunds = () => {
+		close();
+		setStakingLoading(true);
+		setIsTransferFunds(true);
+		const from = senderAccount?.address;
+		const to = controllerAccount.address;
+		transferBalancesKeepAlive(from, to, apiInstance, amount, networkInfo, {
+			onEvent: ({ message }) => {
+				toast({
+					title: "Info",
+					description: message,
+					status: "info",
+					duration: 3000,
+					position: "top-right",
+					isClosable: true,
+				});
+				setStakingEvent(message);
+			},
+			onSuccessfullSigning: (hash) => {
+				const transactionHash = get(hash, "message");
+				setLoaderError(false);
+				setTimeout(() => {
+					setTransactionHash(transactionHash);
+					setStakingEvent(
+						"Your transaction is sent to the network. Awaiting confirmation..."
+					);
+				}, 750);
+			},
+			onFinish: (failed, message, eventLogs) => {
+				toast({
+					title: failed ? "Failure" : "Success",
+					description: message,
+					status: failed ? "error" : "success",
+					duration: 3000,
+					position: "top-right",
+					isClosable: true,
+				});
+
+				setTimeout(() => {
+					setStakingLoading(false);
+				}, 2500);
+
+				if (failed === 0) {
+					setSuccessHeading("Wohoo!");
+					setStakingEvent(
+						"Your account is succesfully set up and you’re ready to lock your funds for staking"
+					);
+					setIsSuccessful(true);
+					setTimeout(() => {
+						setIsSuccessful(false);
+						setTransactionHash(null);
+					}, 5000);
+				}
+			},
+		}).catch((error) => {
+			toast({
+				title: "Error",
+				description: error.message,
+				status: "error",
+				duration: 3000,
+				position: "top-right",
+				isClosable: true,
+			});
+		});
 	};
 
 	useEffect(() => {
@@ -546,9 +633,14 @@ const Staking = () => {
 					setLoaderError={setLoaderError}
 					setSuccessHeading={setSuccessHeading}
 					setIsSuccessful={setIsSuccessful}
-					setChainError={setChainError}
+					setStakingPath={setStakingPath}
 					setIsTransferFunds={setIsTransferFunds}
 					setTransactionHash={setTransactionHash}
+					senderAccount={senderAccount}
+					setSenderAccount={setSenderAccount}
+					transferFunds={transferFunds}
+					transferFundsAmount={transferFundsAmount}
+					ysFees={ysFees}
 				/>
 			) : stakingPath === "secure" ? (
 				<SecureStakingSetup

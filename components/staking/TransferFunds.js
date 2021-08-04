@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { get, isNil } from "lodash";
 import { decodeAddress, encodeAddress } from "@polkadot/util-crypto";
-import { ChevronLeft } from "react-feather";
+import { AlertOctagon, ChevronLeft } from "react-feather";
 import {
 	Modal,
 	ModalBody,
@@ -18,6 +18,10 @@ import formatCurrency from "@lib/format-currency";
 import AmountInput from "./AmountInput";
 import { HelpPopover } from "@components/reward-calculator";
 import transferBalancesKeepAlive from "@lib/polkadot/transfer-balances";
+import {
+	BottomNextButton,
+	NextButtonContent,
+} from "@components/common/BottomButton";
 
 const TransferFunds = ({
 	router,
@@ -28,29 +32,38 @@ const TransferFunds = ({
 	accountsBalances,
 	accountsStakingInfo,
 	controllerAccount,
+	transferFundsAmount,
 	controllerBalances,
-	setStakingLoading,
 	setStakingEvent,
+	setStakingPath,
 	setLoaderError,
 	setSuccessHeading,
 	setIsSuccessful,
 	setChainError,
 	setIsTransferFunds,
 	setTransactionHash,
+	senderAccount,
+	setSenderAccount,
+	setTransferFundsAmount,
 }) => {
 	const [isStashPopoverOpen, setIsStashPopoverOpen] = useState(false);
 
 	const [filteredAccounts, setFilteredAccounts] = useState(null);
 
-	const [senderAccount, setSenderAccount] = useState(null);
+	// const [senderAccount, setSenderAccount] = useState(null);
 
-	const [amount, setAmount] = useState(null);
+	const [amount, setAmount] = useState(transferFundsAmount);
 
 	useEffect(() => {
-		const filteredAccounts = accounts.filter((account) =>
-			accountsBalances[account.address]?.availableBalance.gt(
-				apiInstance?.consts.balances.existentialDeposit
-			)
+		setAmount(transferFundsAmount);
+	}, [transferFundsAmount]);
+
+	useEffect(() => {
+		const filteredAccounts = accounts.filter(
+			(account) =>
+				accountsBalances[account.address]?.availableBalance.gt(
+					apiInstance?.consts.balances.existentialDeposit
+				) && account?.address !== controllerAccount?.address
 		);
 		setFilteredAccounts(filteredAccounts);
 	}, [JSON.stringify(accounts), JSON.stringify(accountsBalances)]);
@@ -66,12 +79,17 @@ const TransferFunds = ({
 		setIsOpen(false);
 	};
 
+	console.log("transferFundsAmount");
+	console.log(transferFundsAmount);
+	console.log("amount");
+	console.log(amount);
+
 	return selectedAccount &&
 		controllerAccount &&
 		accountsBalances &&
 		accountsStakingInfo ? (
 		<div className="w-full h-full flex justify-center">
-			<ConfirmTransfer
+			{/* <ConfirmTransfer
 				senderAccount={senderAccount}
 				controllerAccount={controllerAccount}
 				senderBalances={accountsBalances[senderAccount?.address]}
@@ -89,7 +107,7 @@ const TransferFunds = ({
 				setChainError={setChainError}
 				setIsTransferFunds={setIsTransferFunds}
 				setTransactionHash={setTransactionHash}
-			/>
+			/> */}
 			<div className="w-full max-w-65-rem flex flex-col items-center">
 				<div className="p-2 w-full">
 					{/* TODO: Make a common back button component */}
@@ -109,27 +127,42 @@ const TransferFunds = ({
 						Your selected controller doesn’t have enough funds to pay for the
 						fees. Please select an account to transfer funds.
 					</p>
-
-					{filteredAccounts && (
-						<div className="w-full flex items-center justify-center">
-							<PopoverAccountSelection
-								accounts={filteredAccounts}
-								accountsBalances={accountsBalances}
-								isStashPopoverOpen={isStashPopoverOpen}
-								setIsStashPopoverOpen={setIsStashPopoverOpen}
-								networkInfo={networkInfo}
-								selectedAccount={senderAccount}
-								onClick={handleOnClick}
-								isSetUp={true}
-								// disabled={
-								// 	exisiting ? true : filteredAccounts.length !== 0 ? false : true
-								// }
-							/>
+					<div className="w-full max-w-xl flex flex-col justify-center items-center space-y-4">
+						<div className="w-full max-w-sm p-4 flex flex-col">
+							<p className="w-full text-gray-500">From</p>
+							{filteredAccounts && (
+								<div className="w-full flex items-center justify-center">
+									<PopoverAccountSelection
+										accounts={filteredAccounts}
+										accountsBalances={accountsBalances}
+										isStashPopoverOpen={isStashPopoverOpen}
+										setIsStashPopoverOpen={setIsStashPopoverOpen}
+										networkInfo={networkInfo}
+										selectedAccount={senderAccount}
+										onClick={handleOnClick}
+										isSetUp={true}
+										defaultHeading={"Select sender account"}
+										isInvalid={
+											accountsBalances[senderAccount?.address]
+												?.availableBalance <
+											Math.pow(10, networkInfo.decimalPlaces) +
+												apiInstance?.consts.balances.existentialDeposit.toNumber() -
+												controllerBalances?.availableBalance
+											// apiInstance?.consts.balances.existentialDeposit * 2 +
+											// ysFees + transactionFees
+										}
+										widthFull={true}
+										transferFundsAmount={transferFundsAmount}
+										setTransferFundsAmount={setTransferFundsAmount}
+										// disabled={
+										// 	exisiting ? true : filteredAccounts.length !== 0 ? false : true
+										// }
+									/>
+								</div>
+							)}
 						</div>
-					)}
-
-					{senderAccount && (
-						<div className="flex items-center justify-center">
+						<div className="w-full max-w-sm p-4 flex flex-col items-center justify-center">
+							<p className="w-full text-gray-500">Amount</p>
 							<AmountInput
 								value={amount}
 								onChange={setAmount}
@@ -141,22 +174,64 @@ const TransferFunds = ({
 										  Math.pow(10, networkInfo.decimalPlaces)
 										: 0
 								}
+								senderAccount={senderAccount}
+								controllerBalances={controllerBalances}
+								apiInstance={apiInstance}
 							/>
 						</div>
-					)}
-					<div className="w-full max-w-lg text-center">
-						<button
-							className={`w-full rounded-lg min-w-32 font-medium p-3 bg-teal-500 text-white z-20 ${
-								(isNil(senderAccount) || isNil(controllerAccount) || !amount) &&
-								"cursor-not-allowed opacity-50"
-							}`}
-							disabled={
-								isNil(senderAccount) || isNil(controllerAccount) || !amount
-							}
-							onClick={() => setIsOpen(true)}
-						>
-							Proceed to confirmation
-						</button>
+						{transferFundsAmount <
+							Math.pow(10, networkInfo.decimalPlaces) +
+								apiInstance?.consts.balances.existentialDeposit.toNumber() -
+								controllerBalances?.availableBalance && (
+							<div className="flex flex-row w-full bg-red-100 rounded-lg p-4 justify-center items-center space-x-2">
+								<div>
+									<AlertOctagon size="60" className="text-red-600" />
+								</div>
+								<div className="flex flex-col p-2">
+									<h1 className="w-full text-md text-gray-700 font-semibold">
+										Amount too low
+									</h1>
+									<p className="w-full text-sm text-gray-700">
+										You need to transfer at least 19.3423 DOT to proceed. Please
+										increase the amount input.
+									</p>
+								</div>
+							</div>
+						)}
+						{accountsBalances[senderAccount?.address]?.availableBalance <
+							Math.pow(10, networkInfo.decimalPlaces) +
+								apiInstance?.consts.balances.existentialDeposit.toNumber() * 2 -
+								controllerBalances?.availableBalance && (
+							<div className="flex flex-row w-full bg-red-100 rounded-lg p-4 justify-center items-center space-x-2">
+								<div>
+									<AlertOctagon size="60" className="text-red-600" />
+								</div>
+								<div className="flex flex-col p-2">
+									<h1 className="w-full text-md text-gray-700 font-semibold">
+										Insufficient Balance
+									</h1>
+									<p className="w-full text-sm text-gray-700">
+										The selected account doesn’t have sufficient balance to make
+										the transfer. Please select an account with a free balance
+										of at least 20 DOT.
+									</p>
+								</div>
+							</div>
+						)}
+						<div className="w-full max-w-lg text-center">
+							<BottomNextButton
+								// className={`w-full rounded-lg min-w-32 font-medium p-3 bg-teal-500 text-white z-20 ${
+								// 	(isNil(senderAccount) || isNil(controllerAccount) || !amount) &&
+								// 	"cursor-not-allowed opacity-50"
+								// }`}
+								disabled={
+									isNil(senderAccount) || isNil(controllerAccount) || !amount
+								}
+								onClick={() => setIsOpen(true)}
+							>
+								<NextButtonContent name={"Continue to confirmation"} />
+							</BottomNextButton>
+						</div>
 					</div>
 				</div>
 			</div>
@@ -183,16 +258,14 @@ const ConfirmTransfer = ({
 	styles,
 	setStakingLoading,
 	setStakingEvent,
+	setStakingPath,
 	setLoaderError,
 	setSuccessHeading,
 	setIsSuccessful,
-	setChainError,
-	setIsTransferFunds,
 	setTransactionHash,
+	transferFunds,
 }) => {
 	const toast = useToast();
-	const [selectedControllerAccount, setSelectedControllerAccount] =
-		useState(null);
 	const [loading, setLoading] = useState(false);
 
 	const handleOnClickCancel = (account) => {
@@ -200,72 +273,6 @@ const ConfirmTransfer = ({
 		close();
 	};
 	const [transactionFee, setTransactionFee] = useState(0);
-
-	const transferFunds = () => {
-		close();
-		setStakingLoading(true);
-		setIsTransferFunds(true);
-		const from = senderAccount?.address;
-		const to = controllerAccount.address;
-		transferBalancesKeepAlive(from, to, apiInstance, amount, networkInfo, {
-			onEvent: ({ message }) => {
-				toast({
-					title: "Info",
-					description: message,
-					status: "info",
-					duration: 3000,
-					position: "top-right",
-					isClosable: true,
-				});
-				setStakingEvent(message);
-			},
-			onSuccessfullSigning: (hash) => {
-				const transactionHash = get(hash, "message");
-				setLoaderError(false);
-				setTimeout(() => {
-					setTransactionHash(transactionHash);
-					setStakingEvent(
-						"Your transaction is sent to the network. Awaiting confirmation..."
-					);
-				}, 750);
-			},
-			onFinish: (failed, message, eventLogs) => {
-				toast({
-					title: failed ? "Failure" : "Success",
-					description: message,
-					status: failed ? "error" : "success",
-					duration: 3000,
-					position: "top-right",
-					isClosable: true,
-				});
-
-				setTimeout(() => {
-					setStakingLoading(false);
-				}, 2500);
-
-				if (failed === 0) {
-					setSuccessHeading("Wohoo!");
-					setStakingEvent(
-						"Your account is succesfully set up and you’re ready to lock your funds for staking"
-					);
-					setIsSuccessful(true);
-					setTimeout(() => {
-						setIsSuccessful(false);
-						setTransactionHash(null);
-					}, 5000);
-				}
-			},
-		}).catch((error) => {
-			toast({
-				title: "Error",
-				description: error.message,
-				status: "error",
-				duration: 3000,
-				position: "top-right",
-				isClosable: true,
-			});
-		});
-	};
 
 	useEffect(() => {
 		if (!isNil(amount)) {

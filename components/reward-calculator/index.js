@@ -136,8 +136,8 @@ const RewardCalculatorPage = () => {
 			: null
 	);
 
-	const [transactionFees, setTransactionFees] = useState();
-	const [yieldScanFees, setYieldScanFees] = useState();
+	const [transactionFees, setTransactionFees] = useState(0);
+	const [ysFees, setYsFees] = useState(0);
 
 	const [controllerBalances, setControllerBalances] = useState(
 		() => accountsBalances[controllerAccount?.address]
@@ -224,9 +224,10 @@ const RewardCalculatorPage = () => {
 
 		if (
 			controllerAccount &&
-			parseInt(controllerBalances?.availableBalance) <
-				apiInstance?.consts.balances.existentialDeposit.toNumber() / 2 +
-					yieldScanFees
+			controllerBalances?.availableBalance <
+				1 * Math.pow(10, networkInfo.decimalPlaces)
+			// apiInstance?.consts.balances.existentialDeposit * 2 +
+			// 	ysFees + transactionFees
 		) {
 			toggleIsLowBalanceOpen();
 		} else if (
@@ -349,8 +350,8 @@ const RewardCalculatorPage = () => {
 	}, [selectedAccount?.address]);
 
 	useEffect(async () => {
-		setYieldScanFees(null);
-		setTransactionFees(null);
+		setYsFees(0);
+		setTransactionFees(0);
 		if (amount && selectedValidators && selectedAccount && apiInstance) {
 			const { ysFees, networkFees } = await getTransactionFee(
 				networkInfo,
@@ -362,8 +363,8 @@ const RewardCalculatorPage = () => {
 				apiInstance
 			);
 
-			setYieldScanFees(ysFees);
-			setTransactionFees(networkFees);
+			setYsFees(ysFees);
+			setTransactionFees(networkFees + ysFees);
 		}
 	}, [stakingInfo, amount, selectedAccount, apiInstance]);
 
@@ -416,11 +417,20 @@ const RewardCalculatorPage = () => {
 			/>
 			<div>
 				<div className="flex flex-wrap">
-					{controllerAccount && controllerBalances && (
+					{controllerAccount && controllerBalances && isLowBalanceOpen && (
 						<LowBalancePopover
 							isOpen={isLowBalanceOpen}
 							toStaking={toStaking}
 							networkInfo={networkInfo}
+							setStakingPath={setStakingPath}
+							transferAmount={
+								controllerBalances
+									? Math.pow(10, networkInfo.decimalPlaces) +
+									  apiInstance?.consts.balances.existentialDeposit.toNumber() -
+									  controllerBalances?.availableBalance
+									: 0
+							}
+							controllerAccount={controllerAccount}
 						/>
 					)}
 					{selectedAccount && (
@@ -585,7 +595,7 @@ const RewardCalculatorPage = () => {
 							<EstimatedFeesCard
 								result={result}
 								transactionFees={transactionFees}
-								yieldScanFees={yieldScanFees}
+								ysFees={ysFees}
 								networkInfo={networkInfo}
 							/>
 						)}

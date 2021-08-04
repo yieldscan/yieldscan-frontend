@@ -11,6 +11,7 @@ import { useRouter } from "next/router";
 import { AlertCircle, AlertTriangle, AlertOctagon } from "react-feather";
 import create from "zustand";
 import Image from "next/image";
+import formatCurrency from "@lib/format-currency";
 
 const useLowBalancePopover = create((set) => ({
 	isLowBalanceOpen: false,
@@ -20,14 +21,18 @@ const useLowBalancePopover = create((set) => ({
 	open: () => set(() => ({ isLowBalanceOpen: true })),
 }));
 
-const LowBalancePopover = ({ styles, networkInfo, toStaking }) => {
+const LowBalancePopover = ({
+	styles,
+	networkInfo,
+	toStaking,
+	setStakingPath,
+	transferAmount,
+	controllerAccount,
+}) => {
 	const router = useRouter();
 	const { isLowBalanceOpen, close } = useLowBalancePopover();
-	const { setIsLowBalance } = useIsLowBalance();
-	const handleOnClick = () => {
-		router.push("/staking");
-		close();
-	};
+	console.log("transferAmount");
+	console.log(transferAmount);
 	return (
 		<Modal
 			isOpen={isLowBalanceOpen}
@@ -72,10 +77,11 @@ const LowBalancePopover = ({ styles, networkInfo, toStaking }) => {
 						<div className="w-full flex flex-col text-gray-700 justify-center content-center items-center text-gray-700 space-y-4">
 							<button
 								className="w-full flex rounded-lg border items-center shadow-lg transform hover:scale-102 px-2 py-4"
-								// onClick={() => {
-								// 	setConnectExtensionCheck(false);
-								// 	setCurrentStep("ledgerSetup");
-								// }}
+								onClick={() => {
+									setStakingPath("transfer");
+									router.push("/staking");
+									close();
+								}}
 							>
 								<div className="w-full flex-1 flex flex-row items-center text-left space-x-6">
 									<Image
@@ -86,11 +92,15 @@ const LowBalancePopover = ({ styles, networkInfo, toStaking }) => {
 									/>
 									<div className="flex flex-col text-left">
 										<h2 className="text-md font-semibold">
-											Transfer from another account
+											Transfer{" "}
+											{formatCurrency.methods.formatAmount(
+												Math.trunc(transferAmount),
+												networkInfo
+											)}{" "}
+											{networkInfo.denom}'s from another account
 										</h2>
 										<p className="text-gray-600 text-sm max-w-md">
-											Transfer 20 DOT from one of your existing polkadot
-											accounts
+											Transfer funds from one of your existing accounts
 										</p>
 									</div>
 								</div>
@@ -105,11 +115,16 @@ const LowBalancePopover = ({ styles, networkInfo, toStaking }) => {
 									/>
 									<div className="flex flex-col text-left">
 										<h2 className="text-md font-semibold">
-											Buy DOT using fiat
+											Buy{" "}
+											{formatCurrency.methods.formatAmount(
+												transferAmount,
+												networkInfo
+											)}{" "}
+											{networkInfo.denom} using fiat
 										</h2>
 										<p className="text-gray-600 text-sm max-w-md">
-											Buy 20 DOT using fiat currencies like USD, EUR, etc. from
-											our fiat to crypto on ramp partner
+											Buy {networkInfo.denom} using fiat currencies like USD,
+											EUR, etc. from our fiat to crypto on ramp partner
 										</p>
 									</div>
 								</div>
