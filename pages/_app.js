@@ -173,7 +173,6 @@ if (process.env.NEXT_PUBLIC_SENTRY_DSN) {
 	});
 }
 
-console.log(process.env.NODE_ENV)
 export default function YieldScanApp({ Component, pageProps, err }) {
 	const router = useRouter();
 	const projectId = isNil(process.env.NEXT_PUBLIC_METOMIC_PROJECT_ID)
