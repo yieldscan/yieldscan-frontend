@@ -5,27 +5,50 @@ import { get } from "lodash";
 import { useState, useEffect } from "react";
 
 const AmountInput = ({
-	value,
-	availableBalance,
+	transferFundsAmount,
+	senderBalances,
 	senderAccount,
 	networkInfo,
-	onChange,
+	setTransferFundsAmount,
 	controllerBalances,
 	apiInstance,
+	isLowAmount,
 }) => {
 	const [inputValue, setInputValue] = useState(0);
-	const maxAmount = availableBalance - networkInfo.minAmount;
+	const maxAmount = Math.max(
+		(senderBalances?.availableBalance -
+			2 * apiInstance?.consts.balances.existentialDeposit.toNumber()) /
+			Math.pow(10, networkInfo.decimalPlaces),
+		0
+	);
 
 	useEffect(() => {
-		setInputValue((value / Math.pow(10, networkInfo.decimalPlaces)).toFixed(4));
-	}, [value]);
+		setInputValue(
+			transferFundsAmount / Math.pow(10, networkInfo.decimalPlaces)
+		);
+	}, [transferFundsAmount]);
 
-	const handleChange = (value) => {
-		// onChange(Number(value));
-		setInputValue(value);
+	const handleChange = (data) => {
+		console.log("value handle change");
+		console.log(data);
+		console.log(typeof data);
+		setTransferFundsAmount(() =>
+			Math.trunc(data * Math.pow(10, networkInfo.decimalPlaces))
+		);
+		// setInputValue(data);
 	};
+	console.log("transferFundsAmount");
+	console.log(transferFundsAmount);
 	console.log("inputValue");
 	console.log(inputValue);
+	console.log("maxAmount");
+	console.log(maxAmount);
+
+	console.log("senderBalances?.availableBalance");
+	console.log(senderBalances?.availableBalance.toNumber());
+
+	console.log("apiInstance?.consts.balances.existentialDeposit.toNumber()");
+	console.log(apiInstance?.consts.balances.existentialDeposit.toNumber());
 
 	return (
 		<div className="w-full">
@@ -38,20 +61,18 @@ const AmountInput = ({
 					p={8}
 					pr={inputValue === maxAmount ? 8 : 24}
 					textOverflow="ellipsis"
-					// placeholder={0}
-					value={inputValue}
+					placeholder={0}
+					value={inputValue === 0 ? "" : inputValue}
 					onChange={(e) => {
 						const { value } = e.target;
+						console.log("value");
+						console.log(value);
 						handleChange(value);
 					}}
 					// border="none"
 					fontSize="lg"
 					color="gray.600"
-					isInvalid={
-						Math.pow(10, networkInfo.decimalPlaces) +
-						apiInstance?.consts.balances.existentialDeposit.toNumber() -
-						controllerBalances?.availableBalance
-					}
+					isInvalid={isLowAmount}
 					errorBorderColor="crimson"
 				/>
 				{/* <h6

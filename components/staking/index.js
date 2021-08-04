@@ -640,6 +640,7 @@ const Staking = () => {
 					setSenderAccount={setSenderAccount}
 					transferFunds={transferFunds}
 					transferFundsAmount={transferFundsAmount}
+					setTransferFundsAmount={setTransferFundsAmount}
 					ysFees={ysFees}
 				/>
 			) : stakingPath === "secure" ? (

@@ -79,10 +79,28 @@ const TransferFunds = ({
 		setIsOpen(false);
 	};
 
-	console.log("transferFundsAmount");
-	console.log(transferFundsAmount);
-	console.log("amount");
-	console.log(amount);
+	const [isLowAmount, setIsLowAmount] = useState(false);
+	const [isLowSenderBalance, setIsLowSenderBalance] = useState(false);
+
+	useEffect(() => {
+		accountsBalances[senderAccount?.address]?.availableBalance <
+		transferFundsAmount
+			? setIsLowSenderBalance(true)
+			: setIsLowSenderBalance(false);
+	}, [
+		senderAccount?.address,
+		JSON.stringify(accountsBalances[senderAccount?.address]),
+		transferFundsAmount,
+	]);
+
+	useEffect(() => {
+		transferFundsAmount <
+		Math.pow(10, networkInfo.decimalPlaces) +
+			apiInstance?.consts.balances.existentialDeposit.toNumber() -
+			controllerBalances?.availableBalance
+			? setIsLowAmount(true)
+			: setIsLowAmount(false);
+	}, [transferFundsAmount, controllerBalances]);
 
 	return selectedAccount &&
 		controllerAccount &&
@@ -128,7 +146,7 @@ const TransferFunds = ({
 						fees. Please select an account to transfer funds.
 					</p>
 					<div className="w-full max-w-xl flex flex-col justify-center items-center space-y-4">
-						<div className="w-full max-w-sm p-4 flex flex-col">
+						<div className="w-full max-w-sm flex flex-col">
 							<p className="w-full text-gray-500">From</p>
 							{filteredAccounts && (
 								<div className="w-full flex items-center justify-center">
@@ -142,15 +160,7 @@ const TransferFunds = ({
 										onClick={handleOnClick}
 										isSetUp={true}
 										defaultHeading={"Select sender account"}
-										isInvalid={
-											accountsBalances[senderAccount?.address]
-												?.availableBalance <
-											Math.pow(10, networkInfo.decimalPlaces) +
-												apiInstance?.consts.balances.existentialDeposit.toNumber() -
-												controllerBalances?.availableBalance
-											// apiInstance?.consts.balances.existentialDeposit * 2 +
-											// ysFees + transactionFees
-										}
+										isInvalid={isLowSenderBalance}
 										widthFull={true}
 										transferFundsAmount={transferFundsAmount}
 										setTransferFundsAmount={setTransferFundsAmount}
@@ -161,28 +171,20 @@ const TransferFunds = ({
 								</div>
 							)}
 						</div>
-						<div className="w-full max-w-sm p-4 flex flex-col items-center justify-center">
+						<div className="w-full max-w-sm flex flex-col items-center justify-center">
 							<p className="w-full text-gray-500">Amount</p>
 							<AmountInput
-								value={amount}
-								onChange={setAmount}
+								transferFundsAmount={transferFundsAmount}
+								setTransferFundsAmount={setTransferFundsAmount}
 								networkInfo={networkInfo}
-								availableBalance={
-									accountsBalances[senderAccount?.address]
-										? accountsBalances[senderAccount?.address]
-												?.availableBalance /
-										  Math.pow(10, networkInfo.decimalPlaces)
-										: 0
-								}
+								senderBalances={accountsBalances[senderAccount?.address]}
 								senderAccount={senderAccount}
 								controllerBalances={controllerBalances}
 								apiInstance={apiInstance}
+								isLowAmount={isLowAmount}
 							/>
 						</div>
-						{transferFundsAmount <
-							Math.pow(10, networkInfo.decimalPlaces) +
-								apiInstance?.consts.balances.existentialDeposit.toNumber() -
-								controllerBalances?.availableBalance && (
+						{isLowAmount && (
 							<div className="flex flex-row w-full bg-red-100 rounded-lg p-4 justify-center items-center space-x-2">
 								<div>
 									<AlertOctagon size="60" className="text-red-600" />
@@ -198,10 +200,7 @@ const TransferFunds = ({
 								</div>
 							</div>
 						)}
-						{accountsBalances[senderAccount?.address]?.availableBalance <
-							Math.pow(10, networkInfo.decimalPlaces) +
-								apiInstance?.consts.balances.existentialDeposit.toNumber() * 2 -
-								controllerBalances?.availableBalance && (
+						{senderAccount && isLowSenderBalance && (
 							<div className="flex flex-row w-full bg-red-100 rounded-lg p-4 justify-center items-center space-x-2">
 								<div>
 									<AlertOctagon size="60" className="text-red-600" />
@@ -225,7 +224,10 @@ const TransferFunds = ({
 								// 	"cursor-not-allowed opacity-50"
 								// }`}
 								disabled={
-									isNil(senderAccount) || isNil(controllerAccount) || !amount
+									isNil(senderAccount) ||
+									isNil(controllerAccount) ||
+									isLowAmount ||
+									isLowSenderBalance
 								}
 								onClick={() => setIsOpen(true)}
 							>
