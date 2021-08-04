@@ -12,6 +12,7 @@ import { AlertCircle, AlertTriangle, AlertOctagon } from "react-feather";
 import create from "zustand";
 import Image from "next/image";
 import formatCurrency from "@lib/format-currency";
+import startRamp from "@lib/startRamp";
 
 const useLowBalancePopover = create((set) => ({
 	isLowBalanceOpen: false,
@@ -31,8 +32,7 @@ const LowBalancePopover = ({
 }) => {
 	const router = useRouter();
 	const { isLowBalanceOpen, close } = useLowBalancePopover();
-	console.log("transferAmount");
-	console.log(transferAmount);
+
 	return (
 		<Modal
 			isOpen={isLowBalanceOpen}
@@ -105,7 +105,17 @@ const LowBalancePopover = ({
 									</div>
 								</div>
 							</button>
-							<button className="w-full flex rounded-lg border items-center shadow-lg transform hover:scale-102 px-2 py-4">
+							<button
+								className="w-full flex rounded-lg border items-center shadow-lg transform hover:scale-102 px-2 py-4"
+								onClick={() => {
+									startRamp(
+										networkInfo,
+										transferAmount,
+										controllerAccount?.address
+									);
+									close();
+								}}
+							>
 								<div className="w-full flex-1 flex flex-row items-center text-left space-x-6">
 									<Image
 										src="/images/dollarCoin.svg"

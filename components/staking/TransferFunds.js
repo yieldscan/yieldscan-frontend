@@ -34,29 +34,14 @@ const TransferFunds = ({
 	controllerAccount,
 	transferFundsAmount,
 	controllerBalances,
-	setStakingEvent,
-	setStakingPath,
-	setLoaderError,
-	setSuccessHeading,
-	setIsSuccessful,
-	setChainError,
-	setIsTransferFunds,
-	setTransactionHash,
 	senderAccount,
+	transferFunds,
 	setSenderAccount,
 	setTransferFundsAmount,
 }) => {
 	const [isStashPopoverOpen, setIsStashPopoverOpen] = useState(false);
 
 	const [filteredAccounts, setFilteredAccounts] = useState(null);
-
-	// const [senderAccount, setSenderAccount] = useState(null);
-
-	const [amount, setAmount] = useState(transferFundsAmount);
-
-	useEffect(() => {
-		setAmount(transferFundsAmount);
-	}, [transferFundsAmount]);
 
 	useEffect(() => {
 		const filteredAccounts = accounts.filter(
@@ -107,25 +92,20 @@ const TransferFunds = ({
 		accountsBalances &&
 		accountsStakingInfo ? (
 		<div className="w-full h-full flex justify-center">
-			{/* <ConfirmTransfer
-				senderAccount={senderAccount}
-				controllerAccount={controllerAccount}
-				senderBalances={accountsBalances[senderAccount?.address]}
-				controllerBalances={controllerBalances}
-				networkInfo={networkInfo}
-				close={close}
-				apiInstance={apiInstance}
-				isOpen={isOpen}
-				amount={amount}
-				setStakingLoading={setStakingLoading}
-				setStakingEvent={setStakingEvent}
-				setLoaderError={setLoaderError}
-				setSuccessHeading={setSuccessHeading}
-				setIsSuccessful={setIsSuccessful}
-				setChainError={setChainError}
-				setIsTransferFunds={setIsTransferFunds}
-				setTransactionHash={setTransactionHash}
-			/> */}
+			{senderAccount && transferFundsAmount > 0 && (
+				<ConfirmTransfer
+					senderAccount={senderAccount}
+					controllerAccount={controllerAccount}
+					senderBalances={accountsBalances[senderAccount?.address]}
+					controllerBalances={controllerBalances}
+					networkInfo={networkInfo}
+					close={close}
+					apiInstance={apiInstance}
+					isOpen={isOpen}
+					transferFunds={transferFunds}
+					transferFundsAmount={transferFundsAmount}
+				/>
+			)}
 			<div className="w-full max-w-65-rem flex flex-col items-center">
 				<div className="p-2 w-full">
 					{/* TODO: Make a common back button component */}
@@ -252,32 +232,22 @@ const ConfirmTransfer = ({
 	controllerAccount,
 	controllerBalances,
 	senderBalances,
-	amount,
 	networkInfo,
 	close,
 	isOpen,
 	apiInstance,
 	styles,
-	setStakingLoading,
-	setStakingEvent,
-	setStakingPath,
-	setLoaderError,
-	setSuccessHeading,
-	setIsSuccessful,
-	setTransactionHash,
 	transferFunds,
+	transferFundsAmount,
 }) => {
-	const toast = useToast();
-	const [loading, setLoading] = useState(false);
-
 	const handleOnClickCancel = (account) => {
-		setLoading(false);
+		// setLoading(false);
 		close();
 	};
 	const [transactionFee, setTransactionFee] = useState(0);
 
 	useEffect(() => {
-		if (!isNil(amount)) {
+		if (!isNil(transferFundsAmount)) {
 			const substrateControllerId = encodeAddress(
 				decodeAddress(controllerAccount?.address),
 				42
@@ -286,43 +256,39 @@ const ConfirmTransfer = ({
 				decodeAddress(senderAccount?.address),
 				42
 			);
-			const amountRaw = Math.trunc(
-				amount * Math.pow(10, networkInfo.decimalPlaces)
-			);
+
 			apiInstance?.tx.balances
-				.transferKeepAlive(substrateControllerId, amountRaw)
+				.transferKeepAlive(substrateControllerId, transferFundsAmount)
 				.paymentInfo(substrateSenderId)
 				.then((info) => {
 					const fee = info.partialFee.toNumber();
 					setTransactionFee(fee);
 				});
 		}
-	}, [amount, senderAccount, controllerAccount]);
+	}, [transferFundsAmount, senderAccount, controllerAccount]);
 
 	return (
 		<Modal
 			isOpen={isOpen}
 			onClose={handleOnClickCancel}
-			isClosable={!loading}
-			closeOnEsc={!loading}
-			closeOnOverlayClick={!loading}
+			// isClosable={!loading}
+			// closeOnEsc={!loading}
+			// closeOnOverlayClick={!loading}
 			isCentered
 		>
 			<ModalOverlay />
 			<ModalContent rounded="lg" height="xl" {...styles} py={4}>
-				{!loading && (
-					<ModalCloseButton
-						onClick={close}
-						boxShadow="0 0 0 0 #fff"
-						color="gray.400"
-						backgroundColor="gray.100"
-						rounded="1rem"
-						mt={4}
-						mr={4}
-					/>
-				)}
+				<ModalCloseButton
+					onClick={close}
+					boxShadow="0 0 0 0 #fff"
+					color="gray.400"
+					backgroundColor="gray.100"
+					rounded="1rem"
+					mt={4}
+					mr={4}
+				/>
 				<ModalBody>
-					{!loading ? (
+					{senderAccount && transferFundsAmount ? (
 						<div className="h-full w-full flex text-left text-gray-700 flex-col justify-center items-center">
 							<div className="flex flex-col w-full text-gray-700 text-sm space-y-2 font-semibold">
 								<div>
@@ -365,7 +331,7 @@ const ConfirmTransfer = ({
 									<div className="flex flex-col">
 										<p className="text-sm font-semibold text-right">
 											{formatCurrency.methods.formatAmount(
-												Math.trunc(amount * 10 ** networkInfo.decimalPlaces),
+												Math.trunc(transferFundsAmount),
 												networkInfo
 											)}
 										</p>
@@ -415,8 +381,7 @@ const ConfirmTransfer = ({
 									<div className="flex flex-col">
 										<p className="text-lg text-right font-bold">
 											{formatCurrency.methods.formatAmount(
-												Math.trunc(amount * 10 ** networkInfo.decimalPlaces) +
-													transactionFee,
+												Math.trunc(transferFundsAmount) + transactionFee,
 												networkInfo
 											)}
 										</p>

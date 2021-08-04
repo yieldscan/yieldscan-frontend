@@ -29,26 +29,11 @@ const AmountInput = ({
 	}, [transferFundsAmount]);
 
 	const handleChange = (data) => {
-		console.log("value handle change");
-		console.log(data);
-		console.log(typeof data);
 		setTransferFundsAmount(() =>
 			Math.trunc(data * Math.pow(10, networkInfo.decimalPlaces))
 		);
 		// setInputValue(data);
 	};
-	console.log("transferFundsAmount");
-	console.log(transferFundsAmount);
-	console.log("inputValue");
-	console.log(inputValue);
-	console.log("maxAmount");
-	console.log(maxAmount);
-
-	console.log("senderBalances?.availableBalance");
-	console.log(senderBalances?.availableBalance.toNumber());
-
-	console.log("apiInstance?.consts.balances.existentialDeposit.toNumber()");
-	console.log(apiInstance?.consts.balances.existentialDeposit.toNumber());
 
 	return (
 		<div className="w-full">
@@ -65,8 +50,6 @@ const AmountInput = ({
 					value={inputValue === 0 ? "" : inputValue}
 					onChange={(e) => {
 						const { value } = e.target;
-						console.log("value");
-						console.log(value);
 						handleChange(value);
 					}}
 					// border="none"
