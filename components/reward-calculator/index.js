@@ -203,7 +203,7 @@ const RewardCalculatorPage = () => {
 
 	const proceedDisabled =
 		accounts && selectedAccount
-			? amount && !isInElection && amount > 0
+			? amount && !isInElection && amount > 0 && transactionFees > 0
 				? amount > totalPossibleStakingAmount
 					? true
 					: activeBondedAmount >
@@ -225,9 +225,9 @@ const RewardCalculatorPage = () => {
 		if (
 			controllerAccount &&
 			controllerBalances?.availableBalance <
-				1 * Math.pow(10, networkInfo.decimalPlaces)
-			// apiInstance?.consts.balances.existentialDeposit * 2 +
-			// 	ysFees + transactionFees
+				apiInstance?.consts.balances.existentialDeposit.toNumber() +
+					ysFees +
+					transactionFees
 		) {
 			toggleIsLowBalanceOpen();
 		} else if (
@@ -349,11 +349,22 @@ const RewardCalculatorPage = () => {
 		setSimulationChecked(false);
 	}, [selectedAccount?.address]);
 
+	useEffect(() => {
+		if (networkInfo.feesEnabled) {
+			setYsFees(() =>
+				Math.trunc(
+					amount *
+						Math.pow(10, networkInfo.decimalPlaces) *
+						networkInfo.feesRatio
+				)
+			);
+		} else setYsFees(0);
+	}, [amount, networkInfo]);
+
 	useEffect(async () => {
-		setYsFees(0);
 		setTransactionFees(0);
 		if (amount && selectedValidators && selectedAccount && apiInstance) {
-			const { ysFees, networkFees } = await getTransactionFee(
+			const networkFees = await getTransactionFee(
 				networkInfo,
 				stakingInfo,
 				amount,
@@ -363,8 +374,7 @@ const RewardCalculatorPage = () => {
 				apiInstance
 			);
 
-			setYsFees(ysFees);
-			setTransactionFees(networkFees + ysFees);
+			setTransactionFees(networkFees);
 		}
 	}, [stakingInfo, amount, selectedAccount, apiInstance]);
 

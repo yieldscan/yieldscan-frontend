@@ -42,7 +42,7 @@ const EstimatedFeesCard = ({
 							}`}
 						/>
 					</button>
-					{transactionFees > 0 && ysFees > 0 ? (
+					{transactionFees > 0 && (ysFees > 0 || !networkInfo.feesEnabled) ? (
 						<p>
 							{formatCurrency.methods.formatAmount(
 								ysFees + transactionFees,
@@ -74,19 +74,23 @@ const EstimatedFeesCard = ({
 							</Skeleton>
 						)}
 					</div>
-					<div className="flex flex-row text-gray-600 text-sm justify-between items-center">
-						<div className="flex flex-row items-center space-x-2">
-							<Minus size={18} className="mb-1" />
-							<p>YieldScan</p>
+					{networkInfo.feesEnabled && (
+						<div className="flex flex-row text-gray-600 text-sm justify-between items-center">
+							<div className="flex flex-row items-center space-x-2">
+								<Minus size={18} className="mb-1" />
+								<p>YieldScan</p>
+							</div>
+							{ysFees > 0 ? (
+								<p>
+									{formatCurrency.methods.formatAmount(ysFees, networkInfo)}
+								</p>
+							) : (
+								<Skeleton>
+									<p>Loading ...</p>
+								</Skeleton>
+							)}
 						</div>
-						{ysFees > 0 ? (
-							<p>{formatCurrency.methods.formatAmount(ysFees, networkInfo)}</p>
-						) : (
-							<Skeleton>
-								<p>Loading ...</p>
-							</Skeleton>
-						)}
-					</div>
+					)}
 				</Collapse>
 			</div>
 		</>

@@ -36,6 +36,7 @@ const TransferFunds = ({
 	controllerBalances,
 	senderAccount,
 	transferFunds,
+	ysFees,
 	setSenderAccount,
 	setTransferFundsAmount,
 }) => {
@@ -80,8 +81,8 @@ const TransferFunds = ({
 
 	useEffect(() => {
 		transferFundsAmount <
-		Math.pow(10, networkInfo.decimalPlaces) +
-			apiInstance?.consts.balances.existentialDeposit.toNumber() -
+		ysFees +
+			apiInstance?.consts.balances.existentialDeposit.toNumber() * 2 -
 			controllerBalances?.availableBalance
 			? setIsLowAmount(true)
 			: setIsLowAmount(false);

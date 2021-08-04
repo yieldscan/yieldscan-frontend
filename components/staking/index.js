@@ -165,19 +165,12 @@ const Staking = () => {
 
 	useEffect(() => {
 		if (stakingPath === "transfer" && controllerBalances) {
-			controllerBalances?.availableBalance <
-			Math.pow(10, networkInfo.decimalPlaces) +
-				apiInstance?.consts.balances.existentialDeposit.toNumber()
-				? setTransferFundsAmount(
-						() =>
-							Math.pow(10, networkInfo.decimalPlaces) +
-							apiInstance?.consts.balances.existentialDeposit.toNumber() -
-							controllerBalances?.availableBalance
-						// ysFees +
-						// 2 * apiInstance?.consts.balances.existentialDeposit -
-						// accountsBalances[selected?.address].availableBalance
-				  )
-				: setTransferFundsAmount(0);
+			setTransferFundsAmount(
+				() =>
+					ysFees +
+					apiInstance?.consts.balances.existentialDeposit.toNumber() * 2 -
+					controllerBalances?.availableBalance
+			);
 		}
 	}, [controllerAccount]);
 
