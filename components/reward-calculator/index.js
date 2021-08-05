@@ -434,8 +434,9 @@ const RewardCalculatorPage = () => {
 							setStakingPath={setStakingPath}
 							transferAmount={
 								controllerBalances
-									? Math.pow(10, networkInfo.decimalPlaces) +
-									  apiInstance?.consts.balances.existentialDeposit.toNumber() -
+									? ysFees +
+									  apiInstance?.consts.balances.existentialDeposit.toNumber() *
+											2 -
 									  controllerBalances?.availableBalance
 									: 0
 							}
