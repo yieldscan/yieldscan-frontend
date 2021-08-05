@@ -152,9 +152,15 @@ const SecureStakingSetup = ({
 
 			setTransactions([...transactions]);
 			setInjectorAccount(substrateStashId);
-			setTransactionFee(() => fee.partialFee.toNumber() + ysFees);
+			setTransactionFee(() => fee.partialFee.toNumber());
 		}
-	}, [stakingInfo, confirmedControllerAccount, controllerTransferAmount]);
+	}, [
+		stakingInfo,
+		confirmedControllerAccount,
+		controllerTransferAmount,
+		ysFees,
+		selectedValidators,
+	]);
 
 	return (
 		<div className="w-full h-full grid grid-cols-4 justify-center gap-4">
@@ -237,6 +243,7 @@ const SecureStakingSetup = ({
 						transactionFee={transactionFee}
 						confirmedControllerAccount={confirmedControllerAccount}
 						toggleIsAuthPopoverOpen={toggleIsAuthPopoverOpen}
+						ysFees={ysFees}
 					/>
 				)}
 			</div>

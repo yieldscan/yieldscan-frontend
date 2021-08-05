@@ -68,9 +68,16 @@ const StakeToEarn = ({
 
 			setTransactions([...transactions]);
 			setInjectorAccount(substrateControllerId);
-			setTransactionFee(() => fee.partialFee.toNumber() + ysFees);
+			setTransactionFee(() => fee.partialFee.toNumber());
 		}
-	}, [stakingInfo]);
+	}, [
+		stakingInfo,
+		selectedValidators,
+		networkInfo,
+		selectedAccount?.address,
+		controllerAccount?.address,
+		ysFees,
+	]);
 
 	return (
 		<div className="w-full h-full flex justify-center max-h-full">
@@ -208,7 +215,7 @@ const StakeToEarn = ({
 										<div>
 											<p className="text-sm font-semibold text-right">
 												{formatCurrency.methods.formatAmount(
-													Math.trunc(transactionFee),
+													Math.trunc(transactionFee + ysFees),
 													networkInfo
 												)}
 											</p>
@@ -231,7 +238,9 @@ const StakeToEarn = ({
 										{formatCurrency.methods.formatAmount(
 											Math.trunc(
 												stakingAmount * 10 ** networkInfo.decimalPlaces
-											) + transactionFee,
+											) +
+												transactionFee +
+												ysFees,
 											networkInfo
 										)}
 									</p>

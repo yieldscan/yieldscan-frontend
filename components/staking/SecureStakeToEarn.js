@@ -19,6 +19,7 @@ const SecureStakeToEarn = ({
 	controllerTransferAmount,
 	transactionFee,
 	toggleIsAuthPopoverOpen,
+	ysFees,
 }) => {
 	const selectedValidators = get(transactionState, "selectedValidators", []);
 	const stakingAmount = get(transactionState, "stakingAmount", 0);
@@ -156,7 +157,7 @@ const SecureStakeToEarn = ({
 							<div>
 								<p className="text-sm font-semibold text-right">
 									{formatCurrency.methods.formatAmount(
-										Math.trunc(transactionFee),
+										Math.trunc(transactionFee + ysFees),
 										networkInfo
 									)}
 								</p>
@@ -179,7 +180,8 @@ const SecureStakeToEarn = ({
 									stakingAmount * Math.pow(10, networkInfo.decimalPlaces)
 								) +
 									transactionFee +
-									controllerTransferAmount,
+									controllerTransferAmount +
+									ysFees,
 								networkInfo
 							)}
 						</p>
