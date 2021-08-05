@@ -4,13 +4,9 @@ import {
 	ModalOverlay,
 	ModalContent,
 	ModalCloseButton,
-	Icon,
 } from "@chakra-ui/core";
-import { useRouter } from "next/router";
-import { AlertCircle, AlertTriangle, AlertOctagon, Check } from "react-feather";
+import { AlertCircle, Check } from "react-feather";
 import create from "zustand";
-import Image from "next/image";
-import { useStakingPath } from "@lib/store";
 import { NextButton } from "@components/common/BottomButton";
 
 const useAuthPopover = create((set) => ({
@@ -28,7 +24,6 @@ const AuthPopover = ({
 	close,
 	onConfirm,
 }) => {
-	const { setStakingPath } = useStakingPath();
 	return (
 		<Modal
 			isOpen={isAuthPopoverOpen}
@@ -74,7 +69,6 @@ const AuthPopover = ({
 						<NextButton
 							onClick={() => {
 								onConfirm();
-								// setStakingPath("loadingPage");
 								close();
 							}}
 						>

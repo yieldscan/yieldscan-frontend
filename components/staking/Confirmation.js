@@ -8,9 +8,6 @@ import { decodeAddress, encodeAddress } from "@polkadot/util-crypto";
 import { ChevronLeft, Circle, ChevronRight, Edit } from "react-feather";
 import Account from "../wallet-connect/Account";
 import ValidatorCard from "./ValidatorCard";
-import RewardDestination from "./RewardDestination";
-import EditController from "./EditController";
-import BrowserWalletAlert from "./BrowserWalletAlert";
 import { NextButton } from "@components/common/BottomButton";
 
 const Confirmation = ({

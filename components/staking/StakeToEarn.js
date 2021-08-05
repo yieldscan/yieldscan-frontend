@@ -1,14 +1,13 @@
 import { useState, useEffect } from "react";
-import { get, isNil } from "lodash";
+import { isNil } from "lodash";
 import Image from "next/image";
 import router from "next/router";
 import formatCurrency from "@lib/format-currency";
-import { GlossaryModal, HelpPopover } from "@components/reward-calculator";
+import { HelpPopover } from "@components/reward-calculator";
 import { Spinner, Divider, Collapse } from "@chakra-ui/core";
 import { decodeAddress, encodeAddress } from "@polkadot/util-crypto";
 import { ChevronLeft, ChevronRight } from "react-feather";
 import ValidatorCard from "./ValidatorCard";
-import BrowserWalletAlert from "./BrowserWalletAlert";
 import Account from "../wallet-connect/Account";
 import { NextButton } from "@components/common/BottomButton";
 
@@ -20,7 +19,6 @@ const StakeToEarn = ({
 	balances,
 	controllerBalances,
 	networkInfo,
-	transactionState,
 	toggleIsAuthPopoverOpen,
 	ysFees,
 	transactionFee,
@@ -50,10 +48,6 @@ const StakeToEarn = ({
 			const substrateControllerId = encodeAddress(
 				decodeAddress(controllerAccount?.address)
 			);
-
-			// const amount = Math.trunc(
-			// 	stakingAmount * Math.pow(10, networkInfo.decimalPlaces)
-			// );
 
 			const transactions = [];
 
@@ -177,22 +171,6 @@ const StakeToEarn = ({
 								</div>
 							</Collapse>
 						</div>
-						{/* <div className="h-48 w-full px-4 overflow-scroll">
-							{selectedValidators.map((validator) => (
-								<ValidatorCard
-									key={validator.stashId}
-									name={validator.name}
-									stashId={validator.stashId}
-									riskScore={validator.riskScore.toFixed(2)}
-									commission={validator.commission}
-									nominators={validator.numOfNominators}
-									totalStake={validator.totalStake}
-									estimatedReward={Number(validator.rewardsPer100KSM)}
-									networkInfo={networkInfo}
-									onProfile={() => onProfile(validator)}
-								/>
-							))}
-						</div> */}
 						<div className="w-full px-4">
 							<div className="flex justify-between">
 								<p className="text-gray-700 text-xs">Staking amount</p>

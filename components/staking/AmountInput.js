@@ -1,7 +1,4 @@
 import { InputGroup, Input, InputRightElement } from "@chakra-ui/core";
-import formatCurrency from "@lib/format-currency";
-import { useAccounts } from "@lib/store";
-import { get } from "lodash";
 import { useState, useEffect } from "react";
 
 const AmountInput = ({
@@ -58,12 +55,6 @@ const AmountInput = ({
 					isInvalid={isLowAmount}
 					errorBorderColor="crimson"
 				/>
-				{/* <h6
-				className={`absolute z-20 bottom-0 left-0 ml-4 mb-3 text-xs text-gray-600 cursor-not-allowed opacity-1"
-				}`}
-			>
-				${formatCurrency.methods.formatNumber(value.subCurrency.toFixed(2))}
-			</h6> */}
 				<InputRightElement
 					opacity="1"
 					children={

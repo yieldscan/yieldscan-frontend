@@ -112,7 +112,7 @@ const SecureStakeToEarn = ({
 						<div className="flex flex-col">
 							<p className="text-sm font-semibold text-right">
 								{formatCurrency.methods.formatAmount(
-									controllerTransferAmount,
+									Math.trunc(controllerTransferAmount),
 									networkInfo
 								)}
 							</p>
