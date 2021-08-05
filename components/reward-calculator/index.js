@@ -376,7 +376,7 @@ const RewardCalculatorPage = () => {
 
 			setTransactionFees(networkFees);
 		}
-	}, [stakingInfo, amount, selectedAccount, apiInstance]);
+	}, [stakingInfo, amount, selectedAccount, apiInstance, ysFees]);
 
 	return loading || isNil(apiInstance) ? (
 		<div className="flex-center w-full h-full">
