@@ -26,7 +26,6 @@ import { useToast } from "@chakra-ui/core";
 import ConfettiGenerator from "confetti-js";
 import ChainErrorPage from "./ChainErrorPage";
 import { BottomNextButton } from "../common/BottomButton";
-import InfoAlert from "./InfoAlert";
 import TransferFunds from "./TransferFunds";
 import SecureStakingSetup from "./SecureStakingSetup";
 import { AuthPopover, useAuthPopover } from "./AuthPopover";
