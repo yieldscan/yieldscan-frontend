@@ -16,9 +16,7 @@ import {
 } from "@lib/store";
 import { useRouter } from "next/router";
 import { getNetworkInfo } from "yieldscan.config";
-import getFromLocalStorage from "@lib/getFromLocalStorage";
 import StakeToEarn from "./StakeToEarn";
-import LockFunds from "./LockFunds";
 import Confirmation from "./Confirmation";
 import stake from "@lib/stake";
 import axios from "@lib/axios";

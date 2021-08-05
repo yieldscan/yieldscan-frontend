@@ -21,20 +21,10 @@ const IntroductionToStaking = ({ incrementCurrentStep }) => {
 					src="https://www.youtube.com/embed/fd9wDFD1R_g"
 					title="YouTube video player"
 					frameBorder="0"
-					// allow="autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
 					allowFullScreen
 				></iframe>
 			</div>
 			<div className="w-full flex flex-row justify-start">
-				{/* <div>
-					<BottomBackButton
-						onClick={() => {
-							decrementStep();
-						}}
-					>
-						<BackButtonContent />
-					</BottomBackButton>
-				</div> */}
 				<div>
 					<BottomNextButton
 						onClick={() => {

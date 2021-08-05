@@ -70,7 +70,8 @@ const TransferFunds = ({
 
 	useEffect(() => {
 		accountsBalances[senderAccount?.address]?.availableBalance <
-		transferFundsAmount
+		transferFundsAmount +
+			apiInstance?.consts.balances.existentialDeposit.toNumber()
 			? setIsLowSenderBalance(true)
 			: setIsLowSenderBalance(false);
 	}, [
@@ -87,6 +88,12 @@ const TransferFunds = ({
 			? setIsLowAmount(true)
 			: setIsLowAmount(false);
 	}, [transferFundsAmount, controllerBalances]);
+
+	console.log(
+		ysFees +
+			apiInstance?.consts.balances.existentialDeposit.toNumber() * 2 -
+			controllerBalances?.availableBalance
+	);
 
 	return selectedAccount &&
 		controllerAccount &&
@@ -175,8 +182,17 @@ const TransferFunds = ({
 										Amount too low
 									</h1>
 									<p className="w-full text-sm text-gray-700">
-										You need to transfer at least 19.3423 DOT to proceed. Please
-										increase the amount input.
+										You need to transfer at least{" "}
+										{formatCurrency.methods.formatAmount(
+											Math.trunc(
+												ysFees +
+													apiInstance?.consts.balances.existentialDeposit.toNumber() *
+														2 -
+													controllerBalances?.availableBalance
+											),
+											networkInfo
+										)}{" "}
+										to proceed. Please increase the amount input.
 									</p>
 								</div>
 							</div>
@@ -193,7 +209,15 @@ const TransferFunds = ({
 									<p className="w-full text-sm text-gray-700">
 										The selected account doesn’t have sufficient balance to make
 										the transfer. Please select an account with a free balance
-										of at least 20 DOT.
+										of at least{" "}
+										{formatCurrency.methods.formatAmount(
+											Math.trunc(
+												transferFundsAmount +
+													apiInstance?.consts.balances.existentialDeposit.toNumber()
+											),
+											networkInfo
+										)}
+										.
 									</p>
 								</div>
 							</div>

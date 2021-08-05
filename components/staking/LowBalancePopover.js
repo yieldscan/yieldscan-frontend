@@ -96,8 +96,8 @@ const LowBalancePopover = ({
 											{formatCurrency.methods.formatAmount(
 												Math.trunc(transferAmount),
 												networkInfo
-											)}{" "}
-											{networkInfo.denom}'s from another account
+											)}
+											's from another account
 										</h2>
 										<p className="text-gray-600 text-sm max-w-md">
 											Transfer funds from one of your existing accounts
@@ -129,8 +129,8 @@ const LowBalancePopover = ({
 											{formatCurrency.methods.formatAmount(
 												transferAmount,
 												networkInfo
-											)}{" "}
-											{networkInfo.denom} using fiat
+											)}
+											's using fiat
 										</h2>
 										<p className="text-gray-600 text-sm max-w-md">
 											Buy {networkInfo.denom} using fiat currencies like USD,
