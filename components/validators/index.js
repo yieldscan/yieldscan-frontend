@@ -140,7 +140,7 @@ const Validators = () => {
 	const [sortKey, setSortKey] = useState("rewardsPer100KSM");
 	const [result, setResult] = useState({});
 
-	const [yieldScanFees, setYieldScanFees] = useState();
+	const [ysFees, setYsFees] = useState();
 	const [transactionFees, setTransactionFees] = useState();
 
 	const [controllerAccount, setControllerAccount] = useState(() =>
@@ -196,14 +196,26 @@ const Validators = () => {
 		track(goalCodes.VALIDATOR.VALIDATOR_SELECTION_CHANGED);
 	}, [selectedValidatorsMap]);
 
+	useEffect(() => {
+		if (networkInfo.feesEnabled) {
+			setYsFees(() =>
+				Math.trunc(
+					amount *
+						Math.pow(10, networkInfo.decimalPlaces) *
+						networkInfo.feesRatio
+				)
+			);
+		} else setYsFees(0);
+	}, [amount, networkInfo]);
+
+
 	useEffect(async () => {
-		setYieldScanFees(null);
-		setTransactionFees(null);
+		setTransactionFees(0);
 		const selectedValidatorsList = Object.values(selectedValidatorsMap).filter(
 			(v) => !isNil(v)
 		);
 		if (amount && selectedValidatorsList && selectedAccount && apiInstance) {
-			const { ysFees, networkFees } = await getTransactionFee(
+			const networkFees = await getTransactionFee(
 				networkInfo,
 				stakingInfo,
 				amount,
@@ -212,7 +224,6 @@ const Validators = () => {
 				controllerAccount,
 				apiInstance
 			);
-			setYieldScanFees(ysFees);
 			setTransactionFees(networkFees);
 		}
 	}, [stakingInfo, amount, selectedAccount, apiInstance, selectedValidatorsMap]);
@@ -407,15 +418,18 @@ const Validators = () => {
 			controllerAccount &&
 			controllerBalances?.availableBalance < 
 				apiInstance?.consts.balances.existentialDeposit.toNumber() + 
-				yieldScanFees + transactionFees
+					ysFees + 
+					transactionFees
 		) {
 			toggleIsLowBalanceOpen();
 		} else if (
 			isNil(controllerAccount) ||
-			selectedAccount?.address === controllerAccount?.address
+			selectedAccount?.address === controllerAccount?.address ||
+			stakingInfo?.stakingLedger.active.isEmpty
 		) {
 			toggleIsStakingPathPopoverOpen();
 		} else {
+			setStakingPath("distinct");
 			router.push("/staking");
 		}
 	};
@@ -502,6 +516,15 @@ const Validators = () => {
 					isOpen={isLowBalanceOpen}
 					toStaking={toStaking}
 					networkInfo={networkInfo}
+					setStakingPath={setStakingPath}
+					transferAmount={
+								controllerBalances
+									? Math.pow(10, networkInfo.decimalPlaces) +
+									  apiInstance?.consts.balances.existentialDeposit.toNumber() -
+									  controllerBalances?.availableBalance
+									: 0
+						}
+						controllerAccount={controllerAccount}
 				/>
 			)}
 			{selectedAccount && (
@@ -511,6 +534,7 @@ const Validators = () => {
 					toStaking={toStaking}
 					networkInfo={networkInfo}
 					setStakingPath={setStakingPath}
+
 				/>
 			)}
 			<EditAmountModal

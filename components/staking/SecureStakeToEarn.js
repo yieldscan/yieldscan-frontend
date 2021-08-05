@@ -27,6 +27,11 @@ const SecureStakeToEarn = ({
 	const handleValToggle = () => {
 		setShowValidators((show) => !show);
 	};
+	//if(Object.is(NaN, stakingAmount) ||Object.is(undefined, stakingAmount))
+	console.log(stakingAmount);
+	console.log(controllerTransferAmount);
+	console.log(transactionFee);
+
 
 	return (
 		<div className="flex flex-col w-full justify-center text-gray-700 space-y-4 p-4">
