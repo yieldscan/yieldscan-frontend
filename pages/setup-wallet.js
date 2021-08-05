@@ -1,5 +1,4 @@
 import dynamic from "next/dynamic";
-import withBaseLayout from "@components/common/layouts/base";
 import withDashboardLayout from "@components/common/layouts/dashboard";
 
 const Page = dynamic(
@@ -17,6 +16,7 @@ const SetupWalletComponent = () => (
 		title="Setup Wallets"
 		layoutProvider={withDashboardLayout}
 		isSetUp={true}
+		isWalletSetUp={true}
 	>
 		{() => <SetupWallet />}
 	</Page>

@@ -54,7 +54,7 @@ import {
 	NewAccountsSetupPopover,
 } from "../setup-accounts/NewAccountsSetupPopover";
 
-const Header = ({ isBase, isSetUp }) => {
+const Header = ({ isBase, isSetUp, isWalletSetUp }) => {
 	const userStorage = !isNil(typeof window) ? window.localStorage : null;
 	const { selectedNetwork, setSelectedNetwork } = useSelectedNetwork();
 	const { setValidators, setValidatorMap, setValidatorRiskSets } =
@@ -301,59 +301,38 @@ const Header = ({ isBase, isSetUp }) => {
 					</a>
 				</Link>
 			) : (
-				// network and account selection
-				<div className="grid grid-cols-4 w-full max-w-sm justify-items-end items-center space-x-4">
-					{/* Account Selection */}
-					<div className="col-span-3">
-						<AccountSelection
-							accounts={filteredAccounts ? filteredAccounts : accounts}
-							toggle={toggle}
-							isStashPopoverOpen={isStashPopoverOpen}
-							selectedAccount={selectedAccount}
-							isSetUp={isSetUp}
-							apiInstance={apiInstance}
-							networkInfo={networkInfo}
-							accountsBalances={accountsBalances}
-							setTransactionHash={(info) => setTransactionHash(info)}
-							setIsStashPopoverOpen={(info) => setIsStashPopoverOpen(info)}
-							setSelectedAccount={(info) => setSelectedAccount(info)}
-						/>
+				!isWalletSetUp && (
+					// network and account selection
+					<div className="grid grid-cols-4 w-full max-w-sm justify-items-end items-center space-x-4">
+						{/* Account Selection */}
+						<div className="col-span-3">
+							<AccountSelection
+								accounts={filteredAccounts ? filteredAccounts : accounts}
+								toggle={toggle}
+								isStashPopoverOpen={isStashPopoverOpen}
+								selectedAccount={selectedAccount}
+								isSetUp={isSetUp}
+								apiInstance={apiInstance}
+								networkInfo={networkInfo}
+								accountsBalances={accountsBalances}
+								setTransactionHash={(info) => setTransactionHash(info)}
+								setIsStashPopoverOpen={(info) => setIsStashPopoverOpen(info)}
+								setSelectedAccount={(info) => setSelectedAccount(info)}
+							/>
+						</div>
+						<div className="relative">
+							<NetworkSelection
+								isNetworkOpen={isNetworkOpen}
+								setIsNetworkOpen={setIsNetworkOpen}
+								networkInfo={networkInfo}
+								isSetUp={isSetUp}
+								supportedNetworksInfo={supportedNetworksInfo}
+								switchNetwork={switchNetwork}
+								selectedNetwork={selectedNetwork}
+							/>
+						</div>
 					</div>
-					<div className="relative">
-						<NetworkSelection
-							isNetworkOpen={isNetworkOpen}
-							setIsNetworkOpen={setIsNetworkOpen}
-							networkInfo={networkInfo}
-							isSetUp={isSetUp}
-							supportedNetworksInfo={supportedNetworksInfo}
-							switchNetwork={switchNetwork}
-							selectedNetwork={selectedNetwork}
-						/>
-					</div>
-					{false && !isNil(selectedAccount) && isBonded && (
-						<Popover trigger="click">
-							<PopoverTrigger>
-								<button className="flex items-center ml-5 p-2 font-semibold text-gray-800">
-									<Settings size="20px" />
-								</button>
-							</PopoverTrigger>
-							<PopoverContent
-								zIndex={50}
-								width="12rem"
-								backgroundColor="gray.700"
-							>
-								<div className="flex flex-col items-center justify-center my-2 bg-gray-800 text-white w-full">
-									<button
-										className="flex items-center px-4 py-2 text-white text-sm leading-5 bg-gray-800 hover:bg-gray-700 focus:outline-none cursor-pointer w-full"
-										onClick={toggleEditControllerModal}
-									>
-										Edit Controller
-									</button>
-								</div>
-							</PopoverContent>
-						</Popover>
-					)}
-				</div>
+				)
 			)}{" "}
 		</div>
 	);
