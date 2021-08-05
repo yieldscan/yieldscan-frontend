@@ -263,7 +263,7 @@ const Validators = () => {
 
 	useEffect(() => {
 		setSubCurrency(amount * coinGeckoPriceUSD);
-	}, [amount]);
+	}, [amount, networkInfo]);
 
 	useEffect(() => {
 		const sorted = orderBy(filteredValidators, [sortKey], [sortOrder]);
