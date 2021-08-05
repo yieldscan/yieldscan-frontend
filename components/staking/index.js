@@ -461,25 +461,20 @@ const Staking = () => {
 				/>
 			) : stakingPath === "express" ? (
 				<Confirmation
-					accounts={accounts}
 					balances={balances}
 					stakingInfo={stakingInfo}
 					apiInstance={apiInstance}
 					selectedAccount={selectedAccount}
 					networkInfo={networkInfo}
 					transactionState={transactionState}
-					setTransactionState={setTransactionState}
-					onConfirm={transact}
 					toggleIsAuthPopoverOpen={toggleIsAuthPopoverOpen}
 					ysFees={ysFees}
 					transactionFee={transactionFee}
 					setTransactions={setTransactions}
 					setInjectorAccount={setInjectorAccount}
 					setTransactionFee={setTransactionFee}
-					transactionType={transactionType}
 					stakingAmount={stakingAmount}
 					selectedValidators={selectedValidators}
-					setTransactionType={setTransactionType}
 				/>
 			) : stakingPath === "distinct" ? (
 				<StakeToEarn

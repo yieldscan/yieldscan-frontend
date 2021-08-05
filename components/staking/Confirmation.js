@@ -11,16 +11,12 @@ import ValidatorCard from "./ValidatorCard";
 import { NextButton } from "@components/common/BottomButton";
 
 const Confirmation = ({
-	accounts,
 	balances,
 	stakingInfo,
 	apiInstance,
 	selectedAccount,
-	controllerAccount,
 	networkInfo,
 	transactionState,
-	setTransactionState,
-	onConfirm,
 	toggleIsAuthPopoverOpen,
 	ysFees,
 	transactionFee,
@@ -89,15 +85,24 @@ const Confirmation = ({
 				);
 			}
 
-			const fee = await apiInstance.tx.utility
-				.batchAll(transactions)
-				.paymentInfo(substrateStashId);
+			const fee =
+				transactions.length > 1
+					? await apiInstance.tx.utility
+							.batchAll(transactions)
+							.paymentInfo(substrateStashId)
+					: await transactions[0].paymentInfo(substrateStashId);
 
 			setTransactions([...transactions]);
 			setInjectorAccount(substrateStashId);
-			setTransactionFee(() => fee.partialFee.toNumber() + ysFees);
+			setTransactionFee(() => fee.partialFee.toNumber());
 		}
-	}, [stakingInfo]);
+	}, [
+		stakingInfo,
+		selectedValidators,
+		networkInfo,
+		selectedAccount?.address,
+		ysFees,
+	]);
 
 	return (
 		<div className="w-full h-full flex justify-center max-h-full">
@@ -247,7 +252,7 @@ const Confirmation = ({
 										<div>
 											<p className="text-sm font-semibold text-right">
 												{formatCurrency.methods.formatAmount(
-													Math.trunc(transactionFee),
+													Math.trunc(transactionFee + ysFees),
 													networkInfo
 												)}
 											</p>
@@ -270,7 +275,9 @@ const Confirmation = ({
 										{formatCurrency.methods.formatAmount(
 											Math.trunc(
 												stakingAmount * 10 ** networkInfo.decimalPlaces
-											) + transactionFee,
+											) +
+												transactionFee +
+												ysFees,
 											networkInfo
 										)}
 									</p>
