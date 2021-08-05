@@ -128,10 +128,11 @@ const EarningsOutput = ({
 
 	useEffect(() => {
 		setStakedAmountMapped(null);
+		setOverallStakedAmountMapped(null);
 		if (address && eraLength && activeEra) {
 			axios
 				.get(
-					`/${networkInfo.network}/actors/nominator/history?id=${address}&activeEra=${activeEra}`
+					`/${networkInfo.network}/actors/nominator/overall_history?id=${address}&activeEra=${activeEra}`
 				)
 				.then(({ data }) => {
 					const erasPerDay = Math.floor(1440 / ((eraLength * 6) / 60));
@@ -141,6 +142,10 @@ const EarningsOutput = ({
 					);
 
 					const previousWeekEras = [...Array(erasPerDay * 7).keys()].map(
+						(i) => activeEra - 1 - i
+					);
+
+					const previousMonthEras = [...Array(erasPerDay * 30).keys()].map(
 						(i) => activeEra - 1 - i
 					);
 
@@ -165,9 +170,13 @@ const EarningsOutput = ({
 						erasPerDay: erasPerDay,
 					};
 					const previousMonthHistory = {
-						data: data,
-						totalAmountStaked: data.reduce((acc, x) => acc + x.nomStake, 0),
-						totalReward: data.reduce((acc, x) => acc + x.nomReward, 0),
+						data: data.filter((x) => previousMonthEras.includes(x.eraIndex)),
+						totalAmountStaked: data
+							.filter((x) => previousMonthEras.includes(x.eraIndex))
+							.reduce((acc, x) => acc + x.nomStake, 0),
+						totalReward: data
+							.filter((x) => previousMonthEras.includes(x.eraIndex))
+							.reduce((acc, x) => acc + x.nomReward, 0),
 						erasPerDay: erasPerDay,
 					};
 
@@ -176,20 +185,6 @@ const EarningsOutput = ({
 						previousWeekHistory: previousWeekHistory,
 						previousMonthHistory: previousMonthHistory,
 					});
-				})
-				.catch((err) => console.error(err));
-		}
-	}, [address, networkInfo]);
-
-	useEffect(() => {
-		setOverallStakedAmountMapped(null);
-		if (address && eraLength && activeEra) {
-			axios
-				.get(
-					`/${networkInfo.network}/actors/nominator/overall_history?id=${address}&activeEra=${activeEra}`
-				)
-				.then(({ data }) => {
-					const erasPerDay = Math.floor(1440 / ((eraLength * 6) / 60));
 
 					const overallRewardInfo = {
 						data: data,
