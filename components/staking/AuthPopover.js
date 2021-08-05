@@ -5,9 +5,10 @@ import {
 	ModalContent,
 	ModalCloseButton,
 } from "@chakra-ui/core";
-import { AlertCircle, Check } from "react-feather";
+import { AlertCircle } from "react-feather";
 import create from "zustand";
 import { NextButton } from "@components/common/BottomButton";
+import CheckCard from "./CheckCard";
 
 const useAuthPopover = create((set) => ({
 	isAuthPopoverOpen: false,
@@ -82,12 +83,3 @@ const AuthPopover = ({
 };
 
 export { AuthPopover, useAuthPopover };
-
-const CheckCard = ({ content }) => (
-	<div className="w-full flex flex-row items-center text-gray-700 space-x-2">
-		<div>
-			<Check className="border-2 rounded-full border-gray-700 p-1 h-6 w-6" />
-		</div>
-		<p className="text-xs font-light">{content}</p>
-	</div>
-);

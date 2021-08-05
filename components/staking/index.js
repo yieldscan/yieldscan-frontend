@@ -394,15 +394,9 @@ const Staking = () => {
 				</div>
 			) : stakingPath === "errorPage" ? (
 				<ChainErrorPage
-					// back={backToConfirmation}
-					// onConfirm={() => {
-					// 	setStakingLoading(true);
-					// 	setChainError(false);
-					// 	transact();
-					// }}
-					router={router}
-					setIsNewSetup={setIsNewSetup}
+					setStakingPath={setStakingPath}
 					networkInfo={networkInfo}
+					initialStakingPath={initialStakingPath}
 				/>
 			) : stakingPath === "transfer" ? (
 				<TransferFunds
