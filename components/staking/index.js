@@ -303,13 +303,12 @@ const Staking = () => {
 	useEffect(() => {
 		if (stakingPath === "transfer" && controllerBalances) {
 			setTransferFundsAmount(
-				() =>
-					ysFees +
+				ysFees +
 					apiInstance?.consts.balances.existentialDeposit.toNumber() * 2 -
 					controllerBalances?.availableBalance
 			);
 		}
-	}, [controllerAccount]);
+	}, [JSON.stringify(controllerBalances), ysFees, stakingPath]);
 
 	useEffect(() => {
 		if (transactionHash && isSuccessful && initialStakingPath !== "transfer") {
@@ -344,6 +343,11 @@ const Staking = () => {
 	console.log(transferFundsAmount);
 	console.log(transferFundsAmount);
 	console.log(apiInstance?.consts.balances.existentialDeposit.toNumber() * 2);
+	console.log(
+		ysFees +
+			apiInstance?.consts.balances.existentialDeposit.toNumber() * 2 -
+			controllerBalances?.availableBalance
+	);
 
 	return isNil(transactionState) || isNil(selectedAccount) ? (
 		<div className="w-full h-full flex justify-center items-center max-h-full">
