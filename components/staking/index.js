@@ -288,7 +288,7 @@ const Staking = () => {
 	useEffect(() => {
 		if (selected && apiInstance && accountsBalances) {
 			accountsBalances[selected?.address].availableBalance <
-			ysFees + apiInstance?.consts.balances.existentialDeposit
+			ysFees + apiInstance?.consts.balances.existentialDeposit 
 				? setControllerTransferAmount(
 						() =>
 							ysFees +
