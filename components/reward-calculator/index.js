@@ -239,6 +239,7 @@ const RewardCalculatorPage = () => {
 			toggleIsStakingPathPopoverOpen();
 		} else {
 			setStakingPath("distinct");
+			track(goalCodes.GLOBAL.DISTINCT_STAKING_PATH);
 			router.push("/staking");
 		}
 	};

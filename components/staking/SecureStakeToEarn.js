@@ -25,6 +25,9 @@ const SecureStakeToEarn = ({
 	const [showValidators, setShowValidators] = useState(false);
 
 	const handleValToggle = () => {
+		if(!showValidators){
+			track(goalCodes.STAKING.SECURE.CLICKED_SHOW_VALIDATORS);
+		}
 		setShowValidators((show) => !show);
 	};
 

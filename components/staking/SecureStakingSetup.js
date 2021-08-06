@@ -6,6 +6,7 @@ import { ChevronLeft, Check } from "react-feather";
 import IntroductionToStaking from "./IntroductionToStaking";
 import SettingUpController from "./SettingUpController";
 import SecureStakeToEarn from "./SecureStakeToEarn";
+import { track, goalCodes} from "@lib/analytics";
 
 const stepsMenu = [
 	"Introduction to secure staking",
@@ -54,6 +55,12 @@ const SecureStakingSetup = ({
 		setIsStashPopoverOpen(false);
 	};
 	const handleOnClickNext = (account) => {
+		if(controllerTransferAmount > 0){
+			track(goalCodes.STAKING.SECURE.LAST_STEP_WITH_CONTROLLER_TRANSFER);
+		}
+		else{
+			track(goalCodes.STAKING.SECURE.LAST_STEP_WITHOUT_CONTROLLER_TRANSFER);
+		}
 		setConfirmedControllerAccount(account);
 		incrementCurrentStep();
 	};

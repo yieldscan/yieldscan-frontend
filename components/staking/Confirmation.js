@@ -9,6 +9,7 @@ import { ChevronLeft, Circle, ChevronRight, Edit } from "react-feather";
 import Account from "../wallet-connect/Account";
 import ValidatorCard from "./ValidatorCard";
 import { NextButton } from "@components/common/BottomButton";
+import { track, goalCodes } from "@lib/analytics";
 
 const Confirmation = ({
 	accounts,
@@ -38,6 +39,9 @@ const Confirmation = ({
 	// };
 
 	const handleValToggle = () => {
+		if(!showValidators){
+			track(goalCodes.STAKING.EXPRESS.CLICKED_SHOW_VALIDATORS);
+		}
 		setShowValidators((show) => !show);
 	};
 

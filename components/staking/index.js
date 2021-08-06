@@ -30,6 +30,7 @@ import TransferFunds from "./TransferFunds";
 import SecureStakingSetup from "./SecureStakingSetup";
 import { AuthPopover, useAuthPopover } from "./AuthPopover";
 import transferBalancesKeepAlive from "@lib/polkadot/transfer-balances";
+import { goalCodes } from "@lib/analytics";
 
 const Staking = () => {
 	const toast = useToast();
@@ -148,6 +149,20 @@ const Staking = () => {
 					initialStakingPath === "transfer"
 						? setSuccessHeading("Wohoo!")
 						: setSuccessHeading("Congratulations");
+					
+					if (initialStakingPath === "transfer"){
+						track(goalCodes.STAKING.TRANSFER.SUCCESSFUL)
+					}
+					else if (initialStakingPath === "express"){
+						track(goalCodes.STAKING.EXPRESS.SUCCESSFUL);
+					}
+					else if (initialStakingPath === "secure"){
+						track(goalCodes.STAKING.SECURE.SUCCESSFUL);
+					}
+					else if (initialStakingPath === "distinct"){
+						track(goalCodes.STAKING.DISTINCT.SUCCESSFUL);
+					}
+
 					const successMessage =
 						initialStakingPath === "transfer"
 							? "Your controller account is succesfully set up, you can continue to stake now..."
@@ -195,7 +210,22 @@ const Staking = () => {
 							true
 						);
 				} else {
-					if (message !== "Cancelled" && initialStakingPath !== "transfer") {
+
+					if(message !== "Cancelled" && initialStakingPath === "transfer"){
+						track(goalCodes.STAKING.TRANSFER.UNSUCCESSFUL)
+					}
+					else if (message !== "Cancelled" && initialStakingPath !== "transfer") {
+					
+						if (initialStakingPath === "express"){
+							track(goalCodes.STAKING.EXPRESS.UNSUCCESSFUL);
+						}
+						else if (initialStakingPath === "secure"){
+							track(goalCodes.STAKING.SECURE.UNSUCCESSFUL);
+						}
+						else if (initialStakingPath === "distinct"){
+							track(goalCodes.STAKING.DISTINCT.UNSUCCESSFUL);
+						}
+
 						updateTransactionData(
 							selectedAccount?.address,
 							networkInfo.network,
