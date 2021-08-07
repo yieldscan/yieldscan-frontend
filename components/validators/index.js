@@ -55,7 +55,7 @@ import {
 import { useRouter } from "next/router";
 import axios from "@lib/axios";
 import { getNetworkInfo } from "yieldscan.config";
-import { trackEvent, Events } from "@lib/analytics";
+import { trackEvent, Events, track, goalCodes } from "@lib/analytics";
 import {
 	StakingPathPopover,
 	useStakingPathPopover,
@@ -140,7 +140,7 @@ const Validators = () => {
 	const [sortKey, setSortKey] = useState("rewardsPer100KSM");
 	const [result, setResult] = useState({});
 
-	const [yieldScanFees, setYieldScanFees] = useState();
+	const [ysFees, setYsFees] = useState();
 	const [transactionFees, setTransactionFees] = useState();
 
 	const [controllerAccount, setControllerAccount] = useState(() =>
@@ -191,14 +191,31 @@ const Validators = () => {
 		JSON.stringify(accountsBalances[controllerAccount?.address]),
 	]);
 
+	useEffect(() =>
+	{
+		track(goalCodes.VALIDATOR.VALIDATOR_SELECTION_CHANGED);
+	}, [selectedValidatorsMap]);
+
+	useEffect(() => {
+		if (networkInfo.feesEnabled) {
+			setYsFees(() =>
+				Math.trunc(
+					amount *
+						Math.pow(10, networkInfo.decimalPlaces) *
+						networkInfo.feesRatio
+				)
+			);
+		} else setYsFees(0);
+	}, [amount, networkInfo]);
+
+
 	useEffect(async () => {
-		setYieldScanFees(null);
-		setTransactionFees(null);
+		setTransactionFees(0);
 		const selectedValidatorsList = Object.values(selectedValidatorsMap).filter(
 			(v) => !isNil(v)
 		);
 		if (amount && selectedValidatorsList && selectedAccount && apiInstance) {
-			const { ysFees, networkFees } = await getTransactionFee(
+			const networkFees = await getTransactionFee(
 				networkInfo,
 				stakingInfo,
 				amount,
@@ -207,7 +224,6 @@ const Validators = () => {
 				controllerAccount,
 				apiInstance
 			);
-			setYieldScanFees(ysFees);
 			setTransactionFees(networkFees);
 		}
 	}, [stakingInfo, amount, selectedAccount, apiInstance, selectedValidatorsMap]);
@@ -247,7 +263,7 @@ const Validators = () => {
 
 	useEffect(() => {
 		setSubCurrency(amount * coinGeckoPriceUSD);
-	}, [amount]);
+	}, [amount, networkInfo]);
 
 	useEffect(() => {
 		const sorted = orderBy(filteredValidators, [sortKey], [sortOrder]);
@@ -402,15 +418,19 @@ const Validators = () => {
 			controllerAccount &&
 			controllerBalances?.availableBalance < 
 				apiInstance?.consts.balances.existentialDeposit.toNumber() + 
-				yieldScanFees + transactionFees
+					ysFees + 
+					transactionFees
 		) {
 			toggleIsLowBalanceOpen();
 		} else if (
 			isNil(controllerAccount) ||
-			selectedAccount?.address === controllerAccount?.address
+			selectedAccount?.address === controllerAccount?.address ||
+			stakingInfo?.stakingLedger.active.isEmpty
 		) {
 			toggleIsStakingPathPopoverOpen();
 		} else {
+			setStakingPath("distinct");
+			track(goalCodes.GLOBAL.DISTINCT_STAKING_PATH);
 			router.push("/staking");
 		}
 	};
@@ -422,6 +442,7 @@ const Validators = () => {
 	};
 
 	const trackRewardCalculatedEvent = debounce((eventData) => {
+		track(goalCodes.VALIDATOR.VALUE_CHANGED);
 		trackEvent(Events.REWARD_CALCULATED, eventData);
 	}, 1000);
 
@@ -496,6 +517,15 @@ const Validators = () => {
 					isOpen={isLowBalanceOpen}
 					toStaking={toStaking}
 					networkInfo={networkInfo}
+					setStakingPath={setStakingPath}
+					transferAmount={
+								controllerBalances
+									? Math.pow(10, networkInfo.decimalPlaces) +
+									  apiInstance?.consts.balances.existentialDeposit.toNumber() -
+									  controllerBalances?.availableBalance
+									: 0
+						}
+						controllerAccount={controllerAccount}
 				/>
 			)}
 			{selectedAccount && (
@@ -505,6 +535,7 @@ const Validators = () => {
 					toStaking={toStaking}
 					networkInfo={networkInfo}
 					setStakingPath={setStakingPath}
+
 				/>
 			)}
 			<EditAmountModal
@@ -527,6 +558,7 @@ const Validators = () => {
 				compounding={compounding}
 				timePeriodValue={timePeriodValue}
 				timePeriodUnit={timePeriodUnit}
+				trackRewardCalculatedEvent={trackRewardCalculatedEvent}
 				onCompoundingChange={setCompounding}
 				onTimePeriodValueChange={setTimePeriod}
 				onTimePeriodUnitChange={setTimePeriodUnit}
@@ -639,9 +671,11 @@ const Validators = () => {
 						// hidden={simulationChecked}
 						onClick={() =>
 							isNil(accounts)
-							? router.push("/setup-wallet")
+							? (track(goalCodes.VALIDATOR.INTENT_CONNECT_WALLET), 
+								router.push("/setup-wallet"))
 							: selectedAccount
-							? toStaking()
+							? (track(goalCodes.VALIDATOR.INTENT_STAKING),
+								toStaking())
 							: toggle()
 						}
 					>

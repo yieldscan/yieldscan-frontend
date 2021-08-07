@@ -12,6 +12,7 @@ const ValidatorsResult = ({
 	compounding,
 	timePeriodValue,
 	timePeriodUnit,
+	trackRewardCalculatedEvent,
 	result = {},
 	advancedMode = false,
 	onTimePeriodValueChange = noop,
@@ -131,6 +132,7 @@ const ValidatorsResult = ({
 						<CompoundRewardSlider
 							checked={compounding}
 							setChecked={onCompoundingChange}
+							trackRewardCalculatedEvent={trackRewardCalculatedEvent}
 						/>
 					</div>
 				</div>

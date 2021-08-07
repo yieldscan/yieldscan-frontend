@@ -10,6 +10,7 @@ import { ChevronLeft, ChevronRight } from "react-feather";
 import ValidatorCard from "./ValidatorCard";
 import Account from "../wallet-connect/Account";
 import { NextButton } from "@components/common/BottomButton";
+import { track, goalCodes } from "@lib/analytics";
 
 const StakeToEarn = ({
 	stakingInfo,
@@ -36,6 +37,9 @@ const StakeToEarn = ({
 	// };
 
 	const handleValToggle = () => {
+		if(!showValidators){
+			track(goalCodes.STAKING.DISTINCT.CLICKED_SHOW_VALIDATORS);
+		}
 		setShowValidators((show) => !show);
 	};
 

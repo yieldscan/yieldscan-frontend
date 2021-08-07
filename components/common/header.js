@@ -53,6 +53,7 @@ import {
 	useNewAccountsSetup,
 	NewAccountsSetupPopover,
 } from "../setup-accounts/NewAccountsSetupPopover";
+import { track, goalCodes } from "@lib/analytics";
 
 const Header = ({ isBase, isSetUp, isWalletSetUp }) => {
 	const userStorage = !isNil(typeof window) ? window.localStorage : null;
@@ -132,6 +133,7 @@ const Header = ({ isBase, isSetUp, isWalletSetUp }) => {
 			setCoinGeckoPriceUSD(null);
 			setNomMinStake(null);
 			setSelectedNetwork(to);
+			track(goalCodes.GLOBAL.NETWORK_SWITCHED);
 		}
 		setIsNetworkOpen(!isNetworkOpen);
 	};

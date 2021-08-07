@@ -43,6 +43,9 @@ const EditAmountModal = withSlideIn(
 			if (stakingInfo && stakingInfo?.stakingLedger?.active.isEmpty) {
 				setAmount(stakingAmount);
 			}
+			if(!selectedAccount){
+				setAmount(stakingAmount);
+			}
 			onClose();
 		};
 
@@ -130,7 +133,7 @@ const EditAmountModal = withSlideIn(
 							>
 								Transferrable Balance:{" "}
 								{formatCurrency.methods.formatAmount(
-									balances?.availableBalance,
+									balances?.availableBalance || 1000,
 									networkInfo
 								)}
 							</div>

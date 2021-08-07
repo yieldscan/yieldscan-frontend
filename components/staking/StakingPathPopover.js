@@ -11,6 +11,7 @@ import { useRouter } from "next/router";
 import { AlertCircle, AlertTriangle } from "react-feather";
 import create from "zustand";
 import Image from "next/image";
+import { track, goalCodes} from "@lib/analytics";
 
 const useStakingPathPopover = create((set) => ({
 	isStakingPathPopoverOpen: false,
@@ -31,6 +32,10 @@ const StakingPathPopover = ({
 	const router = useRouter();
 	const { isStakingPathPopoverOpen, close } = useStakingPathPopover();
 	const handleOnClick = (path) => {
+		if(path=="express")
+			track(goalCodes.GLOBAL.EXPRESS_STAKING_PATH);
+		else if(path=="secure")
+			track(goalCodes.GLOBAL.SECURE_STAKING_PATH);
 		setStakingPath(path);
 		router.push("/staking");
 		close();

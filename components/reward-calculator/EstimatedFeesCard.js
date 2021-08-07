@@ -2,7 +2,7 @@ import { HelpCircle, ChevronDown, Minus } from "react-feather";
 import { Collapse, Skeleton } from "@chakra-ui/core";
 import { useCoinGeckoPriceUSD } from "@lib/store";
 import { useState } from "react";
-
+import { track, goalCodes} from "@lib/analytics";
 import formatCurrency from "@lib/format-currency";
 
 const EstimatedFeesCard = ({
@@ -23,6 +23,8 @@ const EstimatedFeesCard = ({
 	const [showFeesBreakUp, setShowFeesBreakUp] = useState(false);
 
 	const handleShowFeesToggle = () => {
+		if(!showFeesBreakUp)
+			track(goalCodes.REWARD_CALCULATOR.CHECKED_FEE_BREAKUP);
 		setShowFeesBreakUp((state) => !state);
 	};
 
