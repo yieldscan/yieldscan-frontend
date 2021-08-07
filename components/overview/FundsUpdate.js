@@ -486,6 +486,7 @@ const FundsUpdate = withSlideIn(
 									<SuccessfullyBonded
 										transactionHash={transactionHash}
 										onConfirm={handleOnClickForSuccessfulTransaction}
+										networkInfo={networkInfo}
 									/>
 								)}
 								{chainError && (

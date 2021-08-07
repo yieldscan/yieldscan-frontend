@@ -235,6 +235,7 @@ const RewardDestinationModal = withSlideIn(
 								<SuccessfullyBonded
 									transactionHash={transactionHash}
 									onConfirm={handleOnClickForSuccessfulTransaction}
+									networkInfo={networkInfo}
 								/>
 							)}
 							{chainError && (
