@@ -1,5 +1,5 @@
 import { ExternalLink } from "react-feather";
-const SuccessfullyBonded = ({ transactionHash, onConfirm }) => {
+const SuccessfullyBonded = ({ transactionHash, onConfirm, networkInfo }) => {
 	return (
 		<div className="mx-10 mt-8 mb-20 flex flex-col text-center items-center">
 			<img src="/images/polkadot-successfully-bonded.png" width="200px" />
@@ -12,7 +12,7 @@ const SuccessfullyBonded = ({ transactionHash, onConfirm }) => {
 				the link below:
 			</span>
 			<a
-				href={`https://kusama.subscan.io/block/${transactionHash}`}
+				href={`https://${networkInfo.network}.subscan.io/block/${transactionHash}`}
 				className="mt-6 text-blue-400"
 				target="_blank"
 			>
