@@ -106,7 +106,7 @@ const StakeToEarn = ({
 							/>
 						</div>
 						<div className="text-center space-y-2">
-							<h1 className="text-2xl  font-semibold">
+							<h1 className="text-4xl  font-semibold">
 								Stake to start earning
 							</h1>
 							<p className="text-gray-600 text-sm">
@@ -186,7 +186,7 @@ const StakeToEarn = ({
 							<div className="flex justify-between">
 								<p className="text-gray-700 text-xs">Staking amount</p>
 								<div className="flex flex-col">
-									<p className="text-sm font-semibold text-right">
+									<p className="text-gray-700 text-sm font-semibold text-right">
 										{formatCurrency.methods.formatAmount(
 											Math.trunc(
 												stakingAmount * 10 ** networkInfo.decimalPlaces
@@ -217,7 +217,7 @@ const StakeToEarn = ({
 								<div className="flex flex-col">
 									{transactionFee !== 0 ? (
 										<div>
-											<p className="text-sm font-semibold text-right">
+											<p className="text-gray-700 text-sm font-semibold text-right">
 												{formatCurrency.methods.formatAmount(
 													Math.trunc(transactionFee + ysFees),
 													networkInfo
@@ -234,11 +234,11 @@ const StakeToEarn = ({
 							</div>
 							<Divider my={6} />
 							<div className="flex justify-between">
-								<p className="text-gray-700 text-sm font-semibold">
+								<p className="text-gray-700 text-base font-semibold">
 									Total Amount
 								</p>
 								<div className="flex flex-col">
-									<p className="text-lg text-right font-bold">
+									<p className="text-gray-700 text-lg text-right font-bold">
 										{formatCurrency.methods.formatAmount(
 											Math.trunc(
 												stakingAmount * 10 ** networkInfo.decimalPlaces

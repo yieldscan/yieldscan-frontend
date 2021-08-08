@@ -126,7 +126,7 @@ const Confirmation = ({
 							<Circle size={60} color="#2BCACA" />
 						</div>
 						<div className="text-center space-y-2">
-							<h1 className="text-2xl  font-semibold">Confirmation</h1>
+							<h1 className="text-4xl  font-semibold">Confirmation</h1>
 							<p className="text-gray-600 text-sm">
 								You will be locking your funds for staking. Please make sure you
 								understand the risks before proceeding.
@@ -271,7 +271,7 @@ const Confirmation = ({
 							</div>
 							<Divider my={6} />
 							<div className="flex justify-between">
-								<p className="text-gray-700 text-sm font-semibold">
+								<p className="text-gray-700 text-base font-semibold">
 									Total Amount
 								</p>
 								<div className="flex flex-col">

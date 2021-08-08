@@ -181,11 +181,11 @@ const SecureStakingSetup = ({
 						<span className="mx-2 text-sm">back</span>
 					</button>
 				</div>
-				<div className="w-full flex-1 flex flex-col text-gray-700 justify-center items-center p-4 text-gray-700 space-y-6 mb-32">
+				<div className="w-full flex-1 flex flex-col text-gray-700 justify-center items-center p-4 text-gray-700 space-y-10 mb-32">
 					{stepsMenu.map((step, index) => (
 						<div
 							key={index}
-							className="w-full grid grid-cols-8 items-center space-x-2 px-4"
+							className="w-full grid grid-cols-8 items-center space-x-1 px-4"
 						>
 							{currentStep > index ? (
 								<Check
@@ -206,7 +206,7 @@ const SecureStakingSetup = ({
 							<p
 								className={`${
 									index <= currentStep ? "text-teal-500" : "text-gray-500"
-								} col-span-7 ${index !== currentStep && "font-light"} text-sm`}
+								} col-span-7 ${index !== currentStep && "font-light"} text-base`}
 							>
 								{step}
 							</p>
