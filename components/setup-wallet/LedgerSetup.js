@@ -49,15 +49,17 @@ const ConnectLedgerWallet = ({ incrementInfoIndex, decrementInfoIndex }) => (
 				"Follow the video tutorial below to connect your ledger wallet through polkadot{.js}, then continue to the next step"
 			}
 		</p>
-		<iframe
-			width="420"
-			height="280"
-			src="https://www.youtube.com/embed/KjgWehjRWek"
-			title="YouTube video player"
-			frameBorder="0"
-			// allow="autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-			allowFullScreen
-		></iframe>
+		<div className="video-container">
+			<iframe
+				width="420"
+				height="280"
+				src="https://www.youtube.com/embed/KjgWehjRWek"
+				title="YouTube video player"
+				frameBorder="0"
+				// allow="autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+				allowFullScreen
+			></iframe>
+		</div>
 		<div className="w-full flex flex-row justify-start space-x-3">
 			<div>
 				<BottomBackButton
@@ -151,7 +153,7 @@ const StepsArr = ({
 
 const NoDirectSupportAlert = () => (
 	<div className="flex flex-row justify-between items-center bg-gray-200 text-xs text-gray-700 p-4 rounded-lg">
-		<div className="flex flex-row space-x-2">
+		<div className="flex flex-row space-x-2 spce-y-2">
 			<AlertCircle size={18} />
 			<p>YieldScan doesn’t support direct connection of ledger devices yet</p>
 		</div>
@@ -237,14 +239,14 @@ const LedgerSetup = ({
 			)}
 			<div className="row-span-3 w-full flex justify-center">
 				<div
-					className={`w-full max-w-2xl flex flex-col space-y-2 ${
+					className={`w-full max-w-2xl flex flex-col space-y-4 ${
 						connectExtensionCheck &&
 						walletConnectState === "connected" &&
 						"justify-center"
 					}`}
 				>
 					{infoIndex < 3 && (
-						<h2 className="text-xl font-semibold">Step by step</h2>
+						<h2 className="text-xl pt-6 font-semibold">Step by step</h2>
 					)}
 					<div className="w-full space-y-2">
 						{stepHeadings(networkInfo).map((info, index) => (

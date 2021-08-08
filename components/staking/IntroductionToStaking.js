@@ -14,15 +14,16 @@ const IntroductionToStaking = ({ incrementCurrentStep }) => {
 				<h2 className="text-xl font-semibold">
 					Learn what makes a secure staking setup
 				</h2>
-
-				<iframe
-					width="420"
-					height="280"
-					src="https://www.youtube.com/embed/fd9wDFD1R_g"
-					title="YouTube video player"
-					frameBorder="0"
-					allowFullScreen
-				></iframe>
+				<div className="video-container">
+					<iframe
+						width="560"
+						height="315"
+						src="https://www.youtube.com/embed/fd9wDFD1R_g"
+						title="YouTube video player"
+						frameBorder="0"
+						allowFullScreen
+					></iframe>
+				</div>
 			</div>
 			<div className="w-full flex flex-row justify-start">
 				<div>

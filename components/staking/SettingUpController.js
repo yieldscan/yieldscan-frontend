@@ -22,15 +22,17 @@ const CreateNewAccount = ({ networkInfo, incrementInfoIndex }) => (
 				"Follow the video instructions below to create the new account which can be used as your controller for staking. We recommend naming the account “Controller” to avoid any confusion with other accounts in your wallet."
 			}
 		</p>
-		<iframe
-			width="420"
-			height="280"
-			src="https://www.youtube.com/embed/NlUxkSkFH2U"
-			title="YouTube video player"
-			frameBorder="0"
-			// allow="autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-			allowFullScreen
-		></iframe>
+		<div className="video-container">
+			<iframe
+				width="560"
+				height="315"
+				src="https://www.youtube.com/embed/NlUxkSkFH2U"
+				title="YouTube video player"
+				frameBorder="0"
+				// allow="autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+				allowFullScreen
+			></iframe>
+		</div>
 		<div className="w-full flex flex-row justify-start space-x-3">
 			{/* <div>
 				<BottomBackButton
