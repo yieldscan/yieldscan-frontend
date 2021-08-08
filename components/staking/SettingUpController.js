@@ -71,7 +71,7 @@ const SelectControllerAccount = ({
 			<p className="mt-4 text-sm text-gray-600">
 				{"We recommend selecting the account you created in the previous step"}
 			</p>
-			{filteredAccounts && (
+			{filteredAccounts && filteredAccounts?.length!==0 ? (
 				<PopoverAccountSelection
 					accounts={filteredAccounts}
 					accountsBalances={accountsBalances}
@@ -81,18 +81,21 @@ const SelectControllerAccount = ({
 					selectedAccount={selected}
 					onClick={handleOnClick}
 					isSetUp={true}
-					// disabled={
-					// 	existing
-					// 		? controllerAccount?.address === selectedAccount.address &&
-					// 		  isLedger
-					// 			? false
-					// 			: true
-					// 		: filteredAccounts.length !== 0
-					// 		? false
-					// 		: true
-					// }
 				/>
-			)}
+			) : (
+				<PopoverAccountSelection
+					accounts={filteredAccounts}
+					accountsBalances={accountsBalances}
+					isStashPopoverOpen={isStashPopoverOpen}
+					setIsStashPopoverOpen={setIsStashPopoverOpen}
+					defaultHeading ={"No Eligible Account"}
+					networkInfo={networkInfo}
+					selectedAccount={selected}
+					onClick={handleOnClick}
+					isSetUp={true}
+					disabled={true}
+				/>
+				)}
 			{controllerTransferAmount > 0 && (
 				<div className="w-full flex flex-row justify-center items-center text-gray-700 bg-gray-200 rounded-lg p-4 space-x-3">
 					<div>

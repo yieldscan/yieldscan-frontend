@@ -118,7 +118,19 @@ const PopoverAccountSelection = ({
 					</div>
 					{/* TODO: style fixes */}
 					<div className="pt-8 pb-2 rounded-lg text-white w-full">
-						{accounts
+						{accounts.length == 0 ? (
+							<span className="flex flex-row items-center justify-center">
+								NO ACCOUNTS AVAILABLE
+							</span>
+						) : (
+							accounts
+							.filter((account) => account.address !== selectedAccount?.address))
+							.length == 0 ? (
+								<span className="flex flex-row items-center justify-center">
+									NO OTHER ACCOUNTS
+								</span>
+							) : (
+							accounts
 							.filter((account) => account.address !== selectedAccount?.address)
 							.map((account) => (
 								<React.Fragment key={account.address}>
@@ -168,7 +180,7 @@ const PopoverAccountSelection = ({
 									</button>
 									<hr className="border-gray-700" />
 								</React.Fragment>
-							))}
+							)))}
 						<hr className="border-gray-700" />
 					</div>
 				</div>

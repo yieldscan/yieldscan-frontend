@@ -146,16 +146,6 @@ const WalletConnectPopover = ({ styles, networkInfo, isSetUp }) => {
 		let unsubscribe;
 		if (walletConnectState === "connected") {
 			web3AccountsSubscribe((injectedAccounts) => {
-				// injectedAccounts.push(
-				// 	{
-				// 		address: "5DCYHPEg6gmzTv2bw34ANzKr6DfkCRUjzHUqKd9sNd4RpXYh",
-				// 		meta: { name: "test1" },
-				// 	},
-				// 	{
-				// 		address: "5DyYPZ73qUs5YGkqsBuQ7MZmdkpbXAFbMzA83Tp8bwiRQFpb",
-				// 		meta: { name: "test2" },
-				// 	}
-				// );
 				injectedAccounts?.map((account) => {
 					account.substrateAddress = account.address.toString();
 					account.address = encodeAddress(
@@ -325,6 +315,11 @@ const WalletConnectPopover = ({ styles, networkInfo, isSetUp }) => {
 								I understand, continue to authorize
 							</Button>
 						</SimpleGrid>
+					) : walletConnectState === "connected" && !filteredAccounts &&
+							accounts?.length === 0 ? (
+							<span className="flex flex-col items-center justify-center text-gray-700">
+								NO ACCOUNTS AVAILABLE
+							</span>
 					) : walletConnectState === "connected" ? (
 						<SelectAccount
 							accounts={filteredAccounts ? filteredAccounts : accounts}
