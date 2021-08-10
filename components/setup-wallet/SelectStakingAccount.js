@@ -4,6 +4,7 @@ import SelectAccount from "@components/wallet-connect/SelectAccount";
 import addToLocalStorage from "@lib/addToLocalStorage";
 import { useEffect, useState } from "react";
 import { isNil } from "lodash";
+import { track, goalCodes } from "@lib/analytics";
 
 const SelectStakingAccount = ({
 	networkInfo,
@@ -16,6 +17,7 @@ const SelectStakingAccount = ({
 	const onAccountSelected = (account) => {
 		setSelectedAccount(account);
 		addToLocalStorage(networkInfo.network, "selectedAccount", account.address);
+		track(goalCodes.GLOBAL.ACCOUNT_SELECTED)
 		router.back();
 	};
 

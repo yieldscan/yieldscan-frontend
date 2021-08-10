@@ -4,6 +4,7 @@ import addToLocalStorage from "@lib/addToLocalStorage";
 import PopoverAccountSelection from "./PopoverAccountSelection";
 import { useRouter } from "next/router";
 import { Circle } from "react-feather";
+import { track, goalCodes } from "@lib/analytics";
 
 const AccountSelection = ({
 	accounts,
@@ -23,6 +24,7 @@ const AccountSelection = ({
 		setTransactionHash(null);
 		setSelectedAccount(account);
 		addToLocalStorage(networkInfo.network, "selectedAccount", account.address);
+		track(goalCodes.GLOBAL.ACCOUNT_SELECTED);
 		setIsStashPopoverOpen(false);
 	};
 	const handleOnClickSetUp = () => {

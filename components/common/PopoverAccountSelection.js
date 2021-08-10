@@ -1,6 +1,6 @@
 import React from "react";
 import { get, isNil } from "lodash";
-import { ChevronDown } from "react-feather";
+import { AlertCircle, ChevronDown } from "react-feather";
 import {
 	Popover,
 	PopoverTrigger,
@@ -118,57 +118,77 @@ const PopoverAccountSelection = ({
 					</div>
 					{/* TODO: style fixes */}
 					<div className="pt-8 pb-2 rounded-lg text-white w-full">
-						{accounts
-							.filter((account) => account.address !== selectedAccount?.address)
-							.map((account) => (
-								<React.Fragment key={account.address}>
-									<button
-										className="flex items-center justify-center rounded px-4 py-2 w-full bg-gray-800 hover:bg-gray-700 hover:text-gray-200"
-										onClick={() => onClick(account)}
-									>
-										<Identicon address={account.address} size="32" />
-										<span className="flex flex-col items-start w-1/2 ml-2">
-											<span className="truncate w-full text-left pr-1">
-												{account.meta.name}
+						{accounts.length == 0 ? (
+							<div className="w-full flex flex-row justify-center items-center p-4 space-x-2">
+								<div>
+									<AlertCircle />
+								</div>
+								<p className="text-sm">No accounts available</p>
+							</div>
+						) : accounts.filter(
+								(account) => account.address !== selectedAccount?.address
+						  ).length == 0 ? (
+							<div className="w-full flex flex-row justify-center items-center p-4 space-x-2">
+								<div>
+									<AlertCircle />
+								</div>
+								<p className="text-sm">No other accounts</p>
+							</div>
+						) : (
+							accounts
+								.filter(
+									(account) => account.address !== selectedAccount?.address
+								)
+								.map((account) => (
+									<React.Fragment key={account.address}>
+										<button
+											className="flex items-center justify-center rounded px-4 py-2 w-full bg-gray-800 hover:bg-gray-700 hover:text-gray-200"
+											onClick={() => onClick(account)}
+										>
+											<Identicon address={account.address} size="32" />
+											<span className="flex flex-col items-start w-1/2 ml-2">
+												<span className="truncate w-full text-left pr-1">
+													{account.meta.name}
+												</span>
+												{accountsBalances[account.address] ? (
+													<p className="text-xs text-gray-500">
+														{formatCurrency.methods.formatAmount(
+															parseInt(
+																accountsBalances[account.address].freeBalance
+															) +
+																parseInt(
+																	accountsBalances[account.address]
+																		.reservedBalance
+																),
+															networkInfo
+														)}{" "}
+														{formatCurrency.methods.formatAmount(
+															parseInt(
+																accountsBalances[account.address].freeBalance
+															) +
+																parseInt(
+																	accountsBalances[account.address]
+																		.reservedBalance
+																),
+															networkInfo
+														) === "0" && get(networkInfo, "denom")}
+													</p>
+												) : (
+													<Skeleton>
+														<p>Loading...</p>
+													</Skeleton>
+												)}
 											</span>
-											{accountsBalances[account.address] ? (
-												<p className="text-xs text-gray-500">
-													{formatCurrency.methods.formatAmount(
-														parseInt(
-															accountsBalances[account.address].freeBalance
-														) +
-															parseInt(
-																accountsBalances[account.address]
-																	.reservedBalance
-															),
-														networkInfo
-													)}{" "}
-													{formatCurrency.methods.formatAmount(
-														parseInt(
-															accountsBalances[account.address].freeBalance
-														) +
-															parseInt(
-																accountsBalances[account.address]
-																	.reservedBalance
-															),
-														networkInfo
-													) === "0" && get(networkInfo, "denom")}
-												</p>
-											) : (
-												<Skeleton>
-													<p>Loading...</p>
-												</Skeleton>
-											)}
-										</span>
-										<span className="text-xs text-gray-500 w-1/2 text-right">
-											{account.address.slice(0, 6) +
-												"..." +
-												account.address.slice(-6)}
-										</span>
-									</button>
-									<hr className="border-gray-700" />
-								</React.Fragment>
-							))}
+											<span className="text-xs text-gray-500 w-1/2 text-right">
+												{account.address.slice(0, 6) +
+													"..." +
+													account.address.slice(-6)}
+											</span>
+										</button>
+										<hr className="border-gray-700" />
+									</React.Fragment>
+								))
+						)}
 						<hr className="border-gray-700" />
 					</div>
 				</div>

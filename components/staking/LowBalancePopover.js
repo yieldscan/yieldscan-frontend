@@ -13,6 +13,7 @@ import create from "zustand";
 import Image from "next/image";
 import formatCurrency from "@lib/format-currency";
 import startRamp from "@lib/startRamp";
+import { track, goalCodes} from "@lib/analytics";
 
 const useLowBalancePopover = create((set) => ({
 	isLowBalanceOpen: false,
@@ -78,6 +79,7 @@ const LowBalancePopover = ({
 							<button
 								className="w-full flex rounded-lg border items-center shadow-lg transform hover:scale-102 px-2 py-4"
 								onClick={() => {
+									track(goalCodes.GLOBAL.TRANSFER_STAKING_PATH);
 									setStakingPath("transfer");
 									router.push("/staking");
 									close();
@@ -108,6 +110,7 @@ const LowBalancePopover = ({
 							<button
 								className="w-full flex rounded-lg border items-center shadow-lg transform hover:scale-102 px-2 py-4"
 								onClick={() => {
+									track(goalCodes.GLOBAL.STAKING_RAMP_TRANSFER);
 									startRamp(
 										networkInfo,
 										transferAmount,

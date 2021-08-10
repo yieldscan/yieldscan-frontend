@@ -31,7 +31,7 @@ import {
 } from "@lib/store";
 import getFromLocalStorage from "@lib/getFromLocalStorage";
 import addToLocalStorage from "@lib/addToLocalStorage";
-import { trackEvent, Events, setUserProperties } from "@lib/analytics";
+import { trackEvent, Events, setUserProperties, track, goalCodes } from "@lib/analytics";
 import { setCookie } from "nookies";
 import RecoverAuthInfo from "./RecoverAuthInfo";
 import { useRouter } from "next/router";
@@ -86,6 +86,8 @@ const WalletConnectPopover = ({ styles, networkInfo, isSetUp }) => {
 	const userStorage = !isNil(typeof window) ? window.localStorage : null;
 	const autoConnectEnabled = userStorage.getItem("autoConnectEnabled");
 	const setAuthForAutoConnect = () => {
+		if(!autoConnectEnabled || autoConnectEnabled!=="true")
+		track(goalCodes.GLOBAL.WALLET_CONNECTED)
 		userStorage.setItem("autoConnectEnabled", "true");
 	};
 
@@ -144,16 +146,6 @@ const WalletConnectPopover = ({ styles, networkInfo, isSetUp }) => {
 		let unsubscribe;
 		if (walletConnectState === "connected") {
 			web3AccountsSubscribe((injectedAccounts) => {
-				// injectedAccounts.push(
-				// 	{
-				// 		address: "5DCYHPEg6gmzTv2bw34ANzKr6DfkCRUjzHUqKd9sNd4RpXYh",
-				// 		meta: { name: "test1" },
-				// 	},
-				// 	{
-				// 		address: "5DyYPZ73qUs5YGkqsBuQ7MZmdkpbXAFbMzA83Tp8bwiRQFpb",
-				// 		meta: { name: "test2" },
-				// 	}
-				// );
 				injectedAccounts?.map((account) => {
 					account.substrateAddress = account.address.toString();
 					account.address = encodeAddress(
@@ -258,6 +250,7 @@ const WalletConnectPopover = ({ styles, networkInfo, isSetUp }) => {
 	const onAccountSelected = async (account) => {
 		if (account) close();
 		if (typeof window !== undefined) {
+			track(goalCodes.GLOBAL.ACCOUNT_SELECTED);
 			trackEvent(Events.ACCOUNT_SELECTED, {
 				path: window.location.pathname,
 				address: account.address,
@@ -322,6 +315,11 @@ const WalletConnectPopover = ({ styles, networkInfo, isSetUp }) => {
 								I understand, continue to authorize
 							</Button>
 						</SimpleGrid>
+					) : walletConnectState === "connected" && !filteredAccounts &&
+							accounts?.length === 0 ? (
+							<span className="flex flex-col items-center justify-center text-gray-700">
+								NO ACCOUNTS AVAILABLE
+							</span>
 					) : walletConnectState === "connected" ? (
 						<SelectAccount
 							accounts={filteredAccounts ? filteredAccounts : accounts}
