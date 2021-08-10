@@ -105,7 +105,7 @@ const RewardCalculatorPage = () => {
 		useStakingPathPopover();
 	const { setStakingPath } = useStakingPath();
 	const [loading, setLoading] = useState(false);
-	const [amount, setAmount] = useState(transactionState.stakingAmount || 0);
+	const [amount, setAmount] = useState(transactionState.stakingAmount || 1000);
 	const [subCurrency, setSubCurrency] = useState(0);
 
 	const [risk, setRisk] = useState(transactionState.riskPreference || "Medium");
@@ -379,9 +379,11 @@ const RewardCalculatorPage = () => {
 	}, [stakingInfo, amount, selectedAccount, apiInstance, ysFees]);
 
 	useEffect(() => {
-		totalAvailableStakingAmount - networkInfo.minAmount > 0 ?
-		setAmount(totalAvailableStakingAmount - networkInfo.minAmount)
-		: setAmount(0)
+		activeBondedAmount > 0
+		? setAmount(activeBondedAmount)
+		: totalAvailableStakingAmount - networkInfo.minAmount > 0
+		? setAmount(totalAvailableStakingAmount - networkInfo.minAmount)
+		: setAmount(1000)
 	}, [totalAvailableStakingAmount]);
 
 	return loading || isNil(apiInstance) ? (
