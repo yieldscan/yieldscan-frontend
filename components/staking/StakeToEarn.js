@@ -37,7 +37,7 @@ const StakeToEarn = ({
 	// };
 
 	const handleValToggle = () => {
-		if(!showValidators){
+		if (!showValidators) {
 			track(goalCodes.STAKING.DISTINCT.CLICKED_SHOW_VALIDATORS);
 		}
 		setShowValidators((show) => !show);
@@ -106,7 +106,7 @@ const StakeToEarn = ({
 							/>
 						</div>
 						<div className="text-center space-y-2">
-							<h1 className="text-4xl  font-semibold">
+							<h1 className="text-4xl text-gray-700 font-semibold">
 								Stake to start earning
 							</h1>
 							<p className="text-gray-600 text-sm">
@@ -140,7 +140,7 @@ const StakeToEarn = ({
 								/>
 							</div>
 						</div>
-						<div className="w-full p-2">
+						<div className="w-full text-gray-700 p-2">
 							<button
 								onClick={handleValToggle}
 								className="flex text-gray-600 text-xs"
