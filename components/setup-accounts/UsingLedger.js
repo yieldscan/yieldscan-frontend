@@ -68,7 +68,7 @@ const UsingLedger = ({
 							<p
 								className={`${
 									currentStep !== index ? "text-gray-500" : "text-teal-500"
-								} col-span-7 text-sm max-w-md`}
+								} col-span-7 text-xl max-w-md`}
 							>
 								{step}
 							</p>
