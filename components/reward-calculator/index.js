@@ -204,7 +204,9 @@ const RewardCalculatorPage = () => {
 
 	const proceedDisabled =
 		accounts && selectedAccount
-			? amount && !isInElection && amount > 0 && transactionFees > 0
+			? amount && !isInElection && 
+				amount >= networkInfo.minPossibleStake + networkInfo.minAmount && 
+				transactionFees > 0
 				? amount > totalPossibleStakingAmount
 					? true
 					: activeBondedAmount >

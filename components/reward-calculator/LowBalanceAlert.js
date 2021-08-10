@@ -25,16 +25,30 @@ const LowBalanceAlert = ({
 	const [description, setDescription] = useState();
 	const [descriptionColor, setDescriptionColor] = useState();
 	useEffect(() => {
-		amount > totalPossibleStakingAmount
-			? true
-			: activeBondedAmount > totalPossibleStakingAmount - networkInfo.minAmount
-			? totalAvailableStakingAmount < networkInfo.minAmount / 2
-				? true
-				: false
-			: amount > totalPossibleStakingAmount - networkInfo.minAmount
-			? true
-			: false;
-		if (amount > totalPossibleStakingAmount) {
+
+		if (amount < networkInfo.minPossibleStake){
+			setStatus("error");
+			setTitleColor("red.500");
+			setDescriptionColor("red.500");
+			if(activeBondedAmount > 0){
+				setTitle("Current amount insufficient to stake anymore");
+			}
+			else {
+				setTitle("Amount insufficient to begin staking");
+			}
+			setDescription(
+				`You need an additional of ${formatCurrency.methods.formatAmount(
+					Math.trunc(
+						Number(
+							networkInfo.minPossibleStake + networkInfo.minAmount -
+							totalPossibleStakingAmount
+						) *
+							10 ** networkInfo.decimalPlaces
+					),
+					networkInfo
+				)} to proceed further. `
+			);
+		}else if (amount > totalPossibleStakingAmount) {
 			setStatus("error");
 			setTitleColor("red.500");
 			setTitle("Insufficient Balance");
@@ -74,7 +88,8 @@ const LowBalanceAlert = ({
 				setTitle("Low Balance");
 				setDescriptionColor("#FDB808");
 				setDescription(
-					`Your available balance is low, we recommend to add more ${networkInfo.denom}'s`
+					`Your available balance is low, we recommend to add more 
+					${networkInfo.denom}s`
 				);
 			}
 		} else if (amount > totalPossibleStakingAmount - networkInfo.minAmount) {
@@ -122,7 +137,12 @@ const LowBalanceAlert = ({
 						<PopoverArrow />
 						<PopoverBody>
 							<span className="text-white text-xs">
-								This is to ensure that you have a decent amount of funds in your
+								{amount < networkInfo.minPossibleStake
+								? `${networkInfo.name} network has a minimum threshold of 
+									${networkInfo.minPossibleStake} ${networkInfo.denom} to 
+									stake. The rest `
+								: "This "}
+								is to ensure that you have a decent amount of funds in your
 								account to pay transaction fees for claiming rewards, unbonding
 								funds, changing on-chain staking preferences, etc.
 							</span>
