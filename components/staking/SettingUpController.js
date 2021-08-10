@@ -71,7 +71,7 @@ const SelectControllerAccount = ({
 			<p className="mt-4 text-sm text-gray-600">
 				{"We recommend selecting the account you created in the previous step"}
 			</p>
-			{filteredAccounts && filteredAccounts?.length!==0 ? (
+			{filteredAccounts && filteredAccounts?.length !== 0 ? (
 				<PopoverAccountSelection
 					accounts={filteredAccounts}
 					accountsBalances={accountsBalances}
@@ -83,19 +83,16 @@ const SelectControllerAccount = ({
 					isSetUp={true}
 				/>
 			) : (
-				<PopoverAccountSelection
-					accounts={filteredAccounts}
-					accountsBalances={accountsBalances}
-					isStashPopoverOpen={isStashPopoverOpen}
-					setIsStashPopoverOpen={setIsStashPopoverOpen}
-					defaultHeading ={"No Eligible Account"}
-					networkInfo={networkInfo}
-					selectedAccount={selected}
-					onClick={handleOnClick}
-					isSetUp={true}
-					disabled={true}
-				/>
-				)}
+				<div className="w-full flex flex-row justify-center items-center text-gray-700 bg-gray-200 rounded-lg p-4 space-x-3">
+					<div>
+						<AlertCircle />
+					</div>
+					<p className="text-sm font-light">
+						You don't have any eligible accounts available for setting as a
+						controller. Please go back and create one.
+					</p>
+				</div>
+			)}
 			{controllerTransferAmount > 0 && (
 				<div className="w-full flex flex-row justify-center items-center text-gray-700 bg-gray-200 rounded-lg p-4 space-x-3">
 					<div>
