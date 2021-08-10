@@ -686,7 +686,7 @@ const HelpPopover = ({
 	content,
 	placement = "right",
 	iconSize = "12px",
-	zIndex = 50,
+	zIndex = 1401,
 }) => {
 	return (
 		<Popover trigger="hover" placement={placement} usePortal>
