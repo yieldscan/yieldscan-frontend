@@ -85,57 +85,106 @@ const EditAmountModal = withSlideIn(
 					<ModalCloseButton onClick={onClose} />
 					<ModalBody>
 						<div className="mt-4">
-							{selectedAccount &&
-								stakingAmount >
-									totalPossibleStakingAmount - networkInfo.minAmount && (
-									<Alert
-										status="error"
-										rounded="md"
-										flex
-										flexDirection="column"
-										alignItems="start"
-										my={4}
-									>
-										<AlertTitle color="red.500">
-											Insufficient Balance
-										</AlertTitle>
-										<AlertDescription color="red.500">
-											We cannot stake this amount since we recommend maintaining
-											a minimum balance of {networkInfo.minAmount}{" "}
-											{networkInfo.denom} in your account at all times.{" "}
-											<Popover trigger="hover" usePortal>
-												<PopoverTrigger>
-													<span className="underline cursor-help">Why?</span>
-												</PopoverTrigger>
-												<PopoverContent
-													zIndex={99999}
-													_focus={{ outline: "none" }}
-													bg="gray.700"
-													border="none"
-												>
-													<PopoverArrow />
-													<PopoverBody>
-														<span className="text-white">
-															This is to ensure that you have a decent amout of
-															funds in your account to pay transaction fees for
-															claiming rewards, unbonding funds, changing
-															on-chain staking preferences, etc.
-														</span>
-													</PopoverBody>
-												</PopoverContent>
-											</Popover>
-										</AlertDescription>
-									</Alert>
-								)}
+							{selectedAccount && stakingAmount < networkInfo.minPossibleStake
+							? (<Alert
+									status="error"
+									rounded="md"
+									flex
+									flexDirection="column"
+									alignItems="start"
+									my={4}
+								>
+									<AlertTitle color="red.500">
+									{activeBondedAmount > 0
+									? "Current amount insufficient to stake anymore"
+									: "Amount insufficient to begin staking"}
+									</AlertTitle>
+									<AlertDescription color="red.500">
+									You need an additional of {formatCurrency.methods
+									.formatAmount(Math.trunc(Number(
+									networkInfo.minPossibleStake + networkInfo.minAmount -
+									totalPossibleStakingAmount
+									) *10 ** networkInfo.decimalPlaces),
+									networkInfo)} to proceed further.
+										<Popover trigger="hover" usePortal>
+											<PopoverTrigger>
+												<span className="underline cursor-help">Why?</span>
+											</PopoverTrigger>
+											<PopoverContent
+												zIndex={99999}
+												_focus={{ outline: "none" }}
+												bg="gray.700"
+												border="none"
+											>
+												<PopoverArrow />
+												<PopoverBody>
+													<span className="text-white">
+													{amount < networkInfo.minPossibleStake
+													? `${networkInfo.name} network has a minimum threshold of 
+														${networkInfo.minPossibleStake} ${networkInfo.denom} to 
+														stake. The rest `
+													: "This "}
+													is to ensure that you have a decent amount of funds in your
+													account to pay transaction fees for claiming rewards, unbonding
+													funds, changing on-chain staking preferences, etc.
+													</span>
+												</PopoverBody>
+											</PopoverContent>
+										</Popover>
+									</AlertDescription>
+								</Alert>
+
+							) : (
+								selectedAccount && stakingAmount >
+								totalPossibleStakingAmount - networkInfo.minAmount &&
+								(<Alert
+									status="error"
+									rounded="md"
+									flex
+									flexDirection="column"
+									alignItems="start"
+									my={4}
+								>
+									<AlertTitle color="red.500">
+										Insufficient Balance
+									</AlertTitle>
+									<AlertDescription color="red.500">
+										We cannot stake this amount since we recommend maintaining
+										a minimum balance of {networkInfo.minAmount}{" "}
+										{networkInfo.denom} in your account at all times.{" "}
+										<Popover trigger="hover" usePortal>
+											<PopoverTrigger>
+												<span className="underline cursor-help">Why?</span>
+											</PopoverTrigger>
+											<PopoverContent
+												zIndex={99999}
+												_focus={{ outline: "none" }}
+												bg="gray.700"
+												border="none"
+											>
+												<PopoverArrow />
+												<PopoverBody>
+													<span className="text-white">
+														This is to ensure that you have a decent amout of
+														funds in your account to pay transaction fees for
+														claiming rewards, unbonding funds, changing
+														on-chain staking preferences, etc.
+													</span>
+												</PopoverBody>
+											</PopoverContent>
+										</Popover>
+									</AlertDescription>
+								</Alert>
+							))}
 							<div
 								className="m-2 text-gray-600 text-sm"
 								hidden={isNil(selectedAccount)}
 							>
 								Transferrable Balance:{" "}
-								{formatCurrency.methods.formatAmount(
-									balances?.availableBalance || 1000,
+								{balances && (formatCurrency.methods.formatAmount(
+									balances?.availableBalance,
 									networkInfo
-								)}
+								))}
 							</div>
 							<div className="my-5">
 								<AmountInput

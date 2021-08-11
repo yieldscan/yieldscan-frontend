@@ -5,6 +5,7 @@ import {
 	ChevronLeft,
 	ArrowUp,
 	ArrowDown,
+	AlertCircle,
 } from "react-feather";
 import { useState, useEffect } from "react";
 import {
@@ -229,28 +230,26 @@ const Validators = () => {
 	}, [stakingInfo, amount, selectedAccount, apiInstance, selectedValidatorsMap]);
 
 	useEffect(() => {
-		if (!validatorMap) {
-			axios
-				.get(`/${networkInfo.network}/rewards/risk-set`)
-				.then(({ data }) => {
-					const validatorMap = {
-						Low: mapValues(keyBy(data.lowriskset, "stashId")),
-						Medium: mapValues(keyBy(data.medriskset, "stashId")),
-						High: mapValues(keyBy(data.highriskset, "stashId")),
-						total: data.totalset,
-					};
+		axios
+			.get(`/${networkInfo.network}/rewards/risk-set`)
+			.then(({ data }) => {
+				const validatorMap = {
+					Low: mapValues(keyBy(data.lowriskset, "stashId")),
+					Medium: mapValues(keyBy(data.medriskset, "stashId")),
+					High: mapValues(keyBy(data.highriskset, "stashId")),
+					total: data.totalset,
+				};
 
-					setValidatorMap(validatorMap);
-				})
-				.catch(() => {
-					setErrorFetching(true);
-					setLoading(false);
-				});
-		}
-	}, [validatorMap, networkInfo]);
+				setValidatorMap(validatorMap);
+			})
+			.catch(() => {
+				setErrorFetching(true);
+				setLoading(false);
+			});
+	}, [selectedNetwork]);
 
 	useEffect(() => {
-		if (validatorMap) {
+		if (validatorMap?.total && validatorMap?.Medium) {
 			setLoading(true);
 			setValidators(validatorMap.total);
 			setFilteredValidators(validatorMap.total);
@@ -344,7 +343,7 @@ const Validators = () => {
 	}, [filterPanelOpen, filterOptions, showSelected]);
 
 	useEffect(() => {
-		if (amount && timePeriodValue && timePeriodUnit) {
+		if (timePeriodValue && timePeriodUnit) {
 			const selectedValidatorsList = Object.values(
 				selectedValidatorsMap
 			).filter((v) => !isNil(v));
@@ -459,7 +458,9 @@ const Validators = () => {
 
 	const proceedDisabled =
 		accounts && selectedAccount
-			? amount && !isInElection && amount > 0
+			? amount && !isInElection && 
+				amount >= networkInfo.minPossibleStake + networkInfo.minAmount && 
+				transactionFees > 0
 				? amount > totalPossibleStakingAmount
 					? true
 					: activeBondedAmount >
@@ -482,21 +483,37 @@ const Validators = () => {
 		}
 	}, [stakingInfo]);
 
-	return loading ? (
+	useEffect(() => {
+		activeBondedAmount > 0
+		? setAmount(activeBondedAmount)
+		: totalAvailableStakingAmount - networkInfo.minAmount > 0
+		? setAmount(totalAvailableStakingAmount - networkInfo.minAmount)
+		: selectedAccount && totalPossibleStakingAmount === 0
+		? setAmount(0)
+		: setAmount(1000)
+	}, [totalAvailableStakingAmount, selectedAccount]);
+
+	return loading || !apiInstance ? (
 		<div className="flex-center w-full h-full">
 			<div className="flex-center flex-col">
 				<Spinner size="xl" color="teal.500" thickness="4px" />
-				<span className="text-sm text-gray-600 mt-5">
+				<span className="text-xl text-gray-700 mt-5">
 					Fetching validators...
+				</span>
+				<span className="text-xs text-gray-600">
+					This may take a while
 				</span>
 			</div>
 		</div>
 	) : errorFetching ? (
-		<div className="flex-center w-full h-full">
-			<div className="flex-center flex-col">
-				<span className="text-sm text-gray-600 mt-5">
-					Unable to fetch validators data, try refreshing the page.
-				</span>
+		<div className="w-full flex-center h-full justify-center items-center text-gray-700">
+			<div className="flex flex-row bg-gray-200 rounded-lg p-4 space-x-3">
+				<div>
+					<AlertCircle />
+				</div>
+				<p className=" text-sm font-light">
+					There was an error fetching validator data. Please refresh the page.
+				</p>
 			</div>
 		</div>
 	) : (
@@ -519,7 +536,7 @@ const Validators = () => {
 					networkInfo={networkInfo}
 					setStakingPath={setStakingPath}
 					transferAmount={
-								controllerBalances
+								controllerBalances && apiInstance
 									? Math.pow(10, networkInfo.decimalPlaces) +
 									  apiInstance?.consts.balances.existentialDeposit.toNumber() -
 									  controllerBalances?.availableBalance
@@ -530,7 +547,6 @@ const Validators = () => {
 			)}
 			{selectedAccount && (
 				<StakingPathPopover
-					// isOpen={true}
 					isOpen={isStakingPathPopoverOpen}
 					toStaking={toStaking}
 					networkInfo={networkInfo}
@@ -657,7 +673,8 @@ const Validators = () => {
 				setSelectedValidators={setSelectedValidatorsMap}
 				networkInfo={networkInfo}
 			/>
-			<div className="fixed left-0 bottom-0 flex-end w-full bg-white">
+			{filteredValidators && (
+				<div className="fixed left-0 bottom-0 flex-end w-full bg-white">
 				<div className="text-xs text-gray-500 text-right mr-24 mt-4">
 					* Estimated Returns are calculated per era for 100 {networkInfo.denom}
 				</div>
@@ -689,6 +706,7 @@ const Validators = () => {
 					</button>
 				</div>
 			</div>
+			)}
 			{/* {isPaymentPopoverOpen && (
 				<PaymentPopover
 					isPaymentPopoverOpen={isPaymentPopoverOpen}
