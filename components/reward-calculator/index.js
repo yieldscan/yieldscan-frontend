@@ -281,13 +281,6 @@ const RewardCalculatorPage = () => {
 	}, [amount, networkInfo, validatorRiskSets]);
 
 	useEffect(() => {
-		if (get(validatorRiskSets, risk)) {
-			const selectedValidators = cloneDeep(validatorRiskSets[risk]);
-			setSelectedValidators(selectedValidators);
-		}
-	}, [risk]);
-
-	useEffect(() => {
 		if (!validatorRiskSets) {
 			setLoading(true);
 			setHeaderLoading(true);
@@ -306,6 +299,7 @@ const RewardCalculatorPage = () => {
 					};
 
 					setValidatorRiskSets(validatorMap);
+					setRisk("Medium");
 					setSelectedValidators(validatorMap["Medium"]);
 					setLoading(false);
 					setHeaderLoading(false);
@@ -313,7 +307,14 @@ const RewardCalculatorPage = () => {
 		} else {
 			console.info("Using previous validator map.");
 		}
-	}, [networkInfo, validatorRiskSets]);
+	}, [networkInfo]);
+
+	useEffect(() => {
+		if (get(validatorRiskSets, risk)) {
+			const selectedValidators = cloneDeep(validatorRiskSets[risk]);
+			setSelectedValidators(selectedValidators);
+		}
+	}, [risk]);
 
 	useEffect(() => {
 		if (risk && timePeriodValue) {
