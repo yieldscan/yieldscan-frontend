@@ -15,12 +15,13 @@ const ResultCardInsight = ({
 	popoverContent = "",
 	value,
 	supportValue,
+	placement = "top",
 	emptyState,
 }) => (
 	<div className="mt-2 mr-8">
 		<div className="flex items-center">
 			<span className="opacity-75 mr-1 text-xs">{label}</span>
-			<Popover trigger="hover">
+			<Popover trigger="hover" placement={placement}>
 				<PopoverTrigger>
 					<HelpCircle
 						size="12"
