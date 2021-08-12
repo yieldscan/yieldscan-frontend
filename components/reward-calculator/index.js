@@ -50,7 +50,7 @@ import {
 	useDisclosure,
 } from "@chakra-ui/core";
 import Routes from "@lib/routes";
-import { trackEvent, Events, track, goalCodes} from "@lib/analytics";
+import { trackEvent, Events, track, goalCodes } from "@lib/analytics";
 import { getNetworkInfo } from "yieldscan.config";
 import { HelpCircle, AlertCircle, AlertTriangle } from "react-feather";
 import MinStakeAlert from "./MinStakeAlert";
@@ -65,7 +65,7 @@ import {
 } from "@components/staking/StakingPathPopover";
 
 const trackRewardCalculatedEvent = debounce((eventData) => {
-	track(goalCodes.REWARD_CALCULATOR.VALUE_CHANGED)
+	track(goalCodes.REWARD_CALCULATOR.VALUE_CHANGED);
 	trackEvent(Events.REWARD_CALCULATED, eventData);
 }, 1000);
 
@@ -621,11 +621,11 @@ const RewardCalculatorPage = () => {
 							hidden={simulationChecked}
 							onClick={() =>
 								isNil(accounts)
-									? (track(goalCodes.REWARD_CALCULATOR.INTENT_CONNECT_WALLET), 
-										router.push("/setup-wallet"))
+									? (track(goalCodes.REWARD_CALCULATOR.INTENT_CONNECT_WALLET),
+									  router.push("/setup-wallet"))
 									: selectedAccount
 									? (track(goalCodes.REWARD_CALCULATOR.INTENT_STAKING),
-										toStaking())
+									  toStaking())
 									: toggle()
 							}
 						>
@@ -684,9 +684,9 @@ const GlossaryModal = ({
 const HelpPopover = ({
 	popoverTrigger,
 	content,
-	placement = "right",
+	placement = "top",
 	iconSize = "12px",
-	zIndex = 50,
+	zIndex = 1401,
 }) => {
 	return (
 		<Popover trigger="hover" placement={placement} usePortal>
