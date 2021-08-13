@@ -35,7 +35,7 @@ const Confirmation = ({
 	// };
 
 	const handleValToggle = () => {
-		if(!showValidators){
+		if (!showValidators) {
 			track(goalCodes.STAKING.EXPRESS.CLICKED_SHOW_VALIDATORS);
 		}
 		setShowValidators((show) => !show);
@@ -126,7 +126,9 @@ const Confirmation = ({
 							<Circle size={60} color="#2BCACA" />
 						</div>
 						<div className="text-center space-y-2">
-							<h1 className="text-2xl  font-semibold">Confirmation</h1>
+							<h1 className="text-4xl text-gray-700 font-semibold">
+								Confirmation
+							</h1>
 							<p className="text-gray-600 text-sm">
 								You will be locking your funds for staking. Please make sure you
 								understand the risks before proceeding.
@@ -219,7 +221,7 @@ const Confirmation = ({
 								</div>
 							</Collapse>
 						</div> */}
-						<div className="w-full px-4">
+						<div className="w-full text-gray-700 px-4">
 							<div className="flex justify-between">
 								<p className="text-gray-700 text-xs">Staking amount</p>
 								<div className="flex flex-col">
@@ -251,7 +253,7 @@ const Confirmation = ({
 									/>
 								</div>
 
-								<div className="flex flex-col">
+								<div className="flex text-gray-700 flex-col">
 									{transactionFee !== 0 ? (
 										<div>
 											<p className="text-sm font-semibold text-right">
@@ -270,10 +272,8 @@ const Confirmation = ({
 								</div>
 							</div>
 							<Divider my={6} />
-							<div className="flex justify-between">
-								<p className="text-gray-700 text-sm font-semibold">
-									Total Amount
-								</p>
+							<div className="flex text-gray-700 justify-between">
+								<p className="text-base font-semibold">Total Amount</p>
 								<div className="flex flex-col">
 									<p className="text-lg text-right font-bold">
 										{formatCurrency.methods.formatAmount(

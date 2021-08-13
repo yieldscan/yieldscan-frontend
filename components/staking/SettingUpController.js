@@ -203,7 +203,7 @@ const SettingUpController = ({
 	return (
 		<div className="w-full flex flex-col text-gray-700 p-4 text-gray-700 space-y-6">
 			<div className="w-full flex flex-col justify-center">
-				<h1 className="w-full h-full text-2xl font-semibold">
+				<h1 className="w-full h-full text-4xl font-semibold">
 					Setting up your controller
 				</h1>
 				<p className="w-full text-gray-600 text-sm">
@@ -242,7 +242,7 @@ const SettingUpController = ({
 							}`}
 						>
 							<div className="grid grid-cols-10 gap-2 w-full text-md text-gray-700 justify-between items-center">
-								<p className="text-justify col-span-9 mt-1 max-w-lg">{info}</p>
+								<p className="text-justify text-lg col-span-9 mt-1 max-w-5xl">{info}</p>
 							</div>
 							<Collapse isOpen={infoIndex === index}>
 								<StepsArr

@@ -3,7 +3,7 @@ const IntroductionToStaking = ({ incrementCurrentStep }) => {
 	return (
 		<div className="w-full flex flex-col text-gray-700 p-4 text-gray-700 space-y-6">
 			<div className="w-full flex flex-col justify-center">
-				<h1 className="w-full text-2xl font-semibold">
+				<h1 className="w-full text-4xl font-semibold">
 					Introduction to secure staking
 				</h1>
 				<p className="w-full text-gray-600 text-sm">

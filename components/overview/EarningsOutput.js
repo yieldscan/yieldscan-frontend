@@ -197,7 +197,7 @@ const EarningsOutput = ({
 				})
 				.catch((err) => console.error(err));
 		}
-	}, [address, networkInfo]);
+	}, [address, networkInfo, eraLength, activeEra]);
 
 	useEffect(() => {
 		setTweet(null);

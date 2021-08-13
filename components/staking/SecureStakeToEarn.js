@@ -7,6 +7,7 @@ import { ArrowLeft, ChevronRight } from "react-feather";
 import ValidatorCard from "./ValidatorCard";
 import Account from "../wallet-connect/Account";
 import { NextButton } from "@components/common/BottomButton";
+import { track, goalCodes } from "@lib/analytics";
 
 const SecureStakeToEarn = ({
 	selectedAccount,
@@ -35,7 +36,7 @@ const SecureStakeToEarn = ({
 	return (
 		<div className="flex flex-col w-full justify-center text-gray-700 space-y-4 p-4">
 			<div className="space-y-2">
-				<h1 className="text-2xl  font-semibold">Stake to start earning</h1>
+				<h1 className="text-4xl  font-semibold">Stake to start earning</h1>
 				<p className="text-gray-600 max-w-lg text-sm">
 					You will be delegating your stake to the following validators. Please
 					make sure you understand the risks before proceeding.
@@ -175,7 +176,7 @@ const SecureStakeToEarn = ({
 				</div>
 				<Divider my={6} />
 				<div className="flex justify-between">
-					<p className="text-gray-700 text-sm font-semibold">Total Amount</p>
+					<p className="text-gray-700 text-base font-semibold">Total Amount</p>
 					<div className="flex flex-col">
 						<p className="text-lg text-right font-bold">
 							{formatCurrency.methods.formatAmount(
