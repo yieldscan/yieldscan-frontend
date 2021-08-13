@@ -485,9 +485,12 @@ const RewardCalculatorPage = () => {
 								{selectedAccount &&
 									balances &&
 									stakingInfo &&
+									!simulationChecked &&
 									(amount >
 										totalPossibleStakingAmount - networkInfo.minAmount ||
-										totalAvailableStakingAmount < networkInfo.minAmount) && (
+										totalAvailableStakingAmount < networkInfo.minAmount ||
+										amount < networkInfo.minPossibleStake + 
+										networkInfo.minAmount) && (
 										<LowBalanceAlert
 											amount={amount}
 											activeBondedAmount={activeBondedAmount}
