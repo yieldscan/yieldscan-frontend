@@ -129,8 +129,9 @@ const LowBalanceAlert = ({
 		} else setStatus(null);
 	});
 
-	return (
-		<Alert
+	return !status
+	? null 
+	: (<Alert
 			status={status}
 			rounded="md"
 			hidden={status}
