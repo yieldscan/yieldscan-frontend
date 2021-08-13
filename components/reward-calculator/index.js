@@ -497,21 +497,20 @@ const RewardCalculatorPage = () => {
 						{/* <h1 className="font-semibold text-xl text-gray-700">
 							Calculate Returns
 						</h1> */}
-						<div className="mx-2">
-							<h3 className="text-gray-700 text-xs">
-								{activeBondedAmount > 0
-									? "Staking Amount:"
-									: "I want to invest:"}
-							</h3>
+						<div className="mx-2">				
 							<div className="mt-2">
 								{selectedAccount &&
 									balances &&
 									stakingInfo &&
 									!simulationChecked &&
-									(((amount !=0 && amount && (amount > totalPossibleStakingAmount - networkInfo.reserveAmount)
-			&& (totalAvailableStakingAmount - networkInfo.reserveAmount > 0))) ||(amount == 0 || (totalPossibleStakingAmount - networkInfo.reserveAmount <= 0) || 
-					(amount < minPossibleStake) ||
-					(totalPossibleStakingAmount < minPossibleStake + networkInfo.reserveAmount))) && (
+									((amount > totalPossibleStakingAmount - 
+									networkInfo.reserveAmount) ||
+									(totalPossibleStakingAmount - networkInfo.reserveAmount <=0) || 
+									(amount < minPossibleStake) ||
+									(totalPossibleStakingAmount < minPossibleStake + 
+									networkInfo.reserveAmount) || 
+									(activeBondedAmount > totalPossibleStakingAmount - 
+									networkInfo.reserveAmount)) && (
 										<LowBalanceAlert
 											amount={amount}
 											activeBondedAmount={activeBondedAmount}
@@ -521,6 +520,11 @@ const RewardCalculatorPage = () => {
 											minPossibleStake={minPossibleStake}
 										/>
 									)}
+								<h3 className="text-gray-700 text-xs mb-2">
+									{activeBondedAmount > 0
+										? "Staking Amount:"
+										: "I want to invest:"}
+								</h3>
 								<AmountInput
 									value={{ currency: amount, subCurrency: subCurrency }}
 									networkInfo={networkInfo}
