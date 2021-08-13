@@ -18,6 +18,7 @@ const LowBalanceAlert = ({
 	activeBondedAmount,
 	totalAvailableStakingAmount,
 	totalPossibleStakingAmount,
+	minPossibleStake
 }) => {
 	const [status, setStatus] = useState();
 	const [title, setTitle] = useState();
@@ -27,8 +28,8 @@ const LowBalanceAlert = ({
 	const [popoverContent, setPopoverContent] = useState();
 
 	useEffect(() => {
-		if (amount !=0 && amount && (amount > totalPossibleStakingAmount - networkInfo.minAmount)
-			&& (totalAvailableStakingAmount - networkInfo.minAmount > 0)){
+		if (amount !=0 && amount && (amount > totalPossibleStakingAmount - networkInfo.reserveAmount)
+			&& (totalAvailableStakingAmount - networkInfo.reserveAmount > 0)){
 			setStatus("error");
 			setTitleColor("red.500");
 			setTitle("Insufficient Balance");
@@ -36,19 +37,23 @@ const LowBalanceAlert = ({
 			setDescription(
 				`Your inputted amount is more than your available free 
 				account balance of ${totalAvailableStakingAmount} ${networkInfo.denom} minus 
-				${networkInfo.minAmount} ${networkInfo.denom}. Press the max 
+				${networkInfo.reserveAmount} ${networkInfo.denom}. Press the max 
 				icon to autofill the maximum amount. `
 			); // Using the full amount here to prevent any confusion
 			
 			setPopoverContent(`The subtracted
-			${networkInfo.minAmount} ${networkInfo.denom} is a reserve to ensure that you have a 
+			${networkInfo.reserveAmount} ${networkInfo.denom} is a reserve to ensure that you have a 
 			decent amount of funds in your
 			account to pay transaction fees for claiming rewards, unbonding
 			funds, changing on-chain staking preferences, etc.`)
 		}
 		
-		else if (amount == 0 || amount < networkInfo.minPossibleStake + 
-					networkInfo.minAmount){
+		else if (amount == 0 || (totalPossibleStakingAmount - networkInfo.reserveAmount <= 0) || 
+					(amount < minPossibleStake + networkInfo.reserveAmount) ||
+					(totalPossibleStakingAmount < minPossibleStake + networkInfo.reserveAmount)) {
+			console.log(amount == 0)
+			console.log(totalAvailableStakingAmount - networkInfo.reserveAmount <= 0)
+			console.log(amount < minPossibleStake + networkInfo.reserveAmount)
 			setStatus("error");
 			setTitleColor("red.500");
 			setDescriptionColor("red.500");
@@ -56,40 +61,38 @@ const LowBalanceAlert = ({
 				setTitle("Current amount insufficient to stake anymore");
 				setDescription(
 					`Head over to the Overview page and bond an additional 
-					${formatCurrency.methods
-						.formatAmount(Math.trunc(Number(networkInfo.minPossibleStake
-							- activeBondedAmount) *
-							10 ** networkInfo.decimalPlaces
-							),
-							networkInfo
-							)} continue staking. `
+					${minPossibleStake - activeBondedAmount} 
+					${networkInfo.denom} to continue staking. `
 				);
 				setPopoverContent(`The ${networkInfo.name} network has set a minimum staking 
-				threshold of ${networkInfo.minPossibleStake} ${networkInfo.denom}.`)
-			}
-			else {
+				threshold of ${minPossibleStake} ${networkInfo.denom}.`)
+			} else if ((amount < minPossibleStake + networkInfo.reserveAmount) && 
+			(totalPossibleStakingAmount >= minPossibleStake + networkInfo.reserveAmount)){
 				setTitle("Amount insufficient to begin staking");
 				setDescription(
-					`You need minimum free ${formatCurrency.methods.formatAmount(
-						Math.trunc(
-							Number(networkInfo.minPossibleStake + networkInfo.minAmount) *
-								10 ** networkInfo.decimalPlaces
-						),
-						networkInfo
-					)} to begin staking. `
+					`You need a minimum of ${minPossibleStake} ${networkInfo.denom} 
+					to begin staking. `
 				);
 				setPopoverContent(`The ${networkInfo.name} network has a minimum staking 
-				threshold of ${networkInfo.minPossibleStake} ${networkInfo.denom}. The additional
-				${networkInfo.minAmount} ${networkInfo.denom} is to ensure that you have a 
+				threshold of ${minPossibleStake} ${networkInfo.denom}.`)
+			} else {
+				setTitle("Amount insufficient to begin staking");
+				setDescription(
+					`You need a minimum free balance of ${minPossibleStake + 
+						networkInfo.reserveAmount} ${networkInfo.denom} to begin staking. `
+				);
+				setPopoverContent(`The ${networkInfo.name} network has a minimum staking 
+				threshold of ${minPossibleStake} ${networkInfo.denom}. The additional
+				${networkInfo.reserveAmount} ${networkInfo.denom} is to ensure that you have a 
 				decent amount of funds in your
 				account to pay transaction fees for claiming rewards, unbonding
 				funds, changing on-chain staking preferences, etc.`)
 			}
 		// } else if (
 		// 	activeBondedAmount >
-		// 	totalPossibleStakingAmount - networkInfo.minAmount
+		// 	totalPossibleStakingAmount - networkInfo.reserveAmount
 		// ) {
-		// 	if (totalAvailableStakingAmount < networkInfo.minAmount / 2) {
+		// 	if (totalAvailableStakingAmount < networkInfo.reserveAmount / 2) {
 		// 		setStatus("error");
 		// 		setTitleColor("red.500");
 		// 		setTitle("Insufficient Balance");
@@ -97,7 +100,7 @@ const LowBalanceAlert = ({
 		// 		setDescription(
 		// 			`You need an additional of ${formatCurrency.methods.formatAmount(
 		// 				Math.trunc(
-		// 					Number(networkInfo.minAmount - totalAvailableStakingAmount) *
+		// 					Number(networkInfo.reserveAmount - totalAvailableStakingAmount) *
 		// 						10 ** networkInfo.decimalPlaces
 		// 				),
 		// 				networkInfo
@@ -113,7 +116,7 @@ const LowBalanceAlert = ({
 		// 			${networkInfo.denom}s`
 		// 		);
 		// 	}
-		// } else if (amount > totalPossibleStakingAmount - networkInfo.minAmount) {
+		// } else if (amount > totalPossibleStakingAmount - networkInfo.reserveAmount) {
 		// 	setStatus("error");
 		// 	setTitleColor("red.500");
 		// 	setTitle("Insufficient Balance");
@@ -122,7 +125,7 @@ const LowBalanceAlert = ({
 		// 		`You need an additional of ${formatCurrency.methods.formatAmount(
 		// 			Math.trunc(
 		// 				Number(
-		// 					amount - (totalPossibleStakingAmount - networkInfo.minAmount)
+		// 					amount - (totalPossibleStakingAmount - networkInfo.reserveAmount)
 		// 				) *
 		// 					10 ** networkInfo.decimalPlaces
 		// 			),

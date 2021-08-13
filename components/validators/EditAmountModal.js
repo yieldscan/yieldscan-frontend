@@ -34,6 +34,7 @@ const EditAmountModal = withSlideIn(
 		setAmount,
 		networkInfo,
 		trackRewardCalculatedEvent,
+		minPossibleStake
 	}) => {
 		const { coinGeckoPriceUSD } = useCoinGeckoPriceUSD();
 		const [stakingAmount, setStakingAmount] = useState(() => amount);
@@ -85,7 +86,7 @@ const EditAmountModal = withSlideIn(
 					<ModalCloseButton onClick={onClose} />
 					<ModalBody>
 						<div className="mt-4">
-							{selectedAccount && stakingAmount < networkInfo.minPossibleStake
+							{selectedAccount && stakingAmount < minPossibleStake + networkInfo.reserveAmount
 							? (<Alert
 									status="error"
 									rounded="md"
@@ -102,8 +103,8 @@ const EditAmountModal = withSlideIn(
 									<AlertDescription color="red.500">
 									You need an additional of {formatCurrency.methods
 									.formatAmount(Math.trunc(Number(
-									networkInfo.minPossibleStake + networkInfo.minAmount -
-									totalPossibleStakingAmount
+									minPossibleStake + networkInfo.reserveAmount -
+									stakingAmount
 									) *10 ** networkInfo.decimalPlaces),
 									networkInfo)} to proceed further.
 										<Popover trigger="hover" usePortal>
@@ -121,7 +122,7 @@ const EditAmountModal = withSlideIn(
 													<span className="text-white">
 													{amount < networkInfo.minPossibleStake
 													? `${networkInfo.name} network has a minimum threshold of 
-														${networkInfo.minPossibleStake} ${networkInfo.denom} to 
+														${minPossibleStake} ${networkInfo.denom} to 
 														stake. The rest `
 													: "This "}
 													is to ensure that you have a decent amount of funds in your
@@ -136,7 +137,7 @@ const EditAmountModal = withSlideIn(
 
 							) : (
 								selectedAccount && stakingAmount >
-								totalPossibleStakingAmount - networkInfo.minAmount &&
+								totalPossibleStakingAmount - networkInfo.reserveAmount &&
 								(<Alert
 									status="error"
 									rounded="md"
@@ -150,7 +151,7 @@ const EditAmountModal = withSlideIn(
 									</AlertTitle>
 									<AlertDescription color="red.500">
 										We cannot stake this amount since we recommend maintaining
-										a minimum balance of {networkInfo.minAmount}{" "}
+										a minimum balance of {networkInfo.reserveAmount}{" "}
 										{networkInfo.denom} in your account at all times.{" "}
 										<Popover trigger="hover" usePortal>
 											<PopoverTrigger>

@@ -178,7 +178,7 @@ const FundsUpdate = withSlideIn(
 				type === "bond" &&
 				amount >
 					balance.availableBalance / Math.pow(10, networkInfo.decimalPlaces) -
-						networkInfo.minAmount
+						networkInfo.reserveAmount
 			) {
 				setCalculationDisabled(true);
 			} else if (type === "rebond" && amount > totalUnbonding) {
@@ -375,12 +375,12 @@ const FundsUpdate = withSlideIn(
 														>
 															We cannot stake this amount since you need to
 															maintain a minimum balance of{" "}
-															{networkInfo.minAmount} {networkInfo.denom} in
+															{networkInfo.reserveAmount} {networkInfo.denom} in
 															your account at all times.{" "}
 														</span>
 														<span hidden={type === "unbond" || type == "bond"}>
 															We cannot rebond this amount since its greater
-															than unbonding amount {networkInfo.minAmount}{" "}
+															than unbonding amount {networkInfo.reserveAmount}{" "}
 														</span>
 													</div>
 													<div className="flex justify-between">

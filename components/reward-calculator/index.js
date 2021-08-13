@@ -107,6 +107,7 @@ const RewardCalculatorPage = () => {
 	const [loading, setLoading] = useState(false);
 	const [amount, setAmount] = useState(transactionState.stakingAmount || 1000);
 	const [subCurrency, setSubCurrency] = useState(0);
+	const [minPossibleStake, setMinPossibleStake] = useState(0);
 
 	const [risk, setRisk] = useState(transactionState.riskPreference || "Medium");
 	const [timePeriodValue, setTimePeriod] = useState(
@@ -205,16 +206,17 @@ const RewardCalculatorPage = () => {
 	const proceedDisabled =
 		accounts && selectedAccount
 			? amount && !isInElection && 
-				amount >= networkInfo.minPossibleStake + networkInfo.minAmount && 
+				amount >= minPossibleStake && 
+				totalPossibleStakingAmount >= minPossibleStake + networkInfo.reserveAmount &&
 				transactionFees > 0
 				? amount > totalPossibleStakingAmount
 					? true
 					: activeBondedAmount >
-					  totalPossibleStakingAmount - networkInfo.minAmount
-					? totalAvailableStakingAmount < networkInfo.minAmount / 2
+					  totalPossibleStakingAmount - networkInfo.reserveAmount
+					? totalAvailableStakingAmount < networkInfo.reserveAmount / 2
 						? true
 						: false
-					: amount > totalPossibleStakingAmount - networkInfo.minAmount
+					: amount > totalPossibleStakingAmount - networkInfo.reserveAmount
 					? true
 					: false
 				: true
@@ -281,6 +283,13 @@ const RewardCalculatorPage = () => {
 	useEffect(() => {
 		setSubCurrency(amount * coinGeckoPriceUSD);
 	}, [amount, networkInfo, validatorRiskSets]);
+
+	useEffect(async() => {
+		if(apiInstance){
+		const data = await apiInstance?.query.staking.minNominatorBond();
+		setMinPossibleStake(JSON.parse(data)/10**networkInfo.decimalPlaces);
+		}
+	},[selectedNetwork, apiInstance])
 
 	useEffect(() => {
 		if (get(validatorRiskSets, risk)) {
@@ -383,8 +392,9 @@ const RewardCalculatorPage = () => {
 	useEffect(() => {
 		activeBondedAmount > 0
 		? setAmount(activeBondedAmount)
-		: totalAvailableStakingAmount - networkInfo.minAmount > 0
-		? setAmount(totalAvailableStakingAmount - networkInfo.minAmount)
+		: totalAvailableStakingAmount - networkInfo.reserveAmount > 0
+		? setAmount((Math.trunc((totalAvailableStakingAmount - networkInfo.reserveAmount) * 
+			10 ** networkInfo.decimalPlaces))/ 10 ** networkInfo.decimalPlaces)
 		: selectedAccount && totalPossibleStakingAmount === 0
 		? setAmount(0)
 		: setAmount(1000)
@@ -498,17 +508,17 @@ const RewardCalculatorPage = () => {
 									balances &&
 									stakingInfo &&
 									!simulationChecked &&
-									(amount >
-										totalPossibleStakingAmount - networkInfo.minAmount ||
-										totalAvailableStakingAmount < networkInfo.minAmount ||
-										amount < networkInfo.minPossibleStake + 
-										networkInfo.minAmount) && (
+									(((amount !=0 && amount && (amount > totalPossibleStakingAmount - networkInfo.reserveAmount)
+			&& (totalAvailableStakingAmount - networkInfo.reserveAmount > 0))) ||(amount == 0 || (totalPossibleStakingAmount - networkInfo.reserveAmount <= 0) || 
+					(amount < minPossibleStake) ||
+					(totalPossibleStakingAmount < minPossibleStake + networkInfo.reserveAmount))) && (
 										<LowBalanceAlert
 											amount={amount}
 											activeBondedAmount={activeBondedAmount}
 											networkInfo={networkInfo}
 											totalPossibleStakingAmount={totalPossibleStakingAmount}
 											totalAvailableStakingAmount={totalAvailableStakingAmount}
+											minPossibleStake={minPossibleStake}
 										/>
 									)}
 								<AmountInput

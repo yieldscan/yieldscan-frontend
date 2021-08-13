@@ -140,6 +140,7 @@ const Validators = () => {
 	const [sortOrder, setSortOrder] = useState("asc");
 	const [sortKey, setSortKey] = useState("rewardsPer100KSM");
 	const [result, setResult] = useState({});
+	const [minPossibleStake, setMinPossibleStake] = useState(0);
 
 	const [ysFees, setYsFees] = useState();
 	const [transactionFees, setTransactionFees] = useState();
@@ -179,6 +180,13 @@ const Validators = () => {
 	const [controllerBalances, setControllerBalances] = useState(
 		() => accountsBalances[controllerAccount?.address]
 	);
+
+	useEffect(async() => {
+		if(apiInstance){
+		const data = await apiInstance?.query.staking.minNominatorBond();
+		setMinPossibleStake(JSON.parse(data)/10**networkInfo.decimalPlaces);
+		}
+	},[selectedNetwork, apiInstance])
 
 	useEffect(() => {
 		if (stakingInfo?.accountId.toString() !== selectedAccount?.address) {
@@ -459,16 +467,16 @@ const Validators = () => {
 	const proceedDisabled =
 		accounts && selectedAccount
 			? amount && !isInElection && 
-				amount >= networkInfo.minPossibleStake + networkInfo.minAmount && 
+				amount >= minPossibleStake + networkInfo.reserveAmount && 
 				transactionFees > 0
 				? amount > totalPossibleStakingAmount
 					? true
 					: activeBondedAmount >
-					  totalPossibleStakingAmount - networkInfo.minAmount
-					? totalAvailableStakingAmount < networkInfo.minAmount / 2
+					  totalPossibleStakingAmount - networkInfo.reserveAmount
+					? totalAvailableStakingAmount < networkInfo.reserveAmount / 2
 						? true
 						: false
-					: amount > totalPossibleStakingAmount - networkInfo.minAmount
+					: amount > totalPossibleStakingAmount - networkInfo.reserveAmount
 					? true
 					: false
 				: true
@@ -486,8 +494,8 @@ const Validators = () => {
 	useEffect(() => {
 		activeBondedAmount > 0
 		? setAmount(activeBondedAmount)
-		: totalAvailableStakingAmount - networkInfo.minAmount > 0
-		? setAmount(totalAvailableStakingAmount - networkInfo.minAmount)
+		: totalAvailableStakingAmount - networkInfo.reserveAmount > 0
+		? setAmount(totalAvailableStakingAmount - networkInfo.reserveAmount)
 		: selectedAccount && totalPossibleStakingAmount === 0
 		? setAmount(0)
 		: setAmount(1000)
@@ -567,6 +575,7 @@ const Validators = () => {
 				selectedAccount={selectedAccount}
 				networkInfo={networkInfo}
 				trackRewardCalculatedEvent={trackRewardCalculatedEvent}
+				minPossibleStake={minPossibleStake}
 			/>
 			<ValidatorsResult
 				stakingAmount={amount}
