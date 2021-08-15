@@ -178,7 +178,7 @@ const FundsUpdate = withSlideIn(
 				type === "bond" &&
 				amount >
 					balance.availableBalance / Math.pow(10, networkInfo.decimalPlaces) -
-						networkInfo.minAmount
+						networkInfo.reserveAmount
 			) {
 				setCalculationDisabled(true);
 			} else if (type === "rebond" && amount > totalUnbonding) {
@@ -236,13 +236,10 @@ const FundsUpdate = withSlideIn(
 					});
 
 					if (status === 0) {
-
-						if(type=="bond")
-						track(goalCodes.OVERVIEW.BOND_EXTRA_SUCCESSFUL)
-						else if (type=="rebond")
-						track(goalCodes.OVERVIEW.REBOND_SUCCESSFUL)
-						else
-						track(goalCodes.OVERVIEW.UNBOND_SUCCESSFUL)
+						if (type == "bond") track(goalCodes.OVERVIEW.BOND_EXTRA_SUCCESSFUL);
+						else if (type == "rebond")
+							track(goalCodes.OVERVIEW.REBOND_SUCCESSFUL);
+						else track(goalCodes.OVERVIEW.UNBOND_SUCCESSFUL);
 
 						updateTransactionData(
 							selectedAccount?.address,
@@ -267,13 +264,11 @@ const FundsUpdate = withSlideIn(
 						setCloseOnOverlayClick(true);
 						setErrMessage(message);
 						if (message !== "Cancelled") {
-
-							if(type=="bond")
-							track(goalCodes.OVERVIEW.BOND_EXTRA_UNSUCCESSFUL)
-							else if (type=="rebond")
-							track(goalCodes.OVERVIEW.REBOND_UNSUCCESSFUL)
-							else
-							track(goalCodes.OVERVIEW.UNBOND_UNSUCCESSFUL)
+							if (type == "bond")
+								track(goalCodes.OVERVIEW.BOND_EXTRA_UNSUCCESSFUL);
+							else if (type == "rebond")
+								track(goalCodes.OVERVIEW.REBOND_UNSUCCESSFUL);
+							else track(goalCodes.OVERVIEW.UNBOND_UNSUCCESSFUL);
 
 							updateTransactionData(
 								selectedAccount?.address,
@@ -375,12 +370,12 @@ const FundsUpdate = withSlideIn(
 														>
 															We cannot stake this amount since you need to
 															maintain a minimum balance of{" "}
-															{networkInfo.minAmount} {networkInfo.denom} in
+															{networkInfo.reserveAmount} {networkInfo.denom} in
 															your account at all times.{" "}
 														</span>
 														<span hidden={type === "unbond" || type == "bond"}>
 															We cannot rebond this amount since its greater
-															than unbonding amount {networkInfo.minAmount}{" "}
+															than unbonding amount {networkInfo.reserveAmount}{" "}
 														</span>
 													</div>
 													<div className="flex justify-between">

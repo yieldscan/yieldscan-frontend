@@ -30,9 +30,9 @@ const AmountInputDefault = memo(
 		const [isEditable, setIsEditable] = useState(true);
 		const [inputValue, setInputValue] = useState(value.currency);
 		const maxAmount = Math.max(
-			availableBalance <= networkInfo.minAmount
+			availableBalance <= networkInfo.reserveAmount
 				? bonded
-				: bonded + availableBalance - networkInfo.minAmount,
+				: bonded + availableBalance - networkInfo.reserveAmount,
 			0
 		);
 
@@ -63,6 +63,10 @@ const AmountInputDefault = memo(
 				setIsEditable(simulationChecked);
 			}
 		}, [simulationChecked]);
+
+		useEffect(() => {
+			setInputValue(value.currency);
+		}, [value]);
 
 		return (
 			<div>

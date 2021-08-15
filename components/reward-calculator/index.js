@@ -107,6 +107,7 @@ const RewardCalculatorPage = () => {
 	const [loading, setLoading] = useState(false);
 	const [amount, setAmount] = useState(transactionState.stakingAmount || 1000);
 	const [subCurrency, setSubCurrency] = useState(0);
+	const [minPossibleStake, setMinPossibleStake] = useState(0);
 
 	const [risk, setRisk] = useState(transactionState.riskPreference || "Medium");
 	const [timePeriodValue, setTimePeriod] = useState(
@@ -204,15 +205,20 @@ const RewardCalculatorPage = () => {
 
 	const proceedDisabled =
 		accounts && selectedAccount
-			? amount && !isInElection && amount > 0 && transactionFees > 0
+			? amount &&
+			  !isInElection &&
+			  amount >= minPossibleStake &&
+			  totalPossibleStakingAmount >=
+					minPossibleStake + networkInfo.reserveAmount &&
+			  transactionFees > 0
 				? amount > totalPossibleStakingAmount
 					? true
 					: activeBondedAmount >
-					  totalPossibleStakingAmount - networkInfo.minAmount
-					? totalAvailableStakingAmount < networkInfo.minAmount / 2
+					  totalPossibleStakingAmount - networkInfo.reserveAmount
+					? totalAvailableStakingAmount < networkInfo.reserveAmount / 2
 						? true
 						: false
-					: amount > totalPossibleStakingAmount - networkInfo.minAmount
+					: amount > totalPossibleStakingAmount - networkInfo.reserveAmount
 					? true
 					: false
 				: true
@@ -279,6 +285,13 @@ const RewardCalculatorPage = () => {
 	useEffect(() => {
 		setSubCurrency(amount * coinGeckoPriceUSD);
 	}, [amount, networkInfo, validatorRiskSets]);
+
+	useEffect(async () => {
+		if (apiInstance) {
+			const data = await apiInstance?.query.staking.minNominatorBond();
+			setMinPossibleStake(JSON.parse(data) / 10 ** networkInfo.decimalPlaces);
+		}
+	}, [selectedNetwork, apiInstance]);
 
 	useEffect(() => {
 		if (!validatorRiskSets) {
@@ -379,6 +392,22 @@ const RewardCalculatorPage = () => {
 		}
 	}, [stakingInfo, amount, selectedAccount, apiInstance, ysFees]);
 
+	useEffect(() => {
+		activeBondedAmount > 0
+			? setAmount(activeBondedAmount)
+			: totalAvailableStakingAmount - networkInfo.reserveAmount > 0
+			? setAmount(
+					Math.trunc(
+						(totalAvailableStakingAmount - networkInfo.reserveAmount) *
+							10 ** networkInfo.decimalPlaces
+					) /
+						10 ** networkInfo.decimalPlaces
+			  )
+			: selectedAccount && totalPossibleStakingAmount === 0
+			? setAmount(0)
+			: setAmount(1000);
+	}, [totalAvailableStakingAmount, selectedAccount]);
+
 	return loading || isNil(apiInstance) ? (
 		<div className="flex-center w-full h-full">
 			<div className="flex-center flex-col">
@@ -477,26 +506,35 @@ const RewardCalculatorPage = () => {
 							Calculate Returns
 						</h1> */}
 						<div className="mx-2">
-							<h3 className="text-gray-700 text-xs">
-								{activeBondedAmount > 0
-									? "Staking Amount:"
-									: "I want to invest:"}
-							</h3>
 							<div className="mt-2">
 								{selectedAccount &&
 									balances &&
 									stakingInfo &&
+									!simulationChecked &&
 									(amount >
-										totalPossibleStakingAmount - networkInfo.minAmount ||
-										totalAvailableStakingAmount < networkInfo.minAmount) && (
+										totalPossibleStakingAmount - networkInfo.reserveAmount ||
+										totalPossibleStakingAmount - networkInfo.reserveAmount <=
+											0 ||
+										amount < minPossibleStake ||
+										totalPossibleStakingAmount <
+											minPossibleStake + networkInfo.reserveAmount ||
+										activeBondedAmount >
+											totalPossibleStakingAmount -
+												networkInfo.reserveAmount) && (
 										<LowBalanceAlert
 											amount={amount}
 											activeBondedAmount={activeBondedAmount}
 											networkInfo={networkInfo}
 											totalPossibleStakingAmount={totalPossibleStakingAmount}
 											totalAvailableStakingAmount={totalAvailableStakingAmount}
+											minPossibleStake={minPossibleStake}
 										/>
 									)}
+								<h3 className="text-gray-700 text-xs mb-2">
+									{activeBondedAmount > 0
+										? "Staking Amount:"
+										: "I want to invest:"}
+								</h3>
 								<AmountInput
 									value={{ currency: amount, subCurrency: subCurrency }}
 									networkInfo={networkInfo}

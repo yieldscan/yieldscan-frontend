@@ -140,6 +140,7 @@ const Validators = () => {
 	const [sortOrder, setSortOrder] = useState("asc");
 	const [sortKey, setSortKey] = useState("rewardsPer100KSM");
 	const [result, setResult] = useState({});
+	const [minPossibleStake, setMinPossibleStake] = useState(0);
 
 	const [ysFees, setYsFees] = useState();
 	const [transactionFees, setTransactionFees] = useState();
@@ -180,6 +181,13 @@ const Validators = () => {
 		() => accountsBalances[controllerAccount?.address]
 	);
 
+	useEffect(async () => {
+		if (apiInstance) {
+			const data = await apiInstance?.query.staking.minNominatorBond();
+			setMinPossibleStake(JSON.parse(data) / 10 ** networkInfo.decimalPlaces);
+		}
+	}, [selectedNetwork, apiInstance]);
+
 	useEffect(() => {
 		if (stakingInfo?.accountId.toString() !== selectedAccount?.address) {
 			setControllerBalances(null);
@@ -192,8 +200,7 @@ const Validators = () => {
 		JSON.stringify(accountsBalances[controllerAccount?.address]),
 	]);
 
-	useEffect(() =>
-	{
+	useEffect(() => {
 		track(goalCodes.VALIDATOR.VALIDATOR_SELECTION_CHANGED);
 	}, [selectedValidatorsMap]);
 
@@ -208,7 +215,6 @@ const Validators = () => {
 			);
 		} else setYsFees(0);
 	}, [amount, networkInfo]);
-
 
 	useEffect(async () => {
 		setTransactionFees(0);
@@ -227,7 +233,13 @@ const Validators = () => {
 			);
 			setTransactionFees(networkFees);
 		}
-	}, [stakingInfo, amount, selectedAccount, apiInstance, selectedValidatorsMap]);
+	}, [
+		stakingInfo,
+		amount,
+		selectedAccount,
+		apiInstance,
+		selectedValidatorsMap,
+	]);
 
 	useEffect(() => {
 		axios
@@ -415,9 +427,9 @@ const Validators = () => {
 
 		if (
 			controllerAccount &&
-			controllerBalances?.availableBalance < 
-				apiInstance?.consts.balances.existentialDeposit.toNumber() + 
-					ysFees + 
+			controllerBalances?.availableBalance <
+				apiInstance?.consts.balances.existentialDeposit.toNumber() +
+					ysFees +
 					transactionFees
 		) {
 			toggleIsLowBalanceOpen();
@@ -458,17 +470,18 @@ const Validators = () => {
 
 	const proceedDisabled =
 		accounts && selectedAccount
-			? amount && !isInElection && 
-				amount >= networkInfo.minPossibleStake + networkInfo.minAmount && 
-				transactionFees > 0
+			? amount &&
+			  !isInElection &&
+			  amount >= minPossibleStake + networkInfo.reserveAmount &&
+			  transactionFees > 0
 				? amount > totalPossibleStakingAmount
 					? true
 					: activeBondedAmount >
-					  totalPossibleStakingAmount - networkInfo.minAmount
-					? totalAvailableStakingAmount < networkInfo.minAmount / 2
+					  totalPossibleStakingAmount - networkInfo.reserveAmount
+					? totalAvailableStakingAmount < networkInfo.reserveAmount / 2
 						? true
 						: false
-					: amount > totalPossibleStakingAmount - networkInfo.minAmount
+					: amount > totalPossibleStakingAmount - networkInfo.reserveAmount
 					? true
 					: false
 				: true
@@ -485,12 +498,12 @@ const Validators = () => {
 
 	useEffect(() => {
 		activeBondedAmount > 0
-		? setAmount(activeBondedAmount)
-		: totalAvailableStakingAmount - networkInfo.minAmount > 0
-		? setAmount(totalAvailableStakingAmount - networkInfo.minAmount)
-		: selectedAccount && totalPossibleStakingAmount === 0
-		? setAmount(0)
-		: setAmount(1000)
+			? setAmount(activeBondedAmount)
+			: totalAvailableStakingAmount - networkInfo.reserveAmount > 0
+			? setAmount(totalAvailableStakingAmount - networkInfo.reserveAmount)
+			: selectedAccount && totalPossibleStakingAmount === 0
+			? setAmount(0)
+			: setAmount(1000);
 	}, [totalAvailableStakingAmount, selectedAccount]);
 
 	return loading || !apiInstance ? (
@@ -500,9 +513,7 @@ const Validators = () => {
 				<span className="text-xl text-gray-700 mt-5">
 					Fetching validators...
 				</span>
-				<span className="text-xs text-gray-600">
-					This may take a while
-				</span>
+				<span className="text-xs text-gray-600">This may take a while</span>
 			</div>
 		</div>
 	) : errorFetching ? (
@@ -536,13 +547,13 @@ const Validators = () => {
 					networkInfo={networkInfo}
 					setStakingPath={setStakingPath}
 					transferAmount={
-								controllerBalances && apiInstance
-									? Math.pow(10, networkInfo.decimalPlaces) +
-									  apiInstance?.consts.balances.existentialDeposit.toNumber() -
-									  controllerBalances?.availableBalance
-									: 0
-						}
-						controllerAccount={controllerAccount}
+						controllerBalances && apiInstance
+							? Math.pow(10, networkInfo.decimalPlaces) +
+							  apiInstance?.consts.balances.existentialDeposit.toNumber() -
+							  controllerBalances?.availableBalance
+							: 0
+					}
+					controllerAccount={controllerAccount}
 				/>
 			)}
 			{selectedAccount && (
@@ -551,7 +562,6 @@ const Validators = () => {
 					toStaking={toStaking}
 					networkInfo={networkInfo}
 					setStakingPath={setStakingPath}
-
 				/>
 			)}
 			<EditAmountModal
@@ -567,6 +577,7 @@ const Validators = () => {
 				selectedAccount={selectedAccount}
 				networkInfo={networkInfo}
 				trackRewardCalculatedEvent={trackRewardCalculatedEvent}
+				minPossibleStake={minPossibleStake}
 			/>
 			<ValidatorsResult
 				stakingAmount={amount}
@@ -675,37 +686,37 @@ const Validators = () => {
 			/>
 			{filteredValidators && (
 				<div className="fixed left-0 bottom-0 flex-end w-full bg-white">
-				<div className="text-xs text-gray-500 text-right mr-24 mt-4">
-					* Estimated Returns are calculated per era for 100 {networkInfo.denom}
-				</div>
-				<div className="flex items-center justify-end w-full p-4">
-					<button
-						className={`
+					<div className="text-xs text-gray-500 text-right mr-24 mt-4">
+						* Estimated Returns are calculated per era for 100{" "}
+						{networkInfo.denom}
+					</div>
+					<div className="flex items-center justify-end w-full p-4">
+						<button
+							className={`
 						rounded-full mr-24 font-medium px-12 py-3 bg-teal-500 text-white
 						${proceedDisabled ? "opacity-75 cursor-not-allowed" : "opacity-100"}
 					`}
-						disabled={proceedDisabled}
-						// hidden={simulationChecked}
-						onClick={() =>
-							isNil(accounts)
-							? (track(goalCodes.VALIDATOR.INTENT_CONNECT_WALLET), 
-								router.push("/setup-wallet"))
-							: selectedAccount
-							? (track(goalCodes.VALIDATOR.INTENT_STAKING),
-								toStaking())
-							: toggle()
-						}
-					>
-						{isNil(accounts)
-							? "Connect Wallet"
-							: isNil(selectedAccount)
-							? "Select Account"
-							: isInElection
-							? "Ongoing elections, can't invest now!"
-							: "Proceed to confirmation"}
-					</button>
+							disabled={proceedDisabled}
+							// hidden={simulationChecked}
+							onClick={() =>
+								isNil(accounts)
+									? (track(goalCodes.VALIDATOR.INTENT_CONNECT_WALLET),
+									  router.push("/setup-wallet"))
+									: selectedAccount
+									? (track(goalCodes.VALIDATOR.INTENT_STAKING), toStaking())
+									: toggle()
+							}
+						>
+							{isNil(accounts)
+								? "Connect Wallet"
+								: isNil(selectedAccount)
+								? "Select Account"
+								: isInElection
+								? "Ongoing elections, can't invest now!"
+								: "Proceed to confirmation"}
+						</button>
+					</div>
 				</div>
-			</div>
 			)}
 			{/* {isPaymentPopoverOpen && (
 				<PaymentPopover

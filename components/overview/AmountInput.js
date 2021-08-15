@@ -17,9 +17,9 @@ const AmountInputDefault = ({
 	const [inputValue, setInputValue] = useState(value.currency);
 	const maxAmount =
 		type === "bond"
-			? availableBalance - networkInfo.minAmount < 0
+			? availableBalance - networkInfo.reserveAmount < 0
 				? 0
-				: availableBalance - networkInfo.minAmount
+				: availableBalance - networkInfo.reserveAmount
 			: type === "unbond"
 			? bonded
 			: totalUnbonding;
