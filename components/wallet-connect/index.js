@@ -78,6 +78,7 @@ const WalletConnectPopover = ({ styles, networkInfo, isSetUp }) => {
 	const [currentStep, setCurrentStep] = useState("beginnerInfo");
 	// const [redirectToSetUp, setRedirectToSetUp] = useState(false);
 	const [filteredAccounts, setFilteredAccounts] = useState(null);
+	const [networkGenesisHash, setNetworkGenesisHash] = useState();
 
 	const onEvent = (eventInfo) => {
 		setExtensionEvent(eventInfo.message);
@@ -106,6 +107,13 @@ const WalletConnectPopover = ({ styles, networkInfo, isSetUp }) => {
 			// setState(null);
 		}
 	}, [networkInfo]);
+
+	useEffect(async() => {
+		if(apiInstance){
+			const networkGenesisHash = await apiInstance.genesisHash
+			setNetworkGenesisHash(JSON.stringify(networkGenesisHash));
+		}
+	},[apiInstance])
 
 	useEffect(() => {
 		if (currentStep === "connectWallet") {
@@ -146,6 +154,12 @@ const WalletConnectPopover = ({ styles, networkInfo, isSetUp }) => {
 		let unsubscribe;
 		if (walletConnectState === "connected") {
 			web3AccountsSubscribe((injectedAccounts) => {
+				injectedAccounts = injectedAccounts?.filter((account) => {
+					return account.meta.genesisHash === networkGenesisHash ||
+						account.meta.genesisHash === "" ||
+						account.meta.genesisHash === null
+					
+				})
 				injectedAccounts?.map((account) => {
 					account.substrateAddress = account.address.toString();
 					account.address = encodeAddress(
