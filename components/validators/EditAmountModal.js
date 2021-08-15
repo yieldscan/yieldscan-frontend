@@ -34,7 +34,7 @@ const EditAmountModal = withSlideIn(
 		setAmount,
 		networkInfo,
 		trackRewardCalculatedEvent,
-		minPossibleStake
+		minPossibleStake,
 	}) => {
 		const { coinGeckoPriceUSD } = useCoinGeckoPriceUSD();
 		const [stakingAmount, setStakingAmount] = useState(() => amount);
@@ -44,7 +44,7 @@ const EditAmountModal = withSlideIn(
 			if (stakingInfo && stakingInfo?.stakingLedger?.active.isEmpty) {
 				setAmount(stakingAmount);
 			}
-			if(!selectedAccount){
+			if (!selectedAccount) {
 				setAmount(stakingAmount);
 			}
 			onClose();
@@ -86,8 +86,9 @@ const EditAmountModal = withSlideIn(
 					<ModalCloseButton onClick={onClose} />
 					<ModalBody>
 						<div className="mt-4">
-							{selectedAccount && stakingAmount < minPossibleStake + networkInfo.reserveAmount
-							? (<Alert
+							{selectedAccount &&
+							stakingAmount < minPossibleStake + networkInfo.reserveAmount ? (
+								<Alert
 									status="error"
 									rounded="md"
 									flex
@@ -96,17 +97,24 @@ const EditAmountModal = withSlideIn(
 									my={4}
 								>
 									<AlertTitle color="red.500">
-									{activeBondedAmount > 0
-									? "Current amount insufficient to stake anymore"
-									: "Amount insufficient to begin staking"}
+										{activeBondedAmount > 0
+											? "Current amount insufficient to stake anymore"
+											: "Amount insufficient to begin staking"}
 									</AlertTitle>
 									<AlertDescription color="red.500">
-									You need an additional of {formatCurrency.methods
-									.formatAmount(Math.trunc(Number(
-									minPossibleStake + networkInfo.reserveAmount -
-									stakingAmount
-									) *10 ** networkInfo.decimalPlaces),
-									networkInfo)} to proceed further.
+										You need an additional of{" "}
+										{formatCurrency.methods.formatAmount(
+											Math.trunc(
+												Number(
+													minPossibleStake +
+														networkInfo.reserveAmount -
+														stakingAmount
+												) *
+													10 ** networkInfo.decimalPlaces
+											),
+											networkInfo
+										)}{" "}
+										to proceed further.
 										<Popover trigger="hover" usePortal>
 											<PopoverTrigger>
 												<span className="underline cursor-help">Why?</span>
@@ -120,72 +128,75 @@ const EditAmountModal = withSlideIn(
 												<PopoverArrow />
 												<PopoverBody>
 													<span className="text-white">
-													{amount < networkInfo.minPossibleStake
-													? `${networkInfo.name} network has a minimum threshold of 
+														{amount < networkInfo.minPossibleStake
+															? `${networkInfo.name} network has a minimum threshold of 
 														${minPossibleStake} ${networkInfo.denom} to 
 														stake. The rest `
-													: "This "}
-													is to ensure that you have a decent amount of funds in your
-													account to pay transaction fees for claiming rewards, unbonding
-													funds, changing on-chain staking preferences, etc.
+															: "This "}
+														is to ensure that you have a decent amount of funds
+														in your account to pay transaction fees for claiming
+														rewards, unbonding funds, changing on-chain staking
+														preferences, etc.
 													</span>
 												</PopoverBody>
 											</PopoverContent>
 										</Popover>
 									</AlertDescription>
 								</Alert>
-
 							) : (
-								selectedAccount && stakingAmount >
-								totalPossibleStakingAmount - networkInfo.reserveAmount &&
-								(<Alert
-									status="error"
-									rounded="md"
-									flex
-									flexDirection="column"
-									alignItems="start"
-									my={4}
-								>
-									<AlertTitle color="red.500">
-										Insufficient Balance
-									</AlertTitle>
-									<AlertDescription color="red.500">
-										We cannot stake this amount since we recommend maintaining
-										a minimum balance of {networkInfo.reserveAmount}{" "}
-										{networkInfo.denom} in your account at all times.{" "}
-										<Popover trigger="hover" usePortal>
-											<PopoverTrigger>
-												<span className="underline cursor-help">Why?</span>
-											</PopoverTrigger>
-											<PopoverContent
-												zIndex={99999}
-												_focus={{ outline: "none" }}
-												bg="gray.700"
-												border="none"
-											>
-												<PopoverArrow />
-												<PopoverBody>
-													<span className="text-white">
-														This is to ensure that you have a decent amout of
-														funds in your account to pay transaction fees for
-														claiming rewards, unbonding funds, changing
-														on-chain staking preferences, etc.
-													</span>
-												</PopoverBody>
-											</PopoverContent>
-										</Popover>
-									</AlertDescription>
-								</Alert>
-							))}
+								selectedAccount &&
+								stakingAmount >
+									totalPossibleStakingAmount - networkInfo.reserveAmount && (
+									<Alert
+										status="error"
+										rounded="md"
+										flex
+										flexDirection="column"
+										alignItems="start"
+										my={4}
+									>
+										<AlertTitle color="red.500">
+											Insufficient Balance
+										</AlertTitle>
+										<AlertDescription color="red.500">
+											We cannot stake this amount since we recommend maintaining
+											a minimum balance of {networkInfo.reserveAmount}{" "}
+											{networkInfo.denom} in your account at all times.{" "}
+											<Popover trigger="hover" usePortal>
+												<PopoverTrigger>
+													<span className="underline cursor-help">Why?</span>
+												</PopoverTrigger>
+												<PopoverContent
+													zIndex={99999}
+													_focus={{ outline: "none" }}
+													bg="gray.700"
+													border="none"
+												>
+													<PopoverArrow />
+													<PopoverBody>
+														<span className="text-white">
+															This is to ensure that you have a decent amout of
+															funds in your account to pay transaction fees for
+															claiming rewards, unbonding funds, changing
+															on-chain staking preferences, etc.
+														</span>
+													</PopoverBody>
+												</PopoverContent>
+											</Popover>
+										</AlertDescription>
+									</Alert>
+								)
+							)}
 							<div
 								className="m-2 text-gray-600 text-sm"
 								hidden={isNil(selectedAccount)}
 							>
 								Transferrable Balance:{" "}
-								{balances && (formatCurrency.methods.formatAmount(
-									balances?.availableBalance,
-									networkInfo
-								))}
+								{balances &&
+									formatCurrency.methods.formatAmount(
+										balances?.availableBalance,
+										networkInfo
+									)}
 							</div>
 							<div className="my-5">
 								<AmountInput

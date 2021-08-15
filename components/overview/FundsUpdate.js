@@ -236,13 +236,10 @@ const FundsUpdate = withSlideIn(
 					});
 
 					if (status === 0) {
-
-						if(type=="bond")
-						track(goalCodes.OVERVIEW.BOND_EXTRA_SUCCESSFUL)
-						else if (type=="rebond")
-						track(goalCodes.OVERVIEW.REBOND_SUCCESSFUL)
-						else
-						track(goalCodes.OVERVIEW.UNBOND_SUCCESSFUL)
+						if (type == "bond") track(goalCodes.OVERVIEW.BOND_EXTRA_SUCCESSFUL);
+						else if (type == "rebond")
+							track(goalCodes.OVERVIEW.REBOND_SUCCESSFUL);
+						else track(goalCodes.OVERVIEW.UNBOND_SUCCESSFUL);
 
 						updateTransactionData(
 							selectedAccount?.address,
@@ -267,13 +264,11 @@ const FundsUpdate = withSlideIn(
 						setCloseOnOverlayClick(true);
 						setErrMessage(message);
 						if (message !== "Cancelled") {
-
-							if(type=="bond")
-							track(goalCodes.OVERVIEW.BOND_EXTRA_UNSUCCESSFUL)
-							else if (type=="rebond")
-							track(goalCodes.OVERVIEW.REBOND_UNSUCCESSFUL)
-							else
-							track(goalCodes.OVERVIEW.UNBOND_UNSUCCESSFUL)
+							if (type == "bond")
+								track(goalCodes.OVERVIEW.BOND_EXTRA_UNSUCCESSFUL);
+							else if (type == "rebond")
+								track(goalCodes.OVERVIEW.REBOND_UNSUCCESSFUL);
+							else track(goalCodes.OVERVIEW.UNBOND_UNSUCCESSFUL);
 
 							updateTransactionData(
 								selectedAccount?.address,

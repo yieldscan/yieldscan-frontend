@@ -63,10 +63,10 @@ const AmountInputDefault = memo(
 				setIsEditable(simulationChecked);
 			}
 		}, [simulationChecked]);
-				
+
 		useEffect(() => {
 			setInputValue(value.currency);
-		},[value])
+		}, [value]);
 
 		return (
 			<div>
