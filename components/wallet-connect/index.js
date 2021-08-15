@@ -31,7 +31,13 @@ import {
 } from "@lib/store";
 import getFromLocalStorage from "@lib/getFromLocalStorage";
 import addToLocalStorage from "@lib/addToLocalStorage";
-import { trackEvent, Events, setUserProperties, track, goalCodes } from "@lib/analytics";
+import {
+	trackEvent,
+	Events,
+	setUserProperties,
+	track,
+	goalCodes,
+} from "@lib/analytics";
 import { setCookie } from "nookies";
 import RecoverAuthInfo from "./RecoverAuthInfo";
 import { useRouter } from "next/router";
@@ -87,8 +93,8 @@ const WalletConnectPopover = ({ styles, networkInfo, isSetUp }) => {
 	const userStorage = !isNil(typeof window) ? window.localStorage : null;
 	const autoConnectEnabled = userStorage.getItem("autoConnectEnabled");
 	const setAuthForAutoConnect = () => {
-		if(!autoConnectEnabled || autoConnectEnabled!=="true")
-		track(goalCodes.GLOBAL.WALLET_CONNECTED)
+		if (!autoConnectEnabled || autoConnectEnabled !== "true")
+			track(goalCodes.GLOBAL.WALLET_CONNECTED);
 		userStorage.setItem("autoConnectEnabled", "true");
 	};
 
@@ -108,12 +114,13 @@ const WalletConnectPopover = ({ styles, networkInfo, isSetUp }) => {
 		}
 	}, [networkInfo]);
 
-	useEffect(async() => {
-		if(apiInstance){
-			const networkGenesisHash = await apiInstance.genesisHash
-			setNetworkGenesisHash(JSON.stringify(networkGenesisHash));
+	useEffect(async () => {
+		setNetworkGenesisHash(null);
+		if (apiInstance) {
+			const networkGenesisHash = (await apiInstance.genesisHash).toString();
+			setNetworkGenesisHash(networkGenesisHash);
 		}
-	},[apiInstance])
+	}, [apiInstance, networkInfo]);
 
 	useEffect(() => {
 		if (currentStep === "connectWallet") {
@@ -152,14 +159,15 @@ const WalletConnectPopover = ({ styles, networkInfo, isSetUp }) => {
 
 	useEffect(() => {
 		let unsubscribe;
-		if (walletConnectState === "connected") {
+		if (walletConnectState === "connected" && networkGenesisHash) {
 			web3AccountsSubscribe((injectedAccounts) => {
 				injectedAccounts = injectedAccounts?.filter((account) => {
-					return account.meta.genesisHash === networkGenesisHash ||
-						account.meta.genesisHash === "" ||
-						account.meta.genesisHash === null
-					
-				})
+					return (
+						isNil(account?.meta?.genesisHash) ||
+						account?.meta?.genesisHash === "" ||
+						account?.meta?.genesisHash?.toString() === networkGenesisHash
+					);
+				});
 				injectedAccounts?.map((account) => {
 					account.substrateAddress = account.address.toString();
 					account.address = encodeAddress(
@@ -175,7 +183,7 @@ const WalletConnectPopover = ({ styles, networkInfo, isSetUp }) => {
 		return () => {
 			unsubscribe && unsubscribe();
 		};
-	}, [walletConnectState, currentStep, networkInfo]);
+	}, [walletConnectState, currentStep, networkInfo, networkGenesisHash]);
 
 	// useEffect(() => {
 	// 	let timeoutId;
@@ -329,11 +337,12 @@ const WalletConnectPopover = ({ styles, networkInfo, isSetUp }) => {
 								I understand, continue to authorize
 							</Button>
 						</SimpleGrid>
-					) : walletConnectState === "connected" && !filteredAccounts &&
-							accounts?.length === 0 ? (
-							<span className="flex flex-col items-center justify-center text-gray-700">
-								NO ACCOUNTS AVAILABLE
-							</span>
+					) : walletConnectState === "connected" &&
+					  !filteredAccounts &&
+					  accounts?.length === 0 ? (
+						<span className="flex flex-col items-center justify-center text-gray-700">
+							NO ACCOUNTS AVAILABLE
+						</span>
 					) : walletConnectState === "connected" ? (
 						<SelectAccount
 							accounts={filteredAccounts ? filteredAccounts : accounts}

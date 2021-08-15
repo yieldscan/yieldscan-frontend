@@ -89,12 +89,6 @@ const TransferFunds = ({
 			: setIsLowAmount(false);
 	}, [transferFundsAmount, controllerBalances]);
 
-	console.log(
-		ysFees +
-			apiInstance?.consts.balances.existentialDeposit.toNumber() * 2 -
-			controllerBalances?.availableBalance
-	);
-
 	return selectedAccount &&
 		controllerAccount &&
 		accountsBalances &&
