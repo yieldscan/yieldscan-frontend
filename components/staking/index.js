@@ -27,12 +27,17 @@ import { BottomNextButton } from "../common/BottomButton";
 import TransferFunds from "./TransferFunds";
 import SecureStakingSetup from "./SecureStakingSetup";
 import { AuthPopover, useAuthPopover } from "./AuthPopover";
+import {
+	StepperSigningPopover,
+	useStepperSigningPopover,
+} from "./stepperSignerPopover";
 import transferBalancesKeepAlive from "@lib/polkadot/transfer-balances";
 import { goalCodes } from "@lib/analytics";
 
 const Staking = () => {
 	const toast = useToast();
 	const router = useRouter();
+
 	const { selectedNetwork } = useSelectedNetwork();
 	const { apiInstance } = usePolkadotApi();
 	const networkInfo = getNetworkInfo(selectedNetwork);
@@ -48,9 +53,13 @@ const Staking = () => {
 	const { balances, stakingInfo, stakingLedgerInfo } = useSelectedAccountInfo();
 	const { isAuthPopoverOpen, toggleIsAuthPopoverOpen, close } =
 		useAuthPopover();
+	const {
+		isStepperSigningPopoverOpen,
+		toggleIsStepperSigningPopoverOpen,
+		closeStepperSignerPopover,
+	} = useStepperSigningPopover();
 
 	const [initialStakingPath, setInitialStakingPath] = useState(stakingPath);
-
 	const [transactions, setTransactions] = useState(null);
 	const [injectorAccount, setInjectorAccount] = useState(null);
 	const [transactionFee, setTransactionFee] = useState(0);
@@ -373,9 +382,14 @@ const Staking = () => {
 			<AuthPopover
 				isAuthPopoverOpen={isAuthPopoverOpen}
 				networkInfo={networkInfo}
-				onConfirm={() => transact()}
+				onConfirm={toggleIsStepperSigningPopoverOpen}
 				close={close}
-				// transactionType={transactionType}
+			/>
+			<StepperSigningPopover
+				isStepperSigningPopoverOpen={isStepperSigningPopoverOpen}
+				networkInfo={networkInfo}
+				onConfirm={() => transact()}
+				closeStepperSignerPopover={closeStepperSignerPopover}
 			/>
 			{transactionHash && isSuccessful && initialStakingPath !== "transfer" && (
 				<canvas id="confetti-holder" className="absolute w-full"></canvas>

@@ -73,7 +73,7 @@ const AuthPopover = ({
 								close();
 							}}
 						>
-							Continue to authorize
+							Continue
 						</NextButton>
 					</div>
 				</ModalBody>
