@@ -503,13 +503,6 @@ const Validators = () => {
 			? setAmount(0)
 			: setAmount(1000);
 	}, [totalAvailableStakingAmount, selectedAccount, activeBondedAmount]);
-	// console.log(
-	// 	amount,
-	// 	Boolean(selectedAccount),
-	// 	activeBondedAmount,
-	// 	totalAvailableStakingAmount,
-	// 	totalPossibleStakingAmount
-	// );
 
 	return loading || !apiInstance ? (
 		<div className="flex-center w-full h-full">
