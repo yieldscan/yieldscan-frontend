@@ -1,5 +1,5 @@
 import dynamic from "next/dynamic";
-import withDashboardLayout from "@components/common/layouts/dashboard";
+import WithDashboardLayout from "@components/common/layouts/dashboard";
 import { NextSeo } from "next-seo";
 
 const Page = dynamic(
@@ -18,7 +18,7 @@ const Payment = () => (
 			title="YieldScan: Overview"
 			description="nominator profile, staking rewards history"
 		/>
-		<Page title="Overview" layoutProvider={withDashboardLayout}>
+		<Page title="Overview" layoutProvider={WithDashboardLayout}>
 			{() => <OverviewComponent />}
 		</Page>
 	</>

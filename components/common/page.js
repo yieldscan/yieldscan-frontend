@@ -17,6 +17,10 @@ const Page = ({
 		? layoutProvider(children, isSetUp, isWalletSetUp)
 		: children;
 
+	useEffect(() => {
+		trackEvent(Events.PAGE_VIEW, { path: window.location.pathname });
+	}, []);
+
 	if (isMobile || isTablet) {
 		return (
 			<React.Fragment>
@@ -39,16 +43,12 @@ const Page = ({
 		);
 	}
 
-	useEffect(() => {
-		trackEvent(Events.PAGE_VIEW, { path: window.location.pathname });
-	}, []);
-
 	return (
 		<React.Fragment>
 			<Head>
 				<title>{title} - YieldScan</title>
 			</Head>
-			<div>{layoutedChild()}</div>
+			<div>{layoutedChild}</div>
 		</React.Fragment>
 	);
 };

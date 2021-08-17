@@ -106,35 +106,34 @@ const AmountInputDefault = memo(
 						</h6>
 						<InputRightElement
 							opacity={isEditable ? "1" : "0.4"}
-							children={
-								<span className="flex min-w-fit-content">
-									{value?.currency === "" && (
-										<Icon name="warning" color="red.500" marginRight="4px" />
-									)}
-									{selectedAccount && inputValue !== maxAmount && (
-										<button
-											className={`bg-teal-200 text-teal-500 rounded-full text-xs px-2 ${
-												!isEditable && "opacity-0 cursor-not-allowed"
-											}`}
-											disabled={!isEditable}
-											onClick={() => {
-												handleChange(maxAmount);
-											}}
-										>
-											max
-										</button>
-									)}
-									<span className="ml-2 text-sm font-medium cursor-not-allowed text-gray-700">
-										{networkInfo.denom}
-									</span>
-								</span>
-							}
 							h="full"
 							rounded="full"
 							fontSize="xl"
 							w="fit-content"
 							px={4}
-						/>
+						>
+							<span className="flex min-w-fit-content">
+								{value?.currency === "" && (
+									<Icon name="warning" color="red.500" marginRight="4px" />
+								)}
+								{selectedAccount && inputValue !== maxAmount && (
+									<button
+										className={`bg-teal-200 text-teal-500 rounded-full text-xs px-2 ${
+											!isEditable && "opacity-0 cursor-not-allowed"
+										}`}
+										disabled={!isEditable}
+										onClick={() => {
+											handleChange(maxAmount);
+										}}
+									>
+										max
+									</button>
+								)}
+								<span className="ml-2 text-sm font-medium cursor-not-allowed text-gray-700">
+									{networkInfo.denom}
+								</span>
+							</span>
+						</InputRightElement>
 					</InputGroup>
 				</div>
 				{bonded && bonded !== 0 ? (
@@ -328,5 +327,9 @@ const AmountInput = memo(
 		);
 	}
 );
+
+AmountInput.displayName = "AmountInput";
+AmountInputAccountInfoLoading.displayName = "AmountInputAccountInfoLoading";
+AmountInputDefault.displayName = "AmountInputDefault";
 
 export default AmountInput;

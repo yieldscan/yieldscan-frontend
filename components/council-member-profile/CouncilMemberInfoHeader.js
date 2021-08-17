@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element */
 import { Twitter, Link, ChevronRight, Mail, Eye } from "react-feather";
 import { get, noop } from "lodash";
 import { encodeAddress, decodeAddress } from "@polkadot/util-crypto";
@@ -101,6 +102,7 @@ const CouncilMemberInfoHeader = ({
 								className="bg-gray-200 rounded-full w-8 h-8 flex items-center justify-center"
 								href={`mailto:${get(socialInfo, "email")}`}
 								target="_blank"
+								rel="noreferrer"
 							>
 								<Mail size="1rem" />
 								{/* <span>{get(socialInfo, "email")}</span> */}

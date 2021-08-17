@@ -101,6 +101,7 @@ const ExpectedReturnsCard = ({ result, networkInfo }) => {
 									<a
 										href="https://github.com/buidl-labs/yieldscan-frontend/wiki/Returns-Calculation-Mechanism"
 										target="_blank"
+										rel="noreferrer"
 										className="underline"
 									>
 										click here

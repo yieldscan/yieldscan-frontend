@@ -147,17 +147,14 @@ const Staking = () => {
 					initialStakingPath === "transfer"
 						? setSuccessHeading("Wohoo!")
 						: setSuccessHeading("Congratulations");
-					
-					if (initialStakingPath === "transfer"){
-						track(goalCodes.STAKING.TRANSFER.SUCCESSFUL)
-					}
-					else if (initialStakingPath === "express"){
+
+					if (initialStakingPath === "transfer") {
+						track(goalCodes.STAKING.TRANSFER.SUCCESSFUL);
+					} else if (initialStakingPath === "express") {
 						track(goalCodes.STAKING.EXPRESS.SUCCESSFUL);
-					}
-					else if (initialStakingPath === "secure"){
+					} else if (initialStakingPath === "secure") {
 						track(goalCodes.STAKING.SECURE.SUCCESSFUL);
-					}
-					else if (initialStakingPath === "distinct"){
+					} else if (initialStakingPath === "distinct") {
 						track(goalCodes.STAKING.DISTINCT.SUCCESSFUL);
 					}
 
@@ -208,19 +205,17 @@ const Staking = () => {
 							true
 						);
 				} else {
-
-					if(message !== "Cancelled" && initialStakingPath === "transfer"){
-						track(goalCodes.STAKING.TRANSFER.UNSUCCESSFUL)
-					}
-					else if (message !== "Cancelled" && initialStakingPath !== "transfer") {
-					
-						if (initialStakingPath === "express"){
+					if (message !== "Cancelled" && initialStakingPath === "transfer") {
+						track(goalCodes.STAKING.TRANSFER.UNSUCCESSFUL);
+					} else if (
+						message !== "Cancelled" &&
+						initialStakingPath !== "transfer"
+					) {
+						if (initialStakingPath === "express") {
 							track(goalCodes.STAKING.EXPRESS.UNSUCCESSFUL);
-						}
-						else if (initialStakingPath === "secure"){
+						} else if (initialStakingPath === "secure") {
 							track(goalCodes.STAKING.SECURE.UNSUCCESSFUL);
-						}
-						else if (initialStakingPath === "distinct"){
+						} else if (initialStakingPath === "distinct") {
 							track(goalCodes.STAKING.DISTINCT.UNSUCCESSFUL);
 						}
 
@@ -316,7 +311,7 @@ const Staking = () => {
 	useEffect(() => {
 		if (selected && apiInstance && accountsBalances) {
 			accountsBalances[selected?.address].availableBalance <
-			ysFees + apiInstance?.consts.balances.existentialDeposit 
+			ysFees + apiInstance?.consts.balances.existentialDeposit
 				? setControllerTransferAmount(
 						() =>
 							ysFees +
@@ -510,7 +505,6 @@ const Staking = () => {
 					controllerBalances={controllerBalances}
 					networkInfo={networkInfo}
 					transactionState={transactionState}
-					toggleIsAuthPopoverOpen={toggleIsAuthPopoverOpen}
 					toggleIsAuthPopoverOpen={toggleIsAuthPopoverOpen}
 					ysFees={ysFees}
 					transactionFee={transactionFee}

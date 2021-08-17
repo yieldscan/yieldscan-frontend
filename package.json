@@ -8,7 +8,8 @@
 		"export": "next export",
 		"start": "next start",
 		"git:commit": "git cz",
-		"test": "jest"
+		"test": "jest",
+		"lint": "next lint"
 	},
 	"dependencies": {
 		"@chakra-ui/core": "^0.8.0",
@@ -62,6 +63,8 @@
 		"@testing-library/react": "^11.2.7",
 		"@types/jest": "^26.0.23",
 		"babel-jest": "^27.0.2",
+		"eslint": "^7.32.0",
+		"eslint-config-next": "^11.1.0",
 		"git-cz": "^4.7.1",
 		"jest": "^27.0.4",
 		"jest-dom": "^4.0.0",

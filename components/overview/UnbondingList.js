@@ -93,9 +93,10 @@ const UnbondingList = withSlideIn(
 								Unlocking Amounts
 							</h3>
 							<div className="py-2 flex items-center flex-wrap">
-								{stakingInfo.unlocking.map((data) => (
+								{stakingInfo.unlocking.map((data, index) => (
 									<UnbondingAmountCard
 										value={data.value}
+										key={index}
 										remainingEras={data.remainingEras}
 										eraLength={eraLength}
 										eraProgress={eraProgress}

@@ -25,6 +25,7 @@ const Settings = () => {
 				<div className="flex text-gray-700 mt-4">
 					<a
 						target="_blank"
+						rel="noreferrer"
 						href="https://discord.gg/5Dggqx8"
 						className="mr-12 flex text-sm items-center hover:text-teal-500"
 					>
@@ -32,6 +33,7 @@ const Settings = () => {
 					</a>
 					<a
 						target="_blank"
+						rel="noreferrer"
 						href="https://t.me/yieldscan"
 						className="mr-12 flex text-sm items-center hover:text-teal-500"
 					>

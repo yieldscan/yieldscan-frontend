@@ -3,7 +3,6 @@ import {
 	FormLabel,
 	Skeleton,
 	Divider,
-	Image,
 	Alert,
 	AlertDescription,
 } from "@chakra-ui/core";
@@ -29,6 +28,7 @@ import getErasHistoric from "@lib/getErasHistoric";
 import ProgressiveImage from "react-progressive-image";
 import PastEarningsTimeRange from "./PastEarningsTimeRange";
 import getRewardsSum from "@lib/getRewardsSum";
+import Image from "next/image";
 
 const PastEarningsDisplay = ({ earnings, networkInfo }) =>
 	!isNil(earnings) ? (
@@ -220,14 +220,13 @@ const EarningsOutput = ({
 	return (
 		<Box minW={320} w="full">
 			<div className="flex">
-				<ProgressiveImage
+				<Image
 					src="/images/dollar-sign.svg"
-					placeholder="/images/dollar-sign.jpg"
-				>
-					{(src) => (
-						<img src={src} alt="dollar-sign" width="32px" height="32px" />
-					)}
-				</ProgressiveImage>
+					alt="dollar-sign"
+					width="32"
+					height="32"
+				/>
+
 				<p className="font-semibold text-base text-gray-700 ml-2 mt-1">
 					Earnings
 				</p>

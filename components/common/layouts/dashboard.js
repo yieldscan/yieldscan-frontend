@@ -28,7 +28,7 @@ import { useRouter } from "next/router";
 import Routes from "@lib/routes";
 import { setCookie } from "nookies";
 
-const withDashboardLayout = (children, isSetUp, isWalletSetUp) => {
+const WithDashboardLayout = (children, isSetUp, isWalletSetUp) => {
 	const router = useRouter();
 	const { showBetaMessage, setShowBetaMessage } = useBetaInfo();
 	const { apiInstance, setApiInstance } = usePolkadotApi();
@@ -48,7 +48,7 @@ const withDashboardLayout = (children, isSetUp, isWalletSetUp) => {
 		});
 	}, [networkInfo]);
 
-	return () => (
+	return (
 		<div>
 			<Header isSetUp={isSetUp} isWalletSetUp={isWalletSetUp} />
 			<div className="dashboard-content fixed flex relative w-full">
@@ -95,4 +95,4 @@ const withDashboardLayout = (children, isSetUp, isWalletSetUp) => {
 	);
 };
 
-export default withDashboardLayout;
+export default WithDashboardLayout;

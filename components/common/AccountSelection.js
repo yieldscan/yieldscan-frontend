@@ -33,15 +33,13 @@ const AccountSelection = ({
 
 	return isNil(accounts) ? (
 		<button
-			className="rounded-full border border-gray-300 p-2 px-4 font-medium text-gray-800"
+			className="rounded-full border border-gray-300 p-2 px-4 font-medium text-gray-800 text-md"
 			onClick={handleOnClickSetUp}
 		>
 			Connect Wallet
 		</button>
 	) : isSetUp ? (
-		<button
-			className="p-2 px-4 cursor-default font-medium text-gray-800"
-		>
+		<button className="p-2 px-4 cursor-default font-medium text-gray-800">
 			<div className="flex flex-row items-center justify-center space-x-2">
 				<Circle
 					className={`rounded-full ${

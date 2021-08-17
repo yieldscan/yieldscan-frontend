@@ -33,6 +33,7 @@ import EarningsOutput from "./EarningsOutput";
 import { Events, trackEvent, track, goalCodes } from "@lib/analytics";
 import ProgressiveImage from "react-progressive-image";
 import RedeemUnbonded from "./RedeemUnbonded";
+import Image from "next/image";
 
 const Tabs = {
 	ACTIVE_VALIDATORS: "validators",
@@ -183,9 +184,10 @@ const Overview = () => {
 				</span>
 				<button
 					className="border border-teal-500 text-teal-500 px-3 py-2 rounded-full"
-					onClick={() => 
+					onClick={() =>
 						isNil(accounts)
-							? (router.push("/setup-wallet"), track(goalCodes.OVERVIEW.INTENT_CONNECT_WALLET))
+							? (router.push("/setup-wallet"),
+							  track(goalCodes.OVERVIEW.INTENT_CONNECT_WALLET))
 							: toggle()
 					}
 				>
@@ -204,14 +206,12 @@ const Overview = () => {
 		</div>
 	) : stakingInfo?.stakingLedger?.total.isEmpty ? (
 		<div className="flex items-center flex-col pt-24">
-			<ProgressiveImage
+			<Image
 				src="/images/unicorn-sweat/unicorn-sweat.png"
-				placeholder="/images/unicorn-sweat/unicorn-sweat@0.5x.png"
-			>
-				{(src) => (
-					<img src={src} alt="unicorn-sweat" width="200px" height="auto" />
-				)}
-			</ProgressiveImage>
+				alt="unicorn-sweat"
+				width="180"
+				height="200"
+			/>
 			<h2 className="text-2xl text-gray-700 font-semibold mt-4">
 				Hey! So, ummm...
 			</h2>
@@ -243,6 +243,7 @@ const Overview = () => {
 					className="text-gray-700 font-semibold"
 					href="mailto:karan@buidllabs.io"
 					target="_blank"
+					rel="noreferrer"
 				>
 					Contact us
 				</a>
@@ -321,10 +322,9 @@ const Overview = () => {
 						<button
 							onClick={() => {
 								handleValToggle();
-								if(!showValidators)
-								track(goalCodes.OVERVIEW.CHECKED_VALIDATORS);
-								}
-							}
+								if (!showValidators)
+									track(goalCodes.OVERVIEW.CHECKED_VALIDATORS);
+							}}
 							className="flex text-gray-600 text-xs mt-12"
 						>
 							<ChevronRight

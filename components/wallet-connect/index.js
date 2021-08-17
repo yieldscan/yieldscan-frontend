@@ -19,7 +19,6 @@ import {
 } from "@chakra-ui/core";
 import { web3Enable, web3AccountsSubscribe } from "@polkadot/extension-dapp";
 import { encodeAddress, decodeAddress } from "@polkadot/util-crypto";
-import RejectedPage from "./RejectedPage";
 import SelectAccount from "./SelectAccount";
 import {
 	useAccounts,
@@ -39,7 +38,6 @@ import {
 	goalCodes,
 } from "@lib/analytics";
 import { setCookie } from "nookies";
-import RecoverAuthInfo from "./RecoverAuthInfo";
 import { useRouter } from "next/router";
 
 const useWalletConnect = create((set) => ({
@@ -112,13 +110,20 @@ const WalletConnectPopover = ({ styles, networkInfo, isSetUp }) => {
 			setCurrentStep("beginnerInfo");
 			// setState(null);
 		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [networkInfo]);
 
-	useEffect(async () => {
+	useEffect(() => {
+		async function getGenesisHash() {
+			const genesisHash = (await apiInstance.genesisHash).toString();
+			return genesisHash;
+		}
+
 		setNetworkGenesisHash(null);
 		if (apiInstance) {
-			const networkGenesisHash = (await apiInstance.genesisHash).toString();
-			setNetworkGenesisHash(networkGenesisHash);
+			getGenesisHash().then((genesisHash) =>
+				setNetworkGenesisHash(genesisHash)
+			);
 		}
 	}, [apiInstance, networkInfo]);
 

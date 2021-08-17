@@ -10,6 +10,7 @@ import {
 	PopoverArrow,
 	PopoverBody,
 } from "@chakra-ui/core";
+import Image from "next/image";
 
 const ValidatorInfoHeader = ({
 	stashId,
@@ -73,16 +74,17 @@ const ValidatorInfoHeader = ({
 						)}
 						{socialInfo.riot && (
 							<button
-								className="mr-4 text-sm flex items-center hover:underline"
+								className="mr-4 text-sm flex items-center hover:underline space-x-1"
 								style={{ color: "#0dbd8b" }}
 								onClick={() =>
 									openWindow(`https://app.element.io/#/user/${socialInfo.riot}`)
 								}
 							>
-								<img
+								<Image
 									src="/images/riot-logo.svg"
 									alt="riot-logo"
-									className="h-4 w-4 mr-1"
+									width="18"
+									height="18"
 								/>
 								<span>{get(socialInfo, "riot")}</span>
 							</button>
@@ -101,6 +103,7 @@ const ValidatorInfoHeader = ({
 								className="bg-gray-200 rounded-full w-8 h-8 flex items-center justify-center"
 								href={`mailto:${get(socialInfo, "email")}`}
 								target="_blank"
+								rel="noreferrer"
 							>
 								<Mail size="1rem" />
 								{/* <span>{get(socialInfo, "email")}</span> */}

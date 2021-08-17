@@ -11,6 +11,7 @@ import {
 import withSlideIn from "@components/common/withSlideIn";
 import ProfileBadge from "@components/common/ProfileBadge";
 import { Lock, Check } from "react-feather";
+import Image from "next/image";
 
 const TaskCard = ({ title = "", description = "", score = 0, isDone }) => (
 	<div
@@ -105,10 +106,11 @@ const TransparencyScoreModal = withSlideIn(
 											<ProfileBadge score={transparencyScore.total} />
 										</span>
 									) : (
-										<img
+										<Image
 											alt="profile-badge"
 											src="/images/badges/gray-badge.svg"
-											className="cursor-pointer"
+											height="18"
+											width="18"
 										/>
 									)}
 									{transparencyScore.total} PTS

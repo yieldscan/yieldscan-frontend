@@ -57,29 +57,28 @@ const AmountInput = ({
 				/>
 				<InputRightElement
 					opacity="1"
-					children={
-						<span className="flex min-w-fit-content">
-							{inputValue !== maxAmount && senderAccount && (
-								<button
-									className="bg-teal-200 text-teal-500 rounded-full text-xs px-2"
-									onClick={() => {
-										handleChange(maxAmount);
-									}}
-								>
-									max
-								</button>
-							)}
-							<span className="ml-2 text-sm font-medium cursor-not-allowed text-gray-700">
-								{networkInfo.denom}
-							</span>
-						</span>
-					}
 					h="full"
 					rounded="full"
 					fontSize="xl"
 					w="fit-content"
 					px={4}
-				/>
+				>
+					<span className="flex min-w-fit-content">
+						{inputValue !== maxAmount && senderAccount && (
+							<button
+								className="bg-teal-200 text-teal-500 rounded-full text-xs px-2"
+								onClick={() => {
+									handleChange(maxAmount);
+								}}
+							>
+								max
+							</button>
+						)}
+						<span className="ml-2 text-sm font-medium cursor-not-allowed text-gray-700">
+							{networkInfo.denom}
+						</span>
+					</span>
+				</InputRightElement>
 			</InputGroup>
 		</div>
 	);

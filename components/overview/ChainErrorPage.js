@@ -1,8 +1,14 @@
 import * as Sentry from "@sentry/node";
+import Image from "next/image";
 const ChainErrorPage = ({ onConfirm, errMessage }) => {
 	return (
 		<div className="mx-10 mt-8 mb-20 flex flex-col text-center items-center">
-			<img src="/images/polkadot_alert.png" width="200px" />
+			<Image
+				src="/images/polkadot_alert.png"
+				alt="alert"
+				width="200"
+				height="200"
+			/>
 			<h3 className="mt-4 text-2xl">
 				Oops. There was an error processing this staking request
 			</h3>

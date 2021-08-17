@@ -435,6 +435,7 @@ const RewardCalculatorPage = () => {
 							className="underline"
 							href="https://github.com/buidl-labs/yieldscan-frontend/wiki/Risk-score-logic"
 							target="_blank"
+							rel="noreferrer"
 						>
 							Learn more
 						</a>

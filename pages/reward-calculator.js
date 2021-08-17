@@ -1,5 +1,5 @@
 import dynamic from "next/dynamic";
-import withDashboardLayout from "@components/common/layouts/dashboard";
+import WithDashboardLayout from "@components/common/layouts/dashboard";
 import { NextSeo } from "next-seo";
 
 const Page = dynamic(
@@ -25,7 +25,7 @@ const RewardCalculator = () => (
 					"Polkadot staking rewards calculator, DOT staking rewards calculator, kusama staking rewards calculator, KSM staking rewards calculator, staking rewards calculator",
 			}}
 		/>
-		<Page title="Reward Calculator" layoutProvider={withDashboardLayout}>
+		<Page title="Reward Calculator" layoutProvider={WithDashboardLayout}>
 			{() => <RewardCalculatorComponent />}
 		</Page>
 	</>

@@ -49,10 +49,6 @@ import SideMenuFooter from "./side-menu-footer";
 import YieldScanLogo from "./YieldScanLogo";
 import NetworkSelection from "./NetworkSelection";
 import AccountSelection from "./AccountSelection";
-import {
-	useNewAccountsSetup,
-	NewAccountsSetupPopover,
-} from "../setup-accounts/NewAccountsSetupPopover";
 import { track, goalCodes } from "@lib/analytics";
 
 const Header = ({ isBase, isSetUp, isWalletSetUp }) => {
@@ -68,7 +64,6 @@ const Header = ({ isBase, isSetUp, isWalletSetUp }) => {
 	const supportedNetworksInfo = getAllNetworksInfo();
 	const { apiInstance, setApiInstance } = usePolkadotApi();
 	const { isOpen, toggle } = useWalletConnect();
-	const { isNewSetupOpen, toggleNewSetup } = useNewAccountsSetup();
 	const { setIsInElection } = useNetworkElection();
 	const { accounts, setAccounts } = useAccounts();
 	const { selectedAccount, setSelectedAccount } = useSelectedAccount();
@@ -322,7 +317,7 @@ const Header = ({ isBase, isSetUp, isWalletSetUp }) => {
 								setSelectedAccount={(info) => setSelectedAccount(info)}
 							/>
 						</div>
-						<div className="relative">
+						<div className="relative col-span-1">
 							<NetworkSelection
 								isNetworkOpen={isNetworkOpen}
 								setIsNetworkOpen={setIsNetworkOpen}
