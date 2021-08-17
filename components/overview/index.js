@@ -65,6 +65,7 @@ const Overview = () => {
 	const [fundsUpdateModalType, setFundsUpdateModalType] = useState();
 	const handleValToggle = () => setShowValidators(!showValidators);
 	const [selectedTab, setSelectedTab] = useState(Tabs.NOMINATIONS);
+	const [minPossibleStake, setMinPossibleStake] = useState(0);
 	const {
 		isOpen: isRewardDestinationModalOpen,
 		onToggle: toggleRewardDestinationModal,
@@ -153,6 +154,13 @@ const Overview = () => {
 		}
 	}, [stakingInfo]);
 
+	useEffect(async () => {
+		if (apiInstance) {
+			const data = await apiInstance?.query.staking.minNominatorBond();
+			setMinPossibleStake(JSON.parse(data) / 10 ** networkInfo.decimalPlaces);
+		}
+	}, [selectedNetwork, apiInstance]);
+
 	const onEditController = () => {
 		closeRewardDestinationModal();
 		toggleEditControllerModal();
@@ -183,9 +191,10 @@ const Overview = () => {
 				</span>
 				<button
 					className="border border-teal-500 text-teal-500 px-3 py-2 rounded-full"
-					onClick={() => 
+					onClick={() =>
 						isNil(accounts)
-							? (router.push("/setup-wallet"), track(goalCodes.OVERVIEW.INTENT_CONNECT_WALLET))
+							? (router.push("/setup-wallet"),
+							  track(goalCodes.OVERVIEW.INTENT_CONNECT_WALLET))
 							: toggle()
 					}
 				>
@@ -260,6 +269,7 @@ const Overview = () => {
 				balance={balances}
 				stakingInfo={stakingInfo}
 				networkInfo={networkInfo}
+				minPossibleStake={minPossibleStake}
 			/>
 			<UnbondingList
 				api={apiInstance}
@@ -293,6 +303,7 @@ const Overview = () => {
 						openUnbondingListModal={() => openUnbondingListModal()}
 						openRewardDestinationModal={toggleRewardDestinationModal}
 						networkInfo={networkInfo}
+						minPossibleStake={minPossibleStake}
 					/>
 					{/* TODO: Handle errors */}
 					<div className="flex ml-20 w-1/2">
@@ -321,10 +332,9 @@ const Overview = () => {
 						<button
 							onClick={() => {
 								handleValToggle();
-								if(!showValidators)
-								track(goalCodes.OVERVIEW.CHECKED_VALIDATORS);
-								}
-							}
+								if (!showValidators)
+									track(goalCodes.OVERVIEW.CHECKED_VALIDATORS);
+							}}
 							className="flex text-gray-600 text-xs mt-12"
 						>
 							<ChevronRight

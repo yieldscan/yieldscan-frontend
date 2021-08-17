@@ -100,9 +100,11 @@ const AmountInputDefault = memo(
 							}`}
 						>
 							$
-							{formatCurrency.methods.formatNumber(
-								(value.currency * coinGeckoPriceUSD).toFixed(2)
-							)}
+							{Object.is(value.currency, NaN)
+								? "0.00"
+								: formatCurrency.methods.formatNumber(
+										(value.currency * coinGeckoPriceUSD).toFixed(2)
+								  )}
 						</h6>
 						<InputRightElement
 							opacity={isEditable ? "1" : "0.4"}
@@ -220,9 +222,11 @@ const AmountInputAccountInfoLoading = memo(
 							}`}
 						>
 							$
-							{formatCurrency.methods.formatNumber(
-								(value.currency * coinGeckoPriceUSD).toFixed(2)
-							)}
+							{Object.is(value.currency, NaN)
+								? "0.00"
+								: formatCurrency.methods.formatNumber(
+										(value.currency * coinGeckoPriceUSD).toFixed(2)
+								  )}
 						</h6>
 						<InputRightElement
 							// opacity="0.4"
