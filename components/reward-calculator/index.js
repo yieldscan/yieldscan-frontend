@@ -294,13 +294,6 @@ const RewardCalculatorPage = () => {
 	}, [selectedNetwork, apiInstance]);
 
 	useEffect(() => {
-		if (get(validatorRiskSets, risk)) {
-			const selectedValidators = cloneDeep(validatorRiskSets[risk]);
-			setSelectedValidators(selectedValidators);
-		}
-	}, [risk]);
-
-	useEffect(() => {
 		if (!validatorRiskSets) {
 			setLoading(true);
 			setHeaderLoading(true);
@@ -319,6 +312,7 @@ const RewardCalculatorPage = () => {
 					};
 
 					setValidatorRiskSets(validatorMap);
+					setRisk("Medium");
 					setSelectedValidators(validatorMap["Medium"]);
 					setLoading(false);
 					setHeaderLoading(false);
@@ -326,7 +320,14 @@ const RewardCalculatorPage = () => {
 		} else {
 			console.info("Using previous validator map.");
 		}
-	}, [networkInfo, validatorRiskSets]);
+	}, [networkInfo]);
+
+	useEffect(() => {
+		if (get(validatorRiskSets, risk)) {
+			const selectedValidators = cloneDeep(validatorRiskSets[risk]);
+			setSelectedValidators(selectedValidators);
+		}
+	}, [risk]);
 
 	useEffect(() => {
 		if (risk && timePeriodValue) {
@@ -394,18 +395,17 @@ const RewardCalculatorPage = () => {
 	useEffect(() => {
 		activeBondedAmount > 0
 			? setAmount(activeBondedAmount)
-			: totalAvailableStakingAmount - networkInfo.reserveAmount > 0
-			? setAmount(
-					Math.trunc(
-						(totalAvailableStakingAmount - networkInfo.reserveAmount) *
-							10 ** networkInfo.decimalPlaces
-					) /
-						10 ** networkInfo.decimalPlaces
-			  )
-			: selectedAccount && totalPossibleStakingAmount === 0
+			: totalAvailableStakingAmount - networkInfo.reserveAmount > 0 &&
+			  balances &&
+			  stakingInfo
+			? setAmount(totalAvailableStakingAmount - networkInfo.reserveAmount)
+			: selectedAccount &&
+			  totalPossibleStakingAmount === 0 &&
+			  balances &&
+			  stakingInfo
 			? setAmount(0)
 			: setAmount(1000);
-	}, [totalAvailableStakingAmount, selectedAccount]);
+	}, [totalAvailableStakingAmount, selectedAccount, activeBondedAmount]);
 
 	return loading || isNil(apiInstance) ? (
 		<div className="flex-center w-full h-full">
