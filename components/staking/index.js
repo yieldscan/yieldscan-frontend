@@ -289,7 +289,8 @@ const Staking = () => {
 			onEvent: (eventInfo) => {
 				if (isLast) {
 					setStakingEvent(eventInfo.message);
-				} else setEvent(eventInfo.message);
+				}
+				setEvent(eventInfo.message);
 			},
 			onSuccessfullSigning: (hash) => {
 				const transactionHash = get(hash, "message");

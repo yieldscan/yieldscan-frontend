@@ -65,7 +65,6 @@ const StepperSigningPopover = ({
 			currentStep > 0 &&
 			stepTransactions[currentStep - 1]?.transactionType === "bond"
 		) {
-			console.log(stepTransactions[currentStep - 1]);
 			const _transaction = [];
 			_transaction.push(
 				apiInstance.tx.staking.bond(
@@ -158,8 +157,6 @@ const StepperSigningPopover = ({
 			setTransactionFee(() => fee.partialFee.toNumber());
 		}
 	}, [stepTransactions, currentStep]);
-
-	console.log(transactionFee);
 
 	return (
 		<Modal

@@ -284,9 +284,6 @@ const StepperSigning = ({
 	incrementCurrentStep,
 	ysFees,
 }) => {
-	console.log(stepperTransactions?.length);
-	console.log("currentStep");
-	console.log(currentStep);
 	return (
 		<div className="w-full flex flex-col justify-center items-center space-y-4">
 			<h1 className="w-full text-xl text-center text-gray-700 font-semibold p-2">
