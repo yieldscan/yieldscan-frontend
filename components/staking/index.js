@@ -27,12 +27,17 @@ import { BottomNextButton } from "../common/BottomButton";
 import TransferFunds from "./TransferFunds";
 import SecureStakingSetup from "./SecureStakingSetup";
 import { AuthPopover, useAuthPopover } from "./AuthPopover";
+import {
+	StepperSigningPopover,
+	useStepperSigningPopover,
+} from "./stepperSignerPopover";
 import transferBalancesKeepAlive from "@lib/polkadot/transfer-balances";
-import { goalCodes } from "@lib/analytics";
+import { track, goalCodes } from "@lib/analytics";
 
 const Staking = () => {
 	const toast = useToast();
 	const router = useRouter();
+
 	const { selectedNetwork } = useSelectedNetwork();
 	const { apiInstance } = usePolkadotApi();
 	const networkInfo = getNetworkInfo(selectedNetwork);
@@ -48,10 +53,15 @@ const Staking = () => {
 	const { balances, stakingInfo, stakingLedgerInfo } = useSelectedAccountInfo();
 	const { isAuthPopoverOpen, toggleIsAuthPopoverOpen, close } =
 		useAuthPopover();
+	const {
+		isStepperSigningPopoverOpen,
+		toggleIsStepperSigningPopoverOpen,
+		closeStepperSignerPopover,
+	} = useStepperSigningPopover();
 
 	const [initialStakingPath, setInitialStakingPath] = useState(stakingPath);
-
 	const [transactions, setTransactions] = useState(null);
+	const [stepperTransactions, setStepperTransactions] = useState(null);
 	const [injectorAccount, setInjectorAccount] = useState(null);
 	const [transactionFee, setTransactionFee] = useState(0);
 	const [transactionType, setTransactionType] = useState(null);
@@ -261,6 +271,163 @@ const Staking = () => {
 		}
 	};
 
+	const stepperTransact = (
+		_transaction,
+		injector,
+		isLast,
+		closeModal,
+		setLoading,
+		setEvent,
+		setLoader,
+		stepperSuccessMessage,
+		setSuccess,
+		currentStep,
+		setCurrentStep
+	) => {
+		setLoading(true);
+		const handlers = {
+			onEvent: (eventInfo) => {
+				if (isLast) {
+					setStakingEvent(eventInfo.message);
+				}
+				setEvent(eventInfo.message);
+			},
+			onSuccessfullSigning: (hash) => {
+				const transactionHash = get(hash, "message");
+				if (isLast) {
+					setStakingPath("loading");
+					closeModal();
+					setLoaderError(false);
+					setTimeout(() => {
+						setTransactionHash(transactionHash);
+						setStakingEvent(
+							"Your transaction is sent to the network. Awaiting confirmation..."
+						);
+					}, 750);
+				} else {
+					setLoader(false);
+					setTimeout(() => {
+						// setTransactionHash(transactionHash);
+						setEvent(
+							"Your transaction is sent to the network. Awaiting confirmation..."
+						);
+					}, 750);
+				}
+			},
+			onFinish: (status, message, eventLogs, tranHash) => {
+				toast({
+					title: status === 0 ? "Successful!" : "Error!",
+					status: status === 0 ? "success" : "error",
+					description: message,
+					position: "top-right",
+					isClosable: true,
+					duration: 7000,
+				});
+				if (isLast) {
+					if (status === 0) {
+						setSuccessHeading("Congratulations");
+
+						if (initialStakingPath === "express") {
+							track(goalCodes.STAKING.EXPRESS.SUCCESSFUL);
+						} else if (initialStakingPath === "secure") {
+							track(goalCodes.STAKING.SECURE.SUCCESSFUL);
+						} else if (initialStakingPath === "distinct") {
+							track(goalCodes.STAKING.DISTINCT.SUCCESSFUL);
+						}
+
+						const successMessage = "You’ve successfully staked your funds...";
+						setStakingEvent(successMessage);
+						setIsSuccessful(true);
+						updateTransactionData(
+							selectedAccount?.address,
+							networkInfo.network,
+							parseInt(stakingInfo.stakingLedger.active) /
+								Math.pow(10, networkInfo.decimalPlaces),
+							stakingAmount,
+							tranHash,
+							true
+						);
+					} else {
+						if (message !== "Cancelled") {
+							if (initialStakingPath === "express") {
+								track(goalCodes.STAKING.EXPRESS.UNSUCCESSFUL);
+							} else if (initialStakingPath === "secure") {
+								track(goalCodes.STAKING.SECURE.UNSUCCESSFUL);
+							} else if (initialStakingPath === "distinct") {
+								track(goalCodes.STAKING.DISTINCT.UNSUCCESSFUL);
+							}
+
+							updateTransactionData(
+								selectedAccount?.address,
+								networkInfo.network,
+								parseInt(stakingInfo.stakingLedger.active) /
+									Math.pow(10, networkInfo.decimalPlaces),
+								stakingAmount,
+								tranHash,
+								false
+							);
+							setStakingEvent("Transaction failed");
+							setLoaderError(true);
+
+							setTimeout(() => {
+								setLoaderError(false);
+								setStakingPath("errorPage");
+								// setStakingLoading(false);
+							}, 2000);
+						} else {
+							stakingPath === "loading"
+								? setStakingPath(initialStakingPath)
+								: setLoading(false);
+						}
+					}
+				} else {
+					if (status === 0) {
+						setEvent(stepperSuccessMessage);
+						setSuccess(true);
+						setTimeout(() => {
+							setCurrentStep(currentStep + 1);
+							setLoader(false);
+							setSuccess(false);
+							setLoading(false);
+						}, 5000);
+					} else {
+						if (message !== "Cancelled") {
+							// updateTransactionData(
+							// 	selectedAccount?.address,
+							// 	networkInfo.network,
+							// 	parseInt(stakingInfo.stakingLedger.active) /
+							// 		Math.pow(10, networkInfo.decimalPlaces),
+							// 	stakingAmount,
+							// 	tranHash,
+							// 	false
+							// );
+							setStakingPath = "loading";
+							closeModal();
+							setStakingEvent("Transaction failed");
+							setLoaderError(true);
+
+							setTimeout(() => {
+								setLoaderError(false);
+								setStakingPath("errorPage");
+								// setStakingLoading(false);
+							}, 2000);
+						} else {
+							stakingPath === "loading"
+								? setStakingPath(initialStakingPath)
+								: setLoading(false);
+						}
+					}
+				}
+			},
+		};
+
+		return stake(apiInstance, handlers, _transaction, injector).catch(
+			(error) => {
+				handlers.onFinish(1, error.message);
+			}
+		);
+	};
+
 	useEffect(() => {
 		if (networkInfo?.feesEnabled) {
 			setYsFees(() =>
@@ -312,11 +479,14 @@ const Staking = () => {
 		if (selected && apiInstance && accountsBalances) {
 			accountsBalances[selected?.address].availableBalance <
 			ysFees + apiInstance?.consts.balances.existentialDeposit
-				? setControllerTransferAmount(
-						() =>
+				? setControllerTransferAmount(() =>
+						Math.trunc(
 							ysFees +
-							2 * apiInstance?.consts.balances.existentialDeposit.toNumber() -
-							accountsBalances[selected?.address].availableBalance
+								networkInfo?.reserveAmount *
+									Math.pow(10, networkInfo.decimalPlaces) +
+								2 * apiInstance?.consts.balances.existentialDeposit.toNumber() -
+								accountsBalances[selected?.address].availableBalance
+						)
 				  )
 				: setControllerTransferAmount(0);
 		}
@@ -373,10 +543,29 @@ const Staking = () => {
 			<AuthPopover
 				isAuthPopoverOpen={isAuthPopoverOpen}
 				networkInfo={networkInfo}
-				onConfirm={() => transact()}
+				onConfirm={
+					transactions?.length > 1
+						? toggleIsStepperSigningPopoverOpen
+						: transact
+				}
 				close={close}
-				// transactionType={transactionType}
+				transactions={transactions}
 			/>
+			{isStepperSigningPopoverOpen && (
+				<StepperSigningPopover
+					isStepperSigningPopoverOpen={isStepperSigningPopoverOpen}
+					networkInfo={networkInfo}
+					onConfirm={() => transact()}
+					closeStepperSignerPopover={closeStepperSignerPopover}
+					transactions={transactions}
+					stakingPath={stakingPath}
+					stepperTransactions={stepperTransactions}
+					apiInstance={apiInstance}
+					selectedValidators={selectedValidators}
+					ysFees={ysFees}
+					stepperTransact={stepperTransact}
+				/>
+			)}
 			{transactionHash && isSuccessful && initialStakingPath !== "transfer" && (
 				<canvas id="confetti-holder" className="absolute w-full"></canvas>
 			)}
@@ -477,6 +666,7 @@ const Staking = () => {
 					setInjectorAccount={setInjectorAccount}
 					stakingAmount={stakingAmount}
 					selectedValidators={selectedValidators}
+					setStepperTransactions={setStepperTransactions}
 				/>
 			) : stakingPath === "express" ? (
 				<Confirmation
@@ -494,6 +684,7 @@ const Staking = () => {
 					setTransactionFee={setTransactionFee}
 					stakingAmount={stakingAmount}
 					selectedValidators={selectedValidators}
+					setStepperTransactions={setStepperTransactions}
 				/>
 			) : stakingPath === "distinct" ? (
 				<StakeToEarn

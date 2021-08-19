@@ -40,6 +40,7 @@ const SecureStakingSetup = ({
 	setInjectorAccount,
 	stakingAmount,
 	selectedValidators,
+	setStepperTransactions,
 }) => {
 	const [currentStep, setCurrentStep] = useState(() =>
 		confirmedControllerAccount && selected ? 2 : 0
@@ -94,6 +95,7 @@ const SecureStakingSetup = ({
 			setTransactionFee(0);
 			setTransactions(null);
 			setInjectorAccount(null);
+			setStepperTransactions(null);
 			const nominatedValidators = selectedValidators.map((v) => v.stashId);
 
 			const substrateStashId = encodeAddress(
@@ -108,6 +110,7 @@ const SecureStakingSetup = ({
 			);
 
 			const transactions = [];
+			const stepperTransactions = [];
 
 			if (controllerTransferAmount > 0) {
 				transactions.push(
@@ -116,6 +119,14 @@ const SecureStakingSetup = ({
 						controllerTransferAmount
 					)
 				);
+				stepperTransactions.push({
+					transactionType: "controllerTransfer",
+					transactionHeading: "Add funds to controller",
+					injectorAccount: substrateStashId,
+					substrateStashId: substrateStashId,
+					controllerTransferAmount: controllerTransferAmount,
+					substrateControllerId: substrateSelectedControllerId,
+				});
 			}
 
 			// if no staking history then bond else bondExtra or setController depending on
@@ -129,6 +140,14 @@ const SecureStakingSetup = ({
 						transactionState.rewardDestination
 					)
 				);
+				stepperTransactions.push({
+					transactionType: "bond",
+					transactionHeading: "Lock funds",
+					injectorAccount: substrateStashId,
+					stakingAmount: amount,
+					substrateControllerId: substrateSelectedControllerId,
+					rewardDestination: transactionState.rewardDestination,
+				});
 			} else {
 				if (stakingInfo?.controllerId.toString() !== selectedAccount?.address) {
 					transactions.push(
@@ -137,6 +156,25 @@ const SecureStakingSetup = ({
 				}
 				if (stakingInfo?.stakingLedger.active.isEmpty) {
 					transactions.push(apiInstance.tx.staking.bondExtra(amount));
+					stepperTransactions.push({
+						transactionType: "bondExtra",
+						transactionHeading: "Lock funds",
+						injectorAccount: substrateStashId,
+						substrateStashId: substrateStashId,
+						stakingAmount: amount,
+					});
+				}
+				if (
+					stakingInfo?.controllerId.toString() !==
+					confirmedControllerAccount?.address
+				) {
+					stepperTransactions.push({
+						transactionType: "setController",
+						transactionHeading: "Set controller account",
+						injectorAccount: substrateStashId,
+						substrateStashId: substrateStashId,
+						substrateControllerId: substrateSelectedControllerId,
+					});
 				}
 			}
 
@@ -144,6 +182,13 @@ const SecureStakingSetup = ({
 				apiInstance.tx.staking.nominate(nominatedValidators),
 				apiInstance.tx.staking.setController(substrateSelectedControllerId)
 			);
+
+			stepperTransactions.push({
+				transactionType: "nominate",
+				transactionHeading: "Stake",
+				injectorAccount: substrateSelectedControllerId,
+				nominatedValidators: nominatedValidators,
+			});
 
 			if (ysFees > 0 && networkInfo?.feesEnabled) {
 				transactions.push(
@@ -154,11 +199,15 @@ const SecureStakingSetup = ({
 				);
 			}
 
-			const fee = await apiInstance.tx.utility
-				.batchAll(transactions)
-				.paymentInfo(substrateStashId);
+			const fee =
+				transactions.length > 1
+					? await apiInstance.tx.utility
+							.batchAll(transactions)
+							.paymentInfo(substrateStashId)
+					: await transactions[0].paymentInfo(substrateStashId);
 
 			setTransactions([...transactions]);
+			setStepperTransactions([...stepperTransactions]);
 			setInjectorAccount(substrateStashId);
 			setTransactionFee(() => fee.partialFee.toNumber());
 		}
@@ -207,7 +256,9 @@ const SecureStakingSetup = ({
 							<p
 								className={`${
 									index <= currentStep ? "text-teal-500" : "text-gray-500"
-								} col-span-7 ${index !== currentStep && "font-light"} text-base`}
+								} col-span-7 ${
+									index !== currentStep && "font-light"
+								} text-base`}
 							>
 								{step}
 							</p>

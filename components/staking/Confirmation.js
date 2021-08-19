@@ -58,15 +58,30 @@ const Confirmation = ({
 			);
 
 			const transactions = [];
+			const stepperTransactions = [];
 
 			if (!isNil(stakingInfo?.controllerId)) {
 				if (stakingInfo?.controllerId.toString() !== selectedAccount?.address) {
 					transactions.push(
-						apiInstance.tx.staking.setController(selectedAccount?.address)
+						apiInstance.tx.staking.setController(substrateStashId)
 					);
+					stepperTransactions.push({
+						transactionType: "setController",
+						transactionHeading: "Set controller account",
+						injectorAccount: substrateStashId,
+						substrateStashId: substrateStashId,
+						substrateControllerId: substrateStashId,
+					});
 				}
 				if (stakingInfo?.stakingLedger.active.isEmpty) {
 					transactions.push(apiInstance.tx.staking.bondExtra(amount));
+					stepperTransactions.push({
+						transactionType: "bondExtra",
+						transactionHeading: "Lock funds",
+						injectorAccount: substrateStashId,
+						substrateStashId: substrateStashId,
+						stakingAmount: amount,
+					});
 				}
 			} else {
 				transactions.push(
@@ -76,9 +91,24 @@ const Confirmation = ({
 						transactionState.rewardDestination
 					)
 				);
+				stepperTransactions.push({
+					transactionType: "bond",
+					transactionHeading: "Lock funds",
+					injectorAccount: substrateStashId,
+					stakingAmount: amount,
+					substrateControllerId: substrateStashId,
+					rewardDestination: transactionState.rewardDestination,
+				});
 			}
 
 			transactions.push(apiInstance.tx.staking.nominate(nominatedValidators));
+
+			stepperTransactions.push({
+				transactionType: "nominate",
+				transactionHeading: "Stake",
+				injectorAccount: substrateStashId,
+				nominatedValidators: nominatedValidators,
+			});
 
 			if (ysFees > 0 && networkInfo?.feesEnabled) {
 				transactions.push(
