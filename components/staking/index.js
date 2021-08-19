@@ -61,6 +61,7 @@ const Staking = () => {
 
 	const [initialStakingPath, setInitialStakingPath] = useState(stakingPath);
 	const [transactions, setTransactions] = useState(null);
+	const [stepperTransactions, setStepperTransactions] = useState(null);
 	const [injectorAccount, setInjectorAccount] = useState(null);
 	const [transactionFee, setTransactionFee] = useState(0);
 	const [transactionType, setTransactionType] = useState(null);
@@ -321,11 +322,14 @@ const Staking = () => {
 		if (selected && apiInstance && accountsBalances) {
 			accountsBalances[selected?.address].availableBalance <
 			ysFees + apiInstance?.consts.balances.existentialDeposit
-				? setControllerTransferAmount(
-						() =>
+				? setControllerTransferAmount(() =>
+						Math.trunc(
 							ysFees +
-							2 * apiInstance?.consts.balances.existentialDeposit.toNumber() -
-							accountsBalances[selected?.address].availableBalance
+								networkInfo?.reserveAmount *
+									Math.pow(10, networkInfo.decimalPlaces) +
+								2 * apiInstance?.consts.balances.existentialDeposit.toNumber() -
+								accountsBalances[selected?.address].availableBalance
+						)
 				  )
 				: setControllerTransferAmount(0);
 		}
@@ -385,12 +389,20 @@ const Staking = () => {
 				onConfirm={toggleIsStepperSigningPopoverOpen}
 				close={close}
 			/>
-			<StepperSigningPopover
-				isStepperSigningPopoverOpen={isStepperSigningPopoverOpen}
-				networkInfo={networkInfo}
-				onConfirm={() => transact()}
-				closeStepperSignerPopover={closeStepperSignerPopover}
-			/>
+			{isStepperSigningPopoverOpen && (
+				<StepperSigningPopover
+					isStepperSigningPopoverOpen={isStepperSigningPopoverOpen}
+					networkInfo={networkInfo}
+					onConfirm={() => transact()}
+					closeStepperSignerPopover={closeStepperSignerPopover}
+					transactions={transactions}
+					stakingPath={stakingPath}
+					stepperTransactions={stepperTransactions}
+					apiInstance={apiInstance}
+					selectedValidators={selectedValidators}
+					ysFees={ysFees}
+				/>
+			)}
 			{transactionHash && isSuccessful && initialStakingPath !== "transfer" && (
 				<canvas id="confetti-holder" className="absolute w-full"></canvas>
 			)}
@@ -491,6 +503,7 @@ const Staking = () => {
 					setInjectorAccount={setInjectorAccount}
 					stakingAmount={stakingAmount}
 					selectedValidators={selectedValidators}
+					setStepperTransactions={setStepperTransactions}
 				/>
 			) : stakingPath === "express" ? (
 				<Confirmation
@@ -508,6 +521,7 @@ const Staking = () => {
 					setTransactionFee={setTransactionFee}
 					stakingAmount={stakingAmount}
 					selectedValidators={selectedValidators}
+					setStepperTransactions={setStepperTransactions}
 				/>
 			) : stakingPath === "distinct" ? (
 				<StakeToEarn

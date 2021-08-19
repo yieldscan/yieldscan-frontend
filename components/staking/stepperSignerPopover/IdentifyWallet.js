@@ -1,6 +1,10 @@
 import Image from "next/image";
 
-const IdentifyWallet = ({ onConfirm, closeStepperSignerPopover }) => {
+const IdentifyWallet = ({
+	onConfirm,
+	closeStepperSignerPopover,
+	incrementCurrentStep,
+}) => {
 	return (
 		<div className="w-full flex flex-col justify-center items-center space-y-4">
 			<h1 className="w-full text-xl text-center text-gray-700 font-semibold p-2">
@@ -19,10 +23,9 @@ const IdentifyWallet = ({ onConfirm, closeStepperSignerPopover }) => {
 			<div className="w-full flex text-gray-700 flex-col space-y-2 p-2">
 				<button
 					className="w-full flex rounded-lg border items-center shadow-md hover:shadow-lg p-8 transform hover:scale-102"
-					// onClick={() => {
-					// 	setConnectExtensionCheck(false);
-					// 	setCurrentStep("ledgerSetup");
-					// }}
+					onClick={() => {
+						incrementCurrentStep();
+					}}
 				>
 					<div className="w-full flex-1 flex flex-row items-center text-left space-x-6">
 						<Image
