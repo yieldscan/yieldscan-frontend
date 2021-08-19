@@ -542,8 +542,13 @@ const Staking = () => {
 			<AuthPopover
 				isAuthPopoverOpen={isAuthPopoverOpen}
 				networkInfo={networkInfo}
-				onConfirm={toggleIsStepperSigningPopoverOpen}
+				onConfirm={
+					transactions?.length > 1
+						? toggleIsStepperSigningPopoverOpen
+						: transact
+				}
 				close={close}
+				transactions={transactions}
 			/>
 			{isStepperSigningPopoverOpen && (
 				<StepperSigningPopover

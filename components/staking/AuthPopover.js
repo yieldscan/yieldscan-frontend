@@ -24,6 +24,7 @@ const AuthPopover = ({
 	isAuthPopoverOpen,
 	close,
 	onConfirm,
+	transactions,
 }) => {
 	return (
 		<Modal
@@ -73,7 +74,7 @@ const AuthPopover = ({
 								close();
 							}}
 						>
-							Continue
+							Continue {transactions?.length === 1 && "to sign"}
 						</NextButton>
 					</div>
 				</ModalBody>
