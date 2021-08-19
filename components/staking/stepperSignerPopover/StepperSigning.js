@@ -373,10 +373,7 @@ const StepperSigning = ({
 				<></>
 			)}
 			<div className="mt-4 w-full text-center">
-				<NextButton
-					onClick={incrementCurrentStep}
-					disabled={transactionFee === 0}
-				>
+				<NextButton onClick={onConfirm} disabled={transactionFee === 0}>
 					Continue to sign
 				</NextButton>
 			</div>

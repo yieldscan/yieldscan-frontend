@@ -32,7 +32,7 @@ import {
 	useStepperSigningPopover,
 } from "./stepperSignerPopover";
 import transferBalancesKeepAlive from "@lib/polkadot/transfer-balances";
-import { goalCodes } from "@lib/analytics";
+import { track, goalCodes } from "@lib/analytics";
 
 const Staking = () => {
 	const toast = useToast();
@@ -271,6 +271,162 @@ const Staking = () => {
 		}
 	};
 
+	const stepperTransact = (
+		_transaction,
+		injector,
+		isLast,
+		closeModal,
+		setLoading,
+		setEvent,
+		setLoader,
+		stepperSuccessMessage,
+		setSuccess,
+		currentStep,
+		setCurrentStep
+	) => {
+		setLoading(true);
+		const handlers = {
+			onEvent: (eventInfo) => {
+				if (isLast) {
+					setStakingEvent(eventInfo.message);
+				} else setEvent(eventInfo.message);
+			},
+			onSuccessfullSigning: (hash) => {
+				const transactionHash = get(hash, "message");
+				if (isLast) {
+					setStakingPath("loading");
+					closeModal();
+					setLoaderError(false);
+					setTimeout(() => {
+						setTransactionHash(transactionHash);
+						setStakingEvent(
+							"Your transaction is sent to the network. Awaiting confirmation..."
+						);
+					}, 750);
+				} else {
+					setLoader(false);
+					setTimeout(() => {
+						// setTransactionHash(transactionHash);
+						setEvent(
+							"Your transaction is sent to the network. Awaiting confirmation..."
+						);
+					}, 750);
+				}
+			},
+			onFinish: (status, message, eventLogs, tranHash) => {
+				toast({
+					title: status === 0 ? "Successful!" : "Error!",
+					status: status === 0 ? "success" : "error",
+					description: message,
+					position: "top-right",
+					isClosable: true,
+					duration: 7000,
+				});
+				if (isLast) {
+					if (status === 0) {
+						setSuccessHeading("Congratulations");
+
+						if (initialStakingPath === "express") {
+							track(goalCodes.STAKING.EXPRESS.SUCCESSFUL);
+						} else if (initialStakingPath === "secure") {
+							track(goalCodes.STAKING.SECURE.SUCCESSFUL);
+						} else if (initialStakingPath === "distinct") {
+							track(goalCodes.STAKING.DISTINCT.SUCCESSFUL);
+						}
+
+						const successMessage = "You’ve successfully staked your funds...";
+						setStakingEvent(successMessage);
+						setIsSuccessful(true);
+						updateTransactionData(
+							selectedAccount?.address,
+							networkInfo.network,
+							parseInt(stakingInfo.stakingLedger.active) /
+								Math.pow(10, networkInfo.decimalPlaces),
+							stakingAmount,
+							tranHash,
+							true
+						);
+					} else {
+						if (message !== "Cancelled") {
+							if (initialStakingPath === "express") {
+								track(goalCodes.STAKING.EXPRESS.UNSUCCESSFUL);
+							} else if (initialStakingPath === "secure") {
+								track(goalCodes.STAKING.SECURE.UNSUCCESSFUL);
+							} else if (initialStakingPath === "distinct") {
+								track(goalCodes.STAKING.DISTINCT.UNSUCCESSFUL);
+							}
+
+							updateTransactionData(
+								selectedAccount?.address,
+								networkInfo.network,
+								parseInt(stakingInfo.stakingLedger.active) /
+									Math.pow(10, networkInfo.decimalPlaces),
+								stakingAmount,
+								tranHash,
+								false
+							);
+							setStakingEvent("Transaction failed");
+							setLoaderError(true);
+
+							setTimeout(() => {
+								setLoaderError(false);
+								setStakingPath("errorPage");
+								// setStakingLoading(false);
+							}, 2000);
+						} else {
+							stakingPath === "loading"
+								? setStakingPath(initialStakingPath)
+								: setLoading(false);
+						}
+					}
+				} else {
+					if (status === 0) {
+						setEvent(stepperSuccessMessage);
+						setSuccess(true);
+						setTimeout(() => {
+							setCurrentStep(currentStep + 1);
+							setLoader(false);
+							setSuccess(false);
+							setLoading(false);
+						}, 5000);
+					} else {
+						if (message !== "Cancelled") {
+							// updateTransactionData(
+							// 	selectedAccount?.address,
+							// 	networkInfo.network,
+							// 	parseInt(stakingInfo.stakingLedger.active) /
+							// 		Math.pow(10, networkInfo.decimalPlaces),
+							// 	stakingAmount,
+							// 	tranHash,
+							// 	false
+							// );
+							setStakingPath = "loading";
+							closeModal();
+							setStakingEvent("Transaction failed");
+							setLoaderError(true);
+
+							setTimeout(() => {
+								setLoaderError(false);
+								setStakingPath("errorPage");
+								// setStakingLoading(false);
+							}, 2000);
+						} else {
+							stakingPath === "loading"
+								? setStakingPath(initialStakingPath)
+								: setLoading(false);
+						}
+					}
+				}
+			},
+		};
+
+		return stake(apiInstance, handlers, _transaction, injector).catch(
+			(error) => {
+				handlers.onFinish(1, error.message);
+			}
+		);
+	};
+
 	useEffect(() => {
 		if (networkInfo?.feesEnabled) {
 			setYsFees(() =>
@@ -401,6 +557,7 @@ const Staking = () => {
 					apiInstance={apiInstance}
 					selectedValidators={selectedValidators}
 					ysFees={ysFees}
+					stepperTransact={stepperTransact}
 				/>
 			)}
 			{transactionHash && isSuccessful && initialStakingPath !== "transfer" && (
