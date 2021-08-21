@@ -395,18 +395,17 @@ const RewardCalculatorPage = () => {
 	useEffect(() => {
 		activeBondedAmount > 0
 			? setAmount(activeBondedAmount)
-			: totalAvailableStakingAmount - networkInfo.reserveAmount > 0
-			? setAmount(
-					Math.trunc(
-						(totalAvailableStakingAmount - networkInfo.reserveAmount) *
-							10 ** networkInfo.decimalPlaces
-					) /
-						10 ** networkInfo.decimalPlaces
-			  )
-			: selectedAccount && totalPossibleStakingAmount === 0
+			: totalAvailableStakingAmount - networkInfo.reserveAmount > 0 &&
+			  balances &&
+			  stakingInfo
+			? setAmount(totalAvailableStakingAmount - networkInfo.reserveAmount)
+			: selectedAccount &&
+			  totalPossibleStakingAmount === 0 &&
+			  balances &&
+			  stakingInfo
 			? setAmount(0)
 			: setAmount(1000);
-	}, [totalAvailableStakingAmount, selectedAccount]);
+	}, [totalAvailableStakingAmount, selectedAccount, activeBondedAmount]);
 
 	return loading || isNil(apiInstance) ? (
 		<div className="flex-center w-full h-full">
