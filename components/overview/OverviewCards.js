@@ -65,22 +65,23 @@ const OverviewCards = ({
 		<div className="flex justify-between items-center h-auto w-full max-w-lg text-gray-700">
 			<div className="bg-white min-h-12-rem py-4 px-8 text-center flex flex-col justify-center shadow-custom rounded-xl h-full w-full">
 				<div className="flex flex-col items-center justify-between mt-5">
-					{stakingInfo.stakingLedger.active /
-						Math.pow(10, networkInfo.decimalPlaces) <
-						minPossibleStake && (
-						<div className="w-full flex-center justify-center items-center text-gray-700">
-							<div className="flex flex-center p-4 rounded-lg bg-yellow-200">
-								<div>
-									<AlertTriangle className="text-orange-500" />
+					{JSON.parse(stakingInfo.stakingLedger.active) !== 0 &&
+						stakingInfo.stakingLedger.active /
+							Math.pow(10, networkInfo.decimalPlaces) <
+							minPossibleStake && (
+							<div className="w-full flex-center justify-center items-center text-gray-700">
+								<div className="flex flex-center p-4 rounded-lg bg-yellow-200">
+									<div>
+										<AlertTriangle className="text-orange-500" />
+									</div>
+									<p className="text-sm">
+										The invested amount falls below the {networkInfo.name}{" "}
+										network new minimum staking threshold of {minPossibleStake}{" "}
+										{networkInfo.denom}.
+									</p>
 								</div>
-								<p className="text-sm">
-									The invested amount falls below the {networkInfo.name} network
-									new minimum staking threshold of {minPossibleStake}{" "}
-									{networkInfo.denom}.
-								</p>
 							</div>
-						</div>
-					)}
+						)}
 					<p className="font-medium mt-5">Your investment</p>
 					<div>
 						<div className="flex">
