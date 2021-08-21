@@ -60,9 +60,7 @@ const EditAmountModal = withSlideIn(
 		}, [stakingInfo]);
 
 		useEffect(() => {
-			stakingAmount
-				? setSubCurrency(stakingAmount * coinGeckoPriceUSD)
-				: setSubCurrency(0);
+			setSubCurrency(stakingAmount * coinGeckoPriceUSD);
 		}, [stakingAmount]);
 
 		const activeBondedAmount =
@@ -75,11 +73,6 @@ const EditAmountModal = withSlideIn(
 
 		const totalPossibleStakingAmount =
 			activeBondedAmount + totalAvailableStakingAmount;
-
-		const modalProceedDisabled =
-			selectedAccount &&
-			(stakingAmount > totalPossibleStakingAmount - networkInfo.reserveAmount ||
-				stakingAmount < minPossibleStake);
 
 		return (
 			<Modal isOpen={true} onClose={onClose} isCentered>
@@ -94,8 +87,7 @@ const EditAmountModal = withSlideIn(
 					<ModalBody>
 						<div className="mt-4">
 							{selectedAccount &&
-							stakingAmount >
-								totalPossibleStakingAmount - networkInfo.reserveAmount ? (
+							stakingAmount < minPossibleStake + networkInfo.reserveAmount ? (
 								<Alert
 									status="error"
 									rounded="md"
@@ -105,19 +97,27 @@ const EditAmountModal = withSlideIn(
 									my={4}
 								>
 									<AlertTitle color="red.500">
-										<span className="text-base">Insufficient Balance</span>
+										{activeBondedAmount > 0
+											? "Current amount insufficient to stake anymore"
+											: "Amount insufficient to begin staking"}
 									</AlertTitle>
 									<AlertDescription color="red.500">
-										<span className="text-sm">
-											We cannot stake this amount since we recommend maintaining
-											a minimum balance of {networkInfo.reserveAmount}{" "}
-											{networkInfo.denom} in your account at all times.{" "}
-										</span>
+										You need an additional of{" "}
+										{formatCurrency.methods.formatAmount(
+											Math.trunc(
+												Number(
+													minPossibleStake +
+														networkInfo.reserveAmount -
+														stakingAmount
+												) *
+													10 ** networkInfo.decimalPlaces
+											),
+											networkInfo
+										)}{" "}
+										to proceed further.
 										<Popover trigger="hover" usePortal>
 											<PopoverTrigger>
-												<span className="underline cursor-help text-sm">
-													Why?
-												</span>
+												<span className="underline cursor-help">Why?</span>
 											</PopoverTrigger>
 											<PopoverContent
 												zIndex={99999}
@@ -127,11 +127,16 @@ const EditAmountModal = withSlideIn(
 											>
 												<PopoverArrow />
 												<PopoverBody>
-													<span className="text-white text-xs">
-														This is to ensure that you have a decent amout of
-														funds in your account to pay transaction fees for
-														claiming rewards, unbonding funds, changing on-chain
-														staking preferences, etc.
+													<span className="text-white">
+														{amount < networkInfo.minPossibleStake
+															? `${networkInfo.name} network has a minimum threshold of 
+														${minPossibleStake} ${networkInfo.denom} to 
+														stake. The rest `
+															: "This "}
+														is to ensure that you have a decent amount of funds
+														in your account to pay transaction fees for claiming
+														rewards, unbonding funds, changing on-chain staking
+														preferences, etc.
 													</span>
 												</PopoverBody>
 											</PopoverContent>
@@ -140,7 +145,8 @@ const EditAmountModal = withSlideIn(
 								</Alert>
 							) : (
 								selectedAccount &&
-								stakingAmount < minPossibleStake && (
+								stakingAmount >
+									totalPossibleStakingAmount - networkInfo.reserveAmount && (
 									<Alert
 										status="error"
 										rounded="md"
@@ -150,18 +156,33 @@ const EditAmountModal = withSlideIn(
 										my={4}
 									>
 										<AlertTitle color="red.500">
-											<span className="text-base">
-												{activeBondedAmount > 0
-													? "Current amount insufficient to stake anymore"
-													: "Amount insufficient to begin staking"}
-											</span>
+											Insufficient Balance
 										</AlertTitle>
 										<AlertDescription color="red.500">
-											<span className="text-sm">
-												We cannot stake this amount as it does not cross the{" "}
-												{minPossibleStake} {networkInfo.denom} minimum staking
-												threshold mandated by the {networkInfo.name} network.{" "}
-											</span>
+											We cannot stake this amount since we recommend maintaining
+											a minimum balance of {networkInfo.reserveAmount}{" "}
+											{networkInfo.denom} in your account at all times.{" "}
+											<Popover trigger="hover" usePortal>
+												<PopoverTrigger>
+													<span className="underline cursor-help">Why?</span>
+												</PopoverTrigger>
+												<PopoverContent
+													zIndex={99999}
+													_focus={{ outline: "none" }}
+													bg="gray.700"
+													border="none"
+												>
+													<PopoverArrow />
+													<PopoverBody>
+														<span className="text-white">
+															This is to ensure that you have a decent amout of
+															funds in your account to pay transaction fees for
+															claiming rewards, unbonding funds, changing
+															on-chain staking preferences, etc.
+														</span>
+													</PopoverBody>
+												</PopoverContent>
+											</Popover>
 										</AlertDescription>
 									</Alert>
 								)
@@ -179,10 +200,7 @@ const EditAmountModal = withSlideIn(
 							</div>
 							<div className="my-5">
 								<AmountInput
-									value={{
-										currency: parseFloat(stakingAmount),
-										subCurrency: subCurrency,
-									}}
+									value={{ currency: amount, subCurrency: subCurrency }}
 									networkInfo={networkInfo}
 									onChange={setStakingAmount}
 									trackRewardCalculatedEvent={trackRewardCalculatedEvent}
@@ -192,11 +210,12 @@ const EditAmountModal = withSlideIn(
 							</div>
 							<div className="">
 								<button
-									className={`bg-teal-500 text-white py-2 px-5 rounded
-									${modalProceedDisabled ? "opacity-75 cursor-not-allowed" : "opacity-100"}
-									`}
+									className={`
+									bg-teal-500 text-white py-2 px-5 rounded
+						${selectedAccount ? "opacity-75 cursor-not-allowed" : "opacity-100"}
+					`}
 									onClick={onConfirm}
-									disabled={modalProceedDisabled}
+									// disabled={proceedDisabled}
 								>
 									Confirm
 								</button>
