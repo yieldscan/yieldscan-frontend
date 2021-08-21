@@ -472,9 +472,7 @@ const Validators = () => {
 		accounts && selectedAccount
 			? amount &&
 			  !isInElection &&
-			  amount >= minPossibleStake &&
-			  totalPossibleStakingAmount >=
-					minPossibleStake + networkInfo.reserveAmount &&
+			  amount >= minPossibleStake + networkInfo.reserveAmount &&
 			  transactionFees > 0
 				? amount > totalPossibleStakingAmount
 					? true
@@ -490,19 +488,23 @@ const Validators = () => {
 			: false;
 
 	useEffect(() => {
+		if (stakingInfo?.stakingLedger.active) {
+			setAmount(
+				parseInt(stakingInfo?.stakingLedger.active) /
+					Math.pow(10, networkInfo.decimalPlaces)
+			);
+		}
+	}, [stakingInfo]);
+
+	useEffect(() => {
 		activeBondedAmount > 0
 			? setAmount(activeBondedAmount)
-			: totalAvailableStakingAmount - networkInfo.reserveAmount > 0 &&
-			  balances &&
-			  stakingInfo
+			: totalAvailableStakingAmount - networkInfo.reserveAmount > 0
 			? setAmount(totalAvailableStakingAmount - networkInfo.reserveAmount)
-			: selectedAccount &&
-			  totalPossibleStakingAmount === 0 &&
-			  balances &&
-			  stakingInfo
+			: selectedAccount && totalPossibleStakingAmount === 0
 			? setAmount(0)
 			: setAmount(1000);
-	}, [totalAvailableStakingAmount, selectedAccount, activeBondedAmount]);
+	}, [totalAvailableStakingAmount, selectedAccount]);
 
 	return loading || !apiInstance ? (
 		<div className="flex-center w-full h-full">

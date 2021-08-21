@@ -11,11 +11,6 @@ import {
 	useToast,
 	Input,
 	Button,
-	Popover,
-	PopoverTrigger,
-	PopoverContent,
-	PopoverArrow,
-	PopoverBody,
 } from "@chakra-ui/core";
 import withSlideIn from "@components/common/withSlideIn";
 import RiskTag from "@components/reward-calculator/RiskTag";
@@ -45,7 +40,6 @@ const FundsUpdate = withSlideIn(
 		balance,
 		stakingInfo,
 		networkInfo,
-		minPossibleStake,
 	}) => {
 		const toast = useToast();
 		const { coinGeckoPriceUSD } = useCoinGeckoPriceUSD();
@@ -182,13 +176,9 @@ const FundsUpdate = withSlideIn(
 				setCalculationDisabled(true);
 			} else if (
 				type === "bond" &&
-				(amount >
+				amount >
 					balance.availableBalance / Math.pow(10, networkInfo.decimalPlaces) -
-						networkInfo.reserveAmount ||
-					stakingInfo.stakingLedger.active /
-						Math.pow(10, networkInfo.decimalPlaces) +
-						amount <
-						minPossibleStake)
+						networkInfo.reserveAmount
 			) {
 				setCalculationDisabled(true);
 			} else if (type === "rebond" && amount > totalUnbonding) {
@@ -364,56 +354,28 @@ const FundsUpdate = withSlideIn(
 											<div className="flex-center w-full h-full">
 												<div className="mt-10 w-full">
 													<div
-														className="rounded-lg px-5 py-2 text-sm bg-red-200 text-red-600 mb-4"
+														className="rounded-lg px-5 py-2 text-sm bg-red-200 text-red-600"
 														hidden={
 															!calculationDisabled || !amount || amount == 0
 														}
 													>
 														<span hidden={type === "bond" || type === "rebond"}>
-															You cannot withdraw this amount as it exceeds your
-															current investment value.{" "}
+															You cannot withdraw this amount since it either
+															exceeds your current investment value or doesn’t
+															leave enough funds in your account for paying the
+															transaction fees.{" "}
 														</span>
 														<span
 															hidden={type === "unbond" || type == "rebond"}
 														>
-															We cannot stake this amount because either your
-															total combined stake does not cross the{" "}
-															{minPossibleStake} {networkInfo.denom} minimum
-															staking threshold mandated by the{" "}
-															{networkInfo.name} network or the free balance in
-															your account falls below the recommended{" "}
-															{networkInfo.reserveAmount} {networkInfo.denom}.{" "}
-															<Popover trigger="hover" usePortal>
-																<PopoverTrigger>
-																	<span className="underline cursor-help">
-																		Why?
-																	</span>
-																</PopoverTrigger>
-																<PopoverContent
-																	zIndex={99999}
-																	_focus={{ outline: "none" }}
-																	bg="gray.700"
-																	border="none"
-																>
-																	<PopoverArrow />
-																	<PopoverBody>
-																		<span className="text-white text-xs">
-																			The recommended{" "}
-																			{networkInfo.reserveAmount}{" "}
-																			{networkInfo.denom} account balance is to
-																			ensure that you have a decent amount of
-																			funds in your account to pay transaction
-																			fees for claiming rewards, unbonding
-																			funds, changing on-chain staking
-																			preferences, etc.
-																		</span>
-																	</PopoverBody>
-																</PopoverContent>
-															</Popover>
+															We cannot stake this amount since you need to
+															maintain a minimum balance of{" "}
+															{networkInfo.reserveAmount} {networkInfo.denom} in
+															your account at all times.{" "}
 														</span>
 														<span hidden={type === "unbond" || type == "bond"}>
 															We cannot rebond this amount since its greater
-															than the total unbonding amount.
+															than unbonding amount {networkInfo.reserveAmount}{" "}
 														</span>
 													</div>
 													<div className="flex justify-between">
