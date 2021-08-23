@@ -137,7 +137,7 @@ const RewardCalculatorPage = () => {
 			  )[0]
 			: null
 	);
-
+	const [controllerUnavailable, setControllerUnavailable] = useState();
 	const [transactionFees, setTransactionFees] = useState(0);
 	const [ysFees, setYsFees] = useState(0);
 
@@ -251,7 +251,7 @@ const RewardCalculatorPage = () => {
 	};
 
 	useEffect(() => {
-		if (stakingInfo?.accountId.toString() !== selectedAccount?.address) {
+		if (stakingInfo?.accountId?.toString() !== selectedAccount?.address) {
 			setControllerAccount(null);
 		}
 		const account = accountsStakingInfo[selectedAccount?.address]?.controllerId
@@ -260,10 +260,17 @@ const RewardCalculatorPage = () => {
 						account.address ===
 						accountsStakingInfo[
 							selectedAccount?.address
-						]?.controllerId.toString()
+						]?.controllerId?.toString()
 			  )[0]
 			: null;
 		setControllerAccount(account);
+
+		!controllerAccount &&
+		JSON.stringify(
+			accountsStakingInfo[selectedAccount?.address]?.controllerId
+		) !== "null"
+			? setControllerUnavailable(true)
+			: setControllerUnavailable(false);
 	}, [
 		selectedAccount?.address,
 		JSON.stringify(stakingInfo),
@@ -525,8 +532,8 @@ const RewardCalculatorPage = () => {
 										totalPossibleStakingAmount <
 											minPossibleStake + networkInfo.reserveAmount ||
 										activeBondedAmount >
-											totalPossibleStakingAmount -
-												networkInfo.reserveAmount) && (
+											totalPossibleStakingAmount - networkInfo.reserveAmount ||
+										controllerUnavailable) && (
 										<LowBalanceAlert
 											amount={amount}
 											activeBondedAmount={activeBondedAmount}
@@ -534,6 +541,7 @@ const RewardCalculatorPage = () => {
 											totalPossibleStakingAmount={totalPossibleStakingAmount}
 											totalAvailableStakingAmount={totalAvailableStakingAmount}
 											minPossibleStake={minPossibleStake}
+											controllerUnavailable={controllerUnavailable}
 										/>
 									)}
 								<h3 className="text-gray-700 text-xs mb-2">

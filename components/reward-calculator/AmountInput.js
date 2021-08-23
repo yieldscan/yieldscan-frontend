@@ -118,7 +118,7 @@ const AmountInputDefault = memo(
 								{value?.currency === "" && (
 									<Icon name="warning" color="red.500" marginRight="4px" />
 								)}
-								{selectedAccount && inputValue !== maxAmount && (
+								{selectedAccount && inputValue != maxAmount && (
 									<button
 										className={`bg-teal-200 text-teal-500 rounded-full text-xs px-2 ${
 											!isEditable && "opacity-0 cursor-not-allowed"

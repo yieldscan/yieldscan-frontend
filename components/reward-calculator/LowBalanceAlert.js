@@ -19,6 +19,7 @@ const LowBalanceAlert = ({
 	totalAvailableStakingAmount,
 	totalPossibleStakingAmount,
 	minPossibleStake,
+	controllerUnavailable,
 }) => {
 	const [status, setStatus] = useState();
 	const [title, setTitle] = useState();
@@ -27,7 +28,17 @@ const LowBalanceAlert = ({
 	const [descriptionColor, setDescriptionColor] = useState();
 	const [popoverContent, setPopoverContent] = useState();
 	useEffect(() => {
-		if (
+		if (controllerUnavailable) {
+			setStatus("warning");
+			setTitleColor("#FDB808");
+			setTitle("Controller not found");
+			setDescriptionColor("#FDB808");
+			setDescription(
+				`Existing controller account not found.
+				Either import the existing controller account or proceed to change controller. `
+			);
+			setPopoverContent(null);
+		} else if (
 			activeBondedAmount === 0 &&
 			amount != 0 &&
 			amount &&
@@ -169,22 +180,24 @@ const LowBalanceAlert = ({
 			<AlertTitle color={titleColor}>{title}</AlertTitle>
 			<AlertDescription color={descriptionColor}>
 				{description}{" "}
-				<Popover trigger="hover" usePortal>
-					<PopoverTrigger>
-						<span className="underline cursor-help">Why?</span>
-					</PopoverTrigger>
-					<PopoverContent
-						zIndex={50}
-						_focus={{ outline: "none" }}
-						bg="gray.600"
-						border="none"
-					>
-						<PopoverArrow />
-						<PopoverBody>
-							<span className="text-white text-xs">{popoverContent}</span>
-						</PopoverBody>
-					</PopoverContent>
-				</Popover>
+				{popoverContent && (
+					<Popover trigger="hover" usePortal>
+						<PopoverTrigger>
+							<span className="underline cursor-help">Why?</span>
+						</PopoverTrigger>
+						<PopoverContent
+							zIndex={50}
+							_focus={{ outline: "none" }}
+							bg="gray.600"
+							border="none"
+						>
+							<PopoverArrow />
+							<PopoverBody>
+								<span className="text-white text-xs">{popoverContent}</span>
+							</PopoverBody>
+						</PopoverContent>
+					</Popover>
+				)}
 			</AlertDescription>
 		</Alert>
 	);
