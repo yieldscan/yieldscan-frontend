@@ -493,17 +493,7 @@ const FundsUpdate = withSlideIn(
 															: "bg-teal-500 opacity-100 cursor-pointer"
 													} mt-40 mb-40 text-white`}
 													onClick={handleOnClickProceed}
-													disabled={
-														type == "bond"
-															? amount >
-																	balance.availableBalance /
-																		Math.pow(10, networkInfo.decimalPlaces) ||
-															  !amount
-															: amount >
-																	stakingInfo.stakingLedger.active /
-																		Math.pow(10, networkInfo.decimalPlaces) ||
-															  !amount
-													}
+													disabled={calculationDisabled}
 													// isLoading={updatingFunds}
 												>
 													Proceed
