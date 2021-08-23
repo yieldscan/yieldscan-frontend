@@ -405,7 +405,13 @@ const RewardCalculatorPage = () => {
 			  stakingInfo
 			? setAmount(0)
 			: setAmount(1000);
-	}, [totalAvailableStakingAmount, selectedAccount, activeBondedAmount]);
+	}, [
+		totalAvailableStakingAmount,
+		selectedAccount,
+		activeBondedAmount,
+		stakingInfo,
+		balances,
+	]);
 
 	return loading || isNil(apiInstance) ? (
 		<div className="flex-center w-full h-full">
