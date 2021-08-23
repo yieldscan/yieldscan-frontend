@@ -40,10 +40,16 @@ const LowBalanceAlert = ({
 			setDescriptionColor("red.500");
 			setDescription(
 				`Your inputted amount is more than your available free
-				account balance of ${totalAvailableStakingAmount} ${networkInfo.denom} minus
+				account balance of ${formatCurrency.methods.formatAmount(
+					Math.trunc(
+						Number(totalAvailableStakingAmount) *
+							10 ** networkInfo.decimalPlaces
+					),
+					networkInfo
+				)} minus
 				${networkInfo.reserveAmount} ${networkInfo.denom}. Press the max
 				icon to autofill the maximum amount. `
-			); // Using the full amount here to prevent any confusion
+			);
 
 			setPopoverContent(`The subtracted
 			${networkInfo.reserveAmount} ${networkInfo.denom} is a reserve to ensure that you have a
@@ -79,9 +85,13 @@ const LowBalanceAlert = ({
 			} else {
 				setTitle("Amount insufficient to begin staking");
 				setDescription(
-					`You need a minimum free balance of ${
-						minPossibleStake + networkInfo.reserveAmount
-					} ${networkInfo.denom} to begin staking. `
+					`You need a minimum free balance of ${formatCurrency.methods.formatAmount(
+						Math.trunc(
+							Number(minPossibleStake + networkInfo.reserveAmount) *
+								10 ** networkInfo.decimalPlaces
+						),
+						networkInfo
+					)}  to begin staking. `
 				);
 				setPopoverContent(`The ${networkInfo.name} network has a minimum staking
 				threshold of ${minPossibleStake} ${networkInfo.denom}. The additional
@@ -91,17 +101,23 @@ const LowBalanceAlert = ({
 				funds, changing on-chain staking preferences, etc.`);
 			}
 		} else if (
+			activeBondedAmount < minPossibleStake ||
 			activeBondedAmount >
-			totalPossibleStakingAmount - networkInfo.reserveAmount
+				totalPossibleStakingAmount - networkInfo.reserveAmount
 		) {
-			if (activeBondedAmount > 0 && activeBondedAmount < minPossibleStake) {
+			if (activeBondedAmount < minPossibleStake) {
 				setStatus("error");
 				setTitleColor("red.500");
 				setTitle("Current amount insufficient to stake anymore");
 				setDescription(
 					`Head over to the Overview page and bond an additional
-					${minPossibleStake - activeBondedAmount}
-					${networkInfo.denom} to continue staking. `
+					${formatCurrency.methods.formatAmount(
+						Math.trunc(
+							Number(minPossibleStake - activeBondedAmount) *
+								10 ** networkInfo.decimalPlaces
+						),
+						networkInfo
+					)}${networkInfo.denom} to continue staking. `
 				);
 				setPopoverContent(`The ${networkInfo.name} network has set a minimum staking
 				threshold of ${minPossibleStake} ${networkInfo.denom}.`);
@@ -111,9 +127,13 @@ const LowBalanceAlert = ({
 				setTitle("Insufficient Balance");
 				setDescriptionColor("red.500");
 				setDescription(
-					`You need an additional ${
-						networkInfo.reserveAmount - totalAvailableStakingAmount
-					} ${networkInfo.denom} to proceed further. `
+					`You need an additional ${formatCurrency.methods.formatAmount(
+						Math.trunc(
+							Number(networkInfo.reserveAmount - totalAvailableStakingAmount) *
+								10 ** networkInfo.decimalPlaces
+						),
+						networkInfo
+					)} to proceed further. `
 				);
 				setPopoverContent(`This is to ensure that you have a
 					decent amount of funds in your
