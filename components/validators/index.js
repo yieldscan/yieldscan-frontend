@@ -495,7 +495,13 @@ const Validators = () => {
 			: totalAvailableStakingAmount - networkInfo.reserveAmount > 0 &&
 			  balances &&
 			  stakingInfo
-			? setAmount(totalAvailableStakingAmount - networkInfo.reserveAmount)
+			? setAmount(
+					Math.trunc(
+						(totalAvailableStakingAmount - networkInfo.reserveAmount) *
+							10 ** networkInfo.decimalPlaces
+					) /
+						10 ** networkInfo.decimalPlaces
+			  )
 			: selectedAccount &&
 			  totalPossibleStakingAmount === 0 &&
 			  balances &&

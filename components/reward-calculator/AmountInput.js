@@ -32,7 +32,11 @@ const AmountInputDefault = memo(
 		const maxAmount = Math.max(
 			availableBalance <= networkInfo.reserveAmount
 				? bonded
-				: bonded + availableBalance - networkInfo.reserveAmount,
+				: Math.trunc(
+						(bonded + availableBalance - networkInfo.reserveAmount) *
+							10 ** networkInfo.decimalPlaces
+				  ) /
+						10 ** networkInfo.decimalPlaces,
 			0
 		);
 

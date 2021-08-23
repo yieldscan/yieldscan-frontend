@@ -33,6 +33,7 @@ import AmountInput from "./AmountInput";
 import axios from "@lib/axios";
 import AmountConfirmation from "./AmountConfirmation";
 import { track, goalCodes } from "@lib/analytics";
+import { network } from "yieldscan.config";
 
 const FundsUpdate = withSlideIn(
 	({
@@ -204,7 +205,10 @@ const FundsUpdate = withSlideIn(
 					(a, b) => a + b.value / Math.pow(10, networkInfo.decimalPlaces),
 					0
 				);
-				setTotalUnbonding(total);
+				setTotalUnbonding(
+					Math.trunc(total * 10 ** networkInfo.decimalPlaces) /
+						10 ** networkInfo.decimalPlaces
+				);
 				setTotalUnbondingFiat(total * coinGeckoPriceUSD);
 			} else {
 				setTotalUnbonding(null);
@@ -305,6 +309,8 @@ const FundsUpdate = withSlideIn(
 				selectedAccount?.address,
 				stakingInfo?.controllerId?.toString(),
 				amount,
+				stakingInfo.stakingLedger.active,
+				minPossibleStake,
 				apiInstance,
 				handlers,
 				networkInfo

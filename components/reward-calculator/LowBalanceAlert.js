@@ -120,6 +120,7 @@ const LowBalanceAlert = ({
 				setStatus("error");
 				setTitleColor("red.500");
 				setTitle("Current amount insufficient to stake anymore");
+				setDescriptionColor("red.500");
 				setDescription(
 					`Head over to the Overview page and bond an additional
 					${formatCurrency.methods.formatAmount(
@@ -128,7 +129,7 @@ const LowBalanceAlert = ({
 								10 ** networkInfo.decimalPlaces
 						),
 						networkInfo
-					)}${networkInfo.denom} to continue staking. `
+					)} to continue staking. `
 				);
 				setPopoverContent(`The ${networkInfo.name} network has set a minimum staking
 				threshold of ${minPossibleStake} ${networkInfo.denom}.`);
