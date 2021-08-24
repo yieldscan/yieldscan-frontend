@@ -26,6 +26,7 @@ const Confirmation = ({
 	setInjectorAccount,
 	stakingAmount,
 	selectedValidators,
+	setStepperTransactions,
 }) => {
 	const [showValidators, setShowValidators] = useState(false);
 	// const [showAdvPrefs, setShowAdvPrefs] = useState(false);
@@ -127,6 +128,7 @@ const Confirmation = ({
 					: await transactions[0].paymentInfo(substrateStashId);
 
 			setTransactions([...transactions]);
+			setStepperTransactions([...stepperTransactions]);
 			setInjectorAccount(substrateStashId);
 			setTransactionFee(() => fee.partialFee.toNumber());
 		}
