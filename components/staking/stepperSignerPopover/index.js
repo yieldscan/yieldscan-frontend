@@ -165,7 +165,7 @@ const StepperSigningPopover = ({
 			isCentered
 			size={currentStep > 0 ? "2xl" : "lg"}
 			closeOnEsc={true}
-			closeOnOverlayClick={true}
+			closeOnOverlayClick={false}
 		>
 			<ModalOverlay />
 			<ModalContent rounded="lg" {...styles} py={4}>
