@@ -13,7 +13,7 @@ import create from "zustand";
 import Image from "next/image";
 import formatCurrency from "@lib/format-currency";
 import startRamp from "@lib/startRamp";
-import { track, goalCodes} from "@lib/analytics";
+import { track, goalCodes } from "@lib/analytics";
 
 const useLowBalancePopover = create((set) => ({
 	isLowBalanceOpen: false,
@@ -96,7 +96,10 @@ const LowBalancePopover = ({
 										<h2 className="text-md font-semibold">
 											Transfer{" "}
 											{formatCurrency.methods.formatAmount(
-												Math.trunc(transferAmount),
+												Math.trunc(
+													transferAmount *
+														Math.pow(10, networkInfo.decimalPlaces)
+												),
 												networkInfo
 											)}
 											's from another account
@@ -113,7 +116,9 @@ const LowBalancePopover = ({
 									track(goalCodes.GLOBAL.STAKING_RAMP_TRANSFER);
 									startRamp(
 										networkInfo,
-										transferAmount,
+										Math.trunc(
+											transferAmount * Math.pow(10, networkInfo.decimalPlaces)
+										),
 										controllerAccount?.address
 									);
 									close();
@@ -130,7 +135,10 @@ const LowBalancePopover = ({
 										<h2 className="text-md font-semibold">
 											Buy{" "}
 											{formatCurrency.methods.formatAmount(
-												transferAmount,
+												Math.trunc(
+													transferAmount *
+														Math.pow(10, networkInfo.decimalPlaces)
+												),
 												networkInfo
 											)}
 											's using fiat

@@ -550,10 +550,11 @@ const Validators = () => {
 					networkInfo={networkInfo}
 					setStakingPath={setStakingPath}
 					transferAmount={
-						controllerBalances && apiInstance
-							? Math.pow(10, networkInfo.decimalPlaces) +
-							  apiInstance?.consts.balances.existentialDeposit.toNumber() -
-							  controllerBalances?.availableBalance
+						controllerBalances
+							? networkInfo.reserveAmount -
+							  (parseInt(controllerBalances?.availableBalance) -
+									apiInstance?.consts.balances.existentialDeposit.toNumber()) /
+									Math.pow(10, networkInfo.decimalPlaces)
 							: 0
 					}
 					controllerAccount={controllerAccount}
