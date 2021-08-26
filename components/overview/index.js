@@ -20,7 +20,6 @@ import {
 	useAccountsBalances,
 	useAccountsStakingInfo,
 	useSelectedAccountInfo,
-	useWalletType,
 } from "@lib/store";
 import { useWalletConnect } from "@components/wallet-connect";
 import { isNil } from "lodash";
@@ -31,9 +30,10 @@ import { useRouter } from "next/router";
 import AllNominations from "./AllNominations";
 import { getNetworkInfo } from "yieldscan.config";
 import EarningsOutput from "./EarningsOutput";
-import { Events, trackEvent } from "@lib/analytics";
+import { Events, trackEvent, track, goalCodes } from "@lib/analytics";
 import ProgressiveImage from "react-progressive-image";
 import RedeemUnbonded from "./RedeemUnbonded";
+import Image from "next/image";
 
 const Tabs = {
 	ACTIVE_VALIDATORS: "validators",
@@ -48,7 +48,6 @@ const Overview = () => {
 	const { apiInstance } = usePolkadotApi();
 	const { accounts, redeemableBalance } = useAccounts();
 	const { selectedAccount } = useSelectedAccount();
-	const { walletType } = useWalletType();
 	const { accountsBalances } = useAccountsBalances();
 	const { accountsStakingInfo } = useAccountsStakingInfo();
 	const { balances, stakingInfo } = useSelectedAccountInfo();
@@ -67,6 +66,7 @@ const Overview = () => {
 	const [fundsUpdateModalType, setFundsUpdateModalType] = useState();
 	const handleValToggle = () => setShowValidators(!showValidators);
 	const [selectedTab, setSelectedTab] = useState(Tabs.NOMINATIONS);
+	const [minPossibleStake, setMinPossibleStake] = useState(0);
 	const {
 		isOpen: isRewardDestinationModalOpen,
 		onToggle: toggleRewardDestinationModal,
@@ -92,17 +92,6 @@ const Overview = () => {
 		onToggle: toggleRedeemUnbonded,
 		onClose: closeRedeemUnbonded,
 	} = useDisclosure();
-
-	const toSetUpAccounts = () => {
-		setIsNewSetup(false);
-		if (
-			!Object.values(walletType).every((value) => value === null) &&
-			Object.values(walletType).includes(null)
-		) {
-			setIsNewSetup(true);
-		}
-		router.push("/setup-accounts");
-	};
 
 	useEffect(() => {
 		if (selectedAccount?.address) {
@@ -166,6 +155,13 @@ const Overview = () => {
 		}
 	}, [stakingInfo]);
 
+	useEffect(async () => {
+		if (apiInstance) {
+			const data = await apiInstance?.query.staking.minNominatorBond();
+			setMinPossibleStake(JSON.parse(data) / 10 ** networkInfo.decimalPlaces);
+		}
+	}, [selectedNetwork, apiInstance]);
+
 	const onEditController = () => {
 		closeRewardDestinationModal();
 		toggleEditControllerModal();
@@ -198,19 +194,12 @@ const Overview = () => {
 					className="border border-teal-500 text-teal-500 px-3 py-2 rounded-full"
 					onClick={() =>
 						isNil(accounts)
-							? toggle()
-							: Object.keys(walletType).length === 0 ||
-							  Object.values(walletType).every((value) => value === null)
-							? toSetUpAccounts()
+							? (router.push("/setup-wallet"),
+							  track(goalCodes.OVERVIEW.INTENT_CONNECT_WALLET))
 							: toggle()
 					}
 				>
-					{isNil(accounts)
-						? "Connect Wallet"
-						: Object.keys(walletType).length === 0 ||
-						  Object.values(walletType).every((value) => value === null)
-						? "Setup Accounts"
-						: "Select Account"}
+					{isNil(accounts) ? "Connect Wallet" : "Select Account"}
 				</button>
 			</div>
 		</div>
@@ -225,14 +214,12 @@ const Overview = () => {
 		</div>
 	) : stakingInfo?.stakingLedger?.total.isEmpty ? (
 		<div className="flex items-center flex-col pt-24">
-			<ProgressiveImage
+			<Image
 				src="/images/unicorn-sweat/unicorn-sweat.png"
-				placeholder="/images/unicorn-sweat/unicorn-sweat@0.5x.png"
-			>
-				{(src) => (
-					<img src={src} alt="unicorn-sweat" width="200px" height="auto" />
-				)}
-			</ProgressiveImage>
+				alt="unicorn-sweat"
+				width="180"
+				height="200"
+			/>
 			<h2 className="text-2xl text-gray-700 font-semibold mt-4">
 				Hey! So, ummm...
 			</h2>
@@ -264,6 +251,7 @@ const Overview = () => {
 					className="text-gray-700 font-semibold"
 					href="mailto:karan@buidllabs.io"
 					target="_blank"
+					rel="noreferrer"
 				>
 					Contact us
 				</a>
@@ -281,6 +269,7 @@ const Overview = () => {
 				balance={balances}
 				stakingInfo={stakingInfo}
 				networkInfo={networkInfo}
+				minPossibleStake={minPossibleStake}
 			/>
 			<UnbondingList
 				api={apiInstance}
@@ -314,6 +303,7 @@ const Overview = () => {
 						openUnbondingListModal={() => openUnbondingListModal()}
 						openRewardDestinationModal={toggleRewardDestinationModal}
 						networkInfo={networkInfo}
+						minPossibleStake={minPossibleStake}
 					/>
 					{/* TODO: Handle errors */}
 					<div className="flex ml-20 w-1/2">
@@ -340,7 +330,11 @@ const Overview = () => {
 				<div className="w-full">
 					<div className="flex flex-col h-full mb-2">
 						<button
-							onClick={handleValToggle}
+							onClick={() => {
+								handleValToggle();
+								if (!showValidators)
+									track(goalCodes.OVERVIEW.CHECKED_VALIDATORS);
+							}}
 							className="flex text-gray-600 text-xs mt-12"
 						>
 							<ChevronRight

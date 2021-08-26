@@ -7,6 +7,7 @@ import {
 	PopoverArrow,
 	PopoverCloseButton,
 } from "@chakra-ui/core";
+import Image from "next/image";
 
 const BADGE_STATIC_URL = "/images/badges/";
 
@@ -31,10 +32,12 @@ const ProfileBadge = ({ score }) => {
 		<div>
 			<Popover trigger="hover">
 				<PopoverTrigger>
-					<img
+					<Image
 						alt="profile-badge"
 						src={BADGE_STATIC_URL + badge.image}
 						className="cursor-pointer"
+						height="32"
+						width="32"
 					/>
 				</PopoverTrigger>
 				<PopoverContent

@@ -19,7 +19,7 @@ const networkInfo = {
 	nodeWs: process.env.NEXT_PUBLIC_POLKADOT,
 	erasPerDay: 1,
 	lockUpPeriod: 28,
-	minAmount: 1,
+	reserveAmount: 1,
 	recommendedAdditionalAmount: 50,
 	about: "Polkadot is a heterogeneous multi‑chain technology.",
 };

@@ -61,20 +61,6 @@ const ValidatorCard = ({
 					</h3>
 				</div>
 			</div>
-			{false && (
-				<button className="flex items-center justify-between border-2 border-orange-500 rounded-lg py-1 px-3">
-					<Star
-						className="text-orange-500 mr-2"
-						fill="#F5B100"
-						size="20px"
-						strokeWidth="2px"
-					/>
-					<div className="flex flex-col items-center">
-						<span className="text-sm text-gray-900">Claim Rewards</span>
-						<span className="text-xs text-gray-700">3 days left</span>
-					</div>
-				</button>
-			)}
 		</div>
 	);
 };

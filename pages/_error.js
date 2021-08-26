@@ -2,6 +2,7 @@ import NextErrorComponent from "next/error";
 import * as Sentry from "@sentry/node";
 import Link from "next/link";
 import { get } from "lodash";
+import Image from "next/image";
 
 const MyError = ({ statusCode, hasGetInitialPropsRun, err }) => {
 	if (!hasGetInitialPropsRun && err) {
@@ -41,11 +42,12 @@ const MyError = ({ statusCode, hasGetInitialPropsRun, err }) => {
 					""
 				)} */}
 			</div>
-			<img
-				src="images/404.svg"
+			<Image
+				src="/images/404.svg"
 				alt="404 - Lost Astronaut"
-				className="-ml-16 w-5/12 opacity-50"
-			></img>
+				height="120"
+				width="120"
+			/>
 		</div>
 	);
 };

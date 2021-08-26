@@ -93,8 +93,12 @@ const LinkedValidatorsGroup = ({ validators = [] }) => {
 				onProfile={onProfile}
 			/>
 			<div className="flex items-center max-w-xs">
-				{limitedValidators.map((validator) => (
-					<div style={{ marginLeft: -12 }} className="cursor-pointer-ml-12">
+				{limitedValidators.map((validator, index) => (
+					<div
+						style={{ marginLeft: -12 }}
+						className="cursor-pointer-ml-12"
+						key={index}
+					>
 						<Identicon
 							key={validator.stashId}
 							address={validator.stashId}

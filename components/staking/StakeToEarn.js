@@ -1,46 +1,87 @@
 import { useState, useEffect } from "react";
-import { get, isNil } from "lodash";
+import { isNil } from "lodash";
 import Image from "next/image";
 import router from "next/router";
 import formatCurrency from "@lib/format-currency";
-import { GlossaryModal, HelpPopover } from "@components/reward-calculator";
-import { Spinner, Divider } from "@chakra-ui/core";
+import { HelpPopover } from "@components/reward-calculator";
+import { Spinner, Divider, Collapse } from "@chakra-ui/core";
 import { decodeAddress, encodeAddress } from "@polkadot/util-crypto";
-import { ChevronLeft } from "react-feather";
+import { ChevronLeft, ChevronRight } from "react-feather";
 import ValidatorCard from "./ValidatorCard";
-import BrowserWalletAlert from "./BrowserWalletAlert";
+import Account from "../wallet-connect/Account";
+import { NextButton } from "@components/common/BottomButton";
+import { track, goalCodes } from "@lib/analytics";
 
 const StakeToEarn = ({
 	stakingInfo,
 	apiInstance,
 	selectedAccount,
-	isLedger,
+	controllerAccount,
+	balances,
+	controllerBalances,
 	networkInfo,
-	transactionState,
-	onConfirm,
+	toggleIsAuthPopoverOpen,
+	ysFees,
+	transactionFee,
+	setTransactionFee,
+	setTransactions,
+	setInjectorAccount,
+	stakingAmount,
+	selectedValidators,
 }) => {
-	const selectedValidators = get(transactionState, "selectedValidators", []);
-	const stakingAmount = get(transactionState, "stakingAmount", 0);
-	const [transactionFee, setTransactionFee] = useState(0);
+	const [showValidators, setShowValidators] = useState(false);
+	// const [showAdvPrefs, setShowAdvPrefs] = useState(false);
 
-	useEffect(() => {
-		if (selectedAccount && apiInstance) {
-			const nominatedValidators = transactionState.selectedValidators.map(
-				(v) => v.stashId
-			);
-			const substrateControllerId = encodeAddress(
-				decodeAddress(stakingInfo?.controllerId),
-				42
-			);
-			apiInstance.tx.staking
-				.nominate(nominatedValidators)
-				.paymentInfo(substrateControllerId)
-				.then((info) => {
-					const fee = info.partialFee.toNumber();
-					setTransactionFee(fee);
-				});
+	// const handleAdvPrefsToggle = () => {
+	// 	setShowAdvPrefs((show) => !show);
+	// };
+
+	const handleValToggle = () => {
+		if (!showValidators) {
+			track(goalCodes.STAKING.DISTINCT.CLICKED_SHOW_VALIDATORS);
 		}
-	}, [stakingInfo]);
+		setShowValidators((show) => !show);
+	};
+
+	useEffect(async () => {
+		if (!isNil(stakingInfo)) {
+			setTransactions(null);
+			setInjectorAccount(null);
+			const nominatedValidators = selectedValidators.map((v) => v.stashId);
+
+			const substrateControllerId = encodeAddress(
+				decodeAddress(controllerAccount?.address)
+			);
+
+			const transactions = [];
+
+			transactions.push(apiInstance.tx.staking.nominate(nominatedValidators));
+
+			if (ysFees > 0 && networkInfo?.feesEnabled) {
+				transactions.push(
+					apiInstance.tx.balances.transferKeepAlive(
+						networkInfo.feesAddress,
+						ysFees
+					)
+				);
+			}
+
+			const fee = await apiInstance.tx.utility
+				.batchAll(transactions)
+				.paymentInfo(substrateControllerId);
+
+			setTransactions([...transactions]);
+			setInjectorAccount(substrateControllerId);
+			setTransactionFee(() => fee.partialFee.toNumber());
+		}
+	}, [
+		stakingInfo,
+		selectedValidators,
+		networkInfo,
+		selectedAccount?.address,
+		controllerAccount?.address,
+		ysFees,
+	]);
 
 	return (
 		<div className="w-full h-full flex justify-center max-h-full">
@@ -65,7 +106,7 @@ const StakeToEarn = ({
 							/>
 						</div>
 						<div className="text-center space-y-2">
-							<h1 className="text-2xl  font-semibold">
+							<h1 className="text-4xl text-gray-700 font-semibold">
 								Stake to start earning
 							</h1>
 							<p className="text-gray-600 text-sm">
@@ -73,33 +114,79 @@ const StakeToEarn = ({
 								Please make sure you understand the risks before proceeding.
 							</p>
 						</div>
-						{!isLedger && (
-							<BrowserWalletAlert
-								networkInfo={networkInfo}
-								stakingAmount={stakingAmount}
-							/>
-						)}
-						<div className="h-48 w-full px-4 overflow-scroll">
-							{selectedValidators.map((validator) => (
-								<ValidatorCard
-									key={validator.stashId}
-									name={validator.name}
-									stashId={validator.stashId}
-									riskScore={validator.riskScore.toFixed(2)}
-									commission={validator.commission}
-									nominators={validator.numOfNominators}
-									totalStake={validator.totalStake}
-									estimatedReward={Number(validator.rewardsPer100KSM)}
+						<div className="flex flex-col w-full max-w-xl text-gray-700 text-sm space-y-2 font-semibold">
+							<div>
+								<p className="ml-2">Stash Account</p>
+								<Account
+									account={selectedAccount}
+									balances={balances}
 									networkInfo={networkInfo}
-									onProfile={() => onProfile(validator)}
+									onAccountSelected={() => {
+										return;
+									}}
+									disabled={true}
 								/>
-							))}
+							</div>
+							<div>
+								<p className="ml-2">Controller Account</p>
+								<Account
+									account={controllerAccount}
+									balances={controllerBalances}
+									networkInfo={networkInfo}
+									onAccountSelected={() => {
+										return;
+									}}
+									disabled={true}
+								/>
+							</div>
+						</div>
+						<div className="w-full text-gray-700 p-2">
+							<button
+								onClick={handleValToggle}
+								className="flex text-gray-600 text-xs"
+							>
+								<ChevronRight
+									size={16}
+									className={`transition ease-in-out duration-500 mr-2 ${
+										showValidators && "transform rotate-90"
+									}`}
+								/>
+								{showValidators ? "Hide" : "Show"} suggested validators{" "}
+								<HelpPopover
+									content={
+										<p className="text-white text-xs">
+											The list of most rewarding validators, selected based on
+											your investment amount and risk preference.
+										</p>
+									}
+								/>
+							</button>
+							<Collapse isOpen={showValidators}>
+								<div className="mt-2 rounded-xl">
+									<div className="h-48 w-full px-4 overflow-scroll">
+										{selectedValidators.map((validator) => (
+											<ValidatorCard
+												key={validator.stashId}
+												name={validator.name}
+												stashId={validator.stashId}
+												riskScore={validator.riskScore.toFixed(2)}
+												commission={validator.commission}
+												nominators={validator.numOfNominators}
+												totalStake={validator.totalStake}
+												estimatedReward={Number(validator.rewardsPer100KSM)}
+												networkInfo={networkInfo}
+												onProfile={() => onProfile(validator)}
+											/>
+										))}
+									</div>
+								</div>
+							</Collapse>
 						</div>
 						<div className="w-full px-4">
 							<div className="flex justify-between">
 								<p className="text-gray-700 text-xs">Staking amount</p>
 								<div className="flex flex-col">
-									<p className="text-sm font-semibold text-right">
+									<p className="text-gray-700 text-sm font-semibold text-right">
 										{formatCurrency.methods.formatAmount(
 											Math.trunc(
 												stakingAmount * 10 ** networkInfo.decimalPlaces
@@ -130,9 +217,9 @@ const StakeToEarn = ({
 								<div className="flex flex-col">
 									{transactionFee !== 0 ? (
 										<div>
-											<p className="text-sm font-semibold text-right">
+											<p className="text-gray-700 text-sm font-semibold text-right">
 												{formatCurrency.methods.formatAmount(
-													Math.trunc(transactionFee),
+													Math.trunc(transactionFee + ysFees),
 													networkInfo
 												)}
 											</p>
@@ -147,15 +234,17 @@ const StakeToEarn = ({
 							</div>
 							<Divider my={6} />
 							<div className="flex justify-between">
-								<p className="text-gray-700 text-sm font-semibold">
+								<p className="text-gray-700 text-base font-semibold">
 									Total Amount
 								</p>
 								<div className="flex flex-col">
-									<p className="text-lg text-right font-bold">
+									<p className="text-gray-700 text-lg text-right font-bold">
 										{formatCurrency.methods.formatAmount(
 											Math.trunc(
 												stakingAmount * 10 ** networkInfo.decimalPlaces
-											) + transactionFee,
+											) +
+												transactionFee +
+												ysFees,
 											networkInfo
 										)}
 									</p>
@@ -166,12 +255,12 @@ const StakeToEarn = ({
 							</div>
 						</div>
 						<div className="mt-4 w-full text-center">
-							<button
-								className="rounded-full font-medium px-12 py-3 bg-teal-500 text-white"
-								onClick={() => onConfirm("nominate")}
+							<NextButton
+								onClick={toggleIsAuthPopoverOpen}
+								disabled={transactionFee === 0}
 							>
 								Stake Now
-							</button>
+							</NextButton>
 						</div>
 					</div>
 				</div>

@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { Fragment } from "react";
 
 const supportedNetworks = ["kusama", "polkadot"];
@@ -9,12 +10,15 @@ const SupportedNetworks = () => {
 				Networks you can start investing in now
 			</h1>
 			<div className="flex justify-center">
+				{/* TODO: fix image alignements */}
 				{supportedNetworks.map((network) => (
 					<div key={network} className="mx-12 mb-16">
-						<img
+						<Image
 							src={`/images/${network}-logo.png`}
 							alt={`${network}-logo`}
-							className="h-16 w-16 rounded-full shadow-custom border border-gray-200"
+							height="64"
+							width="64"
+							className="rounded-full shadow-custom border border-gray-200"
 						/>
 						<p className="capitalize text-gray-700 mt-4">{network}</p>
 					</div>

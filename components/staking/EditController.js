@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import { get } from "lodash";
-import { Circle, CheckCircle } from "react-feather";
 import Identicon from "@components/common/Identicon";
 import {
 	Modal,
@@ -11,7 +10,6 @@ import {
 	ModalHeader,
 	useDisclosure,
 } from "@chakra-ui/core";
-import formatCurrency from "@lib/format-currency";
 import { GlossaryModal, HelpPopover } from "@components/reward-calculator";
 import { Events, setUserProperties, trackEvent } from "@lib/analytics";
 

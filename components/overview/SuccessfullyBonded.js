@@ -1,8 +1,14 @@
+import Image from "next/image";
 import { ExternalLink } from "react-feather";
-const SuccessfullyBonded = ({ transactionHash, onConfirm }) => {
+const SuccessfullyBonded = ({ transactionHash, onConfirm, networkInfo }) => {
 	return (
 		<div className="mx-10 mt-8 mb-20 flex flex-col text-center items-center">
-			<img src="/images/polkadot-successfully-bonded.png" width="200px" />
+			<Image
+				src="/images/polkadot-successfully-bonded.png"
+				alt="Successfully bonded"
+				width="200"
+				height="200"
+			/>
 			<h3 className="mt-4 text-2xl">
 				Your staking request is successfully sent to the network
 			</h3>
@@ -12,9 +18,10 @@ const SuccessfullyBonded = ({ transactionHash, onConfirm }) => {
 				the link below:
 			</span>
 			<a
-				href={`https://kusama.subscan.io/block/${transactionHash}`}
+				href={`https://${networkInfo.network}.subscan.io/block/${transactionHash}`}
 				className="mt-6 text-blue-400"
 				target="_blank"
+				rel="noreferrer"
 			>
 				Track this transaction on Subscan
 			</a>

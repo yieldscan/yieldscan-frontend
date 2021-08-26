@@ -4,6 +4,7 @@ import addToLocalStorage from "@lib/addToLocalStorage";
 import PopoverAccountSelection from "./PopoverAccountSelection";
 import { useRouter } from "next/router";
 import { Circle } from "react-feather";
+import { track, goalCodes } from "@lib/analytics";
 
 const AccountSelection = ({
 	accounts,
@@ -14,7 +15,6 @@ const AccountSelection = ({
 	accountsBalances,
 	apiInstance,
 	setTransactionHash,
-	walletType,
 	isSetUp,
 	setIsStashPopoverOpen,
 	setSelectedAccount,
@@ -24,24 +24,22 @@ const AccountSelection = ({
 		setTransactionHash(null);
 		setSelectedAccount(account);
 		addToLocalStorage(networkInfo.network, "selectedAccount", account.address);
+		track(goalCodes.GLOBAL.ACCOUNT_SELECTED);
 		setIsStashPopoverOpen(false);
 	};
 	const handleOnClickSetUp = () => {
-		router.push("/setup-accounts");
+		router.push("/setup-wallet");
 	};
 
 	return isNil(accounts) ? (
 		<button
-			className="rounded-full border border-gray-300 p-2 px-4 font-medium text-gray-800"
-			onClick={toggle}
+			className="rounded-full border border-gray-300 p-2 px-4 font-medium text-gray-800 text-md"
+			onClick={handleOnClickSetUp}
 		>
 			Connect Wallet
 		</button>
 	) : isSetUp ? (
-		<button
-			className="p-2 px-4 cursor-default font-medium text-gray-800"
-			// onClick={handleOnClickSetUp}
-		>
+		<button className="p-2 px-4 cursor-default font-medium text-gray-800">
 			<div className="flex flex-row items-center justify-center space-x-2">
 				<Circle
 					className={`rounded-full ${
@@ -53,14 +51,6 @@ const AccountSelection = ({
 				/>
 				<span>{apiInstance ? "Connected" : "Connecting..."}</span>
 			</div>
-		</button>
-	) : Object.keys(walletType).length === 0 ||
-	  Object.values(walletType).every((value) => value === null) ? (
-		<button
-			className="rounded-full border border-gray-300 p-2 px-4 font-medium text-gray-800"
-			onClick={handleOnClickSetUp}
-		>
-			Setup Accounts
 		</button>
 	) : (
 		<PopoverAccountSelection

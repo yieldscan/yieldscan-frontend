@@ -1,5 +1,5 @@
 import dynamic from "next/dynamic";
-import withBaseLayout from "@components/common/layouts/base";
+import WithBaseLayout from "@components/common/layouts/base";
 
 const Page = dynamic(
 	() => import("@components/common/page").then((mod) => mod.default),
@@ -12,7 +12,7 @@ const AboutComponent = dynamic(
 );
 
 const About = () => (
-	<Page title="About us" layoutProvider={withBaseLayout}>
+	<Page title="About us" layoutProvider={WithBaseLayout}>
 		{() => <AboutComponent />}
 	</Page>
 );

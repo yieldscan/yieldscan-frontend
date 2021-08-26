@@ -30,9 +30,13 @@ const AmountInputDefault = memo(
 		const [isEditable, setIsEditable] = useState(true);
 		const [inputValue, setInputValue] = useState(value.currency);
 		const maxAmount = Math.max(
-			availableBalance <= networkInfo.minAmount
+			availableBalance <= networkInfo.reserveAmount
 				? bonded
-				: bonded + availableBalance - networkInfo.minAmount,
+				: Math.trunc(
+						(bonded + availableBalance - networkInfo.reserveAmount) *
+							10 ** networkInfo.decimalPlaces
+				  ) /
+						10 ** networkInfo.decimalPlaces,
 			0
 		);
 
@@ -63,6 +67,10 @@ const AmountInputDefault = memo(
 				setIsEditable(simulationChecked);
 			}
 		}, [simulationChecked]);
+
+		useEffect(() => {
+			setInputValue(value.currency);
+		}, [value]);
 
 		return (
 			<div>
@@ -96,41 +104,42 @@ const AmountInputDefault = memo(
 							}`}
 						>
 							$
-							{formatCurrency.methods.formatNumber(
-								(value.currency * coinGeckoPriceUSD).toFixed(2)
-							)}
+							{value.currency
+								? formatCurrency.methods.formatNumber(
+										(value.currency * coinGeckoPriceUSD).toFixed(2)
+								  )
+								: "0.00"}
 						</h6>
 						<InputRightElement
 							opacity={isEditable ? "1" : "0.4"}
-							children={
-								<span className="flex min-w-fit-content">
-									{value?.currency === "" && (
-										<Icon name="warning" color="red.500" marginRight="4px" />
-									)}
-									{selectedAccount && inputValue !== maxAmount && (
-										<button
-											className={`bg-teal-200 text-teal-500 rounded-full text-xs px-2 ${
-												!isEditable && "opacity-0 cursor-not-allowed"
-											}`}
-											disabled={!isEditable}
-											onClick={() => {
-												handleChange(maxAmount);
-											}}
-										>
-											max
-										</button>
-									)}
-									<span className="ml-2 text-sm font-medium cursor-not-allowed text-gray-700">
-										{networkInfo.denom}
-									</span>
-								</span>
-							}
 							h="full"
 							rounded="full"
 							fontSize="xl"
 							w="fit-content"
 							px={4}
-						/>
+						>
+							<span className="flex min-w-fit-content">
+								{value?.currency === "" && (
+									<Icon name="warning" color="red.500" marginRight="4px" />
+								)}
+								{selectedAccount && inputValue != maxAmount && (
+									<button
+										className={`bg-teal-200 text-teal-500 rounded-full text-xs px-2 ${
+											!isEditable && "opacity-0 cursor-not-allowed"
+										}`}
+										disabled={!isEditable}
+										onClick={() => {
+											handleChange(maxAmount);
+										}}
+									>
+										max
+									</button>
+								)}
+								<span className="ml-2 text-sm font-medium cursor-not-allowed text-gray-700">
+									{networkInfo.denom}
+								</span>
+							</span>
+						</InputRightElement>
 					</InputGroup>
 				</div>
 				{bonded && bonded !== 0 ? (
@@ -170,7 +179,6 @@ const AmountInputAccountInfoLoading = memo(
 		value,
 		onChange,
 		networkInfo,
-		walletType,
 		selectedAccount,
 		trackRewardCalculatedEvent,
 		coinGeckoPriceUSD,
@@ -207,29 +215,21 @@ const AmountInputAccountInfoLoading = memo(
 							fontSize="lg"
 							isInvalid={isNil(value?.currency) || value.currency === ""}
 							errorBorderColor="crimson"
-							isDisabled={
-								selectedAccount &&
-								!Object.values(walletType).every((value) => value === null)
-							}
-							backgroundColor={
-								selectedAccount &&
-								!Object.values(walletType).every((value) => value === null) &&
-								"gray.200"
-							}
+							isDisabled={selectedAccount}
+							backgroundColor={selectedAccount && "gray.200"}
 							color="gray.600"
 						/>
 						<h6
 							className={`absolute z-20 bottom-0 left-0 ml-4 mb-3 text-xs text-gray-600 ${
-								selectedAccount &&
-								!Object.values(walletType).every((value) => value === null)
-									? "opacity-25 cursor-not-allowed"
-									: "opacity-1"
+								selectedAccount ? "opacity-25 cursor-not-allowed" : "opacity-1"
 							}`}
 						>
 							$
-							{formatCurrency.methods.formatNumber(
-								(value.currency * coinGeckoPriceUSD).toFixed(2)
-							)}
+							{value.currency
+								? formatCurrency.methods.formatNumber(
+										(value.currency * coinGeckoPriceUSD).toFixed(2)
+								  )
+								: "0.00"}
 						</h6>
 						<InputRightElement
 							// opacity="0.4"
@@ -254,21 +254,20 @@ const AmountInputAccountInfoLoading = memo(
 							</span>
 						</InputRightElement>
 					</InputGroup>
-					{selectedAccount &&
-						!Object.values(walletType).every((value) => value === null) && (
-							<div className="ml-4 text-gray text-xs flex inline">
-								Loading...
-								<div className="ml-2">
-									<Spinner
-										thickness="2px"
-										speed="0.65s"
-										emptyColor="gray.200"
-										color="blue.500"
-										size="sm"
-									/>
-								</div>
+					{selectedAccount && (
+						<div className="ml-4 text-gray text-xs flex inline">
+							Loading...
+							<div className="ml-2">
+								<Spinner
+									thickness="2px"
+									speed="0.65s"
+									emptyColor="gray.200"
+									color="blue.500"
+									size="sm"
+								/>
 							</div>
-						)}
+						</div>
+					)}
 				</div>
 			</div>
 		);
@@ -282,7 +281,6 @@ const AmountInput = memo(
 		onChange,
 		trackRewardCalculatedEvent,
 		balances,
-		walletType,
 		simulationChecked,
 		stakingInfo,
 	}) => {
@@ -301,9 +299,7 @@ const AmountInput = memo(
 					onChange={onChange}
 				/>
 			): ( */}
-				{stakingInfo &&
-				balances &&
-				!Object.values(walletType).every((value) => value === null) ? (
+				{stakingInfo && balances ? (
 					<AmountInputDefault
 						value={value}
 						selectedAccount={selectedAccount}
@@ -329,7 +325,6 @@ const AmountInput = memo(
 					<AmountInputAccountInfoLoading
 						value={value}
 						selectedAccount={selectedAccount}
-						walletType={walletType}
 						onChange={onChange}
 						networkInfo={networkInfo}
 						trackRewardCalculatedEvent={trackRewardCalculatedEvent}
@@ -340,5 +335,9 @@ const AmountInput = memo(
 		);
 	}
 );
+
+AmountInput.displayName = "AmountInput";
+AmountInputAccountInfoLoading.displayName = "AmountInputAccountInfoLoading";
+AmountInputDefault.displayName = "AmountInputDefault";
 
 export default AmountInput;

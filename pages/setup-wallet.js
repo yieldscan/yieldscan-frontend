@@ -1,5 +1,5 @@
 import dynamic from "next/dynamic";
-import withBaseLayout from "@components/common/layouts/base";
+import WithDashboardLayout from "@components/common/layouts/dashboard";
 
 const Page = dynamic(
 	() => import("@components/common/page").then((mod) => mod.default),
@@ -12,7 +12,12 @@ const SetupWallet = dynamic(
 );
 
 const SetupWalletComponent = () => (
-	<Page title="Setup Extension" layoutProvider={withBaseLayout}>
+	<Page
+		title="Setup Wallets"
+		layoutProvider={WithDashboardLayout}
+		isSetUp={true}
+		isWalletSetUp={true}
+	>
 		{() => <SetupWallet />}
 	</Page>
 );

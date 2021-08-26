@@ -62,4 +62,6 @@ const Account = memo(
 	}
 );
 
+Account.displayName = "account sub";
+
 export default Account;

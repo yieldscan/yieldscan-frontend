@@ -6,6 +6,7 @@ import { cloneDeep } from "lodash";
 import axios from "@lib/axios";
 import Identicon from "@components/common/Identicon";
 import LimitedTextarea from "./LimitedTextArea";
+import Image from "next/image";
 
 const MemberInput = ({
 	memberInfo = {},
@@ -209,7 +210,12 @@ const EditProfileModal = withSlideIn(
 							onClick={toggleScoreModal}
 						>
 							<div className="mr-2 border border-gray-200 rounded-md">
-								<img src="/images/badges/gray-badge.svg" />
+								<Image
+									src="/images/badges/gray-badge.svg"
+									alt="badge"
+									height="18"
+									width="18"
+								/>
 							</div>
 							<div className="-mt-2">
 								<label className="text-teal-500 text-xs font-medium">

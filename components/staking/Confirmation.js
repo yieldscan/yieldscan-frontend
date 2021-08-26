@@ -8,79 +8,135 @@ import { decodeAddress, encodeAddress } from "@polkadot/util-crypto";
 import { ChevronLeft, Circle, ChevronRight, Edit } from "react-feather";
 import Account from "../wallet-connect/Account";
 import ValidatorCard from "./ValidatorCard";
-import RewardDestination from "./RewardDestination";
-import EditController from "./EditController";
-import BrowserWalletAlert from "./BrowserWalletAlert";
+import { NextButton } from "@components/common/BottomButton";
+import { track, goalCodes } from "@lib/analytics";
 
 const Confirmation = ({
-	accounts,
 	balances,
 	stakingInfo,
 	apiInstance,
 	selectedAccount,
-	controllerAccount,
 	networkInfo,
 	transactionState,
-	setTransactionState,
-	onConfirm,
+	toggleIsAuthPopoverOpen,
+	ysFees,
+	transactionFee,
+	setTransactionFee,
+	setTransactions,
+	setInjectorAccount,
+	stakingAmount,
+	selectedValidators,
 }) => {
-	const selectedValidators = get(transactionState, "selectedValidators", []);
-	const stakingAmount = get(transactionState, "stakingAmount", 0);
-	const [transactionFee, setTransactionFee] = useState(0);
 	const [showValidators, setShowValidators] = useState(false);
-	const [showAdvPrefs, setShowAdvPrefs] = useState(false);
+	// const [showAdvPrefs, setShowAdvPrefs] = useState(false);
 
-	const handleAdvPrefsToggle = () => {
-		setShowAdvPrefs((show) => !show);
-	};
+	// const handleAdvPrefsToggle = () => {
+	// 	setShowAdvPrefs((show) => !show);
+	// };
 
 	const handleValToggle = () => {
+		if (!showValidators) {
+			track(goalCodes.STAKING.EXPRESS.CLICKED_SHOW_VALIDATORS);
+		}
 		setShowValidators((show) => !show);
 	};
 
-	useEffect(() => {
+	useEffect(async () => {
 		if (!isNil(stakingInfo)) {
-			const nominatedValidators = transactionState.selectedValidators.map(
-				(v) => v.stashId
-			);
-			const substrateControllerId = encodeAddress(
-				decodeAddress(controllerAccount?.address),
+			setTransactions(null);
+			setInjectorAccount(null);
+			const nominatedValidators = selectedValidators.map((v) => v.stashId);
+
+			// same stash and controller for express staking path
+			const substrateStashId = encodeAddress(
+				decodeAddress(selectedAccount?.address),
 				42
 			);
+
+			const amount = Math.trunc(
+				stakingAmount * Math.pow(10, networkInfo.decimalPlaces)
+			);
+
 			const transactions = [];
-			const tranasactionType = stakingInfo?.stakingLedger.active.isEmpty
-				? "bond-and-nominate"
-				: "nominate";
-			if (tranasactionType === "bond-and-nominate") {
-				const amount = Math.trunc(
-					stakingAmount * 10 ** networkInfo.decimalPlaces
-				); // 12 decimal places
+			const stepperTransactions = [];
+
+			if (!isNil(stakingInfo?.controllerId)) {
+				if (stakingInfo?.controllerId.toString() !== selectedAccount?.address) {
+					transactions.push(
+						apiInstance.tx.staking.setController(substrateStashId)
+					);
+					stepperTransactions.push({
+						transactionType: "setController",
+						transactionHeading: "Set controller account",
+						injectorAccount: substrateStashId,
+						substrateStashId: substrateStashId,
+						substrateControllerId: substrateStashId,
+					});
+				}
+				if (stakingInfo?.stakingLedger.active.isEmpty) {
+					transactions.push(apiInstance.tx.staking.bondExtra(amount));
+					stepperTransactions.push({
+						transactionType: "bondExtra",
+						transactionHeading: "Lock funds",
+						injectorAccount: substrateStashId,
+						substrateStashId: substrateStashId,
+						stakingAmount: amount,
+					});
+				}
+			} else {
 				transactions.push(
 					apiInstance.tx.staking.bond(
-						substrateControllerId,
+						substrateStashId,
 						amount,
 						transactionState.rewardDestination
-					),
-					apiInstance.tx.staking.nominate(nominatedValidators)
+					)
 				);
-			} else if (tranasactionType === "nominate") {
-				transactions.push(apiInstance.tx.staking.nominate(nominatedValidators));
+				stepperTransactions.push({
+					transactionType: "bond",
+					transactionHeading: "Lock funds",
+					injectorAccount: substrateStashId,
+					stakingAmount: amount,
+					substrateControllerId: substrateStashId,
+					rewardDestination: transactionState.rewardDestination,
+				});
 			}
 
-			transactions.length > 0
-				? apiInstance.tx.utility
-						.batchAll(transactions)
-						.paymentInfo(substrateControllerId)
-						.then((info) => {
-							const fee = info.partialFee.toNumber();
-							setTransactionFee(fee);
-						})
-				: transactions[0].paymentInfo(substrateControllerId).then((info) => {
-						const fee = info.partialFee.toNumber();
-						setTransactionFee(fee);
-				  });
+			transactions.push(apiInstance.tx.staking.nominate(nominatedValidators));
+
+			stepperTransactions.push({
+				transactionType: "nominate",
+				transactionHeading: "Stake",
+				injectorAccount: substrateStashId,
+				nominatedValidators: nominatedValidators,
+			});
+
+			if (ysFees > 0 && networkInfo?.feesEnabled) {
+				transactions.push(
+					apiInstance.tx.balances.transferKeepAlive(
+						networkInfo.feesAddress,
+						ysFees
+					)
+				);
+			}
+
+			const fee =
+				transactions.length > 1
+					? await apiInstance.tx.utility
+							.batchAll(transactions)
+							.paymentInfo(substrateStashId)
+					: await transactions[0].paymentInfo(substrateStashId);
+
+			setTransactions([...transactions]);
+			setInjectorAccount(substrateStashId);
+			setTransactionFee(() => fee.partialFee.toNumber());
 		}
-	}, [stakingInfo]);
+	}, [
+		stakingInfo,
+		selectedValidators,
+		networkInfo,
+		selectedAccount?.address,
+		ysFees,
+	]);
 
 	return (
 		<div className="w-full h-full flex justify-center max-h-full">
@@ -95,28 +151,22 @@ const Confirmation = ({
 					</button>
 				</div>
 				<div className="flex-1 flex justify-center items-center pb-4">
-					<div className="flex flex-col w-full max-w-xl items-center justify-center space-y-4">
+					<div className="flex flex-col w-full max-w-lg items-center justify-center space-y-4">
 						<div className="w-full flex justify-center items-center">
 							<Circle size={60} color="#2BCACA" />
 						</div>
 						<div className="text-center space-y-2">
-							<h1 className="text-2xl  font-semibold">Confirmation</h1>
+							<h1 className="text-4xl text-gray-700 font-semibold">
+								Confirmation
+							</h1>
 							<p className="text-gray-600 text-sm">
 								You will be locking your funds for staking. Please make sure you
 								understand the risks before proceeding.
 							</p>
 						</div>
-						<BrowserWalletAlert
-							stakingAmount={stakingAmount}
-							networkInfo={networkInfo}
-						/>
 						<div className="flex flex-col w-full text-gray-700 text-sm space-y-2 font-semibold">
 							<div>
-								<p className="ml-2">{`${
-									controllerAccount.address === selectedAccount.address
-										? "Same Stash and Controller"
-										: "Stash"
-								} Account`}</p>
+								<p className="ml-2">Account</p>
 								<Account
 									account={selectedAccount}
 									balances={balances}
@@ -127,20 +177,6 @@ const Confirmation = ({
 									disabled={true}
 								/>
 							</div>
-							{controllerAccount.address !== selectedAccount.address && (
-								<div>
-									<p className="ml-2">Controller Account</p>
-									<Account
-										account={selectedAccount}
-										balances={balances}
-										networkInfo={networkInfo}
-										onAccountSelected={() => {
-											return;
-										}}
-										disabled={true}
-									/>
-								</div>
-							)}
 						</div>
 						<div className="w-full p-2">
 							<button
@@ -165,7 +201,7 @@ const Confirmation = ({
 							</button>
 							<Collapse isOpen={showValidators}>
 								<div className="mt-2 rounded-xl">
-									<div className="overflow-auto">
+									<div className="h-48 w-full overflow-scroll">
 										{selectedValidators.map((validator) => (
 											<ValidatorCard
 												key={validator.stashId}
@@ -184,7 +220,7 @@ const Confirmation = ({
 								</div>
 							</Collapse>
 						</div>
-						<div className="w-full p-2">
+						{/* <div className="w-full p-2">
 							<button
 								className="flex text-gray-600 text-xs items-center"
 								onClick={handleAdvPrefsToggle}
@@ -214,8 +250,8 @@ const Confirmation = ({
 									/>
 								</div>
 							</Collapse>
-						</div>
-						<div className="w-full px-4">
+						</div> */}
+						<div className="w-full text-gray-700 px-4">
 							<div className="flex justify-between">
 								<p className="text-gray-700 text-xs">Staking amount</p>
 								<div className="flex flex-col">
@@ -247,12 +283,12 @@ const Confirmation = ({
 									/>
 								</div>
 
-								<div className="flex flex-col">
+								<div className="flex text-gray-700 flex-col">
 									{transactionFee !== 0 ? (
 										<div>
 											<p className="text-sm font-semibold text-right">
 												{formatCurrency.methods.formatAmount(
-													Math.trunc(transactionFee),
+													Math.trunc(transactionFee + ysFees),
 													networkInfo
 												)}
 											</p>
@@ -266,16 +302,16 @@ const Confirmation = ({
 								</div>
 							</div>
 							<Divider my={6} />
-							<div className="flex justify-between">
-								<p className="text-gray-700 text-sm font-semibold">
-									Total Amount
-								</p>
+							<div className="flex text-gray-700 justify-between">
+								<p className="text-base font-semibold">Total Amount</p>
 								<div className="flex flex-col">
 									<p className="text-lg text-right font-bold">
 										{formatCurrency.methods.formatAmount(
 											Math.trunc(
 												stakingAmount * 10 ** networkInfo.decimalPlaces
-											) + transactionFee,
+											) +
+												transactionFee +
+												ysFees,
 											networkInfo
 										)}
 									</p>
@@ -286,18 +322,12 @@ const Confirmation = ({
 							</div>
 						</div>
 						<div className="mt-4 w-full text-center">
-							<button
-								className="rounded-full font-medium px-12 py-3 bg-teal-500 text-white"
-								onClick={() =>
-									onConfirm(
-										stakingInfo.stakingLedger.active.isEmpty
-											? "bond-and-nominate"
-											: "nominate"
-									)
-								}
+							<NextButton
+								onClick={toggleIsAuthPopoverOpen}
+								disabled={transactionFee === 0}
 							>
 								Stake Now
-							</button>
+							</NextButton>
 						</div>
 					</div>
 				</div>

@@ -1,5 +1,5 @@
 import dynamic from "next/dynamic";
-import withDashboardLayout from "@components/common/layouts/dashboard";
+import WithDashboardLayout from "@components/common/layouts/dashboard";
 import { NextSeo } from "next-seo";
 
 const Page = dynamic(
@@ -24,7 +24,7 @@ const Payment = () => (
 				description: "Polkadot validators, Kusama validators",
 			}}
 		/>
-		<Page title="Validators" layoutProvider={withDashboardLayout}>
+		<Page title="Validators" layoutProvider={WithDashboardLayout}>
 			{() => <ValidatorsComponent />}
 		</Page>
 	</>

@@ -1,19 +1,18 @@
 import { Badge } from "@chakra-ui/core";
 import ProgressiveImage from "react-progressive-image";
 import Link from "next/link";
+import Image from "next/image";
 
 const YieldScanLogo = () => {
 	return (
 		<Link href="/">
 			<a className="flex items-center">
-				<ProgressiveImage
+				<Image
 					src="/images/yieldscan-logo.svg"
-					placeholder="/images/favicon-32x32.png"
-				>
-					{(src) => (
-						<img src={src} alt="Yieldscan Logo" width="41px" height="41px" />
-					)}
-				</ProgressiveImage>
+					alt="Yieldscan Logo"
+					width="40"
+					height="40"
+				/>
 				<span className="ml-2 font-medium flex items-center">
 					YieldScan
 					<Badge

@@ -256,6 +256,7 @@ const RedeemUnbonded = withSlideIn(
 								<SuccessfullyBonded
 									transactionHash={transactionHash}
 									onConfirm={handleOnClickForSuccessfulTransaction}
+									networkInfo={networkInfo}
 								/>
 							)}
 							{chainError && (

@@ -9,31 +9,35 @@ import {
 	useAccounts,
 	useAccountsBalances,
 	useAccountsStakingInfo,
-	useAccountsStakingLedgerInfo,
 	useAccountsControllerStashInfo,
-	useWalletType,
-	useControllerAccountInfo,
 	useSelectedAccountInfo,
 	useIsNewSetup,
+	useStakingPath,
 } from "@lib/store";
 import { useRouter } from "next/router";
 import { getNetworkInfo } from "yieldscan.config";
-import getFromLocalStorage from "@lib/getFromLocalStorage";
 import StakeToEarn from "./StakeToEarn";
-import LockFunds from "./LockFunds";
 import Confirmation from "./Confirmation";
 import stake from "@lib/stake";
 import axios from "@lib/axios";
-import { useToast, Spinner, Flex, Button } from "@chakra-ui/core";
+import { useToast } from "@chakra-ui/core";
 import ConfettiGenerator from "confetti-js";
 import ChainErrorPage from "./ChainErrorPage";
-import { BottomNextButton } from "../setup-accounts/BottomButton";
-import InfoAlert from "./InfoAlert";
+import { BottomNextButton } from "../common/BottomButton";
 import TransferFunds from "./TransferFunds";
+import SecureStakingSetup from "./SecureStakingSetup";
+import { AuthPopover, useAuthPopover } from "./AuthPopover";
+import {
+	StepperSigningPopover,
+	useStepperSigningPopover,
+} from "./stepperSignerPopover";
+import transferBalancesKeepAlive from "@lib/polkadot/transfer-balances";
+import { track, goalCodes } from "@lib/analytics";
 
 const Staking = () => {
 	const toast = useToast();
 	const router = useRouter();
+
 	const { selectedNetwork } = useSelectedNetwork();
 	const { apiInstance } = usePolkadotApi();
 	const networkInfo = getNetworkInfo(selectedNetwork);
@@ -42,111 +46,65 @@ const Staking = () => {
 	const { transactionHash, setTransactionHash } = useTransactionHash();
 	const { setTransactionState, ...transactionState } = useTransaction();
 	const { accounts } = useAccounts();
+	const { stakingPath, setStakingPath } = useStakingPath();
 	const { accountsBalances } = useAccountsBalances();
 	const { accountsStakingInfo } = useAccountsStakingInfo();
-	const { accountsStakingLedgerInfo } = useAccountsStakingLedgerInfo();
-	const { walletType } = useWalletType();
-
 	const { accountsControllerStashInfo } = useAccountsControllerStashInfo();
-	const [isLedger, setIsLedger] = useState(() =>
-		JSON.parse(
-			getFromLocalStorage(selectedAccount?.substrateAddress, "isLedger")
-		)
-	);
+	const { balances, stakingInfo, stakingLedgerInfo } = useSelectedAccountInfo();
+	const { isAuthPopoverOpen, toggleIsAuthPopoverOpen, close } =
+		useAuthPopover();
+	const {
+		isStepperSigningPopoverOpen,
+		toggleIsStepperSigningPopoverOpen,
+		closeStepperSignerPopover,
+	} = useStepperSigningPopover();
+
+	const [initialStakingPath, setInitialStakingPath] = useState(stakingPath);
+	const [transactions, setTransactions] = useState(null);
+	const [stepperTransactions, setStepperTransactions] = useState(null);
+	const [injectorAccount, setInjectorAccount] = useState(null);
+	const [transactionFee, setTransactionFee] = useState(0);
+	const [transactionType, setTransactionType] = useState(null);
+	const [senderAccount, setSenderAccount] = useState(null);
 
 	const selectedValidators = get(transactionState, "selectedValidators", []);
 	const stakingAmount = get(transactionState, "stakingAmount", 0);
-
-	const { balances, stakingInfo, stakingLedgerInfo } = useSelectedAccountInfo();
 
 	const [controllerStashInfo, setControllerStashInfo] = useState(
 		() => accountsControllerStashInfo[selectedAccount?.address]
 	);
 
-	const [controllerAccount, setControllerAccount] = useState(() =>
-		accountsStakingInfo[selectedAccount?.address]?.controllerId
-			? accounts?.filter(
-					(account) =>
-						account.address ===
-						accountsStakingInfo[
-							selectedAccount?.address
-						]?.controllerId.toString()
-			  )[0]
-			: isNil(
-					window?.localStorage.getItem(
-						selectedAccount?.address + networkInfo.network + "Controller"
-					)
-			  )
-			? walletType[selectedAccount?.substrateAddress]
-				? null
-				: selectedAccount
-			: accounts?.filter(
-					(account) =>
-						account.address ===
-						window?.localStorage.getItem(
-							selectedAccount?.address + networkInfo.network + "Controller"
-						)
-			  )[0]
+	const [ysFees, setYsFees] = useState(0);
+	Math.trunc(
+		get(transactionState, "stakingAmount", 0) *
+			0.00125 *
+			Math.pow(10, networkInfo.decimalPlaces)
 	);
 
-	useEffect(() => {
-		if (stakingInfo?.accountId.toString() !== selectedAccount?.address) {
-			setControllerAccount(null);
-		}
-		const account = accountsStakingInfo[selectedAccount?.address]?.controllerId
-			? accounts?.filter(
-					(account) =>
-						account.address ===
-						accountsStakingInfo[
-							selectedAccount?.address
-						]?.controllerId.toString()
-			  )[0]
-			: isNil(
-					window?.localStorage.getItem(
-						selectedAccount?.address + networkInfo.network + "Controller"
-					)
-			  )
-			? walletType[selectedAccount?.substrateAddress]
-				? null
-				: selectedAccount
+	const [controllerAccount, setControllerAccount] = useState(() =>
+		isNil(stakingInfo?.controllerId)
+			? null
 			: accounts?.filter(
-					(account) =>
-						account.address ===
-						window?.localStorage.getItem(
-							selectedAccount?.address + networkInfo.network + "Controller"
-						)
-			  )[0];
-		setControllerAccount(account);
-	}, [
-		selectedAccount?.address,
-		JSON.stringify(stakingInfo),
-		JSON.stringify(accountsStakingInfo),
-	]);
+					(account) => account.address === stakingInfo?.controllerId.toString()
+			  )[0]
+	);
 
 	const [controllerBalances, setControllerBalances] = useState(
 		() => accountsBalances[controllerAccount?.address]
 	);
-
-	useEffect(() => {
-		if (stakingInfo?.accountId.toString() !== selectedAccount?.address) {
-			setControllerBalances(null);
-		}
-		setControllerBalances(accountsBalances[controllerAccount?.address]);
-	}, [
-		controllerAccount?.address,
-		selectedAccount?.address,
-		JSON.stringify(stakingInfo),
-		JSON.stringify(accountsBalances[controllerAccount?.address]),
-	]);
-
-	const [stakingLoading, setStakingLoading] = useState(false);
 	const [successHeading, setSuccessHeading] = useState("Congratulations");
 	const [stakingEvent, setStakingEvent] = useState();
 	const [isSuccessful, setIsSuccessful] = useState(false);
-	const [isLockFunds, setIsLockFunds] = useState();
-	const [isTransferFunds, setIsTransferFunds] = useState();
-	const [chainError, setChainError] = useState(false);
 	const [loaderError, setLoaderError] = useState(false);
+
+	const [selected, setSelected] = useState(null);
+
+	const [confirmedControllerAccount, setConfirmedControllerAccount] =
+		useState(null);
+
+	const [controllerTransferAmount, setControllerTransferAmount] = useState(0);
+
+	const [transferFundsAmount, setTransferFundsAmount] = useState(0);
 
 	const updateTransactionData = (
 		stashId,
@@ -173,12 +131,10 @@ const Staking = () => {
 			});
 	};
 
-	const transact = (transactionType) => {
-		if (["lock-funds", "bond-extra"].includes(transactionType)) {
-			setIsLockFunds(true);
-		} else setIsLockFunds(false);
-		setIsTransferFunds(false);
-		setStakingLoading(true);
+	const transact = () => {
+		const from = senderAccount?.address;
+		const to = controllerAccount?.address;
+		setStakingPath("loading");
 		setTransactionHash(null);
 
 		const handlers = {
@@ -198,18 +154,38 @@ const Staking = () => {
 			onFinish: (status, message, eventLogs, tranHash) => {
 				// status = 0 for success, anything else for error code
 				if (status === 0) {
-					["lock-funds", "bond-extra"].includes(transactionType)
-						? setSuccessHeading("Now you’re ready to stake")
+					initialStakingPath === "transfer"
+						? setSuccessHeading("Wohoo!")
 						: setSuccessHeading("Congratulations");
-					const successMessage = ["lock-funds", "bond-extra"].includes(
-						transactionType
-					)
-						? "Your funds have been locked successfully. Just one more step to start earning..."
-						: "You’ve successfully staked your funds...";
+
+					if (initialStakingPath === "transfer") {
+						track(goalCodes.STAKING.TRANSFER.SUCCESSFUL);
+					} else if (initialStakingPath === "express") {
+						track(goalCodes.STAKING.EXPRESS.SUCCESSFUL);
+					} else if (initialStakingPath === "secure") {
+						track(goalCodes.STAKING.SECURE.SUCCESSFUL);
+					} else if (initialStakingPath === "distinct") {
+						track(goalCodes.STAKING.DISTINCT.SUCCESSFUL);
+					}
+
+					const successMessage =
+						initialStakingPath === "transfer"
+							? "Your controller account is succesfully set up, you can continue to stake now..."
+							: "You’ve successfully staked your funds...";
 					setStakingEvent(successMessage);
 					setIsSuccessful(true);
 					setTimeout(() => {
-						if (["lock-funds", "bond-extra"].includes(transactionType)) {
+						if (initialStakingPath === "transfer") {
+							setInitialStakingPath(() =>
+								controllerAccount?.address === selectedAccount?.address
+									? "express"
+									: "distinct"
+							);
+							// setStakingPath(() =>
+							// 	controllerAccount?.address === selectedAccount?.address
+							// 		? "express"
+							// 		: "distinct"
+							// );
 							setIsSuccessful(false);
 							setTransactionHash(null);
 						}
@@ -223,28 +199,42 @@ const Staking = () => {
 					isClosable: true,
 					duration: 7000,
 				});
-				setTimeout(() => {
-					setStakingLoading(false);
-				}, 2500);
+				// setTimeout(() => {
+				// 	setStakingLoading(false);
+				// }, 2500);
 
 				if (status === 0) {
-					updateTransactionData(
-						selectedAccount?.address,
-						networkInfo.network,
-						parseInt(stakingInfo.stakingLedger.active) /
-							Math.pow(10, networkInfo.decimalPlaces),
-						get(transactionState, "stakingAmount", 0),
-						tranHash,
-						true
-					);
-				} else {
-					if (message !== "Cancelled") {
+					initialStakingPath !== "transfer" &&
 						updateTransactionData(
 							selectedAccount?.address,
 							networkInfo.network,
 							parseInt(stakingInfo.stakingLedger.active) /
 								Math.pow(10, networkInfo.decimalPlaces),
-							get(transactionState, "stakingAmount", 0),
+							stakingAmount,
+							tranHash,
+							true
+						);
+				} else {
+					if (message !== "Cancelled" && initialStakingPath === "transfer") {
+						track(goalCodes.STAKING.TRANSFER.UNSUCCESSFUL);
+					} else if (
+						message !== "Cancelled" &&
+						initialStakingPath !== "transfer"
+					) {
+						if (initialStakingPath === "express") {
+							track(goalCodes.STAKING.EXPRESS.UNSUCCESSFUL);
+						} else if (initialStakingPath === "secure") {
+							track(goalCodes.STAKING.SECURE.UNSUCCESSFUL);
+						} else if (initialStakingPath === "distinct") {
+							track(goalCodes.STAKING.DISTINCT.UNSUCCESSFUL);
+						}
+
+						updateTransactionData(
+							selectedAccount?.address,
+							networkInfo.network,
+							parseInt(stakingInfo.stakingLedger.active) /
+								Math.pow(10, networkInfo.decimalPlaces),
+							stakingAmount,
 							tranHash,
 							false
 						);
@@ -252,31 +242,229 @@ const Staking = () => {
 						setLoaderError(true);
 
 						setTimeout(() => {
-							setChainError(true);
 							setLoaderError(false);
-							setStakingLoading(false);
+							setStakingPath("errorPage");
+							// setStakingLoading(false);
 						}, 2000);
-					}
+					} else setStakingPath(initialStakingPath);
 				}
 			},
 		};
 
-		if (transactionState.stakingAmount) {
-			stake(
-				selectedAccount?.address,
-				controllerAccount?.address,
-				transactionState.stakingAmount,
-				transactionState.rewardDestination,
-				transactionState.selectedValidators.map((v) => v.stashId),
+		if (transactionState.stakingAmount && initialStakingPath !== "transfer") {
+			stake(apiInstance, handlers, transactions, injectorAccount).catch(
+				(error) => {
+					handlers.onFinish(1, error.message);
+				}
+			);
+		} else {
+			transferBalancesKeepAlive(
+				from,
+				to,
 				apiInstance,
-				handlers,
-				transactionType,
-				networkInfo
+				transferFundsAmount,
+				networkInfo,
+				handlers
 			).catch((error) => {
 				handlers.onFinish(1, error.message);
 			});
 		}
 	};
+
+	const stepperTransact = (
+		_transaction,
+		injector,
+		isLast,
+		closeModal,
+		setLoading,
+		setEvent,
+		setLoader,
+		stepperSuccessMessage,
+		setSuccess,
+		currentStep,
+		setCurrentStep
+	) => {
+		setLoading(true);
+		const handlers = {
+			onEvent: (eventInfo) => {
+				if (isLast) {
+					setStakingEvent(eventInfo.message);
+				}
+				setEvent(eventInfo.message);
+			},
+			onSuccessfullSigning: (hash) => {
+				const transactionHash = get(hash, "message");
+				if (isLast) {
+					setStakingPath("loading");
+					closeModal();
+					setLoaderError(false);
+					setTimeout(() => {
+						setTransactionHash(transactionHash);
+						setStakingEvent(
+							"Your transaction is sent to the network. Awaiting confirmation..."
+						);
+					}, 750);
+				} else {
+					setLoader(false);
+					setTimeout(() => {
+						// setTransactionHash(transactionHash);
+						setEvent(
+							"Your transaction is sent to the network. Awaiting confirmation..."
+						);
+					}, 750);
+				}
+			},
+			onFinish: (status, message, eventLogs, tranHash) => {
+				toast({
+					title: status === 0 ? "Successful!" : "Error!",
+					status: status === 0 ? "success" : "error",
+					description: message,
+					position: "top-right",
+					isClosable: true,
+					duration: 7000,
+				});
+				if (isLast) {
+					if (status === 0) {
+						setSuccessHeading("Congratulations");
+
+						if (initialStakingPath === "express") {
+							track(goalCodes.STAKING.EXPRESS.SUCCESSFUL);
+						} else if (initialStakingPath === "secure") {
+							track(goalCodes.STAKING.SECURE.SUCCESSFUL);
+						} else if (initialStakingPath === "distinct") {
+							track(goalCodes.STAKING.DISTINCT.SUCCESSFUL);
+						}
+
+						const successMessage = "You’ve successfully staked your funds...";
+						setStakingEvent(successMessage);
+						setIsSuccessful(true);
+						updateTransactionData(
+							selectedAccount?.address,
+							networkInfo.network,
+							parseInt(stakingInfo.stakingLedger.active) /
+								Math.pow(10, networkInfo.decimalPlaces),
+							stakingAmount,
+							tranHash,
+							true
+						);
+					} else {
+						if (message !== "Cancelled") {
+							if (initialStakingPath === "express") {
+								track(goalCodes.STAKING.EXPRESS.UNSUCCESSFUL);
+							} else if (initialStakingPath === "secure") {
+								track(goalCodes.STAKING.SECURE.UNSUCCESSFUL);
+							} else if (initialStakingPath === "distinct") {
+								track(goalCodes.STAKING.DISTINCT.UNSUCCESSFUL);
+							}
+
+							updateTransactionData(
+								selectedAccount?.address,
+								networkInfo.network,
+								parseInt(stakingInfo.stakingLedger.active) /
+									Math.pow(10, networkInfo.decimalPlaces),
+								stakingAmount,
+								tranHash,
+								false
+							);
+							setStakingEvent("Transaction failed");
+							setLoaderError(true);
+
+							setTimeout(() => {
+								setLoaderError(false);
+								setStakingPath("errorPage");
+								// setStakingLoading(false);
+							}, 2000);
+						} else {
+							stakingPath === "loading"
+								? setStakingPath(initialStakingPath)
+								: setLoading(false);
+						}
+					}
+				} else {
+					if (status === 0) {
+						setEvent(stepperSuccessMessage);
+						setSuccess(true);
+						setTimeout(() => {
+							setCurrentStep(currentStep + 1);
+							setLoader(false);
+							setSuccess(false);
+							setLoading(false);
+						}, 5000);
+					} else {
+						if (message !== "Cancelled") {
+							// updateTransactionData(
+							// 	selectedAccount?.address,
+							// 	networkInfo.network,
+							// 	parseInt(stakingInfo.stakingLedger.active) /
+							// 		Math.pow(10, networkInfo.decimalPlaces),
+							// 	stakingAmount,
+							// 	tranHash,
+							// 	false
+							// );
+							setStakingPath = "loading";
+							closeModal();
+							setStakingEvent("Transaction failed");
+							setLoaderError(true);
+
+							setTimeout(() => {
+								setLoaderError(false);
+								setStakingPath("errorPage");
+								// setStakingLoading(false);
+							}, 2000);
+						} else {
+							stakingPath === "loading"
+								? setStakingPath(initialStakingPath)
+								: setLoading(false);
+						}
+					}
+				}
+			},
+		};
+
+		return stake(apiInstance, handlers, _transaction, injector).catch(
+			(error) => {
+				handlers.onFinish(1, error.message);
+			}
+		);
+	};
+
+	useEffect(() => {
+		if (networkInfo?.feesEnabled) {
+			setYsFees(() =>
+				Math.trunc(
+					stakingAmount *
+						networkInfo.feesRatio *
+						Math.pow(10, networkInfo.decimalPlaces)
+				)
+			);
+		} else setYsFees(0);
+	}, [networkInfo, stakingAmount]);
+
+	useEffect(() => {
+		if (stakingInfo) {
+			isNil(stakingInfo?.controllerId)
+				? setControllerAccount(null)
+				: setControllerAccount(
+						accounts?.filter(
+							(account) =>
+								account.address === stakingInfo?.controllerId.toString()
+						)[0]
+				  );
+		}
+	}, [JSON.stringify(stakingInfo)]);
+
+	useEffect(() => {
+		if (controllerAccount?.address) {
+			setControllerBalances(accountsBalances[controllerAccount?.address]);
+		}
+	}, [
+		controllerAccount?.address,
+		JSON.stringify(accountsBalances[controllerAccount?.address]),
+	]);
+
+	useEffect(() => {
+		setStakingPath(initialStakingPath);
+	}, [initialStakingPath]);
 
 	useEffect(() => {
 		setControllerStashInfo(
@@ -288,22 +476,34 @@ const Staking = () => {
 	]);
 
 	useEffect(() => {
-		setIsLedger(() =>
-			JSON.parse(
-				getFromLocalStorage(selectedAccount?.substrateAddress, "isLedger")
-			)
-		);
-	}, [selectedAccount?.address]);
-
-	// uncomment the following for automatically taking to overview after successful staking
-	// useEffect(() => {
-	// 	if (transactionHash && isSuccessful && !isLockFunds) {
-	// 		setTimeout(() => router.push({ pathname: "/overview" }), 5000);
-	// 	}
-	// }, [transactionHash, isSuccessful]);
+		if (selected && apiInstance && accountsBalances) {
+			accountsBalances[selected?.address].availableBalance <
+			ysFees + apiInstance?.consts.balances.existentialDeposit
+				? setControllerTransferAmount(() =>
+						Math.trunc(
+							ysFees +
+								networkInfo?.reserveAmount *
+									Math.pow(10, networkInfo.decimalPlaces) +
+								2 * apiInstance?.consts.balances.existentialDeposit.toNumber() -
+								accountsBalances[selected?.address].availableBalance
+						)
+				  )
+				: setControllerTransferAmount(0);
+		}
+	}, [selected?.address, JSON.stringify(accountsBalances[selected?.address])]);
 
 	useEffect(() => {
-		if (transactionHash && isSuccessful && !isLockFunds && !isTransferFunds) {
+		if (stakingPath === "transfer" && controllerBalances) {
+			setTransferFundsAmount(
+				ysFees +
+					apiInstance?.consts.balances.existentialDeposit.toNumber() * 2 -
+					controllerBalances?.availableBalance
+			);
+		}
+	}, [JSON.stringify(controllerBalances), ysFees, stakingPath]);
+
+	useEffect(() => {
+		if (transactionHash && isSuccessful && initialStakingPath !== "transfer") {
 			const confettiSettings = {
 				target: "confetti-holder",
 				max: "150",
@@ -330,16 +530,46 @@ const Staking = () => {
 		}
 	}, [transactionHash, isSuccessful]);
 
-	return selectedAccount &&
-		controllerBalances &&
-		Object.keys(accountsBalances).length > 0 &&
-		Object.keys(accountsControllerStashInfo).length > 0 &&
-		Object.keys(accountsStakingInfo).length > 0 ? (
-		<div className="w-full h-full flex justify-center max-h-full">
-			{transactionHash && isSuccessful && !isLockFunds && !isTransferFunds && (
+	return isNil(transactionState) || isNil(selectedAccount) ? (
+		<div className="w-full h-full flex justify-center items-center max-h-full">
+			<span className="loader"></span>
+		</div>
+	) : isNil(stakingInfo) || isNil(balances) || isNil(accountsBalances) ? (
+		<div className="w-full h-full flex justify-center items-center max-h-full">
+			<span className="loader"></span>
+		</div>
+	) : (
+		<div className="w-full h-full justify-center items-center">
+			<AuthPopover
+				isAuthPopoverOpen={isAuthPopoverOpen}
+				networkInfo={networkInfo}
+				onConfirm={
+					transactions?.length > 1
+						? toggleIsStepperSigningPopoverOpen
+						: transact
+				}
+				close={close}
+				transactions={transactions}
+			/>
+			{isStepperSigningPopoverOpen && (
+				<StepperSigningPopover
+					isStepperSigningPopoverOpen={isStepperSigningPopoverOpen}
+					networkInfo={networkInfo}
+					onConfirm={() => transact()}
+					closeStepperSignerPopover={closeStepperSignerPopover}
+					transactions={transactions}
+					stakingPath={stakingPath}
+					stepperTransactions={stepperTransactions}
+					apiInstance={apiInstance}
+					selectedValidators={selectedValidators}
+					ysFees={ysFees}
+					stepperTransact={stepperTransact}
+				/>
+			)}
+			{transactionHash && isSuccessful && initialStakingPath !== "transfer" && (
 				<canvas id="confetti-holder" className="absolute w-full"></canvas>
 			)}
-			{stakingLoading || isSuccessful ? (
+			{stakingPath === "loading" ? (
 				<div className="grid grid-rows-2 gap-2 h-full items-center justify-content justify-center">
 					<div className="w-full h-full flex justify-center items-end">
 						<span
@@ -359,35 +589,30 @@ const Staking = () => {
 							)}
 							<p className="text-gray-700">{stakingEvent}</p>
 						</div>
-						<div className="w-full mb-32">
-							{" "}
-							{isSuccessful && !isLockFunds && !isTransferFunds && (
-								<InfoAlert />
-							)}
-						</div>
-						{isSuccessful && !isLockFunds && !isTransferFunds && (
+						{isSuccessful && initialStakingPath !== "transfer" && (
 							<BottomNextButton
 								onClick={() => router.push({ pathname: "/overview" })}
 							>
 								Continue
 							</BottomNextButton>
 						)}
+						{false && (
+							<div className="w-full max-w-sm flex flex-col text-gray-700 text-center items-center h-full justify-between mt-24">
+								<p>
+									You will be automatically redirected to the next steps in 5
+									seconds. Click here you’re not automatically redirected
+								</p>
+							</div>
+						)}
 					</div>
 				</div>
-			) : chainError ? (
+			) : stakingPath === "errorPage" ? (
 				<ChainErrorPage
-					// back={backToConfirmation}
-					// onConfirm={() => {
-					// 	setStakingLoading(true);
-					// 	setChainError(false);
-					// 	transact();
-					// }}
-					router={router}
-					setIsNewSetup={setIsNewSetup}
+					setStakingPath={setStakingPath}
 					networkInfo={networkInfo}
+					initialStakingPath={initialStakingPath}
 				/>
-			) : parseInt(controllerBalances?.availableBalance) <
-			  apiInstance?.consts.balances.existentialDeposit.toNumber() / 2 ? (
+			) : stakingPath === "transfer" ? (
 				<TransferFunds
 					router={router}
 					apiInstance={apiInstance}
@@ -398,56 +623,22 @@ const Staking = () => {
 					accountsStakingInfo={accountsStakingInfo}
 					controllerAccount={controllerAccount}
 					controllerBalances={controllerBalances}
-					setStakingLoading={setStakingLoading}
+					// setStakingLoading={setStakingLoading}
 					setStakingEvent={setStakingEvent}
 					setLoaderError={setLoaderError}
 					setSuccessHeading={setSuccessHeading}
 					setIsSuccessful={setIsSuccessful}
-					setChainError={setChainError}
-					setIsTransferFunds={setIsTransferFunds}
+					setStakingPath={setStakingPath}
 					setTransactionHash={setTransactionHash}
+					senderAccount={senderAccount}
+					setSenderAccount={setSenderAccount}
+					transferFunds={transact}
+					transferFundsAmount={transferFundsAmount}
+					setTransferFundsAmount={setTransferFundsAmount}
+					ysFees={ysFees}
 				/>
-			) : isLedger ? (
-				stakingInfo.stakingLedger.active.isEmpty ? (
-					<LockFunds
-						accounts={accounts}
-						balances={balances}
-						controllerBalances={controllerBalances}
-						stakingInfo={stakingInfo}
-						stakingLedgerInfo={stakingLedgerInfo}
-						controllerStashInfo={controllerStashInfo}
-						apiInstance={apiInstance}
-						selectedAccount={selectedAccount}
-						controllerAccount={controllerAccount}
-						networkInfo={networkInfo}
-						transactionState={transactionState}
-						setTransactionState={setTransactionState}
-						onConfirm={(type) => transact(type)}
-					/>
-				) : (
-					<StakeToEarn
-						stakingInfo={stakingInfo}
-						apiInstance={apiInstance}
-						selectedAccount={selectedAccount}
-						networkInfo={networkInfo}
-						transactionState={transactionState}
-						isLedger={isLedger}
-						onConfirm={(type) => transact(type)}
-					/>
-				)
-			) : controllerStashInfo.isStash &&
-			  !controllerStashInfo.isSameStashController ? (
-				<StakeToEarn
-					stakingInfo={stakingInfo}
-					apiInstance={apiInstance}
-					selectedAccount={selectedAccount}
-					networkInfo={networkInfo}
-					transactionState={transactionState}
-					isLedger={isLedger}
-					onConfirm={(type) => transact(type)}
-				/>
-			) : (
-				<Confirmation
+			) : stakingPath === "secure" ? (
+				<SecureStakingSetup
 					accounts={accounts}
 					balances={balances}
 					stakingInfo={stakingInfo}
@@ -456,14 +647,67 @@ const Staking = () => {
 					controllerAccount={controllerAccount}
 					networkInfo={networkInfo}
 					transactionState={transactionState}
+					accountsControllerStashInfo={accountsControllerStashInfo}
+					accountsBalances={accountsBalances}
+					ysFees={ysFees}
 					setTransactionState={setTransactionState}
-					onConfirm={(type) => transact(type)}
+					selected={selected}
+					confirmedControllerAccount={confirmedControllerAccount}
+					setSelected={setSelected}
+					setConfirmedControllerAccount={setConfirmedControllerAccount}
+					controllerTransferAmount={controllerTransferAmount}
+					onConfirm={transact}
+					toggleIsAuthPopoverOpen={toggleIsAuthPopoverOpen}
+					transactionFee={transactionFee}
+					setTransactionFee={setTransactionFee}
+					transactionType={transactionType}
+					setTransactionType={setTransactionType}
+					setTransactions={setTransactions}
+					setInjectorAccount={setInjectorAccount}
+					stakingAmount={stakingAmount}
+					selectedValidators={selectedValidators}
+					setStepperTransactions={setStepperTransactions}
 				/>
+			) : stakingPath === "express" ? (
+				<Confirmation
+					balances={balances}
+					stakingInfo={stakingInfo}
+					apiInstance={apiInstance}
+					selectedAccount={selectedAccount}
+					networkInfo={networkInfo}
+					transactionState={transactionState}
+					toggleIsAuthPopoverOpen={toggleIsAuthPopoverOpen}
+					ysFees={ysFees}
+					transactionFee={transactionFee}
+					setTransactions={setTransactions}
+					setInjectorAccount={setInjectorAccount}
+					setTransactionFee={setTransactionFee}
+					stakingAmount={stakingAmount}
+					selectedValidators={selectedValidators}
+					setStepperTransactions={setStepperTransactions}
+				/>
+			) : stakingPath === "distinct" ? (
+				<StakeToEarn
+					stakingInfo={stakingInfo}
+					apiInstance={apiInstance}
+					selectedAccount={selectedAccount}
+					controllerAccount={controllerAccount}
+					balances={balances}
+					controllerBalances={controllerBalances}
+					networkInfo={networkInfo}
+					transactionState={transactionState}
+					toggleIsAuthPopoverOpen={toggleIsAuthPopoverOpen}
+					ysFees={ysFees}
+					transactionFee={transactionFee}
+					setTransactionFee={setTransactionFee}
+					setTransactions={setTransactions}
+					setInjectorAccount={setInjectorAccount}
+					stakingAmount={stakingAmount}
+					selectedValidators={selectedValidators}
+				/>
+			) : (
+				<></>
 			)}
-		</div>
-	) : (
-		<div className="w-full h-full flex justify-center items-center max-h-full">
-			<span className="loader"></span>
 		</div>
 	);
 };

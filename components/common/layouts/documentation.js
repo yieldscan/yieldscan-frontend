@@ -1,3 +1,4 @@
+/* eslint-disable react/display-name */
 import dynamic from "next/dynamic";
 import Footer from "../footer";
 

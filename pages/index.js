@@ -1,5 +1,5 @@
 import dynamic from "next/dynamic";
-import withBaseLayout from "@components/common/layouts/base";
+import WithBaseLayout from "@components/common/layouts/base";
 import { NextSeo } from "next-seo";
 
 const Page = dynamic(
@@ -18,7 +18,7 @@ const HomePage = () => (
 			title="YieldScan"
 			description="How to stake Polkadot?, How to stake Kusama?"
 		/>
-		<Page title="Home" layoutProvider={withBaseLayout}>
+		<Page title="Home" layoutProvider={WithBaseLayout}>
 			{() => <HomeComponent />}
 		</Page>
 	</>

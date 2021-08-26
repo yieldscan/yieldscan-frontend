@@ -5,6 +5,7 @@ import RiskSelect from "./RiskSelect";
 import AmountInput from "./AmountInput";
 import TimePeriodInput from "./TimePeriodInput";
 import ExpectedReturnsCard from "./ExpectedReturnsCard";
+import EstimatedFeesCard from "./EstimatedFeesCard";
 import CompoundRewardSlider from "./CompoundRewardSlider";
 import SimulationSwitch from "./SimulationSwitch";
 import LowBalanceAlert from "./LowBalanceAlert";
@@ -20,14 +21,15 @@ import {
 	useCoinGeckoPriceUSD,
 	useSelectedAccount,
 	useAccountsBalances,
-	useWalletType,
 	useAccountsStakingInfo,
 	usePolkadotApi,
 	useIsNewSetup,
 	useSelectedAccountInfo,
+	useStakingPath,
 } from "@lib/store";
 import { get, isNil, mapValues, keyBy, cloneDeep, debounce } from "lodash";
 import calculateReward from "@lib/calculate-reward";
+import getTransactionFee from "@lib/getTransactionFee";
 import {
 	Alert,
 	AlertDescription,
@@ -48,17 +50,22 @@ import {
 	useDisclosure,
 } from "@chakra-ui/core";
 import Routes from "@lib/routes";
-import { trackEvent, Events } from "@lib/analytics";
+import { trackEvent, Events, track, goalCodes } from "@lib/analytics";
 import { getNetworkInfo } from "yieldscan.config";
 import { HelpCircle, AlertCircle, AlertTriangle } from "react-feather";
 import MinStakeAlert from "./MinStakeAlert";
-import { BottomNextButton } from "@components/setup-accounts/BottomButton";
+import { BottomNextButton } from "@components/common/BottomButton";
 import {
 	LowBalancePopover,
 	useLowBalancePopover,
 } from "../staking/LowBalancePopover";
+import {
+	StakingPathPopover,
+	useStakingPathPopover,
+} from "@components/staking/StakingPathPopover";
 
 const trackRewardCalculatedEvent = debounce((eventData) => {
+	track(goalCodes.REWARD_CALCULATOR.VALUE_CHANGED);
 	trackEvent(Events.REWARD_CALCULATED, eventData);
 }, 1000);
 
@@ -86,7 +93,6 @@ const RewardCalculatorPage = () => {
 	const { accounts } = useAccounts();
 	const { selectedAccount } = useSelectedAccount();
 	const { apiInstance } = usePolkadotApi();
-	const { walletType } = useWalletType();
 	const { setHeaderLoading } = useHeaderLoading();
 	const { isInElection } = useNetworkElection();
 	const { setIsNewSetup } = useIsNewSetup();
@@ -95,9 +101,13 @@ const RewardCalculatorPage = () => {
 	const { accountsBalances } = useAccountsBalances();
 
 	const { isLowBalanceOpen, toggleIsLowBalanceOpen } = useLowBalancePopover();
+	const { isStakingPathPopoverOpen, toggleIsStakingPathPopoverOpen } =
+		useStakingPathPopover();
+	const { setStakingPath } = useStakingPath();
 	const [loading, setLoading] = useState(false);
 	const [amount, setAmount] = useState(transactionState.stakingAmount || 1000);
 	const [subCurrency, setSubCurrency] = useState(0);
+	const [minPossibleStake, setMinPossibleStake] = useState(0);
 
 	const [risk, setRisk] = useState(transactionState.riskPreference || "Medium");
 	const [timePeriodValue, setTimePeriod] = useState(
@@ -125,99 +135,19 @@ const RewardCalculatorPage = () => {
 							selectedAccount?.address
 						]?.controllerId.toString()
 			  )[0]
-			: isNil(
-					window?.localStorage.getItem(
-						selectedAccount?.address + networkInfo.network + "Controller"
-					)
-			  )
-			? walletType[selectedAccount?.substrateAddress]
-				? null
-				: selectedAccount
-			: accounts?.filter(
-					(account) =>
-						account.address ===
-						window?.localStorage.getItem(
-							selectedAccount?.address + networkInfo.network + "Controller"
-						)
-			  )[0]
+			: null
 	);
-
-	useEffect(() => {
-		if (stakingInfo?.accountId.toString() !== selectedAccount?.address) {
-			setControllerAccount(null);
-		}
-		const account = accountsStakingInfo[selectedAccount?.address]?.controllerId
-			? accounts?.filter(
-					(account) =>
-						account.address ===
-						accountsStakingInfo[
-							selectedAccount?.address
-						]?.controllerId.toString()
-			  )[0]
-			: isNil(
-					window?.localStorage.getItem(
-						selectedAccount?.address + networkInfo.network + "Controller"
-					)
-			  )
-			? walletType[selectedAccount?.substrateAddress]
-				? null
-				: selectedAccount
-			: accounts?.filter(
-					(account) =>
-						account.address ===
-						window?.localStorage.getItem(
-							selectedAccount?.address + networkInfo.network + "Controller"
-						)
-			  )[0];
-		setControllerAccount(account);
-	}, [
-		selectedAccount?.address,
-		JSON.stringify(stakingInfo),
-		JSON.stringify(accountsStakingInfo),
-	]);
+	const [controllerUnavailable, setControllerUnavailable] = useState();
+	const [transactionFees, setTransactionFees] = useState(0);
+	const [ysFees, setYsFees] = useState(0);
 
 	const [controllerBalances, setControllerBalances] = useState(
 		() => accountsBalances[controllerAccount?.address]
 	);
 
-	useEffect(() => {
-		if (stakingInfo?.accountId.toString() !== selectedAccount?.address) {
-			setControllerBalances(null);
-		}
-		setControllerBalances(accountsBalances[controllerAccount?.address]);
-	}, [
-		controllerAccount?.address,
-		selectedAccount?.address,
-		JSON.stringify(stakingInfo),
-		JSON.stringify(accountsBalances[controllerAccount?.address]),
-	]);
-
-	const toStaking = async () => {
-		updateTransactionState(Events.INTENT_STAKING);
-		setTransactionHash(null);
-		if (
-			controllerAccount &&
-			parseInt(controllerBalances?.availableBalance) <
-				apiInstance?.consts.balances.existentialDeposit.toNumber() / 2
-		) {
-			toggleIsLowBalanceOpen();
-		} else router.push("/staking");
-	};
-
 	const onAdvancedSelection = () => {
 		updateTransactionState(Events.INTENT_ADVANCED_SELECTION);
 		router.push(`${Routes.VALIDATORS}?advanced=true`);
-	};
-
-	const toSetUpAccounts = () => {
-		setIsNewSetup(false);
-		if (
-			!Object.values(walletType).every((value) => value === null) &&
-			Object.values(walletType).includes(null)
-		) {
-			setIsNewSetup(true);
-		}
-		router.push("/setup-accounts");
 	};
 
 	const updateTransactionState = (eventType = "") => {
@@ -274,39 +204,106 @@ const RewardCalculatorPage = () => {
 		activeBondedAmount + totalAvailableStakingAmount;
 
 	const proceedDisabled =
-		accounts &&
-		selectedAccount &&
-		!Object.values(walletType).every((value) => value === null)
-			? isNil(controllerAccount) ||
-			  isNil(walletType[selectedAccount?.substrateAddress]) ||
-			  walletType[controllerAccount?.substrateAddress] ||
-			  (walletType[selectedAccount?.substrateAddress] &&
-					selectedAccount?.address === controllerAccount?.address)
-				? false
-				: amount && !isInElection && amount > 0
-				? amount > totalPossibleStakingAmount
-					? true
-					: activeBondedAmount >
-					  totalPossibleStakingAmount - networkInfo.minAmount
-					? totalAvailableStakingAmount < networkInfo.minAmount / 2
+		accounts && selectedAccount
+			? amount &&
+			  !isInElection &&
+			  amount >= minPossibleStake &&
+			  transactionFees > 0
+				? activeBondedAmount === 0
+					? totalPossibleStakingAmount <
+					  minPossibleStake + networkInfo.reserveAmount
 						? true
+						: amount >= minPossibleStake &&
+						  amount < totalPossibleStakingAmount - networkInfo.reserveAmount
+						? false
+						: true
+					: activeBondedAmount >= minPossibleStake
+					? controllerBalances
+						? (parseInt(controllerBalances?.availableBalance) -
+								apiInstance?.consts.balances.existentialDeposit.toNumber()) /
+								Math.pow(10, networkInfo.decimalPlaces) >
+						  networkInfo.reserveAmount / 2
+							? false
+							: true
 						: false
-					: amount > totalPossibleStakingAmount - networkInfo.minAmount
-					? true
-					: false
+					: true
 				: true
 			: false;
+
+	const toStaking = async () => {
+		updateTransactionState(Events.INTENT_STAKING);
+		setTransactionHash(null);
+		setStakingPath(null);
+
+		if (
+			controllerAccount &&
+			controllerBalances?.availableBalance <
+				apiInstance?.consts.balances.existentialDeposit.toNumber() +
+					ysFees +
+					transactionFees
+		) {
+			toggleIsLowBalanceOpen();
+		} else if (
+			isNil(controllerAccount) ||
+			selectedAccount?.address === controllerAccount?.address ||
+			stakingInfo?.stakingLedger.active.isEmpty
+		) {
+			toggleIsStakingPathPopoverOpen();
+		} else {
+			setStakingPath("distinct");
+			track(goalCodes.GLOBAL.DISTINCT_STAKING_PATH);
+			router.push("/staking");
+		}
+	};
+
+	useEffect(() => {
+		if (stakingInfo?.accountId?.toString() !== selectedAccount?.address) {
+			setControllerAccount(null);
+		}
+		const account = accountsStakingInfo[selectedAccount?.address]?.controllerId
+			? accounts?.filter(
+					(account) =>
+						account.address ===
+						accountsStakingInfo[
+							selectedAccount?.address
+						]?.controllerId?.toString()
+			  )[0]
+			: null;
+		setControllerAccount(account);
+
+		if (isNil(account)) {
+			setControllerUnavailable(true);
+		} else setControllerUnavailable(false);
+	}, [
+		selectedAccount?.address,
+		JSON.stringify(stakingInfo),
+		JSON.stringify(accountsStakingInfo),
+	]);
+
+	useEffect(() => {
+		if (stakingInfo?.accountId.toString() !== selectedAccount?.address) {
+			setControllerBalances(null);
+		}
+		setControllerBalances(accountsBalances[controllerAccount?.address]);
+	}, [
+		controllerAccount?.address,
+		selectedAccount?.address,
+		JSON.stringify(stakingInfo),
+		JSON.stringify(accountsBalances[controllerAccount?.address]),
+	]);
 
 	useEffect(() => {
 		setSubCurrency(amount * coinGeckoPriceUSD);
 	}, [amount, networkInfo, validatorRiskSets]);
 
-	useEffect(() => {
-		if (get(validatorRiskSets, risk)) {
-			const selectedValidators = cloneDeep(validatorRiskSets[risk]);
-			setSelectedValidators(selectedValidators);
+	useEffect(async () => {
+		if (apiInstance) {
+			const data = await apiInstance?.query.staking.minNominatorBond();
+			setMinPossibleStake(
+				() => parseInt(data) / Math.pow(10, networkInfo.decimalPlaces)
+			);
 		}
-	}, [risk]);
+	}, [selectedNetwork, apiInstance]);
 
 	useEffect(() => {
 		if (!validatorRiskSets) {
@@ -327,6 +324,7 @@ const RewardCalculatorPage = () => {
 					};
 
 					setValidatorRiskSets(validatorMap);
+					setRisk("Medium");
 					setSelectedValidators(validatorMap["Medium"]);
 					setLoading(false);
 					setHeaderLoading(false);
@@ -334,7 +332,14 @@ const RewardCalculatorPage = () => {
 		} else {
 			console.info("Using previous validator map.");
 		}
-	}, [networkInfo, validatorRiskSets]);
+	}, [networkInfo]);
+
+	useEffect(() => {
+		if (get(validatorRiskSets, risk)) {
+			const selectedValidators = cloneDeep(validatorRiskSets[risk]);
+			setSelectedValidators(selectedValidators);
+		}
+	}, [risk]);
 
 	useEffect(() => {
 		if (risk && timePeriodValue) {
@@ -370,6 +375,62 @@ const RewardCalculatorPage = () => {
 		setSimulationChecked(false);
 	}, [selectedAccount?.address]);
 
+	useEffect(() => {
+		if (networkInfo.feesEnabled) {
+			setYsFees(() =>
+				Math.trunc(
+					amount *
+						Math.pow(10, networkInfo.decimalPlaces) *
+						networkInfo.feesRatio
+				)
+			);
+		} else setYsFees(0);
+	}, [amount, networkInfo]);
+
+	useEffect(async () => {
+		setTransactionFees(0);
+		if (amount && selectedValidators && selectedAccount && apiInstance) {
+			const networkFees = await getTransactionFee(
+				networkInfo,
+				stakingInfo,
+				amount,
+				selectedAccount,
+				Object.values(selectedValidators),
+				controllerAccount,
+				apiInstance
+			);
+
+			setTransactionFees(networkFees);
+		}
+	}, [stakingInfo, amount, selectedAccount, apiInstance, ysFees]);
+
+	useEffect(() => {
+		activeBondedAmount > 0
+			? setAmount(activeBondedAmount)
+			: totalAvailableStakingAmount - networkInfo.reserveAmount > 0 &&
+			  balances &&
+			  stakingInfo
+			? setAmount(
+					Math.trunc(
+						(totalAvailableStakingAmount - networkInfo.reserveAmount) *
+							10 ** networkInfo.decimalPlaces
+					) /
+						10 ** networkInfo.decimalPlaces
+			  )
+			: selectedAccount &&
+			  totalPossibleStakingAmount === 0 &&
+			  balances &&
+			  stakingInfo
+			? setAmount(0)
+			: setAmount(1000);
+	}, [
+		totalAvailableStakingAmount,
+		selectedAccount,
+		activeBondedAmount,
+		stakingInfo,
+		balances,
+	]);
+
 	return loading || isNil(apiInstance) ? (
 		<div className="flex-center w-full h-full">
 			<div className="flex-center flex-col">
@@ -397,6 +458,7 @@ const RewardCalculatorPage = () => {
 							className="underline"
 							href="https://github.com/buidl-labs/yieldscan-frontend/wiki/Risk-score-logic"
 							target="_blank"
+							rel="noreferrer"
 						>
 							Learn more
 						</a>
@@ -419,65 +481,92 @@ const RewardCalculatorPage = () => {
 			/>
 			<div>
 				<div className="flex flex-wrap">
-					{controllerAccount && controllerBalances && (
+					{controllerAccount && controllerBalances && isLowBalanceOpen && (
 						<LowBalancePopover
 							isOpen={isLowBalanceOpen}
 							toStaking={toStaking}
 							networkInfo={networkInfo}
+							setStakingPath={setStakingPath}
+							transferAmount={
+								controllerBalances
+									? ysFees +
+									  apiInstance?.consts.balances.existentialDeposit.toNumber() *
+											2 -
+									  controllerBalances?.availableBalance
+									: 0
+							}
+							controllerAccount={controllerAccount}
 						/>
 					)}
-					{!Object.values(walletType).every((value) => value === null) &&
-						Object.values(walletType).includes(null) && (
-							<div className="w-full mb-4">
-								<SetupAccountsAlert />
-							</div>
-						)}
-					{!Object.values(walletType).every((value) => value === null) &&
-						activeBondedAmount > 0 && (
-							<div
-								className={`w-full flex flex-row mb-4 rounded items-center ${
-									simulationChecked ? "justify-between" : "justify-end"
-								}`}
-							>
-								{simulationChecked && (
-									<div>
-										<SimulationAlert />
-									</div>
-								)}
-								<div className=" flex items-center justify-center">
-									<SimulationSwitch
-										simulationChecked={simulationChecked}
-										setSimulationChecked={setSimulationChecked}
-									/>
+					{selectedAccount && (
+						<StakingPathPopover
+							isOpen={isStakingPathPopoverOpen}
+							toStaking={toStaking}
+							networkInfo={networkInfo}
+							setStakingPath={setStakingPath}
+						/>
+					)}
+					{activeBondedAmount > 0 && (
+						<div
+							className={`w-full flex flex-row mb-4 rounded items-center ${
+								simulationChecked ? "justify-between" : "justify-end"
+							}`}
+						>
+							{simulationChecked && (
+								<div>
+									<SimulationAlert />
 								</div>
+							)}
+							<div className=" flex items-center justify-center">
+								<SimulationSwitch
+									simulationChecked={simulationChecked}
+									setSimulationChecked={setSimulationChecked}
+								/>
 							</div>
-						)}
+						</div>
+					)}
 					<div className="w-1/2 space-y-8">
 						{/* <h1 className="font-semibold text-xl text-gray-700">
 							Calculate Returns
 						</h1> */}
 						<div className="mx-2">
-							<h3 className="text-gray-700 text-xs">
-								{activeBondedAmount > 0
-									? "Staking Amount:"
-									: "I want to invest:"}
-							</h3>
 							<div className="mt-2">
 								{selectedAccount &&
 									balances &&
 									stakingInfo &&
-									!Object.values(walletType).every((value) => value === null) &&
+									!simulationChecked &&
 									(amount >
-										totalPossibleStakingAmount - networkInfo.minAmount ||
-										totalAvailableStakingAmount < networkInfo.minAmount) && (
+										totalPossibleStakingAmount - networkInfo.reserveAmount ||
+										totalPossibleStakingAmount - networkInfo.reserveAmount <=
+											0 ||
+										amount < minPossibleStake ||
+										totalPossibleStakingAmount <
+											minPossibleStake + networkInfo.reserveAmount ||
+										activeBondedAmount >
+											totalPossibleStakingAmount - networkInfo.reserveAmount ||
+										controllerUnavailable) && (
 										<LowBalanceAlert
 											amount={amount}
 											activeBondedAmount={activeBondedAmount}
 											networkInfo={networkInfo}
 											totalPossibleStakingAmount={totalPossibleStakingAmount}
 											totalAvailableStakingAmount={totalAvailableStakingAmount}
+											minPossibleStake={minPossibleStake}
+											controllerUnavailable={controllerUnavailable}
+											controllerAvailableAmount={
+												controllerBalances
+													? (parseInt(controllerBalances?.availableBalance) -
+															apiInstance?.consts.balances.existentialDeposit.toNumber()) /
+													  Math.pow(10, networkInfo.decimalPlaces)
+													: null
+											}
 										/>
 									)}
+								<h3 className="text-gray-700 text-xs mb-2">
+									{activeBondedAmount > 0
+										? "Staking Amount:"
+										: "I want to invest:"}
+								</h3>
 								<AmountInput
 									value={{ currency: amount, subCurrency: subCurrency }}
 									networkInfo={networkInfo}
@@ -485,7 +574,6 @@ const RewardCalculatorPage = () => {
 									trackRewardCalculatedEvent={trackRewardCalculatedEvent}
 									balances={balances}
 									simulationChecked={simulationChecked}
-									walletType={walletType}
 									stakingInfo={stakingInfo}
 								/>
 							</div>
@@ -583,28 +671,16 @@ const RewardCalculatorPage = () => {
 							</div>
 						</div>
 					</div>
-					<div className="w-1/2">
+					<div className="w-1/2 space-y-6">
 						<ExpectedReturnsCard result={result} networkInfo={networkInfo} />
-						<div className="mt-3">
-							<Alert
-								color="gray.500"
-								backgroundColor="white"
-								border="1px solid #E2ECF9"
-								borderRadius="8px"
-								zIndex={1}
-							>
-								<AlertIcon name="secureLogo" />
-								<div>
-									<AlertTitle fontWeight="medium" fontSize="sm">
-										{"Non-custodial & Secure"}
-									</AlertTitle>
-									<AlertDescription fontSize="xs">
-										We do not own your private keys and cannot access your
-										funds. You are always in control.
-									</AlertDescription>
-								</div>
-							</Alert>
-						</div>
+						{selectedAccount && (
+							<EstimatedFeesCard
+								result={result}
+								transactionFees={transactionFees}
+								ysFees={ysFees}
+								networkInfo={networkInfo}
+							/>
+						)}
 					</div>
 					<div className="w-full bg-white bottom-0 p-8 left-0 flex-center">
 						<button
@@ -616,41 +692,21 @@ const RewardCalculatorPage = () => {
 							hidden={simulationChecked}
 							onClick={() =>
 								isNil(accounts)
-									? toggle()
-									: Object.keys(walletType).length === 0 ||
-									  Object.values(walletType).every(
-											(value) => value === null
-									  ) ||
-									  (selectedAccount &&
-											(isNil(controllerAccount) ||
-												isNil(walletType[selectedAccount?.substrateAddress]) ||
-												walletType[controllerAccount?.substrateAddress] ||
-												(walletType[selectedAccount?.substrateAddress] &&
-													selectedAccount?.address ===
-														controllerAccount?.address)))
-									? toSetUpAccounts()
+									? (track(goalCodes.REWARD_CALCULATOR.INTENT_CONNECT_WALLET),
+									  router.push("/setup-wallet"))
 									: selectedAccount
-									? toStaking()
+									? (track(goalCodes.REWARD_CALCULATOR.INTENT_STAKING),
+									  toStaking())
 									: toggle()
 							}
 						>
 							{isNil(accounts)
 								? "Connect Wallet"
-								: Object.keys(walletType).length === 0 ||
-								  Object.values(walletType).every((value) => value === null) ||
-								  (selectedAccount &&
-										(isNil(walletType[selectedAccount?.substrateAddress]) ||
-											walletType[controllerAccount?.substrateAddress] !==
-												false ||
-											(walletType[selectedAccount?.substrateAddress] &&
-												selectedAccount?.address ===
-													controllerAccount?.address)))
-								? "Setup Accounts"
 								: isNil(selectedAccount)
 								? "Select Account"
 								: isInElection
 								? "Ongoing elections, can't invest now!"
-								: "Proceed to confirmation"}
+								: "Looks good, let’s stake"}
 						</button>
 					</div>
 				</div>
@@ -699,9 +755,9 @@ const GlossaryModal = ({
 const HelpPopover = ({
 	popoverTrigger,
 	content,
-	placement = "right",
+	placement = "top",
 	iconSize = "12px",
-	zIndex = 50,
+	zIndex = 1401,
 }) => {
 	return (
 		<Popover trigger="hover" placement={placement} usePortal>

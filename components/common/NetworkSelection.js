@@ -5,6 +5,7 @@ import {
 	PopoverContent,
 	Avatar,
 } from "@chakra-ui/core";
+import Image from "next/image";
 const NetworkSelection = ({
 	isNetworkOpen,
 	setIsNetworkOpen,
@@ -12,7 +13,6 @@ const NetworkSelection = ({
 	supportedNetworksInfo,
 	switchNetwork,
 	isSetUp,
-	walletType,
 	selectedNetwork,
 }) => {
 	return (
@@ -25,21 +25,19 @@ const NetworkSelection = ({
 				<button
 					className={`relative flex flex-row items-center ${
 						isSetUp ? "cursor-default" : "rounded-full border border-gray-300"
-					} p-2 px-4 font-semibold text-gray-800 z-20`}
+					} p-2 px-4 font-semibold text-gray-700 z-20 space-x-2`}
 					onClick={() => !isSetUp && setIsNetworkOpen(!isNetworkOpen)}
 				>
-					<div>
-						<img
+					<div className="flex w-full">
+						<Image
 							src={`/images/${networkInfo.network}-logo.png`}
 							alt={`${networkInfo.network}-logo`}
-							className="mr-2 w-6 rounded-full"
+							className="rounded-full"
+							height="24"
+							width="24"
 						/>
 					</div>
-					{!isSetUp && (
-						<div>
-							<ChevronDown size="20px" />
-						</div>
-					)}
+					{!isSetUp && <ChevronDown size="20px" />}
 				</button>
 			</PopoverTrigger>
 			<PopoverContent

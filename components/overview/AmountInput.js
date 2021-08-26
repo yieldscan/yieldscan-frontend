@@ -17,9 +17,13 @@ const AmountInputDefault = ({
 	const [inputValue, setInputValue] = useState(value.currency);
 	const maxAmount =
 		type === "bond"
-			? availableBalance - networkInfo.minAmount < 0
+			? availableBalance - networkInfo.reserveAmount < 0
 				? 0
-				: availableBalance - networkInfo.minAmount
+				: Math.trunc(
+						availableBalance * 10 ** networkInfo.decimalPlaces -
+							networkInfo.reserveAmount * 10 ** networkInfo.decimalPlaces
+				  ) /
+				  10 ** networkInfo.decimalPlaces
 			: type === "unbond"
 			? bonded
 			: totalUnbonding;
@@ -65,29 +69,28 @@ const AmountInputDefault = ({
 			</h6>
 			<InputRightElement
 				opacity="1"
-				children={
-					<span className="flex min-w-fit-content">
-						{inputValue !== maxAmount && (
-							<button
-								className="bg-teal-200 text-teal-500 rounded-full text-xs px-2"
-								onClick={() => {
-									handleChange(maxAmount);
-								}}
-							>
-								max
-							</button>
-						)}
-						<span className="ml-2 text-sm font-medium cursor-not-allowed text-gray-700">
-							{networkInfo.denom}
-						</span>
-					</span>
-				}
 				h="full"
 				rounded="full"
 				fontSize="xl"
 				w="fit-content"
 				px={4}
-			/>
+			>
+				<span className="flex min-w-fit-content">
+					{inputValue !== maxAmount && (
+						<button
+							className="bg-teal-200 text-teal-500 rounded-full text-xs px-2"
+							onClick={() => {
+								handleChange(maxAmount);
+							}}
+						>
+							max
+						</button>
+					)}
+					<span className="ml-2 text-sm font-medium cursor-not-allowed text-gray-700">
+						{networkInfo.denom}
+					</span>
+				</span>
+			</InputRightElement>
 		</InputGroup>
 	);
 };

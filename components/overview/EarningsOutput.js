@@ -3,7 +3,6 @@ import {
 	FormLabel,
 	Skeleton,
 	Divider,
-	Image,
 	Alert,
 	AlertDescription,
 } from "@chakra-ui/core";
@@ -29,6 +28,7 @@ import getErasHistoric from "@lib/getErasHistoric";
 import ProgressiveImage from "react-progressive-image";
 import PastEarningsTimeRange from "./PastEarningsTimeRange";
 import getRewardsSum from "@lib/getRewardsSum";
+import Image from "next/image";
 
 const PastEarningsDisplay = ({ earnings, networkInfo }) =>
 	!isNil(earnings) ? (
@@ -69,6 +69,7 @@ const EarningsOutput = ({
 	const { coinGeckoPriceUSD } = useCoinGeckoPriceUSD();
 
 	const [tweet, setTweet] = useState();
+	const [dataAvailable, setDataAvailable] = useState(true);
 
 	// useEffect(() => {
 	// 	setDailyEarnings(null);
@@ -128,10 +129,11 @@ const EarningsOutput = ({
 
 	useEffect(() => {
 		setStakedAmountMapped(null);
+		setOverallStakedAmountMapped(null);
 		if (address && eraLength && activeEra) {
 			axios
 				.get(
-					`/${networkInfo.network}/actors/nominator/history?id=${address}&activeEra=${activeEra}`
+					`/${networkInfo.network}/actors/nominator/overall_history?id=${address}&activeEra=${activeEra}`
 				)
 				.then(({ data }) => {
 					const erasPerDay = Math.floor(1440 / ((eraLength * 6) / 60));
@@ -141,6 +143,10 @@ const EarningsOutput = ({
 					);
 
 					const previousWeekEras = [...Array(erasPerDay * 7).keys()].map(
+						(i) => activeEra - 1 - i
+					);
+
+					const previousMonthEras = [...Array(erasPerDay * 30).keys()].map(
 						(i) => activeEra - 1 - i
 					);
 
@@ -165,9 +171,13 @@ const EarningsOutput = ({
 						erasPerDay: erasPerDay,
 					};
 					const previousMonthHistory = {
-						data: data,
-						totalAmountStaked: data.reduce((acc, x) => acc + x.nomStake, 0),
-						totalReward: data.reduce((acc, x) => acc + x.nomReward, 0),
+						data: data.filter((x) => previousMonthEras.includes(x.eraIndex)),
+						totalAmountStaked: data
+							.filter((x) => previousMonthEras.includes(x.eraIndex))
+							.reduce((acc, x) => acc + x.nomStake, 0),
+						totalReward: data
+							.filter((x) => previousMonthEras.includes(x.eraIndex))
+							.reduce((acc, x) => acc + x.nomReward, 0),
 						erasPerDay: erasPerDay,
 					};
 
@@ -176,19 +186,6 @@ const EarningsOutput = ({
 						previousWeekHistory: previousWeekHistory,
 						previousMonthHistory: previousMonthHistory,
 					});
-				});
-		}
-	}, [address, networkInfo]);
-
-	useEffect(() => {
-		setOverallStakedAmountMapped(null);
-		if (address && eraLength && activeEra) {
-			axios
-				.get(
-					`/${networkInfo.network}/actors/nominator/overall_history?id=${address}&activeEra=${activeEra}`
-				)
-				.then(({ data }) => {
-					const erasPerDay = Math.floor(1440 / ((eraLength * 6) / 60));
 
 					const overallRewardInfo = {
 						data: data,
@@ -198,9 +195,13 @@ const EarningsOutput = ({
 					};
 
 					setOverallStakedAmountMapped(overallRewardInfo);
+				})
+				.catch((err) => {
+					console.error(err);
+					setDataAvailable(false);
 				});
 		}
-	}, [address, networkInfo]);
+	}, [address, networkInfo, eraLength, activeEra]);
 
 	useEffect(() => {
 		setTweet(null);
@@ -223,14 +224,13 @@ const EarningsOutput = ({
 	return (
 		<Box minW={320} w="full">
 			<div className="flex">
-				<ProgressiveImage
+				<Image
 					src="/images/dollar-sign.svg"
-					placeholder="/images/dollar-sign.jpg"
-				>
-					{(src) => (
-						<img src={src} alt="dollar-sign" width="32px" height="32px" />
-					)}
-				</ProgressiveImage>
+					alt="dollar-sign"
+					width="32"
+					height="32"
+				/>
+
 				<p className="font-semibold text-base text-gray-700 ml-2 mt-1">
 					Earnings
 				</p>
@@ -273,16 +273,18 @@ const EarningsOutput = ({
 						validators.length !== 0 ? "text-gray-700" : "text-light-gray"
 					} font-bold`}
 				>
-					{!isNil(overallStakedAmountMapped) ? (
+					{!isNil(overallStakedAmountMapped) || !dataAvailable ? (
 						<>
 							<div className="text-xl justify-between text">
-								{(
-									(overallStakedAmountMapped.totalReward /
-										overallStakedAmountMapped.totalAmountStaked) *
-									100 *
-									overallStakedAmountMapped.erasPerDay *
-									365
-								).toFixed(2)}{" "}
+								{dataAvailable
+									? (
+											(overallStakedAmountMapped.totalReward /
+												overallStakedAmountMapped.totalAmountStaked) *
+											100 *
+											overallStakedAmountMapped.erasPerDay *
+											365
+									  ).toFixed(2)
+									: 0}{" "}
 								%
 							</div>
 						</>
@@ -292,20 +294,22 @@ const EarningsOutput = ({
 						</Skeleton>
 					)}
 				</h2>
-				<span>
-					<button
-						className="border rounded-full flex text-sm text-white bg-blue-450 bg-twitter-500 font-medium p-2 px-4 justify-center items-center"
-						onClick={() => window?.open(tweet, "_blank")}
-					>
-						<Twitter
-							className="mr-2"
-							size="16px"
-							color="#ffffff"
-							strokeWidth="2.5"
-						/>
-						<p>Tweet</p>
-					</button>
-				</span>
+				{dataAvailable && (
+					<span>
+						<button
+							className="border rounded-full flex text-sm text-white bg-blue-450 bg-twitter-500 font-medium p-2 px-4 justify-center items-center"
+							onClick={() => window?.open(tweet, "_blank")}
+						>
+							<Twitter
+								className="mr-2"
+								size="16px"
+								color="#ffffff"
+								strokeWidth="2.5"
+							/>
+							<p>Tweet</p>
+						</button>
+					</span>
+				)}
 			</div>
 			<FormLabel fontSize="sm" className="mt-4 font-medium text-gray-700">
 				Your overall earnings
@@ -358,196 +362,205 @@ const EarningsOutput = ({
 					</Alert>
 				</div>
 			)}
-			<div className="mt-8">
-				<FormLabel fontSize="sm" className="font-medium text-gray-700">
-					Past Earnings Breakup
-				</FormLabel>
-			</div>
-			<div>
-				<FormLabel fontSize="xs" className="text-gray-700">
-					Previous Month
-				</FormLabel>
-				{!isNil(stakedAmountMapped) ? (
-					<div className="flex justify-between">
-						<p className="text-sm text-gray-600">
-							<CountUp
-								end={
-									stakedAmountMapped.previousMonthHistory.totalReward /
-									Math.pow(10, networkInfo.decimalPlaces)
-								}
-								duration={0.5}
-								decimals={3}
-								separator=","
-								suffix={` ${networkInfo.denom}`}
-								preserveValue
-							/>
-						</p>
-						<div className="flex">
-							<p className="text-sm font-medium text-teal-500 mr-2">
+			{dataAvailable && (
+				<div className="mt-8">
+					<FormLabel fontSize="sm" className="font-medium text-gray-700">
+						Past Earnings Breakup
+					</FormLabel>
+				</div>
+			)}
+			{dataAvailable && (
+				<div>
+					<FormLabel fontSize="xs" className="text-gray-700">
+						Previous Month
+					</FormLabel>
+					{!isNil(stakedAmountMapped) ? (
+						<div className="flex justify-between">
+							<p className="text-sm text-gray-600">
 								<CountUp
 									end={
-										(stakedAmountMapped.previousMonthHistory.totalReward /
-											Math.pow(10, networkInfo.decimalPlaces)) *
-										coinGeckoPriceUSD
+										stakedAmountMapped.previousMonthHistory.totalReward /
+										Math.pow(10, networkInfo.decimalPlaces)
 									}
 									duration={0.5}
-									decimals={2}
+									decimals={3}
 									separator=","
-									prefix={`$`}
+									suffix={` ${networkInfo.denom}`}
 									preserveValue
 								/>
 							</p>
-							<Divider orientation="vertical" />
-							<p className="text-sm text-gray-600 w-12 text-right">
-								<CountUp
-									end={
-										(stakedAmountMapped.previousMonthHistory.totalReward /
-											stakedAmountMapped.previousMonthHistory
-												.totalAmountStaked) *
-										stakedAmountMapped.previousMonthHistory.erasPerDay *
-										365 *
-										100
-									}
-									duration={0.5}
-									decimals={2}
-									separator=","
-									suffix={`%`}
-									preserveValue
-								/>
-							</p>
+							<div className="flex">
+								<p className="text-sm font-medium text-teal-500 mr-2">
+									<CountUp
+										end={
+											(stakedAmountMapped.previousMonthHistory.totalReward /
+												Math.pow(10, networkInfo.decimalPlaces)) *
+											coinGeckoPriceUSD
+										}
+										duration={0.5}
+										decimals={2}
+										separator=","
+										prefix={`$`}
+										preserveValue
+									/>
+								</p>
+								<Divider orientation="vertical" />
+								<p className="text-sm text-gray-600 w-12 text-right">
+									<CountUp
+										end={
+											(stakedAmountMapped.previousMonthHistory.totalReward /
+												stakedAmountMapped.previousMonthHistory
+													.totalAmountStaked) *
+											stakedAmountMapped.previousMonthHistory.erasPerDay *
+											365 *
+											100
+										}
+										duration={0.5}
+										decimals={2}
+										separator=","
+										suffix={`%`}
+										preserveValue
+									/>
+								</p>
+							</div>
 						</div>
-					</div>
-				) : (
-					<div className="flex justify-between">
-						<Skeleton>
-							<span>Loading...</span>
-						</Skeleton>
-					</div>
-				)}
-			</div>
-			<div>
-				<FormLabel fontSize="xs" className="text-gray-700" mt={6}>
-					Previous Week
-				</FormLabel>
-				{!isNil(stakedAmountMapped) ? (
-					<div className="flex justify-between">
-						<p className="text-sm text-gray-600">
-							<CountUp
-								end={
-									stakedAmountMapped.previousWeekHistory.totalReward /
-									Math.pow(10, networkInfo.decimalPlaces)
-								}
-								duration={0.5}
-								decimals={3}
-								separator=","
-								suffix={` ${networkInfo.denom}`}
-								preserveValue
-							/>
-						</p>
-						<div className="flex">
-							<p className="text-sm font-medium text-teal-500 mr-2">
-								<CountUp
-									end={
-										(stakedAmountMapped.previousWeekHistory.totalReward /
-											Math.pow(10, networkInfo.decimalPlaces)) *
-										coinGeckoPriceUSD
-									}
-									duration={0.5}
-									decimals={2}
-									separator=","
-									prefix={`$`}
-									preserveValue
-								/>
-							</p>
-							<Divider orientation="vertical" />
-							<p className="text-sm text-gray-600 w-12 text-right">
-								<CountUp
-									end={
-										(stakedAmountMapped.previousWeekHistory.totalReward /
-											stakedAmountMapped.previousWeekHistory
-												.totalAmountStaked) *
-										stakedAmountMapped.previousWeekHistory.erasPerDay *
-										365 *
-										100
-									}
-									duration={0.5}
-									decimals={2}
-									separator=","
-									suffix={`%`}
-									preserveValue
-								/>
-							</p>
+					) : (
+						<div className="flex justify-between">
+							<Skeleton>
+								<span>Loading...</span>
+							</Skeleton>
 						</div>
-					</div>
-				) : (
-					<div className="flex justify-between">
-						<Skeleton>
-							<span>Loading...</span>
-						</Skeleton>
-					</div>
-				)}
-			</div>
-			<div>
-				<FormLabel fontSize="xs" className="text-gray-700" mt={6}>
-					Previous Day
-				</FormLabel>
-				{!isNil(stakedAmountMapped) ? (
-					<div className="flex justify-between">
-						<p className="text-sm text-gray-600">
-							<CountUp
-								end={
-									stakedAmountMapped.previousDayHistory.totalReward /
-									Math.pow(10, networkInfo.decimalPlaces)
-								}
-								duration={0.5}
-								decimals={3}
-								separator=","
-								suffix={` ${networkInfo.denom}`}
-								preserveValue
-							/>
-						</p>
-						<div className="flex">
-							<p className="text-sm font-medium text-teal-500 mr-2">
+					)}
+				</div>
+			)}
+			{dataAvailable && (
+				<div>
+					<FormLabel fontSize="xs" className="text-gray-700" mt={6}>
+						Previous Week
+					</FormLabel>
+					{!isNil(stakedAmountMapped) ? (
+						<div className="flex justify-between">
+							<p className="text-sm text-gray-600">
 								<CountUp
 									end={
-										(stakedAmountMapped.previousDayHistory.totalReward /
-											Math.pow(10, networkInfo.decimalPlaces)) *
-										coinGeckoPriceUSD
+										stakedAmountMapped.previousWeekHistory.totalReward /
+										Math.pow(10, networkInfo.decimalPlaces)
 									}
 									duration={0.5}
-									decimals={2}
+									decimals={3}
 									separator=","
-									prefix={`$`}
+									suffix={` ${networkInfo.denom}`}
 									preserveValue
 								/>
 							</p>
-							<Divider orientation="vertical" />
-							<p className="text-sm text-gray-600 w-12 text-right">
-								<CountUp
-									end={
-										(stakedAmountMapped.previousDayHistory.totalReward /
-											stakedAmountMapped.previousDayHistory.totalAmountStaked) *
-										stakedAmountMapped.previousDayHistory.erasPerDay *
-										365 *
-										100
-									}
-									duration={0.5}
-									decimals={2}
-									separator=","
-									suffix={`%`}
-									preserveValue
-								/>
-							</p>
+							<div className="flex">
+								<p className="text-sm font-medium text-teal-500 mr-2">
+									<CountUp
+										end={
+											(stakedAmountMapped.previousWeekHistory.totalReward /
+												Math.pow(10, networkInfo.decimalPlaces)) *
+											coinGeckoPriceUSD
+										}
+										duration={0.5}
+										decimals={2}
+										separator=","
+										prefix={`$`}
+										preserveValue
+									/>
+								</p>
+								<Divider orientation="vertical" />
+								<p className="text-sm text-gray-600 w-12 text-right">
+									<CountUp
+										end={
+											(stakedAmountMapped.previousWeekHistory.totalReward /
+												stakedAmountMapped.previousWeekHistory
+													.totalAmountStaked) *
+											stakedAmountMapped.previousWeekHistory.erasPerDay *
+											365 *
+											100
+										}
+										duration={0.5}
+										decimals={2}
+										separator=","
+										suffix={`%`}
+										preserveValue
+									/>
+								</p>
+							</div>
 						</div>
-					</div>
-				) : (
-					<div className="flex justify-between">
-						<Skeleton>
-							<span>Loading...</span>
-						</Skeleton>
-					</div>
-				)}
-			</div>
+					) : (
+						<div className="flex justify-between">
+							<Skeleton>
+								<span>Loading...</span>
+							</Skeleton>
+						</div>
+					)}
+				</div>
+			)}
+			{dataAvailable && (
+				<div>
+					<FormLabel fontSize="xs" className="text-gray-700" mt={6}>
+						Previous Day
+					</FormLabel>
+					{!isNil(stakedAmountMapped) ? (
+						<div className="flex justify-between">
+							<p className="text-sm text-gray-600">
+								<CountUp
+									end={
+										stakedAmountMapped.previousDayHistory.totalReward /
+										Math.pow(10, networkInfo.decimalPlaces)
+									}
+									duration={0.5}
+									decimals={3}
+									separator=","
+									suffix={` ${networkInfo.denom}`}
+									preserveValue
+								/>
+							</p>
+							<div className="flex">
+								<p className="text-sm font-medium text-teal-500 mr-2">
+									<CountUp
+										end={
+											(stakedAmountMapped.previousDayHistory.totalReward /
+												Math.pow(10, networkInfo.decimalPlaces)) *
+											coinGeckoPriceUSD
+										}
+										duration={0.5}
+										decimals={2}
+										separator=","
+										prefix={`$`}
+										preserveValue
+									/>
+								</p>
+								<Divider orientation="vertical" />
+								<p className="text-sm text-gray-600 w-12 text-right">
+									<CountUp
+										end={
+											(stakedAmountMapped.previousDayHistory.totalReward /
+												stakedAmountMapped.previousDayHistory
+													.totalAmountStaked) *
+											stakedAmountMapped.previousDayHistory.erasPerDay *
+											365 *
+											100
+										}
+										duration={0.5}
+										decimals={2}
+										separator=","
+										suffix={`%`}
+										preserveValue
+									/>
+								</p>
+							</div>
+						</div>
+					) : (
+						<div className="flex justify-between">
+							<Skeleton>
+								<span>Loading...</span>
+							</Skeleton>
+						</div>
+					)}
+				</div>
+			)}
 		</Box>
 	);
 };
