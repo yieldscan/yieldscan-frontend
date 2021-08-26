@@ -66,6 +66,7 @@ const Overview = () => {
 	const [fundsUpdateModalType, setFundsUpdateModalType] = useState();
 	const handleValToggle = () => setShowValidators(!showValidators);
 	const [selectedTab, setSelectedTab] = useState(Tabs.NOMINATIONS);
+	const [minPossibleStake, setMinPossibleStake] = useState(0);
 	const {
 		isOpen: isRewardDestinationModalOpen,
 		onToggle: toggleRewardDestinationModal,
@@ -153,6 +154,13 @@ const Overview = () => {
 			setAllNominations(null);
 		}
 	}, [stakingInfo]);
+
+	useEffect(async () => {
+		if (apiInstance) {
+			const data = await apiInstance?.query.staking.minNominatorBond();
+			setMinPossibleStake(JSON.parse(data) / 10 ** networkInfo.decimalPlaces);
+		}
+	}, [selectedNetwork, apiInstance]);
 
 	const onEditController = () => {
 		closeRewardDestinationModal();
@@ -261,6 +269,7 @@ const Overview = () => {
 				balance={balances}
 				stakingInfo={stakingInfo}
 				networkInfo={networkInfo}
+				minPossibleStake={minPossibleStake}
 			/>
 			<UnbondingList
 				api={apiInstance}
@@ -294,6 +303,7 @@ const Overview = () => {
 						openUnbondingListModal={() => openUnbondingListModal()}
 						openRewardDestinationModal={toggleRewardDestinationModal}
 						networkInfo={networkInfo}
+						minPossibleStake={minPossibleStake}
 					/>
 					{/* TODO: Handle errors */}
 					<div className="flex ml-20 w-1/2">

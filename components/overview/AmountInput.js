@@ -19,7 +19,11 @@ const AmountInputDefault = ({
 		type === "bond"
 			? availableBalance - networkInfo.reserveAmount < 0
 				? 0
-				: availableBalance - networkInfo.reserveAmount
+				: Math.trunc(
+						availableBalance * 10 ** networkInfo.decimalPlaces -
+							networkInfo.reserveAmount * 10 ** networkInfo.decimalPlaces
+				  ) /
+				  10 ** networkInfo.decimalPlaces
 			: type === "unbond"
 			? bonded
 			: totalUnbonding;

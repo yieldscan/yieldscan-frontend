@@ -472,39 +472,49 @@ const Validators = () => {
 		accounts && selectedAccount
 			? amount &&
 			  !isInElection &&
-			  amount >= minPossibleStake + networkInfo.reserveAmount &&
+			  amount >= minPossibleStake &&
 			  transactionFees > 0
-				? amount > totalPossibleStakingAmount
-					? true
-					: activeBondedAmount >
-					  totalPossibleStakingAmount - networkInfo.reserveAmount
-					? totalAvailableStakingAmount < networkInfo.reserveAmount / 2
+				? activeBondedAmount === 0
+					? totalPossibleStakingAmount <
+					  minPossibleStake + networkInfo.reserveAmount
 						? true
+						: amount >= minPossibleStake &&
+						  amount < totalPossibleStakingAmount - networkInfo.reserveAmount
+						? false
+						: true
+					: activeBondedAmount >= minPossibleStake
+					? controllerBalances
+						? (parseInt(controllerBalances?.availableBalance) -
+								apiInstance?.consts.balances.existentialDeposit.toNumber()) /
+								Math.pow(10, networkInfo.decimalPlaces) >
+						  networkInfo.reserveAmount / 2
+							? false
+							: true
 						: false
-					: amount > totalPossibleStakingAmount - networkInfo.reserveAmount
-					? true
-					: false
+					: true
 				: true
 			: false;
 
 	useEffect(() => {
-		if (stakingInfo?.stakingLedger.active) {
-			setAmount(
-				parseInt(stakingInfo?.stakingLedger.active) /
-					Math.pow(10, networkInfo.decimalPlaces)
-			);
-		}
-	}, [stakingInfo]);
-
-	useEffect(() => {
 		activeBondedAmount > 0
 			? setAmount(activeBondedAmount)
-			: totalAvailableStakingAmount - networkInfo.reserveAmount > 0
-			? setAmount(totalAvailableStakingAmount - networkInfo.reserveAmount)
-			: selectedAccount && totalPossibleStakingAmount === 0
+			: totalAvailableStakingAmount - networkInfo.reserveAmount > 0 &&
+			  balances &&
+			  stakingInfo
+			? setAmount(
+					Math.trunc(
+						(totalAvailableStakingAmount - networkInfo.reserveAmount) *
+							10 ** networkInfo.decimalPlaces
+					) /
+						10 ** networkInfo.decimalPlaces
+			  )
+			: selectedAccount &&
+			  totalPossibleStakingAmount === 0 &&
+			  balances &&
+			  stakingInfo
 			? setAmount(0)
 			: setAmount(1000);
-	}, [totalAvailableStakingAmount, selectedAccount]);
+	}, [totalAvailableStakingAmount, selectedAccount, activeBondedAmount]);
 
 	return loading || !apiInstance ? (
 		<div className="flex-center w-full h-full">

@@ -32,7 +32,11 @@ const AmountInputDefault = memo(
 		const maxAmount = Math.max(
 			availableBalance <= networkInfo.reserveAmount
 				? bonded
-				: bonded + availableBalance - networkInfo.reserveAmount,
+				: Math.trunc(
+						(bonded + availableBalance - networkInfo.reserveAmount) *
+							10 ** networkInfo.decimalPlaces
+				  ) /
+						10 ** networkInfo.decimalPlaces,
 			0
 		);
 
@@ -100,9 +104,11 @@ const AmountInputDefault = memo(
 							}`}
 						>
 							$
-							{formatCurrency.methods.formatNumber(
-								(value.currency * coinGeckoPriceUSD).toFixed(2)
-							)}
+							{value.currency
+								? formatCurrency.methods.formatNumber(
+										(value.currency * coinGeckoPriceUSD).toFixed(2)
+								  )
+								: "0.00"}
 						</h6>
 						<InputRightElement
 							opacity={isEditable ? "1" : "0.4"}
@@ -116,7 +122,7 @@ const AmountInputDefault = memo(
 								{value?.currency === "" && (
 									<Icon name="warning" color="red.500" marginRight="4px" />
 								)}
-								{selectedAccount && inputValue !== maxAmount && (
+								{selectedAccount && inputValue != maxAmount && (
 									<button
 										className={`bg-teal-200 text-teal-500 rounded-full text-xs px-2 ${
 											!isEditable && "opacity-0 cursor-not-allowed"
@@ -219,9 +225,11 @@ const AmountInputAccountInfoLoading = memo(
 							}`}
 						>
 							$
-							{formatCurrency.methods.formatNumber(
-								(value.currency * coinGeckoPriceUSD).toFixed(2)
-							)}
+							{value.currency
+								? formatCurrency.methods.formatNumber(
+										(value.currency * coinGeckoPriceUSD).toFixed(2)
+								  )
+								: "0.00"}
 						</h6>
 						<InputRightElement
 							// opacity="0.4"

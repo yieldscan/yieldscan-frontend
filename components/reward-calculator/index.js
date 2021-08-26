@@ -137,7 +137,7 @@ const RewardCalculatorPage = () => {
 			  )[0]
 			: null
 	);
-
+	const [controllerUnavailable, setControllerUnavailable] = useState();
 	const [transactionFees, setTransactionFees] = useState(0);
 	const [ysFees, setYsFees] = useState(0);
 
@@ -208,19 +208,25 @@ const RewardCalculatorPage = () => {
 			? amount &&
 			  !isInElection &&
 			  amount >= minPossibleStake &&
-			  totalPossibleStakingAmount >=
-					minPossibleStake + networkInfo.reserveAmount &&
 			  transactionFees > 0
-				? amount > totalPossibleStakingAmount
-					? true
-					: activeBondedAmount >
-					  totalPossibleStakingAmount - networkInfo.reserveAmount
-					? totalAvailableStakingAmount < networkInfo.reserveAmount / 2
+				? activeBondedAmount === 0
+					? totalPossibleStakingAmount <
+					  minPossibleStake + networkInfo.reserveAmount
 						? true
+						: amount >= minPossibleStake &&
+						  amount < totalPossibleStakingAmount - networkInfo.reserveAmount
+						? false
+						: true
+					: activeBondedAmount >= minPossibleStake
+					? controllerBalances
+						? (parseInt(controllerBalances?.availableBalance) -
+								apiInstance?.consts.balances.existentialDeposit.toNumber()) /
+								Math.pow(10, networkInfo.decimalPlaces) >
+						  networkInfo.reserveAmount / 2
+							? false
+							: true
 						: false
-					: amount > totalPossibleStakingAmount - networkInfo.reserveAmount
-					? true
-					: false
+					: true
 				: true
 			: false;
 
@@ -251,7 +257,7 @@ const RewardCalculatorPage = () => {
 	};
 
 	useEffect(() => {
-		if (stakingInfo?.accountId.toString() !== selectedAccount?.address) {
+		if (stakingInfo?.accountId?.toString() !== selectedAccount?.address) {
 			setControllerAccount(null);
 		}
 		const account = accountsStakingInfo[selectedAccount?.address]?.controllerId
@@ -260,10 +266,14 @@ const RewardCalculatorPage = () => {
 						account.address ===
 						accountsStakingInfo[
 							selectedAccount?.address
-						]?.controllerId.toString()
+						]?.controllerId?.toString()
 			  )[0]
 			: null;
 		setControllerAccount(account);
+
+		if (isNil(account)) {
+			setControllerUnavailable(true);
+		} else setControllerUnavailable(false);
 	}, [
 		selectedAccount?.address,
 		JSON.stringify(stakingInfo),
@@ -289,7 +299,9 @@ const RewardCalculatorPage = () => {
 	useEffect(async () => {
 		if (apiInstance) {
 			const data = await apiInstance?.query.staking.minNominatorBond();
-			setMinPossibleStake(JSON.parse(data) / 10 ** networkInfo.decimalPlaces);
+			setMinPossibleStake(
+				() => parseInt(data) / Math.pow(10, networkInfo.decimalPlaces)
+			);
 		}
 	}, [selectedNetwork, apiInstance]);
 
@@ -395,7 +407,9 @@ const RewardCalculatorPage = () => {
 	useEffect(() => {
 		activeBondedAmount > 0
 			? setAmount(activeBondedAmount)
-			: totalAvailableStakingAmount - networkInfo.reserveAmount > 0
+			: totalAvailableStakingAmount - networkInfo.reserveAmount > 0 &&
+			  balances &&
+			  stakingInfo
 			? setAmount(
 					Math.trunc(
 						(totalAvailableStakingAmount - networkInfo.reserveAmount) *
@@ -403,10 +417,19 @@ const RewardCalculatorPage = () => {
 					) /
 						10 ** networkInfo.decimalPlaces
 			  )
-			: selectedAccount && totalPossibleStakingAmount === 0
+			: selectedAccount &&
+			  totalPossibleStakingAmount === 0 &&
+			  balances &&
+			  stakingInfo
 			? setAmount(0)
 			: setAmount(1000);
-	}, [totalAvailableStakingAmount, selectedAccount]);
+	}, [
+		totalAvailableStakingAmount,
+		selectedAccount,
+		activeBondedAmount,
+		stakingInfo,
+		balances,
+	]);
 
 	return loading || isNil(apiInstance) ? (
 		<div className="flex-center w-full h-full">
@@ -520,8 +543,8 @@ const RewardCalculatorPage = () => {
 										totalPossibleStakingAmount <
 											minPossibleStake + networkInfo.reserveAmount ||
 										activeBondedAmount >
-											totalPossibleStakingAmount -
-												networkInfo.reserveAmount) && (
+											totalPossibleStakingAmount - networkInfo.reserveAmount ||
+										controllerUnavailable) && (
 										<LowBalanceAlert
 											amount={amount}
 											activeBondedAmount={activeBondedAmount}
@@ -529,6 +552,14 @@ const RewardCalculatorPage = () => {
 											totalPossibleStakingAmount={totalPossibleStakingAmount}
 											totalAvailableStakingAmount={totalAvailableStakingAmount}
 											minPossibleStake={minPossibleStake}
+											controllerUnavailable={controllerUnavailable}
+											controllerAvailableAmount={
+												controllerBalances
+													? (parseInt(controllerBalances?.availableBalance) -
+															apiInstance?.consts.balances.existentialDeposit.toNumber()) /
+													  Math.pow(10, networkInfo.decimalPlaces)
+													: null
+											}
 										/>
 									)}
 								<h3 className="text-gray-700 text-xs mb-2">
