@@ -164,20 +164,22 @@ const StepperSigningPopover = ({
 			onClose={closeStepperSignerPopover}
 			isCentered
 			size={currentStep > 0 ? "2xl" : "lg"}
-			closeOnEsc={true}
-			closeOnOverlayClick={true}
+			closeOnEsc={loading || currentStep > 1 ? false : true}
+			closeOnOverlayClick={loading || currentStep > 1 ? false : true}
 		>
 			<ModalOverlay />
 			<ModalContent rounded="lg" {...styles} py={4}>
-				<ModalCloseButton
-					onClick={closeStepperSignerPopover}
-					boxShadow="0 0 0 0 #fff"
-					color="gray.400"
-					backgroundColor="gray.100"
-					rounded="1rem"
-					mt={4}
-					mr={4}
-				/>
+				{!loading && currentStep < 2 && (
+					<ModalCloseButton
+						onClick={closeStepperSignerPopover}
+						boxShadow="0 0 0 0 #fff"
+						color="gray.400"
+						backgroundColor="gray.100"
+						rounded="1rem"
+						mt={4}
+						mr={4}
+					/>
+				)}
 				<ModalBody>
 					{loading ? (
 						<div className="grid grid-rows-2 gap-2 h-96 items-center justify-content justify-center">
