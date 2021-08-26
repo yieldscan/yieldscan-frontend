@@ -427,10 +427,10 @@ const Validators = () => {
 
 		if (
 			controllerAccount &&
-			controllerBalances?.availableBalance <
-				apiInstance?.consts.balances.existentialDeposit.toNumber() +
-					ysFees +
-					transactionFees
+			(parseInt(controllerBalances?.availableBalance) -
+				apiInstance?.consts.balances.existentialDeposit.toNumber()) /
+				Math.pow(10, networkInfo.decimalPlaces) <
+				networkInfo.reserveAmount / 2
 		) {
 			toggleIsLowBalanceOpen();
 		} else if (
@@ -483,14 +483,7 @@ const Validators = () => {
 						? false
 						: true
 					: activeBondedAmount >= minPossibleStake
-					? controllerBalances
-						? (parseInt(controllerBalances?.availableBalance) -
-								apiInstance?.consts.balances.existentialDeposit.toNumber()) /
-								Math.pow(10, networkInfo.decimalPlaces) >
-						  networkInfo.reserveAmount / 2
-							? false
-							: true
-						: false
+					? false
 					: true
 				: true
 			: false;
