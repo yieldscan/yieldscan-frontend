@@ -13,22 +13,22 @@ Maximizing staking yield on substrate based networks(supported networks: Kusama 
   - [Development guide](#development-guide)
 - [Gratitude](#gratitude)
 
-## Currently supported networks: <a name = "supported_networks"></a>
+## Currently supported networks
 
 - [Kusama Network](https://kusama.network/)
 - [Polkadot Network](https://polkadot.network/)
 
-## Description: <a name = "description"></a>
+## Description
 
 [YieldScan](https://yieldscan.app) is a portfolio management platform for NPoS (nominated proof-of-stake) networks like Kusama and Polkadot. We aim to simplify portfolio management to make yield optimization easier and more accessible, for technical and non-technical users alike.
 
 This project is funded and supported by the [Web3 Foundation](https://web3.foundation/) - under [Wave 6](https://github.com/w3f/General-Grants-Program/blob/master/grants/accepted_grant_applications.md#wave-6).
 
-## Development: <a name = "development"></a>
+## Development
 
 We are always working on improving our codebase, and welcome any suggestions or contributions.
 
-### Contribution Guide: <a name = 'contribution_guide'></a>
+### Contribution Guide
 
 1. Create an issue for the improvement.
 
@@ -36,7 +36,7 @@ We are always working on improving our codebase, and welcome any suggestions or 
 
 3. Make a PR to `develop` branch.
 
-### Codebase Overview: <a name = 'codebase_overview'></a>
+### Codebase Overview
 
 Important packages:
 
@@ -46,12 +46,12 @@ Important packages:
 
 - [components/validators](https://github.com/yieldscan/yieldscan-frontend/tree/master/components/overview): validators page module.
 
-### Pre-requisites: <a name = 'pre-requisites'></a>
+### Pre-requisites
 
 - [yieldscan-crawler](https://github.com/yieldscan/yieldscan-backend-crawler)
 - [yieldscan-api](https://github.com/yieldscan/yieldscan-backend-api)
 
-### Development guide: <a name='development_guide'></a>
+### Development guide
 
 - Clone this or forked repository:
   ```bash
@@ -120,7 +120,7 @@ docker run -p 3000:3000 -e NEXT_PUBLIC_API_BASE_URL=<base-url-of-deployed/local-
 
 after running you can access the UI via http://localhost:3000
 
-## Tests:
+## Tests
 
 You can run tests via -
 
@@ -128,6 +128,6 @@ You can run tests via -
 yarn test
 ```
 
-## Gratitude <a name = "gratitude"></a>
+## Gratitude
 
 ![](https://github.com/buidl-labs/polkadot-chains-indexer/blob/master/.github/web3%20foundation_grants_badge_black.png)
