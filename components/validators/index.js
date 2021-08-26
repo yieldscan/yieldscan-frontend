@@ -473,19 +473,25 @@ const Validators = () => {
 			? amount &&
 			  !isInElection &&
 			  amount >= minPossibleStake &&
-			  totalPossibleStakingAmount >=
-					minPossibleStake + networkInfo.reserveAmount &&
 			  transactionFees > 0
-				? amount > totalPossibleStakingAmount
-					? true
-					: activeBondedAmount >
-					  totalPossibleStakingAmount - networkInfo.reserveAmount
-					? totalAvailableStakingAmount < networkInfo.reserveAmount / 2
+				? activeBondedAmount === 0
+					? totalPossibleStakingAmount <
+					  minPossibleStake + networkInfo.reserveAmount
 						? true
+						: amount >= minPossibleStake &&
+						  amount < totalPossibleStakingAmount - networkInfo.reserveAmount
+						? false
+						: true
+					: activeBondedAmount >= minPossibleStake
+					? controllerBalances
+						? (parseInt(controllerBalances?.availableBalance) -
+								apiInstance?.consts.balances.existentialDeposit.toNumber()) /
+								Math.pow(10, networkInfo.decimalPlaces) >
+						  networkInfo.reserveAmount / 2
+							? false
+							: true
 						: false
-					: amount > totalPossibleStakingAmount - networkInfo.reserveAmount
-					? true
-					: false
+					: true
 				: true
 			: false;
 

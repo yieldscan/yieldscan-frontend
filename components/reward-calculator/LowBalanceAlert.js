@@ -20,6 +20,7 @@ const LowBalanceAlert = ({
 	totalPossibleStakingAmount,
 	minPossibleStake,
 	controllerUnavailable,
+	controllerAvailableAmount,
 }) => {
 	const [status, setStatus] = useState();
 	const [title, setTitle] = useState();
@@ -27,65 +28,16 @@ const LowBalanceAlert = ({
 	const [description, setDescription] = useState();
 	const [descriptionColor, setDescriptionColor] = useState();
 	const [popoverContent, setPopoverContent] = useState();
+
 	useEffect(() => {
-		if (controllerUnavailable) {
-			setStatus("warning");
-			setTitleColor("#FDB808");
-			setTitle("Controller not found");
-			setDescriptionColor("#FDB808");
-			setDescription(
-				`Existing controller account not found.
-				Either import the existing controller account or proceed to change controller. `
-			);
-			setPopoverContent(null);
-		} else if (
-			activeBondedAmount === 0 &&
-			amount != 0 &&
-			amount &&
-			amount > totalPossibleStakingAmount - networkInfo.reserveAmount &&
-			totalAvailableStakingAmount - networkInfo.reserveAmount > 0
-		) {
-			setStatus("error");
-			setTitleColor("red.500");
-			setTitle("Insufficient Balance");
-			setDescriptionColor("red.500");
-			setDescription(
-				`Your inputted amount is more than your available free
-				account balance of ${formatCurrency.methods.formatAmount(
-					Math.trunc(
-						Number(totalAvailableStakingAmount) *
-							10 ** networkInfo.decimalPlaces
-					),
-					networkInfo
-				)} minus
-				${networkInfo.reserveAmount} ${networkInfo.denom}. Press the max
-				icon to autofill the maximum amount. `
-			);
-
-			setPopoverContent(`The subtracted
-			${networkInfo.reserveAmount} ${networkInfo.denom} is a reserve to ensure that you have a
-			decent amount of funds in your
-			account to pay transaction fees for claiming rewards, unbonding
-			funds, changing on-chain staking preferences, etc.`);
-		} else if (
-			activeBondedAmount === 0 &&
-			(amount == 0 ||
-				totalPossibleStakingAmount - networkInfo.reserveAmount <= 0 ||
-				amount < minPossibleStake + networkInfo.reserveAmount ||
-				totalPossibleStakingAmount <
-					minPossibleStake + networkInfo.reserveAmount)
-		) {
-			setStatus("error");
-			setTitleColor("red.500");
-			setDescriptionColor("red.500");
-
+		if (activeBondedAmount === 0) {
 			if (
-				amount < minPossibleStake + networkInfo.reserveAmount &&
-				!(
-					totalPossibleStakingAmount <
-					minPossibleStake + networkInfo.reserveAmount
-				)
+				totalPossibleStakingAmount <
+				minPossibleStake + networkInfo.reserveAmount
 			) {
+				setStatus("error");
+				setTitleColor("red.500");
+				setDescriptionColor("red.500");
 				setTitle("Amount insufficient to begin staking");
 				setDescription(
 					`You need a minimum of ${minPossibleStake} ${networkInfo.denom}
@@ -93,47 +45,80 @@ const LowBalanceAlert = ({
 				);
 				setPopoverContent(`The ${networkInfo.name} network has a minimum staking
 				threshold of ${minPossibleStake} ${networkInfo.denom}.`);
-			} else {
-				setTitle("Amount insufficient to begin staking");
-				setDescription(
-					`You need a minimum free balance of ${formatCurrency.methods.formatAmount(
-						Math.trunc(
-							Number(minPossibleStake + networkInfo.reserveAmount) *
-								10 ** networkInfo.decimalPlaces
-						),
-						networkInfo
-					)}  to begin staking. `
-				);
-				setPopoverContent(`The ${networkInfo.name} network has a minimum staking
-				threshold of ${minPossibleStake} ${networkInfo.denom}. The additional
-				${networkInfo.reserveAmount} ${networkInfo.denom} is to ensure that you have a
-				decent amount of funds in your
-				account to pay transaction fees for claiming rewards, unbonding
-				funds, changing on-chain staking preferences, etc.`);
-			}
-		} else if (
-			activeBondedAmount < minPossibleStake ||
-			activeBondedAmount >
-				totalPossibleStakingAmount - networkInfo.reserveAmount
-		) {
-			if (activeBondedAmount < minPossibleStake) {
+			} else if (amount < minPossibleStake) {
 				setStatus("error");
 				setTitleColor("red.500");
-				setTitle("Current amount insufficient to stake anymore");
+				setTitle("Insufficient Amount");
 				setDescriptionColor("red.500");
 				setDescription(
-					`Head over to the Overview page and bond an additional
-					${formatCurrency.methods.formatAmount(
+					`Your inputted amount is less than the minimum allowed staking amount of ${formatCurrency.methods.formatAmount(
 						Math.trunc(
-							Number(minPossibleStake - activeBondedAmount) *
-								10 ** networkInfo.decimalPlaces
+							Number(minPossibleStake) * 10 ** networkInfo.decimalPlaces
 						),
 						networkInfo
-					)} to continue staking. `
+					)}. `
 				);
-				setPopoverContent(`The ${networkInfo.name} network has set a minimum staking
-				threshold of ${minPossibleStake} ${networkInfo.denom}.`);
-			} else if (totalAvailableStakingAmount < networkInfo.reserveAmount / 2) {
+				setPopoverContent(
+					`${
+						networkInfo.name
+					} network doesn't allow staking amounts of less than ${formatCurrency.methods.formatAmount(
+						Math.trunc(
+							Number(minPossibleStake) * 10 ** networkInfo.decimalPlaces
+						),
+						networkInfo
+					)}.`
+				);
+			} else if (
+				amount >
+				totalPossibleStakingAmount - networkInfo.reserveAmount
+			) {
+				setStatus("error");
+				setTitleColor("red.500");
+				setTitle("Insufficient Balance");
+				setDescriptionColor("red.500");
+				setDescription(
+					`Your inputted amount is more than your available free
+				account balance of ${formatCurrency.methods.formatAmount(
+					Math.trunc(
+						Number(totalPossibleStakingAmount) * 10 ** networkInfo.decimalPlaces
+					),
+					networkInfo
+				)} minus
+				${networkInfo.reserveAmount} ${networkInfo.denom}. Press the max
+				icon to autofill the maximum amount. `
+				);
+				setPopoverContent(`The subtracted
+			${networkInfo.reserveAmount} ${networkInfo.denom} is a reserve to ensure that you have a
+			decent amount of funds in your
+			account to pay transaction fees for claiming rewards, unbonding
+			funds, changing on-chain staking preferences, etc.`);
+			} else setStatus(null);
+		} else {
+			if (controllerUnavailable) {
+				setStatus("warning");
+				setTitleColor("#FDB808");
+				setTitle("Controller not found");
+				setDescriptionColor("#FDB808");
+				setDescription(
+					`Existing controller account not found.
+				Either import the existing controller account or proceed to change controller. `
+				);
+				setPopoverContent(null);
+			} else if (activeBondedAmount < minPossibleStake) {
+				setStatus("error");
+				setTitleColor("red.500");
+				setTitle("Insufficient Balance");
+				setDescriptionColor("red.500");
+				setDescription(
+					`Your active bonded amount is less than min allowed staking amount of ${formatCurrency.methods.formatAmount(
+						Math.trunc(
+							Number(minPossibleStake) * 10 ** networkInfo.decimalPlaces
+						),
+						networkInfo
+					)}. Go to overview page to invest more.`
+				);
+				setPopoverContent(null);
+			} else if (controllerAvailableAmount < networkInfo.reserveAmount / 2) {
 				setStatus("error");
 				setTitleColor("red.500");
 				setTitle("Insufficient Balance");
@@ -141,31 +126,31 @@ const LowBalanceAlert = ({
 				setDescription(
 					`You need an additional ${formatCurrency.methods.formatAmount(
 						Math.trunc(
-							Number(networkInfo.reserveAmount - totalAvailableStakingAmount) *
+							Number(networkInfo.reserveAmount - controllerAvailableAmount) *
 								10 ** networkInfo.decimalPlaces
 						),
 						networkInfo
 					)} to proceed further. `
 				);
 				setPopoverContent(`This is to ensure that you have a
-					decent amount of funds in your
-					account to pay transaction fees for claiming rewards, unbonding
-					funds, changing on-chain staking preferences, etc.`);
-			} else {
+							decent amount of funds in your
+							account to pay transaction fees for claiming rewards, unbonding
+							funds, changing on-chain staking preferences, etc.`);
+			} else if (controllerAvailableAmount < networkInfo.reserveAmount) {
 				setStatus("warning");
 				setTitleColor("#FDB808");
 				setTitle("Low Balance");
 				setDescriptionColor("#FDB808");
 				setDescription(
 					`Your available balance is low, we recommend to add more
-					${networkInfo.denom}s. `
+							${networkInfo.denom}s. `
 				);
 				setPopoverContent(`This is to ensure that you have a
-					decent amount of funds in your
-					account to pay transaction fees for claiming rewards, unbonding
-					funds, changing on-chain staking preferences, etc.`);
-			}
-		} else setStatus(null);
+							decent amount of funds in your
+							account to pay transaction fees for claiming rewards, unbonding
+							funds, changing on-chain staking preferences, etc.`);
+			} else setStatus(null);
+		}
 	});
 
 	return !status ? null : (
