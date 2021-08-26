@@ -7,10 +7,10 @@ Maximizing staking yield on substrate based networks(supported networks: Kusama 
 - [Currently supported networks](#supported_networks)
 - [Description](#description)
 - [Development](#development)
-  - [Contribution Guide](#contribution_guide)
-  - [Codebase Overview](#codebase_verview)
+  - [Contribution Guide](#contribution-guide)
+  - [Codebase Overview](#codebase-overview)
   - [Pre-requisites](#pre-requisites)
-  - [Development guide](#development_guide)
+  - [Development guide](#development-guide)
 - [Gratitude](#gratitude)
 
 ## Currently supported networks: <a name = "supported_networks"></a>
@@ -42,7 +42,6 @@ Important packages:
 
 - [components/overview](https://github.com/yieldscan/yieldscan-frontend/tree/master/components/overview): User profile dashboard module. Overview page displays staked amount, nominated validators and estimated APY, it also handles bond-extra, rebond and withdraw operations for the nominator/user.
 - [components/reward-calculator](https://github.com/yieldscan/yieldscan-frontend/tree/master/components/reward-calculator): Reward calulator module. Reward calculator page displays different estimated max yields based on risk-score.
-- [components/setup-accounts](https://github.com/yieldscan/yieldscan-frontend/tree/master/components/setup-accounts): Setup accounts module. User flow for setting up accounts for identifying ledger and browser accounts.
 - [components/staking](https://github.com/yieldscan/yieldscan-frontend/tree/master/components/staking): Staking module. This module handles different staking flows for different cases.
 
 - [components/validators](https://github.com/yieldscan/yieldscan-frontend/tree/master/components/overview): validators page module.
