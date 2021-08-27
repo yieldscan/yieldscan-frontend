@@ -106,7 +106,7 @@ const SetupWallet = () => {
 					<div className="col-span-5 flex w-full flex-col text-gray-700 justify-center content-center items-center text-gray-700 space-y-4">
 						{hasExtension && (
 							<button
-								className="w-full flex rounded-lg border items-center shadow-lg p-8 transform hover:scale-102"
+								className="w-full flex rounded-lg border items-center shadow-md hover:shadow-lg p-8 transform hover:scale-102"
 								onClick={handleOnClickConnectPolkadotExtension}
 							>
 								<div className="w-full flex-1 flex flex-row items-center text-left space-x-6">
@@ -130,7 +130,7 @@ const SetupWallet = () => {
 							</button>
 						)}
 						<button
-							className="w-full flex rounded-lg border items-center shadow-lg p-8 transform hover:scale-102"
+							className="w-full flex rounded-lg border items-center shadow-md hover:shadow-lg p-8 transform hover:scale-102"
 							onClick={() => {
 								setConnectExtensionCheck(false);
 								setCurrentStep("ledgerSetup");
@@ -155,7 +155,15 @@ const SetupWallet = () => {
 								</div>
 							</div>
 						</button>
-						<button className="w-full flex rounded-lg border items-center shadow-lg p-8 transform hover:scale-102">
+						<button
+							className="w-full flex rounded-lg border items-center shadow-md hover:shadow-lg p-8 transform hover:scale-102"
+							onClick={() =>
+								window?.open(
+									"https://intercom.help/yieldscan/en/articles/5428867-i-have-my-funds-on-an-exchange-how-can-i-stake-with-yieldscan",
+									"_blank"
+								)
+							}
+						>
 							<div className="w-full flex-1 flex flex-row items-center text-left space-x-6">
 								<Image
 									src="/images/exchange-icons.svg"
@@ -179,11 +187,25 @@ const SetupWallet = () => {
 				</div>
 				{!hasExtension && (
 					<div className="flex justify-center">
-						<div className="flex flex-row rounded-lg bg-gray-200 items-center text-sm justify-center p-4 px-6 space-x-4">
-							<p className="text-gray-700">Don’t see your wallet here?</p>
-							<p className="text-gray-500">Check supported wallets</p>
+						<div className="flex flex-row rounded-lg bg-gray-200 items-center text-sm justify-center p-4 px-6 space-x-4 shadow-md">
+							<a
+								className="text-gray-700 hover:underline"
+								href="https://intercom.help/yieldscan/en/articles/5353506-my-account-is-not-showing-i-can-t-find-my-account-in-the-list"
+								target="_blank"
+								rel="noreferrer"
+							>
+								Don't see your wallet here?
+							</a>
+							<a
+								className="text-gray-600 hover:underline"
+								href="https://intercom.help/yieldscan/en/articles/5528915-which-wallets-are-supported"
+								target="_blank"
+								rel="noreferrer"
+							>
+								Check supported wallets
+							</a>
 							<button
-								className="flex flex-row items-center justify-center bg-teal-500 text-white rounded-lg p-2 px-4 space-x-2"
+								className="flex flex-row items-center justify-center bg-teal-500 text-white rounded-lg p-2 px-4 space-x-2 hover:bg-teal-700"
 								onClick={() => location.reload()}
 							>
 								<RefreshCw size={16} />

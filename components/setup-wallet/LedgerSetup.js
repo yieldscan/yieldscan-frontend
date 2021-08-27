@@ -50,8 +50,8 @@ const ConnectLedgerWallet = ({ incrementInfoIndex, decrementInfoIndex }) => (
 			}
 		</p>
 		<iframe
-			width="420"
-			height="280"
+			width="720"
+			height="480"
 			src="https://www.youtube.com/embed/KjgWehjRWek"
 			title="YouTube video player"
 			frameBorder="0"
@@ -92,7 +92,7 @@ const AuthorizePolkadotExtension = ({
 			}
 		</p>
 		<div>
-			<Image src="/images/auth.png" width="320" height="280" alt="walletIcon" />
+			<Image src="/images/auth.png" width="700" height="480" alt="walletIcon" />
 		</div>
 		<div className="w-full flex flex-row justify-start space-x-3">
 			<div>

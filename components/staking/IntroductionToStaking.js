@@ -16,8 +16,8 @@ const IntroductionToStaking = ({ incrementCurrentStep }) => {
 				</h2>
 
 				<iframe
-					width="420"
-					height="280"
+					width="720"
+					height="480"
 					src="https://www.youtube.com/embed/fd9wDFD1R_g"
 					title="YouTube video player"
 					frameBorder="0"

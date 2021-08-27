@@ -23,8 +23,8 @@ const CreateNewAccount = ({ networkInfo, incrementInfoIndex }) => (
 			}
 		</p>
 		<iframe
-			width="420"
-			height="280"
+			width="720"
+			height="480"
 			src="https://www.youtube.com/embed/NlUxkSkFH2U"
 			title="YouTube video player"
 			frameBorder="0"
@@ -242,7 +242,9 @@ const SettingUpController = ({
 							}`}
 						>
 							<div className="grid grid-cols-10 gap-2 w-full text-md text-gray-700 justify-between items-center">
-								<p className="text-justify text-lg col-span-9 mt-1 max-w-5xl">{info}</p>
+								<p className="text-justify text-lg col-span-9 mt-1 max-w-5xl">
+									{info}
+								</p>
 							</div>
 							<Collapse isOpen={infoIndex === index}>
 								<StepsArr

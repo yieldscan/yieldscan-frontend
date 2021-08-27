@@ -479,7 +479,7 @@ const Validators = () => {
 					  minPossibleStake + networkInfo.reserveAmount
 						? true
 						: amount >= minPossibleStake &&
-						  amount < totalPossibleStakingAmount - networkInfo.reserveAmount
+						  amount <= totalPossibleStakingAmount - networkInfo.reserveAmount
 						? false
 						: true
 					: activeBondedAmount >= minPossibleStake

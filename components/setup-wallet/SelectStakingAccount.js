@@ -17,7 +17,7 @@ const SelectStakingAccount = ({
 	const onAccountSelected = (account) => {
 		setSelectedAccount(account);
 		addToLocalStorage(networkInfo.network, "selectedAccount", account.address);
-		track(goalCodes.GLOBAL.ACCOUNT_SELECTED)
+		track(goalCodes.GLOBAL.ACCOUNT_SELECTED);
 		router.back();
 	};
 
@@ -72,7 +72,15 @@ const SelectStakingAccount = ({
 						networkInfo={networkInfo}
 						onAccountSelected={(info) => onAccountSelected(info)}
 					/>
-					<span className="underline text-teal-500 cursor-pointer">
+					<span
+						className="underline text-teal-500 cursor-pointer"
+						onClick={() =>
+							window?.open(
+								"https://intercom.help/yieldscan/en/articles/5353506-my-account-is-not-showing-i-can-t-find-my-account-in-the-list",
+								"_blank"
+							)
+						}
+					>
 						Can't find your account?
 					</span>
 				</div>
