@@ -10,15 +10,35 @@ import {
 	ModalCloseButton,
 	ModalHeader,
 	Spinner,
+	Box,
+	SimpleGrid,
+	Flex,
+	Text,
+	Button,
+	Icon,
 } from "@chakra-ui/core";
+import { web3Enable, web3AccountsSubscribe } from "@polkadot/extension-dapp";
 import { encodeAddress, decodeAddress } from "@polkadot/util-crypto";
-import RejectedPage from "./RejectedPage";
 import SelectAccount from "./SelectAccount";
-import getPolkadotExtensionInfo from "@lib/polkadot-extension";
-import { useAccounts } from "@lib/store";
-import { trackEvent, Events, setUserProperties } from "@lib/analytics";
+import {
+	useAccounts,
+	useAccountsBalances,
+	useAccountsControllerStashInfo,
+	usePolkadotApi,
+	useSelectedAccount,
+	useWalletConnectState,
+} from "@lib/store";
+import getFromLocalStorage from "@lib/getFromLocalStorage";
+import addToLocalStorage from "@lib/addToLocalStorage";
+import {
+	trackEvent,
+	Events,
+	setUserProperties,
+	track,
+	goalCodes,
+} from "@lib/analytics";
 import { setCookie } from "nookies";
-import RecoverAuthInfo from "./RecoverAuthInfo";
+import { useRouter } from "next/router";
 
 const useWalletConnect = create((set) => ({
 	isOpen: false,
@@ -30,12 +50,22 @@ const useWalletConnect = create((set) => ({
 const WalletConnectStates = {
 	REJECTED: "rejected",
 	CONNECTED: "connected",
+	GOTACCOUNTS: "gotaccounts",
 	RECOVERAUTH: "recover",
 };
 
-const WalletConnectPopover = ({ styles, networkInfo, cookies }) => {
+const CheckIconInfo = ({ info }) => (
+	<Flex flexDirection="row" alignItems="center" m={2}>
+		<Icon name="check-circle" color="#2BCACA" />
+		<Text ml={2} fontSize="xs" lineHeight="18px" color="gray.700">
+			{info}
+		</Text>
+	</Flex>
+);
+const WalletConnectPopover = ({ styles, networkInfo, isSetUp }) => {
+	const router = useRouter();
 	const { isOpen, close } = useWalletConnect();
-	const [extensionEvent, setExtensionEvent] = useState();
+	const { walletConnectState, setWalletConnectState } = useWalletConnectState();
 	const {
 		accounts,
 		stashAccount,
@@ -43,69 +73,173 @@ const WalletConnectPopover = ({ styles, networkInfo, cookies }) => {
 		setAccounts,
 		setStashAccount,
 	} = useAccounts();
-	const [state, setState] = useState("");
+	const { selectedAccount, setSelectedAccount } = useSelectedAccount();
+	const { accountsBalances } = useAccountsBalances();
+	const { apiInstance } = usePolkadotApi();
+	const { accountsControllerStashInfo } = useAccountsControllerStashInfo();
+	const [state, setState] = useState();
+	const [extensionEvent, setExtensionEvent] = useState();
+	const [currentStep, setCurrentStep] = useState("beginnerInfo");
+	// const [redirectToSetUp, setRedirectToSetUp] = useState(false);
+	const [filteredAccounts, setFilteredAccounts] = useState(null);
+	const [networkGenesisHash, setNetworkGenesisHash] = useState();
 
-	const handlers = {
-		onEvent: (eventInfo) => {
-			setExtensionEvent(eventInfo.message);
-		},
+	const onEvent = (eventInfo) => {
+		setExtensionEvent(eventInfo.message);
 	};
 
+	const userStorage = !isNil(typeof window) ? window.localStorage : null;
+	const autoConnectEnabled = userStorage.getItem("autoConnectEnabled");
+	const setAuthForAutoConnect = () => {
+		if (!autoConnectEnabled || autoConnectEnabled !== "true")
+			track(goalCodes.GLOBAL.WALLET_CONNECTED);
+		userStorage.setItem("autoConnectEnabled", "true");
+	};
+
+	// useEffect(() => {
+	// 	if (autoConnectEnabled) {
+	// 		setCurrentStep("connectWallet");
+	// 	}
+	// }, []);
+
 	useEffect(() => {
-		if (typeof window !== undefined) {
-			trackEvent(Events.INTENT_CONNECT_WALLET, {
-				path: window.location.pathname,
-			});
+		if (autoConnectEnabled) {
+			setCurrentStep("connectWallet");
+			// setState("connected");
+		} else {
+			setCurrentStep("beginnerInfo");
+			// setState(null);
 		}
-		getPolkadotExtensionInfo(handlers)
-			.then(({ isExtensionAvailable, accounts = [] }) => {
-				if (!isExtensionAvailable) {
-					setState(WalletConnectStates.REJECTED);
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [networkInfo]);
+
+	useEffect(() => {
+		async function getGenesisHash() {
+			const genesisHash = (await apiInstance.genesisHash).toString();
+			return genesisHash;
+		}
+
+		setNetworkGenesisHash(null);
+		if (apiInstance) {
+			getGenesisHash().then((genesisHash) =>
+				setNetworkGenesisHash(genesisHash)
+			);
+		}
+	}, [apiInstance, networkInfo]);
+
+	useEffect(() => {
+		if (currentStep === "connectWallet") {
+			const createEventInstance = (message, ...params) => ({
+				message,
+				...params,
+			});
+			onEvent(createEventInstance("Waiting for authorization"));
+			web3Enable("YieldScan").then((extension) => {
+				setCurrentStep("checkWallet");
+				if (extension.length === 0) {
+					// setState(WalletConnectStates.REJECTED);
+					setWalletConnectState("rejected");
+					close();
 					if (typeof window !== undefined) {
 						trackEvent(Events.AUTH_REJECTED, {
 							path: window.location.pathname,
 						});
 					}
-					setUserProperties({ hasExtension: false });
 				} else {
-					setCookie(null, "isAuthorized", true);
+					// if (!autoConnectEnabled) {
+					// 	setRedirectToSetUp(true);
+					// }
+					setWalletConnectState("connected");
+					setAuthForAutoConnect();
 					if (typeof window !== undefined) {
 						trackEvent(Events.AUTH_ALLOWED, {
 							path: window.location.pathname,
 						});
 					}
-					if (!accounts.length)
-						throw new Error("Couldn't find any stash or unnassigned accounts.");
-
-					accounts.map((x) => {
-						x.address = encodeAddress(
-							decodeAddress(x.address.toString()),
-							networkInfo.addressPrefix
-						);
-					});
-					// setState(WalletConnectStates.CONNECTED);
-					setAccounts(accounts);
-					setUserProperties({ hasExtension: true });
+					isSetUp && close();
 				}
-			})
-			.catch((error) => {
-				// TODO: handle error properly using UI toast
-				console.error(error);
 			});
-	}, [networkInfo]);
+		}
+	}, [currentStep]);
 
 	useEffect(() => {
-		let previousAccountAvailable = false;
-		if (!stashAccount && accounts) {
-			if (!isNil(get(cookies, networkInfo.network + "Default"))) {
+		let unsubscribe;
+		if (walletConnectState === "connected" && networkGenesisHash) {
+			web3AccountsSubscribe((injectedAccounts) => {
+				injectedAccounts = injectedAccounts?.filter((account) => {
+					return (
+						isNil(account?.meta?.genesisHash) ||
+						account?.meta?.genesisHash === "" ||
+						account?.meta?.genesisHash?.toString() === networkGenesisHash
+					);
+				});
+				injectedAccounts?.map((account) => {
+					account.substrateAddress = account.address.toString();
+					account.address = encodeAddress(
+						decodeAddress(account.address.toString()),
+						networkInfo.addressPrefix
+					);
+					return account;
+				});
+				setAccounts(injectedAccounts);
+				// setState(WalletConnectStates.GOTACCOUNTS);
+			}).then((u) => (unsubscribe = u));
+		}
+		return () => {
+			unsubscribe && unsubscribe();
+		};
+	}, [walletConnectState, currentStep, networkInfo, networkGenesisHash]);
+
+	// useEffect(() => {
+	// 	let timeoutId;
+	// 	if (redirectToSetUp && accounts) {
+	// 		timeoutId = setTimeout(() => {
+	// 			close();
+	// 			router.push("/setup-accounts");
+	// 		}, 2500);
+	// 	}
+	// 	return () => timeoutId && clearTimeout(timeoutId);
+	// }, [accounts, redirectToSetUp]);
+
+	// useEffect(() => {
+	// 	if (walletConnectState === WalletConnectStates.REJECTED) {
+	// 		close();
+	// 	}
+	// }, [state]);
+
+	useEffect(() => {
+		if (accounts) {
+			if (
+				accounts?.filter(
+					(account) =>
+						account.address.toString() ===
+						getFromLocalStorage(networkInfo.network, "selectedAccount")
+				).length === 0
+			) {
+				setStashAccount(null);
+				setCookie(null, networkInfo.network + "Default", null, {
+					maxAge: 7 * 24 * 60 * 60,
+				});
+				setSelectedAccount(null);
+				addToLocalStorage(networkInfo.network, "selectedAccount", null);
+			} else {
 				accounts
 					.filter(
 						(account) =>
-							account.address == get(cookies, networkInfo.network + "Default")
+							account.address ===
+							getFromLocalStorage(networkInfo.network, "selectedAccount")
 					)
 					.map((account) => {
-						previousAccountAvailable = true;
 						setStashAccount(account);
+						setCookie(null, networkInfo.network + "Default", account.address, {
+							maxAge: 7 * 24 * 60 * 60,
+						});
+						setSelectedAccount(account);
+						addToLocalStorage(
+							networkInfo.network,
+							"selectedAccount",
+							account.address
+						);
 						if (typeof window !== undefined) {
 							trackEvent(Events.ACCOUNT_SELECTED, {
 								path: window.location.pathname,
@@ -115,34 +249,47 @@ const WalletConnectPopover = ({ styles, networkInfo, cookies }) => {
 						}
 					});
 			}
-			if (!previousAccountAvailable) {
-				if (typeof window !== undefined) {
-					trackEvent(Events.INTENT_ACCOUNT_SELECTION, {
-						path: window.location.pathname,
-					});
-				}
-				setState(WalletConnectStates.CONNECTED);
-			} else close();
 		}
 	}, [accounts]);
 
-	const onStashSelected = async (stashAccount) => {
-		if (stashAccount) close();
+	useEffect(() => {
+		if (
+			accounts &&
+			Object.keys(accountsBalances).length > 0 &&
+			Object.keys(accountsControllerStashInfo).length > 0
+		) {
+			const filteredAccounts = accounts.filter(
+				(account) =>
+					// accountsBalances[account.address]?.freeBalance.gte(
+					// 	apiInstance?.consts.balances.existentialDeposit
+					// ) &&
+					!accountsControllerStashInfo[account.address]?.isController ||
+					accountsControllerStashInfo[account.address]?.isSameStashController
+			);
+			setFilteredAccounts(filteredAccounts);
+		} else setFilteredAccounts(null);
+	}, [
+		JSON.stringify(accounts),
+		JSON.stringify(accountsControllerStashInfo),
+		JSON.stringify(accountsBalances),
+	]);
+
+	const onAccountSelected = async (account) => {
+		if (account) close();
 		if (typeof window !== undefined) {
+			track(goalCodes.GLOBAL.ACCOUNT_SELECTED);
 			trackEvent(Events.ACCOUNT_SELECTED, {
 				path: window.location.pathname,
-				address: stashAccount.address,
+				address: account.address,
 				network: networkInfo.name,
 			});
 		}
-		setStashAccount(stashAccount);
-		setCookie(null, networkInfo.network + "Default", stashAccount.address, {
+		setStashAccount(account);
+		setCookie(null, networkInfo.network + "Default", account.address, {
 			maxAge: 7 * 24 * 60 * 60,
 		});
-	};
-
-	const handleRecoveryAuth = () => {
-		setState(WalletConnectStates.RECOVERAUTH);
+		setSelectedAccount(account);
+		addToLocalStorage(networkInfo.network, "selectedAccount", account.address);
 	};
 
 	return (
@@ -150,71 +297,71 @@ const WalletConnectPopover = ({ styles, networkInfo, cookies }) => {
 			isOpen={isOpen}
 			onClose={close}
 			isCentered
-			closeOnEsc={true}
-			closeOnOverlayClick={true}
+			closeOnEsc={currentStep !== "connectWallet"}
+			closeOnOverlayClick={currentStep !== "connectWallet"}
 		>
 			<ModalOverlay />
-			<ModalContent
-				rounded="lg"
-				maxWidth={state === WalletConnectStates.REJECTED ? "lg" : "xl"}
-				{...styles}
-				py={4}
-			>
+			<ModalContent rounded="lg" maxWidth="lg" {...styles} py={4}>
 				<ModalHeader>
-					{[
-						WalletConnectStates.DISCLAIMER,
-						WalletConnectStates.CREATE,
-						WalletConnectStates.IMPORT,
-					].includes(state) ? (
-						<div
-							className="text-sm flex-center px-2 py-1 text-gray-700 bg-gray-200 rounded-xl w-40 font-normal cursor-pointer"
-							onClick={() => setState(WalletConnectStates.REJECTED)}
-						>
-							<ChevronLeft />
-							<span>Wallet Connect</span>
-						</div>
-					) : (
-						state === WalletConnectStates.CONNECTED && (
-							<h3 className="px-3 text-2xl text-left self-start">
-								Select Account
-							</h3>
-						)
-					)}
+					<h3 className="px-3 text-2xl text-left text-gray-700 self-start">
+						{currentStep === "beginnerInfo"
+							? "What you should know"
+							: isNil(walletConnectState) || walletConnectState === "rejected"
+							? "Wallet Connect"
+							: "Select Account"}
+					</h3>
 				</ModalHeader>
-				<ModalCloseButton
-					onClick={close}
-					boxShadow="0 0 0 0 #fff"
-					color="gray.400"
-					backgroundColor="gray.100"
-					rounded="1rem"
-					mt={4}
-					mr={4}
-				/>
+				{currentStep !== "connectWallet" && (
+					<ModalCloseButton
+						onClick={close}
+						boxShadow="0 0 0 0 #fff"
+						color="gray.400"
+						backgroundColor="gray.100"
+						rounded="1rem"
+						mt={4}
+						mr={4}
+					/>
+				)}
 				<ModalBody>
-					{state === WalletConnectStates.REJECTED ? (
-						<RejectedPage handleRecoveryAuth={handleRecoveryAuth} />
-					) : state === WalletConnectStates.RECOVERAUTH ? (
-						<RecoverAuthInfo />
-					) : !accounts ? (
-						<div className="flex-center w-full h-full min-h-26-rem">
-							<div className="flex-center flex-col">
-								<Spinner size="xl" color="teal.500" thickness="4px" />
-								<span className="text-sm text-gray-600 mt-5">
-									{extensionEvent}
-								</span>
-							</div>
-						</div>
+					{currentStep === "beginnerInfo" ? (
+						<SimpleGrid w="100%" columns={1} spacing={8}>
+							<Box w="100%">
+								<CheckIconInfo info="You keep ownership of your funds" />
+							</Box>
+							<Button
+								w="100%"
+								rounded="lg"
+								color="white"
+								bg="#2BCACA"
+								alignItems="center"
+								fontWeight="medium"
+								textAlign="center"
+								p={6}
+								onClick={() => setCurrentStep("connectWallet")}
+							>
+								I understand, continue to authorize
+							</Button>
+						</SimpleGrid>
+					) : walletConnectState === "connected" &&
+					  !filteredAccounts &&
+					  accounts?.length === 0 ? (
+						<span className="flex flex-col items-center justify-center text-gray-700">
+							NO ACCOUNTS AVAILABLE
+						</span>
+					) : walletConnectState === "connected" ? (
+						<SelectAccount
+							accounts={filteredAccounts ? filteredAccounts : accounts}
+							onAccountSelected={onAccountSelected}
+							networkInfo={networkInfo}
+						/>
 					) : (
-						state === WalletConnectStates.CONNECTED && (
-							<SelectAccount
-								accounts={
-									accountsWithBalances !== null
-										? accountsWithBalances
-										: accounts
-								}
-								onStashSelected={onStashSelected}
-								networkInfo={networkInfo}
-							/>
+						isNil(walletConnectState) && (
+							<div className="h-64 flex text-left text-gray-700 flex-col justify-center items-center">
+								<span className="loader"></span>
+								<p className="text-gray-700 text-center mt-4">
+									{extensionEvent}
+								</p>
+							</div>
 						)
 					)}
 				</ModalBody>

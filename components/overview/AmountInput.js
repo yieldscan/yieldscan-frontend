@@ -9,17 +9,21 @@ const AmountInputDefault = ({
 	type,
 	value,
 	totalUnbonding,
+	availableBalance,
 	totalUnbondingFiat,
 	onChange,
 	networkInfo,
 }) => {
-	const { freeAmount, stashAccount } = useAccounts();
 	const [inputValue, setInputValue] = useState(value.currency);
 	const maxAmount =
 		type === "bond"
-			? get(freeAmount, "currency") - networkInfo.minAmount < 0
+			? availableBalance - networkInfo.reserveAmount < 0
 				? 0
-				: get(freeAmount, "currency") - networkInfo.minAmount
+				: Math.trunc(
+						availableBalance * 10 ** networkInfo.decimalPlaces -
+							networkInfo.reserveAmount * 10 ** networkInfo.decimalPlaces
+				  ) /
+				  10 ** networkInfo.decimalPlaces
 			: type === "unbond"
 			? bonded
 			: totalUnbonding;
@@ -65,89 +69,38 @@ const AmountInputDefault = ({
 			</h6>
 			<InputRightElement
 				opacity="1"
-				children={
-					<span className="flex min-w-fit-content">
-						{inputValue !== maxAmount && (
-							<button
-								className="bg-teal-200 text-teal-500 rounded-full text-xs px-2"
-								onClick={() => {
-									handleChange(maxAmount);
-								}}
-							>
-								max
-							</button>
-						)}
-						<span className="ml-2 text-sm font-medium cursor-not-allowed text-gray-700">
-							{networkInfo.denom}
-						</span>
-					</span>
-				}
 				h="full"
 				rounded="full"
 				fontSize="xl"
 				w="fit-content"
 				px={4}
-			/>
+			>
+				<span className="flex min-w-fit-content">
+					{inputValue !== maxAmount && (
+						<button
+							className="bg-teal-200 text-teal-500 rounded-full text-xs px-2"
+							onClick={() => {
+								handleChange(maxAmount);
+							}}
+						>
+							max
+						</button>
+					)}
+					<span className="ml-2 text-sm font-medium cursor-not-allowed text-gray-700">
+						{networkInfo.denom}
+					</span>
+				</span>
+			</InputRightElement>
 		</InputGroup>
 	);
 };
-
-// TODO: handle `subCurrency` properly
-const AmountInputAlreadyBonded = ({ value, bonded, total, onChange }) => (
-	<div className="flex flex-col">
-		<div className="flex justify-between bg-gray-200 p-3 rounded-xl">
-			<div className="flex flex-col ml-4 rounded-lg py-1">
-				<span className="text-gray-700 text-sm">Currently Bonded</span>
-				<h3 className="text-xl">{bonded.currency} KSM</h3>
-				<span hidden className="text-gray-500 text-xs">
-					${bonded.subCurrency}
-				</span>
-			</div>
-			<div className="flex flex-col bg-white px-6 rounded-lg py-1">
-				<span className="text-gray-700 text-sm">Bond Additional Funds</span>
-				<div className="flex">
-					<input
-						type="number"
-						placeholder="0"
-						defaultValue={value.currency === 0 ? "" : value.currency}
-						className="outline-none w-24 mr-2"
-						onChange={(e) => {
-							const { value } = e.target;
-							onChange(value === "" ? 0 : Number(value));
-						}}
-					/>
-					<h3 hidden className="">
-						KSM
-					</h3>
-				</div>
-				<span hidden className="text-gray-500">
-					${value.subCurrency}
-				</span>
-			</div>
-		</div>
-		<div className="bg-gray-800 mt-2 p-3 px-6 flex flex-col rounded-xl">
-			<span className="text-teal-500 text-sm">Total Staking Amount</span>
-			<h3 className="text-xl text-white">{total.currency} KSM</h3>
-			<span hidden className="text-gray-500 text-xs">
-				${total.subCurrency}
-			</span>
-		</div>
-		<style jsx>{`
-			/* hides number input controls */
-			input[type="number"]::-webkit-inner-spin-button,
-			input[type="number"]::-webkit-outer-spin-button {
-				-webkit-appearance: none;
-				margin: 0;
-			}
-		`}</style>
-	</div>
-);
 
 const AmountInput = ({
 	value,
 	bonded,
 	type,
 	totalUnbonding,
+	availableBalance,
 	totalUnbondingFiat,
 	networkInfo,
 	onChange,
@@ -158,6 +111,7 @@ const AmountInput = ({
 			bonded={bonded}
 			type={type}
 			onChange={onChange}
+			availableBalance={availableBalance}
 			totalUnbonding={totalUnbonding}
 			totalUnbondingFiat={totalUnbondingFiat}
 			networkInfo={networkInfo}

@@ -1,5 +1,6 @@
 import dynamic from "next/dynamic";
-import withBaseLayout from "@components/common/layouts/base";
+import WithBaseLayout from "@components/common/layouts/base";
+import { NextSeo } from "next-seo";
 
 const Page = dynamic(
 	() => import("@components/common/page").then((mod) => mod.default),
@@ -12,9 +13,15 @@ const HomeComponent = dynamic(
 );
 
 const HomePage = () => (
-	<Page title="Home" layoutProvider={withBaseLayout}>
-		{() => <HomeComponent />}
-	</Page>
+	<>
+		<NextSeo
+			title="YieldScan"
+			description="How to stake Polkadot?, How to stake Kusama?"
+		/>
+		<Page title="Home" layoutProvider={WithBaseLayout}>
+			{() => <HomeComponent />}
+		</Page>
+	</>
 );
 
 export default HomePage;

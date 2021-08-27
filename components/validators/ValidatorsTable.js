@@ -1,4 +1,4 @@
-import { Check, ExternalLink } from "react-feather";
+import { Check, ExternalLink, AlertCircle } from "react-feather";
 import { isNil, noop } from "lodash";
 import RiskTag from "@components/reward-calculator/RiskTag";
 import { useRouter } from "next/router";
@@ -149,12 +149,26 @@ const ValidatorsTable = ({
 		<div>
 			<div className="mt-5 mb-2 table-container px-3 pb-16 overflow-y-scroll">
 				{isNil(validators) ? (
-					<div className="flex-center font-thin py-5">
-						Unable to fetch validators, try refreshing the website!
+					<div className="w-full flex-center h-full justify-center items-center text-gray-700">
+						<div className="flex flex-row bg-gray-200 rounded-lg p-4 space-x-3">
+							<div>
+								<AlertCircle />
+							</div>
+							<p className=" text-sm font-light">
+								There was an error fetching validator data. Please refresh the page.
+							</p>
+						</div>
 					</div>
 				) : !validators.length ? (
-					<div className="flex-center font-thin py-5">
-						No validators, try updating your filters
+					<div className="w-full flex-center h-full justify-center items-center text-gray-700">
+						<div className="flex flex-row bg-gray-200 rounded-lg p-4 space-x-3">
+							<div>
+								<AlertCircle />
+							</div>
+							<p className=" text-sm font-light">
+							No validators found. Try updating your filters.
+							</p>
+						</div>
 					</div>
 				) : (
 					validators.map((validator) => (

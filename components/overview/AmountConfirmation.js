@@ -1,8 +1,8 @@
 import { ArrowRight } from "react-feather";
 import { Divider, Spinner } from "@chakra-ui/core";
 import formatCurrency from "@lib/format-currency";
-import convertCurrency from "@lib/convert-currency";
 import { useEffect, useState } from "react";
+import { useCoinGeckoPriceUSD } from "@lib/store";
 import getUpdateFundsTransactionFee from "@lib/getUpdateFundsTransactionFee";
 import { isNil } from "lodash";
 const AmountConfirmation = ({
@@ -14,10 +14,11 @@ const AmountConfirmation = ({
 	nominations,
 	handlePopoverClose,
 	api,
-	bondedAmount,
+	stakingInfo,
 	networkInfo,
 	onConfirm,
 }) => {
+	const { coinGeckoPriceUSD } = useCoinGeckoPriceUSD();
 	const [transactionFee, setTransactionFee] = useState();
 	const [subFeeCurrency, setSubFeeCurrency] = useState();
 	const [totalAmount, setTotalAmount] = useState(0);
@@ -28,7 +29,8 @@ const AmountConfirmation = ({
 				stashId,
 				amount,
 				type,
-				bondedAmount.currency,
+				stakingInfo.stakingLedger.active /
+					Math.pow(10, networkInfo.decimalPlaces),
 				api,
 				networkInfo
 			).then((data) => {
@@ -43,28 +45,34 @@ const AmountConfirmation = ({
 
 	useEffect(() => {
 		if (transactionFee) {
-			convertCurrency(
-				transactionFee / Math.pow(10, networkInfo.decimalPlaces),
-				networkInfo.coinGeckoDenom
-			).then((data) => setSubFeeCurrency(data));
+			setSubFeeCurrency(
+				(transactionFee / Math.pow(10, networkInfo.decimalPlaces)) *
+					coinGeckoPriceUSD
+			);
 		}
 	}, [transactionFee]);
 
 	useEffect(() => {
 		if (totalAmount) {
-			convertCurrency(totalAmount, networkInfo.coinGeckoDenom).then((data) =>
-				setTotalAmountFiat(data)
-			);
+			setTotalAmountFiat(totalAmount * coinGeckoPriceUSD);
 		}
 	}, [totalAmount]);
 
 	useEffect(() => {
 		if (!totalAmount) {
 			type === "bond" || type == "rebond"
-				? setTotalAmount(amount + bondedAmount.currency)
-				: setTotalAmount(bondedAmount.currency - amount);
+				? setTotalAmount(
+						amount +
+							stakingInfo.stakingLedger.active /
+								Math.pow(10, networkInfo.decimalPlaces)
+				  )
+				: setTotalAmount(
+						stakingInfo.stakingLedger.active /
+							Math.pow(10, networkInfo.decimalPlaces) -
+							amount
+				  );
 		}
-	}, [amount, bondedAmount]);
+	}, [amount, stakingInfo]);
 
 	return (
 		<div className="flex flex-col">
@@ -77,15 +85,17 @@ const AmountConfirmation = ({
 						</span>
 						<h3 className="text-2xl white-space-nowrap">
 							{formatCurrency.methods.formatAmount(
-								Math.trunc(
-									bondedAmount.currency *
-										Math.pow(10, networkInfo.decimalPlaces)
-								),
+								stakingInfo.stakingLedger.active,
 								networkInfo
 							)}
 						</h3>
 						<span className="text-sm font-medium text-teal-500">
-							${bondedAmount.subCurrency.toFixed(2)}
+							$
+							{(
+								(stakingInfo.stakingLedger.active /
+									Math.pow(10, networkInfo.decimalPlaces)) *
+								coinGeckoPriceUSD
+							).toFixed(2)}
 						</span>
 					</div>
 					<div>
@@ -128,7 +138,12 @@ const AmountConfirmation = ({
 								: formatCurrency.methods.formatAmount(0, networkInfo)}
 						</p>
 						<p className="text-xs text-right text-gray-600">
-							${Number(0).toFixed(2)}
+							$
+							{Number(
+								type === "bond" || type == "rebond"
+									? amount * coinGeckoPriceUSD
+									: 0
+							).toFixed(2)}
 						</p>
 					</div>
 				</div>

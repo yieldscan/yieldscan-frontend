@@ -4,7 +4,6 @@ import React from "react";
 import { FaDiscord, FaTelegram } from "react-icons/fa";
 import { IoIosMail } from "react-icons/io";
 
-
 const Footer = () => {
 	const { accountInfoLoading } = useAccounts();
 	const { headerLoading } = useHeaderLoading();
@@ -20,6 +19,7 @@ const Footer = () => {
 							href="https://buidllabs.io"
 							className="underline hover:text-teal-500"
 							target="_blank"
+							rel="noreferrer"
 						>
 							BUIDL Labs
 						</a>
@@ -44,11 +44,13 @@ const Footer = () => {
 								target="_blank"
 								href="https://discord.gg/5Dggqx8"
 								className="mr-8 hover:text-teal-500"
+								rel="noreferrer"
 							>
 								<FaDiscord size="24px" />
 							</a>
 							<a
 								target="_blank"
+								rel="noreferrer"
 								href="https://t.me/yieldscan"
 								className="mr-8 hover:text-teal-500"
 							>
@@ -57,6 +59,7 @@ const Footer = () => {
 							<a
 								href="mailto:karan@buidllabs.io"
 								target="_blank"
+								rel="noreferrer"
 								className="hover:text-teal-500"
 							>
 								<IoIosMail size="24px" />

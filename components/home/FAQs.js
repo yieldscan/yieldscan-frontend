@@ -22,6 +22,9 @@ const FAQs = () => {
 					color="teal.500"
 					borderBottom="1px solid"
 					pr={1}
+					onClick={() =>
+						window?.open("https://discord.gg/nQYhcg9RPU", "_blank")
+					}
 				>
 					Contact us
 				</Link>

@@ -6,8 +6,20 @@ import { useEffect } from "react";
 
 window.setImmediate = (cb) => cb();
 
-const Page = ({ title, children, layoutProvider }) => {
-	const layoutedChild = layoutProvider ? layoutProvider(children) : children;
+const Page = ({
+	title,
+	children,
+	layoutProvider,
+	isSetUp = false,
+	isWalletSetUp = false,
+}) => {
+	const layoutedChild = layoutProvider
+		? layoutProvider(children, isSetUp, isWalletSetUp)
+		: children;
+
+	useEffect(() => {
+		trackEvent(Events.PAGE_VIEW, { path: window.location.pathname });
+	}, []);
 
 	if (isMobile || isTablet) {
 		return (
@@ -31,16 +43,12 @@ const Page = ({ title, children, layoutProvider }) => {
 		);
 	}
 
-	useEffect(() => {
-		trackEvent(Events.PAGE_VIEW, { path: window.location.pathname });
-	}, []);
-
 	return (
 		<React.Fragment>
 			<Head>
 				<title>{title} - YieldScan</title>
 			</Head>
-			<div>{layoutedChild()}</div>
+			<div>{layoutedChild}</div>
 		</React.Fragment>
 	);
 };

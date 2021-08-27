@@ -10,15 +10,7 @@ const {
 	SENTRY_PROJECT,
 	SENTRY_AUTH_TOKEN,
 	NODE_ENV,
-	VERCEL_GITHUB_COMMIT_SHA,
-	VERCEL_GITLAB_COMMIT_SHA,
-	VERCEL_BITBUCKET_COMMIT_SHA,
 } = process.env;
-
-const COMMIT_SHA =
-	VERCEL_GITHUB_COMMIT_SHA ||
-	VERCEL_GITLAB_COMMIT_SHA ||
-	VERCEL_BITBUCKET_COMMIT_SHA;
 
 process.env.SENTRY_DSN = SENTRY_DSN;
 
@@ -26,9 +18,8 @@ module.exports = withSourceMaps({
 	serverRuntimeConfig: {
 		rootDir: __dirname,
 	},
-	future: {
-		webpack5: true,
-	},
+	webpack5: true,
+
 	webpack: (config, options) => {
 		config.module.rules.push({
 			type: "javascript/auto",
@@ -63,7 +54,6 @@ module.exports = withSourceMaps({
 			SENTRY_ORG &&
 			SENTRY_PROJECT &&
 			SENTRY_AUTH_TOKEN &&
-			COMMIT_SHA &&
 			NODE_ENV === "production"
 		) {
 			config.plugins.push(
@@ -72,7 +62,6 @@ module.exports = withSourceMaps({
 					ignore: ["node_modules"],
 					stripPrefix: ["webpack://_N_E/"],
 					urlPrefix: "~/_next",
-					release: COMMIT_SHA,
 				})
 			);
 		}

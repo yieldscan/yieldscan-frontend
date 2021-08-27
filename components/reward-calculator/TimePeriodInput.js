@@ -11,40 +11,37 @@ const TimePeriodInput = ({
 		<div className="flex items-center justify-between w-2/3">
 			<InputGroup className="border border-gray-200 rounded-full">
 				<InputRightElement
-					children={
-						<Select
-							backgroundColor="gray.50"
-							rounded="full"
-							pl={4}
-							pr={6}
-							width="full"
-							fontSize="xs"
-							cursor="pointer"
-							height="1.75rem"
-							border="none"
-							iconSize="0.75rem"
-							color="gray.600"
-							value={unit}
-							onChange={(ev) => {
-								onUnitChange(ev.target.value);
-								trackRewardCalculatedEvent({
-									timePeriod: `${value === 0 ? null : value} ${
-										ev.target.value
-									}`,
-								});
-							}}
-						>
-							<option value="eras">eras</option>
-							<option value="days">days</option>
-							<option value="months">months</option>
-						</Select>
-					}
 					width="fit-content"
 					rounded="full"
 					py={4}
 					px={2}
 					fontSize="sm"
-				/>
+				>
+					<Select
+						backgroundColor="gray.50"
+						rounded="full"
+						pl={4}
+						pr={6}
+						width="full"
+						fontSize="xs"
+						cursor="pointer"
+						height="1.75rem"
+						border="none"
+						iconSize="0.75rem"
+						color="gray.600"
+						value={unit}
+						onChange={(ev) => {
+							onUnitChange(ev.target.value);
+							trackRewardCalculatedEvent({
+								timePeriod: `${value === 0 ? null : value} ${ev.target.value}`,
+							});
+						}}
+					>
+						<option value="eras">eras</option>
+						<option value="days">days</option>
+						<option value="months">months</option>
+					</Select>
+				</InputRightElement>
 				<Input
 					type="number"
 					color="gray.600"

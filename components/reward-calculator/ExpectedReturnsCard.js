@@ -8,18 +8,20 @@ import {
 	PopoverArrow,
 } from "@chakra-ui/core";
 import CountUp from "react-countup";
+import { useCoinGeckoPriceUSD } from "@lib/store";
 
 const ResultCardInsight = ({
 	label,
 	popoverContent = "",
 	value,
 	supportValue,
+	placement = "top",
 	emptyState,
 }) => (
 	<div className="mt-2 mr-8">
 		<div className="flex items-center">
 			<span className="opacity-75 mr-1 text-xs">{label}</span>
-			<Popover trigger="hover">
+			<Popover trigger="hover" placement={placement}>
 				<PopoverTrigger>
 					<HelpCircle
 						size="12"
@@ -51,22 +53,14 @@ const ResultCardInsight = ({
 	</div>
 );
 
-const ExpectedReturnsCard = ({
-	result,
-	stashAccount,
-	calculationDisabled,
-	onWalletConnectClick,
-	onPayment,
-	networkInfo,
-}) => {
+const ExpectedReturnsCard = ({ result, networkInfo }) => {
+	const { coinGeckoPriceUSD } = useCoinGeckoPriceUSD();
 	const returns = {
 		currency: get(result, "returns.currency"),
-		subCurrency: get(result, "returns.subCurrency"),
 	};
 
 	const portfolio = {
 		currency: get(result, "portfolioValue.currency"),
-		subCurrency: get(result, "portfolioValue.subCurrency"),
 	};
 
 	return (
@@ -89,7 +83,7 @@ const ExpectedReturnsCard = ({
 							}
 							supportValue={
 								<CountUp
-									end={returns.subCurrency || 0}
+									end={returns.currency * coinGeckoPriceUSD || 0}
 									duration={0.5}
 									decimals={2}
 									separator=","
@@ -107,6 +101,7 @@ const ExpectedReturnsCard = ({
 									<a
 										href="https://github.com/buidl-labs/yieldscan-frontend/wiki/Returns-Calculation-Mechanism"
 										target="_blank"
+										rel="noreferrer"
 										className="underline"
 									>
 										click here
@@ -129,7 +124,7 @@ const ExpectedReturnsCard = ({
 							}
 							supportValue={
 								<CountUp
-									end={portfolio.subCurrency || 0}
+									end={portfolio.currency * coinGeckoPriceUSD || 0}
 									duration={0.5}
 									decimals={2}
 									separator=","

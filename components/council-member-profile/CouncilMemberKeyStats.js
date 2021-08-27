@@ -1,5 +1,5 @@
-import convertCurrency from "@lib/convert-currency";
 import { useEffect, useState } from "react";
+import { useCoinGeckoPriceUSD } from "@lib/store";
 import formatCurrency from "@lib/format-currency";
 
 const CouncilMemberKeyStats = ({
@@ -8,20 +8,17 @@ const CouncilMemberKeyStats = ({
 	totalBalance = 0,
 	networkInfo,
 }) => {
+	const { coinGeckoPriceUSD } = useCoinGeckoPriceUSD();
 	const [backingSubCurrency, setBackingSubCurrency] = useState();
 	const [totalBalanceSubCurrency, setTotalBalanceSubCurrency] = useState();
 	useEffect(() => {
 		if (backingAmount) {
-			convertCurrency(backingAmount, networkInfo.coinGeckoDenom).then((value) =>
-				setBackingSubCurrency(value)
-			);
+			setBackingSubCurrency(backingAmount * coinGeckoPriceUSD);
 		}
 	}, [backingAmount]);
 	useEffect(() => {
 		if (totalBalance) {
-			convertCurrency(totalBalance, networkInfo.coinGeckoDenom).then((value) =>
-				setTotalBalanceSubCurrency(value)
-			);
+			setTotalBalanceSubCurrency(totalBalance * coinGeckoPriceUSD);
 		}
 	}, [totalBalance]);
 	return (

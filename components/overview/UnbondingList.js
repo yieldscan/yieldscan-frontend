@@ -38,14 +38,13 @@ const UnbondingAmountCard = ({
 				<CircularProgress value={progressInPercentage} size={40} color="teal" />
 				<div className="text-gray-700 ml-2">
 					<span className="text-md">
-						{formatCurrency.methods.formatAmount(
-							Math.trunc(value * 10 ** networkInfo.decimalPlaces),
-							networkInfo
-						)}
+						{formatCurrency.methods.formatAmount(value, networkInfo)}
 					</span>
 					<div className="flex items-center">
+						{/* TODO: Add skeleteon for loading time instead of dots */}
 						<span className="text-xs mr-2">
-							Unbonding in {humanizeTimeRemaining}
+							Unbonding in{" "}
+							{eraLength && eraProgress ? humanizeTimeRemaining : "..."}
 						</span>
 					</div>
 				</div>
@@ -56,13 +55,13 @@ const UnbondingAmountCard = ({
 
 const UnbondingList = withSlideIn(
 	({
-		open,
+		api,
 		close,
-		toggle,
-		unbondingBalances,
-		networkInfo,
-		eraProgress,
+		isOpen,
+		stakingInfo,
 		eraLength,
+		eraProgress,
+		networkInfo,
 	}) => {
 		const handlePopoverClose = () => {
 			close();
@@ -70,7 +69,7 @@ const UnbondingList = withSlideIn(
 
 		return (
 			<Modal
-				isOpen={true}
+				isOpen={isOpen}
 				onClose={close}
 				isCentered
 				closeOnOverlayClick={true}
@@ -94,9 +93,10 @@ const UnbondingList = withSlideIn(
 								Unlocking Amounts
 							</h3>
 							<div className="py-2 flex items-center flex-wrap">
-								{unbondingBalances.map((data) => (
+								{stakingInfo.unlocking.map((data, index) => (
 									<UnbondingAmountCard
 										value={data.value}
+										key={index}
 										remainingEras={data.remainingEras}
 										eraLength={eraLength}
 										eraProgress={eraProgress}

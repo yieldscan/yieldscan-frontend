@@ -9,14 +9,17 @@ import { useEffect, useState } from "react";
 import { Rifm } from "rifm";
 import EarningsOutput from "./earnings-output";
 
-const LandingPageCalculator = ({ inputValue, setInputValue, networkInfo }) => {
+const LandingPageCalculator = ({
+	inputValue,
+	setInputValue,
+	networkInfo,
+	coinGeckoPriceUSD,
+}) => {
 	const router = useRouter();
 
 	const { setStakingAmount } = useTransaction();
 	const [marketCap, setMarketCap] = useState();
 	const [vol24H, setVol24H] = useState();
-	const [tokenPrice, setTokenPrice] = useState(0);
-
 	const numberAccept = /[\d.]+/g;
 	const parseNumber = (string) =>
 		(String(string).match(numberAccept) || []).join("");
@@ -65,12 +68,11 @@ const LandingPageCalculator = ({ inputValue, setInputValue, networkInfo }) => {
 					`https://api.coingecko.com/api/v3/simple/price?ids=${networkInfo.coinGeckoDenom}&vs_currencies=usd&include_market_cap=true&include_24hr_vol=true`
 				)
 				.then(({ data }) => {
-					setTokenPrice(data[networkInfo.coinGeckoDenom].usd);
 					setMarketCap(data[networkInfo.coinGeckoDenom].usd_market_cap);
 					setVol24H(data[networkInfo.coinGeckoDenom].usd_24h_vol);
 				});
 		}
-	});
+	}, [networkInfo.network]);
 
 	return (
 		<form
@@ -137,7 +139,7 @@ const LandingPageCalculator = ({ inputValue, setInputValue, networkInfo }) => {
 							>
 								$
 								{formatFloatingPointNumber(
-									(inputValue * tokenPrice).toFixed(2)
+									(inputValue * coinGeckoPriceUSD).toFixed(2)
 								)}
 							</p>
 						</InputGroup>

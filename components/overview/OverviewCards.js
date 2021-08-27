@@ -1,43 +1,32 @@
-import React from "react";
+import { useState, useEffect } from "react";
 import { noop, get, isNil } from "lodash";
 import { FormLabel } from "@chakra-ui/core";
 import formatCurrency from "@lib/format-currency";
-import convertCurrency from "@lib/convert-currency";
-import { useAccounts, usePolkadotApi, useNetworkElection } from "@lib/store";
+import {
+	useAccounts,
+	usePolkadotApi,
+	useNetworkElection,
+	useCoinGeckoPriceUSD,
+} from "@lib/store";
 import calculateReward from "@lib/calculate-reward";
 import { HelpPopover } from "@components/reward-calculator";
+import { track, goalCodes } from "@lib/analytics";
+import { AlertTriangle } from "react-feather";
 
 const OverviewCards = ({
 	stats,
-	bondedAmount,
-	activeStake,
-	address,
+	stakingInfo,
 	validators,
-	redeemableBalance,
 	openUnbondingListModal,
 	toggleRedeemUnbonded,
-	unbondingBalances,
-	unlockingBalances = [],
-	openRewardDestinationModal = noop,
 	bondFunds = noop,
 	unbondFunds = noop,
 	rebondFunds = noop,
 	networkInfo,
+	minPossibleStake,
 }) => {
-	const totalUnlockingBalance = formatCurrency.methods.formatAmount(
-		Math.trunc(
-			unlockingBalances.reduce(
-				(total, balanceInfo) => total + balanceInfo.value,
-				0
-			)
-		),
-		networkInfo
-	);
-
-	const { apiInstance } = usePolkadotApi();
-	const { stashAccount } = useAccounts();
 	const { isInElection } = useNetworkElection();
-	const [compounding, setCompounding] = React.useState(false);
+	const { coinGeckoPriceUSD } = useCoinGeckoPriceUSD();
 
 	const isActivelyStaking = isNil(validators)
 		? false
@@ -45,85 +34,55 @@ const OverviewCards = ({
 		? true
 		: false;
 
-	const [totalAmountStakedFiat, setTotalAmountStakedFiat] = React.useState();
-	const [earningsFiat, setEarningsFiat] = React.useState();
-	const [estimatedRewardsFiat, setEstimatedRewardsFiat] = React.useState();
-	const [expectedAPR, setExpectedAPR] = React.useState(0);
-	const [redeemableBalanceFiat, setRedeemableBalanceFiat] = React.useState();
-	const [totalUnbonding, setTotalUnbonding] = React.useState();
-	const [totalUnbondingFiat, setTotalUnbondingFiat] = React.useState();
+	const [redeemableBalanceFiat, setRedeemableBalanceFiat] = useState();
+	const [totalUnbonding, setTotalUnbonding] = useState();
+	const [totalUnbondingFiat, setTotalUnbondingFiat] = useState();
 
-	React.useEffect(() => {
-		if (!isNil(apiInstance)) {
-			apiInstance.query.staking.payee(stashAccount.address).then((payee) => {
-				if (payee.isStaked) setCompounding(true);
-				else {
-					setCompounding(false);
-				}
-			});
-		}
-	}, [stashAccount, apiInstance]);
-	React.useEffect(() => {
-		if (stats) {
-			convertCurrency(
-				stats.totalAmountStaked,
-				networkInfo.coinGeckoDenom
-			).then((value) => setTotalAmountStakedFiat(value));
-		}
-
-		if (stats) {
-			convertCurrency(
-				stats.estimatedRewards,
-				networkInfo.coinGeckoDenom
-			).then((value) => setEstimatedRewardsFiat(value));
-		}
-
-		if (validators) {
-			calculateReward(
-				validators.filter((validator) => validator.isElected),
-				stats.totalAmountStaked,
-				12,
-				"months",
-				compounding,
-				networkInfo
-			).then(({ yieldPercentage }) => setExpectedAPR(yieldPercentage));
-		}
-
-		if (stats) {
-			convertCurrency(
-				stats.earnings,
-				networkInfo.coinGeckoDenom
-			).then((value) => setEarningsFiat(value));
-		}
-	}, [stats, compounding]);
-
-	React.useEffect(() => {
-		if (redeemableBalance) {
-			convertCurrency(
-				redeemableBalance / 10 ** networkInfo.decimalPlaces,
-				networkInfo.coinGeckoDenom
-			).then((value) => setRedeemableBalanceFiat(value));
-		}
-	}, [stats, redeemableBalance]);
-
-	React.useEffect(() => {
-		if (unbondingBalances.length > 0) {
-			const total = unbondingBalances.reduce((a, b) => a + b.value, 0);
-			setTotalUnbonding(total);
-			convertCurrency(total, networkInfo.coinGeckoDenom).then((value) =>
-				setTotalUnbondingFiat(value)
+	useEffect(() => {
+		if (!stakingInfo.redeemable.isEmpty) {
+			setRedeemableBalanceFiat(
+				(stakingInfo.redeemable / Math.pow(10, networkInfo.decimalPlaces)) *
+					coinGeckoPriceUSD
 			);
+		}
+	}, [stats, stakingInfo?.redeemable, coinGeckoPriceUSD]);
+
+	useEffect(() => {
+		if (stakingInfo?.unlocking && !stakingInfo?.unlocking?.isEmpty) {
+			const total = stakingInfo.unlocking.reduce(
+				(a, b) => a + b.value / Math.pow(10, networkInfo.decimalPlaces),
+				0
+			);
+			setTotalUnbonding(total);
+			setTotalUnbondingFiat(total * coinGeckoPriceUSD);
 		} else {
 			setTotalUnbonding(null);
 			setTotalUnbondingFiat(null);
 		}
-	}, [stats, unbondingBalances]);
+	}, [stats, stakingInfo?.unlocking, coinGeckoPriceUSD]);
 
 	return (
 		<div className="flex justify-between items-center h-auto w-full max-w-lg text-gray-700">
 			<div className="bg-white min-h-12-rem py-4 px-8 text-center flex flex-col justify-center shadow-custom rounded-xl h-full w-full">
-				<div className="flex flex-col items-center justify-between">
-					<p className="font-medium mt-40">Your investment</p>
+				<div className="flex flex-col items-center justify-between mt-5">
+					{JSON.parse(stakingInfo.stakingLedger.active) !== 0 &&
+						stakingInfo.stakingLedger.active /
+							Math.pow(10, networkInfo.decimalPlaces) <
+							minPossibleStake && (
+							<div className="w-full flex-center justify-center items-center text-gray-700">
+								<div className="flex flex-center p-4 rounded-lg bg-yellow-200">
+									<div>
+										<AlertTriangle className="text-orange-500" />
+									</div>
+									<p className="text-sm">
+										The invested amount falls below the {networkInfo.name}{" "}
+										network new minimum staking threshold of {minPossibleStake}{" "}
+										{networkInfo.denom}.
+									</p>
+								</div>
+							</div>
+						)}
+					<p className="font-medium mt-5">Your investment</p>
 					<div>
 						<div className="flex">
 							<h1
@@ -132,12 +91,7 @@ const OverviewCards = ({
 								}`}
 							>
 								{formatCurrency.methods.formatAmount(
-									Math.trunc(
-										Number(
-											get(bondedAmount, "currency", 0) *
-												10 ** networkInfo.decimalPlaces
-										)
-									),
+									stakingInfo?.stakingLedger.active,
 									networkInfo
 								)}
 							</h1>
@@ -152,11 +106,15 @@ const OverviewCards = ({
 								/>
 							)}
 						</div>
-						{bondedAmount && (
+						{!stakingInfo?.stakingLedger.active.isEmpty && (
 							<h3 className="text-teal-500 text-xl font-medium">
 								$
 								{formatCurrency.methods.formatNumber(
-									get(bondedAmount, "subCurrency").toFixed(2)
+									(
+										(stakingInfo?.stakingLedger.active /
+											Math.pow(10, networkInfo.decimalPlaces)) *
+										coinGeckoPriceUSD
+									).toFixed(2)
 								)}
 							</h3>
 						)}
@@ -166,7 +124,10 @@ const OverviewCards = ({
 							className={`confirm rounded-lg mt-40 mb-40 text-white bg-teal-500 p-1 ${
 								isInElection ? "opacity-75 cursor-not-allowed" : "opacity-100"
 							}`}
-							onClick={bondFunds}
+							onClick={() => {
+								bondFunds();
+								track(goalCodes.OVERVIEW.INTENT_BOND_EXTRA);
+							}}
 							disabled={isInElection}
 						>
 							Invest more
@@ -176,13 +137,16 @@ const OverviewCards = ({
 							className={`confirm rounded-lg mt-40 mb-40 border-teal border-solid-1 bg-white text-teal-500 p-1 ${
 								isInElection ? "opacity-75 cursor-not-allowed" : "opacity-100"
 							}`}
-							onClick={unbondFunds}
+							onClick={() => {
+								unbondFunds();
+								track(goalCodes.OVERVIEW.INTENT_UNBOND);
+							}}
 							disabled={isInElection}
 						>
 							Withdraw
 						</button>
 					</div>
-					{!isNil(redeemableBalance) && redeemableBalance !== 0 && (
+					{!stakingInfo.redeemable.isEmpty && (
 						<div className="flex justify-between w-full">
 							<div className="flex flex-col">
 								<FormLabel fontSize="sm" className="font-medium text-gray-700">
@@ -191,17 +155,19 @@ const OverviewCards = ({
 								<h2 className="text-xl text-gray-700 font-bold">
 									<div className="flex">
 										{formatCurrency.methods.formatAmount(
-											Math.trunc(redeemableBalance),
+											stakingInfo.redeemable,
 											networkInfo
 										)}
 									</div>
-									{redeemableBalanceFiat && (
+									{!isNil(redeemableBalanceFiat) ? (
 										<div className="flex text-sm font-medium text-teal-500">
 											$
 											{formatCurrency.methods.formatNumber(
 												redeemableBalanceFiat.toFixed(2)
 											)}
 										</div>
+									) : (
+										<></>
 									)}
 								</h2>
 							</div>
@@ -224,7 +190,10 @@ const OverviewCards = ({
 									<div className="flex">
 										{formatCurrency.methods.formatAmount(
 											Math.trunc(
-												Number(totalUnbonding * 10 ** networkInfo.decimalPlaces)
+												Number(
+													totalUnbonding *
+														Math.pow(10, networkInfo.decimalPlaces)
+												)
 											),
 											networkInfo
 										)}
@@ -242,14 +211,20 @@ const OverviewCards = ({
 							<div className="flex">
 								<button
 									className={`text-teal-500 p-1 mr-2`}
-									onClick={rebondFunds}
+									onClick={() => {
+										rebondFunds();
+										track(goalCodes.OVERVIEW.INTENT_REBOND);
+									}}
 									disabled={isInElection}
 								>
 									Rebond
 								</button>
 								<button
 									className={`text-teal-500 p-1`}
-									onClick={openUnbondingListModal}
+									onClick={() => {
+										track(goalCodes.OVERVIEW.CHECKED_UNBONDING_PERIOD);
+										openUnbondingListModal();
+									}}
 									disabled={isInElection}
 								>
 									View All

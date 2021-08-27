@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 
 export default function NotFound() {
@@ -16,7 +17,13 @@ export default function NotFound() {
 					</a>
 				</Link>
 			</div>
-			<img src="images/404.svg" className="-ml-16 w-5/12 opacity-50"></img>
+			<Image
+				src="/images/404.svg"
+				alt="404"
+				height="120"
+				width="120"
+				// className="-ml-16 w-5/12 opacity-50"
+			/>
 		</div>
 	);
 }

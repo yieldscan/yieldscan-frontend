@@ -1,5 +1,6 @@
 import dynamic from "next/dynamic";
-import withDashboardLayout from "@components/common/layouts/dashboard";
+import WithDashboardLayout from "@components/common/layouts/dashboard";
+import { NextSeo } from "next-seo";
 
 const Page = dynamic(
 	() => import("@components/common/page").then((mod) => mod.default),
@@ -12,9 +13,15 @@ const OverviewComponent = dynamic(
 );
 
 const Payment = () => (
-	<Page title="Overview" layoutProvider={withDashboardLayout}>
-		{() => <OverviewComponent />}
-	</Page>
+	<>
+		<NextSeo
+			title="YieldScan: Overview"
+			description="nominator profile, staking rewards history"
+		/>
+		<Page title="Overview" layoutProvider={WithDashboardLayout}>
+			{() => <OverviewComponent />}
+		</Page>
+	</>
 );
 
 export default Payment;

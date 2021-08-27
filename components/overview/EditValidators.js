@@ -19,7 +19,7 @@ import { noop, mapValues, keyBy, isNil, get } from "lodash";
 import calculateReward from "@lib/calculate-reward";
 import formatCurrency from "@lib/format-currency";
 import convertArrayToObject from "@lib/convert-arr-to-object";
-import { useAccounts, usePolkadotApi } from "@lib/store";
+import { useAccounts, usePolkadotApi, useCoinGeckoPriceUSD } from "@lib/store";
 import nominate from "@lib/polkadot/nominate";
 import Identicon from "@components/common/Identicon";
 import ChainErrorPage from "@components/overview/ChainErrorPage";
@@ -133,6 +133,7 @@ const EditValidators = withSlideIn(
 		const { apiInstance } = usePolkadotApi();
 		const [compounding, setCompounding] = useState(false);
 		const { stashAccount, freeAmount, bondedAmount } = useAccounts();
+		const { coinGeckoPriceUSD } = useCoinGeckoPriceUSD();
 		const [editLoading, setEditLoading] = useState(false);
 		const [estimatedReward, setEstimatedReward] = useState();
 		const [stakingEvent, setStakingEvent] = useState();
@@ -160,6 +161,7 @@ const EditValidators = withSlideIn(
 				selectedValidatorsMap
 			).filter((v) => !isNil(v));
 			calculateReward(
+				coinGeckoPriceUSD,
 				selectedValidatorsList,
 				get(bondedAmount, "currency", 0),
 				12,
@@ -413,6 +415,7 @@ const EditValidators = withSlideIn(
 									<SuccessfullyBonded
 										transactionHash={transactionHash}
 										onConfirm={handleOnClickForSuccessfulTransaction}
+										networkInfo={networkInfo}
 									/>
 								)}
 								{chainError && (

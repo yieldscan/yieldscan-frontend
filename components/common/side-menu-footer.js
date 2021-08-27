@@ -22,6 +22,7 @@ const SideMenuFooter = () => {
 			<div className="flex px-5 mt-8">
 				<a
 					target="_blank"
+					rel="noreferrer"
 					href="https://discord.gg/5Dggqx8"
 					className="mr-8 hover:text-teal-500"
 				>
@@ -29,6 +30,7 @@ const SideMenuFooter = () => {
 				</a>
 				<a
 					target="_blank"
+					rel="noreferrer"
 					href="https://t.me/yieldscan"
 					className="mr-8 hover:text-teal-500"
 				>
@@ -37,6 +39,7 @@ const SideMenuFooter = () => {
 				<a
 					href="mailto:karan@buidllabs.io"
 					target="_blank"
+					rel="noreferrer"
 					className="hover:text-teal-500"
 				>
 					<IoIosMail size="24px" />

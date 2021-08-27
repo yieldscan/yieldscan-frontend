@@ -1,5 +1,5 @@
 import dynamic from "next/dynamic";
-import withDashboardLayout from "@components/common/layouts/dashboard";
+import WithDashboardLayout from "@components/common/layouts/dashboard";
 
 const Page = dynamic(
 	() => import("@components/common/page").then((mod) => mod.default),
@@ -12,7 +12,7 @@ const NominatorsComponent = dynamic(
 );
 
 const Nominators = () => (
-	<Page title="Nominators" layoutProvider={withDashboardLayout}>
+	<Page title="Nominators" layoutProvider={WithDashboardLayout}>
 		{() => <NominatorsComponent />}
 	</Page>
 );

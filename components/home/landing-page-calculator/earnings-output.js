@@ -7,6 +7,7 @@ import {
 	useDailyEarning,
 	useValidatorData,
 	useTransaction,
+	useCoinGeckoPriceUSD,
 } from "@lib/store";
 import { cloneDeep, get, isNil, keyBy, mapValues, set } from "lodash";
 import { useEffect, useState } from "react";
@@ -14,6 +15,8 @@ import CountUp from "react-countup";
 
 const EarningsOutput = ({ inputValue, networkInfo }) => {
 	const transactionState = useTransaction();
+	const { validatorMap, setValidatorMap } = useValidatorData();
+	const { coinGeckoPriceUSD } = useCoinGeckoPriceUSD();
 	const [risk, setRisk] = useState("Medium");
 	const [yearlyEarning, setYearlyEarning] = useState();
 	// const yearlyEarning = useYearlyEarning((state) => state.yearlyEarning);
@@ -27,9 +30,7 @@ const EarningsOutput = ({ inputValue, networkInfo }) => {
 	// );
 
 	const [dailyEarning, setDailyEarning] = useState();
-
 	const [selectedValidators, setSelectedValidators] = useState();
-	const { validatorMap, setValidatorMap } = useValidatorData();
 
 	useEffect(() => {
 		if (validatorMap) {
@@ -71,6 +72,7 @@ const EarningsOutput = ({ inputValue, networkInfo }) => {
 				(v) => !isNil(v)
 			);
 			calculateReward(
+				coinGeckoPriceUSD,
 				selectedValidatorsList,
 				inputValue,
 				12,
@@ -86,6 +88,7 @@ const EarningsOutput = ({ inputValue, networkInfo }) => {
 					console.error(error);
 				});
 			calculateReward(
+				coinGeckoPriceUSD,
 				selectedValidatorsList,
 				inputValue,
 				1,
@@ -101,6 +104,7 @@ const EarningsOutput = ({ inputValue, networkInfo }) => {
 					console.error(error);
 				});
 			calculateReward(
+				coinGeckoPriceUSD,
 				selectedValidatorsList,
 				inputValue,
 				1,
@@ -159,7 +163,10 @@ const EarningsOutput = ({ inputValue, networkInfo }) => {
 						</p>
 						<p className="text-sm font-medium text-teal-500">
 							<CountUp
-								end={get(yearlyEarning, "returns.subCurrency") || 0}
+								end={
+									(get(yearlyEarning, "returns.currency") || 0) *
+									coinGeckoPriceUSD
+								}
 								duration={0.5}
 								decimals={2}
 								separator=","
@@ -194,7 +201,10 @@ const EarningsOutput = ({ inputValue, networkInfo }) => {
 						</p>
 						<p className="text-sm font-medium text-teal-500">
 							<CountUp
-								end={get(monthlyEarning, "returns.subCurrency") || 0}
+								end={
+									(get(monthlyEarning, "returns.currency") || 0) *
+									coinGeckoPriceUSD
+								}
 								duration={0.5}
 								decimals={2}
 								separator=","
@@ -229,7 +239,10 @@ const EarningsOutput = ({ inputValue, networkInfo }) => {
 						</p>
 						<p className="text-sm font-medium text-teal-500">
 							<CountUp
-								end={get(dailyEarning, "returns.subCurrency") || 0}
+								end={
+									(get(dailyEarning, "returns.currency") || 0) *
+									coinGeckoPriceUSD
+								}
 								duration={0.5}
 								decimals={2}
 								separator=","

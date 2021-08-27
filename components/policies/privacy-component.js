@@ -6,12 +6,10 @@ const PrivacyComponent = () => (
 		</h1>
 		<p>
 			At YieldScan, accessible from{" "}
-			<a href="https://yieldscan.onrender.com">
-				https://yieldscan.onrender.com
-			</a>
-			, one of our main priorities is the privacy of our visitors. This Privacy
-			Policy document contains types of information that is collected and
-			recorded by YieldScan and how we use it.
+			<a href="https://yieldscan.app">https://yieldscan.app</a>, one of our main
+			priorities is the privacy of our visitors. This Privacy Policy document
+			contains types of information that is collected and recorded by YieldScan
+			and how we use it.
 		</p>
 		<p>
 			If you have additional questions or require more information about our
