@@ -89,7 +89,7 @@ const SetupWallet = () => {
 								className="rounded-lg font-medium w-full py-3 bg-teal-500 text-white"
 								onClick={() =>
 									window?.open(
-										"https://intercom.help/yieldscan/en/articles/5341271-take-your-first-steps-create-your-crypto-account",
+										"https://intercom.help/yieldscan/en/articles/5341271-take-your-first-steps-choose-your-wallet-create-your-crypto-account-and-add-funds",
 										"_blank"
 									)
 								}
