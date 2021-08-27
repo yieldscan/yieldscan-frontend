@@ -566,6 +566,9 @@ const Validators = () => {
 					toStaking={toStaking}
 					networkInfo={networkInfo}
 					setStakingPath={setStakingPath}
+					isSameStashController={
+						selectedAccount?.address === controllerAccount?.address
+					}
 				/>
 			)}
 			<EditAmountModal
