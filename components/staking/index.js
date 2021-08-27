@@ -483,8 +483,7 @@ const Staking = () => {
 						Math.trunc(
 							ysFees +
 								networkInfo?.reserveAmount *
-									Math.pow(10, networkInfo.decimalPlaces) +
-								2 * apiInstance?.consts.balances.existentialDeposit.toNumber() -
+									Math.pow(10, networkInfo.decimalPlaces) -
 								accountsBalances[selected?.address].availableBalance
 						)
 				  )
