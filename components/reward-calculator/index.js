@@ -497,6 +497,9 @@ const RewardCalculatorPage = () => {
 							toStaking={toStaking}
 							networkInfo={networkInfo}
 							setStakingPath={setStakingPath}
+							isSameStashController={
+								selectedAccount?.address === controllerAccount?.address
+							}
 						/>
 					)}
 					{activeBondedAmount > 0 && (

@@ -11,7 +11,7 @@ import { useRouter } from "next/router";
 import { AlertCircle, AlertTriangle } from "react-feather";
 import create from "zustand";
 import Image from "next/image";
-import { track, goalCodes} from "@lib/analytics";
+import { track, goalCodes } from "@lib/analytics";
 
 const useStakingPathPopover = create((set) => ({
 	isStakingPathPopoverOpen: false,
@@ -28,18 +28,21 @@ const StakingPathPopover = ({
 	networkInfo,
 	toStaking,
 	setStakingPath,
+	isSameStashController,
 }) => {
 	const router = useRouter();
 	const { isStakingPathPopoverOpen, close } = useStakingPathPopover();
 	const handleOnClick = (path) => {
-		if(path=="express")
+		if (path == "express") {
 			track(goalCodes.GLOBAL.EXPRESS_STAKING_PATH);
-		else if(path=="secure")
+		} else if (path == "secure") {
 			track(goalCodes.GLOBAL.SECURE_STAKING_PATH);
+		}
 		setStakingPath(path);
 		router.push("/staking");
 		close();
 	};
+
 	return (
 		<Modal
 			isOpen={isStakingPathPopoverOpen}
@@ -80,7 +83,11 @@ const StakingPathPopover = ({
 									<div className="flex flex-col justify-center items-center">
 										<h2 className="text-md font-semibold">Express</h2>
 										<p className="text-gray-600 text-sm max-w-md">
-											(most used)
+											(
+											{isSameStashController
+												? "currently using this"
+												: "most used"}
+											)
 										</p>
 									</div>
 									<ul className="w-full flex flex-col text-sm text-gray-700 list-disc list-outside p-4 space-y-4">
