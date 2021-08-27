@@ -142,6 +142,7 @@ const Validators = () => {
 	const [result, setResult] = useState({});
 	const [minPossibleStake, setMinPossibleStake] = useState(0);
 
+	const [controllerUnavailable, setControllerUnavailable] = useState();
 	const [ysFees, setYsFees] = useState();
 	const [transactionFees, setTransactionFees] = useState();
 
@@ -171,6 +172,10 @@ const Validators = () => {
 			  )[0]
 			: null;
 		setControllerAccount(account);
+
+		if (isNil(account)) {
+			setControllerUnavailable(true);
+		} else setControllerUnavailable(false);
 	}, [
 		selectedAccount?.address,
 		JSON.stringify(stakingInfo),
@@ -582,6 +587,8 @@ const Validators = () => {
 				networkInfo={networkInfo}
 				trackRewardCalculatedEvent={trackRewardCalculatedEvent}
 				minPossibleStake={minPossibleStake}
+				controllerUnavailable={controllerUnavailable}
+				controllerBalances={controllerBalances}
 			/>
 			<ValidatorsResult
 				stakingAmount={amount}

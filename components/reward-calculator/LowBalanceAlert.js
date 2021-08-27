@@ -61,7 +61,7 @@ const LowBalanceAlert = ({
 				setPopoverContent(
 					`${
 						networkInfo.name
-					} network doesn't allow staking amounts of less than ${formatCurrency.methods.formatAmount(
+					} network doesn't allow staking of amounts less than ${formatCurrency.methods.formatAmount(
 						Math.trunc(
 							Number(minPossibleStake) * 10 ** networkInfo.decimalPlaces
 						),
@@ -172,7 +172,7 @@ const LowBalanceAlert = ({
 							<span className="underline cursor-help">Why?</span>
 						</PopoverTrigger>
 						<PopoverContent
-							zIndex={50}
+							zIndex={1401}
 							_focus={{ outline: "none" }}
 							bg="gray.600"
 							border="none"
