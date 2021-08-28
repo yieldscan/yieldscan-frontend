@@ -592,6 +592,7 @@ const Validators = () => {
 				minPossibleStake={minPossibleStake}
 				controllerUnavailable={controllerUnavailable}
 				controllerBalances={controllerBalances}
+				apiInstance={apiInstance}
 			/>
 			<ValidatorsResult
 				stakingAmount={amount}

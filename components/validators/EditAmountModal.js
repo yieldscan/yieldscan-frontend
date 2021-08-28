@@ -38,6 +38,7 @@ const EditAmountModal = withSlideIn(
 		minPossibleStake,
 		controllerUnavailable,
 		controllerBalances,
+		apiInstance,
 	}) => {
 		const { coinGeckoPriceUSD } = useCoinGeckoPriceUSD();
 		const [stakingAmount, setStakingAmount] = useState(() => amount);
