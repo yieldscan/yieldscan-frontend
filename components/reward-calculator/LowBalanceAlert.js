@@ -20,7 +20,7 @@ const LowBalanceAlert = ({
 	totalPossibleStakingAmount,
 	minPossibleStake,
 	controllerUnavailable,
-	controllerAvailableAmount,
+	isSameStashController,
 }) => {
 	const [status, setStatus] = useState();
 	const [title, setTitle] = useState();
@@ -124,17 +124,7 @@ const LowBalanceAlert = ({
 					funds, changing on-chain staking preferences, etc.`);
 			} else setStatus(null);
 		} else {
-			if (controllerUnavailable) {
-				setStatus("warning");
-				setTitleColor("#FDB808");
-				setTitle("Controller not found");
-				setDescriptionColor("#FDB808");
-				setDescription(
-					`Existing controller account not found.
-				Either import the existing controller account or proceed to change controller. `
-				);
-				setPopoverContent(null);
-			} else if (activeBondedAmount < minPossibleStake) {
+			if (activeBondedAmount < minPossibleStake) {
 				setStatus("error");
 				setTitleColor("red.500");
 				setTitle("Insufficient Balance");
@@ -148,6 +138,53 @@ const LowBalanceAlert = ({
 					)}. Go to overview page to invest more.`
 				);
 				setPopoverContent(null);
+			} else if (
+				isSameStashController &&
+				totalAvailableStakingAmount < networkInfo.reserveAmount / 4
+			) {
+				setStatus("error");
+				setTitleColor("red.500");
+				setTitle("Insufficient Balance");
+				setDescriptionColor("red.500");
+				setDescription(
+					`You need an additional ${formatCurrency.methods.formatAmount(
+						Math.trunc(
+							Number(networkInfo.reserveAmount - totalAvailableStakingAmount) *
+								10 ** networkInfo.decimalPlaces
+						),
+						networkInfo
+					)} to proceed further. `
+				);
+				setPopoverContent(`This is to ensure that you have a
+							decent amount of funds in your
+							account to pay transaction fees for claiming rewards, unbonding
+							funds, changing on-chain staking preferences, etc.`);
+			} else if (controllerUnavailable) {
+				setStatus("warning");
+				setTitleColor("#FDB808");
+				setTitle("Controller not found");
+				setDescriptionColor("#FDB808");
+				setDescription(
+					`Existing controller account not found.
+				Either import the existing controller account or proceed to change controller. `
+				);
+				setPopoverContent(null);
+			} else if (
+				isSameStashController &&
+				totalAvailableStakingAmount < networkInfo.reserveAmount / 2
+			) {
+				setStatus("warning");
+				setTitleColor("#FDB808");
+				setTitle("Low Balance");
+				setDescriptionColor("#FDB808");
+				setDescription(
+					`Your available balance is low, we recommend to add more
+							${networkInfo.denom}s. `
+				);
+				setPopoverContent(`This is to ensure that you have a
+							decent amount of funds in your
+							account to pay transaction fees for claiming rewards, unbonding
+							funds, changing on-chain staking preferences, etc.`);
 			} else setStatus(null);
 		}
 	});

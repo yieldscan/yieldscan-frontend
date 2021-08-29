@@ -556,10 +556,10 @@ const Validators = () => {
 					setStakingPath={setStakingPath}
 					transferAmount={
 						controllerBalances
-							? networkInfo.reserveAmount -
-							  (parseInt(controllerBalances?.availableBalance) -
-									apiInstance?.consts.balances.existentialDeposit.toNumber()) /
-									Math.pow(10, networkInfo.decimalPlaces)
+							? networkInfo.reserveAmount +
+							  apiInstance?.consts.balances.existentialDeposit.toNumber() /
+									Math.pow(10, networkInfo.decimalPlaces) -
+							  parseInt(controllerBalances?.availableBalance)
 							: 0
 					}
 					controllerAccount={controllerAccount}
@@ -591,8 +591,9 @@ const Validators = () => {
 				trackRewardCalculatedEvent={trackRewardCalculatedEvent}
 				minPossibleStake={minPossibleStake}
 				controllerUnavailable={controllerUnavailable}
-				controllerBalances={controllerBalances}
-				apiInstance={apiInstance}
+				isSameStashController={
+					selectedAccount?.address === controllerAccount?.address
+				}
 			/>
 			<ValidatorsResult
 				stakingAmount={amount}

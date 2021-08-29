@@ -478,12 +478,16 @@ const Staking = () => {
 	useEffect(() => {
 		if (selected && apiInstance && accountsBalances) {
 			accountsBalances[selected?.address].availableBalance <
-			ysFees + apiInstance?.consts.balances.existentialDeposit
+			ysFees +
+				apiInstance?.consts.balances.existentialDeposit.toNumber() +
+				(networkInfo.reserveAmount * Math.pow(10, networkInfo.decimalPlaces)) /
+					4
 				? setControllerTransferAmount(() =>
 						Math.trunc(
 							ysFees +
 								networkInfo?.reserveAmount *
-									Math.pow(10, networkInfo.decimalPlaces) -
+									Math.pow(10, networkInfo.decimalPlaces) +
+								apiInstance?.consts.balances.existentialDeposit.toNumber() -
 								accountsBalances[selected?.address].availableBalance
 						)
 				  )

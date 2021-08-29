@@ -37,8 +37,7 @@ const EditAmountModal = withSlideIn(
 		trackRewardCalculatedEvent,
 		minPossibleStake,
 		controllerUnavailable,
-		controllerBalances,
-		apiInstance,
+		isSameStashController,
 	}) => {
 		const { coinGeckoPriceUSD } = useCoinGeckoPriceUSD();
 		const [stakingAmount, setStakingAmount] = useState(() => amount);
@@ -106,13 +105,7 @@ const EditAmountModal = withSlideIn(
 									totalAvailableStakingAmount={totalAvailableStakingAmount}
 									minPossibleStake={minPossibleStake}
 									controllerUnavailable={controllerUnavailable}
-									controllerAvailableAmount={
-										controllerBalances
-											? (parseInt(controllerBalances?.availableBalance) -
-													apiInstance?.consts.balances.existentialDeposit.toNumber()) /
-											  Math.pow(10, networkInfo.decimalPlaces)
-											: null
-									}
+									isSameStashController={isSameStashController}
 								/>
 							)}
 							<div
