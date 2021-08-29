@@ -118,13 +118,18 @@ const EarningsOutput = ({
 
 	useEffect(() => {
 		setTotalEarnings(null);
-		getRewardsSum(address, networkInfo).then((data) => {
-			setTotalEarnings({
-				currency: data,
-				subCurrency:
-					(data / Math.pow(10, networkInfo.decimalPlaces)) * coinGeckoPriceUSD,
+		getRewardsSum(address, networkInfo)
+			.then((data) => {
+				setTotalEarnings({
+					currency: data,
+					subCurrency:
+						(data / Math.pow(10, networkInfo.decimalPlaces)) *
+						coinGeckoPriceUSD,
+				});
+			})
+			.catch((err) => {
+				console.error(err);
 			});
-		});
 	}, [address, networkInfo]);
 
 	useEffect(() => {
