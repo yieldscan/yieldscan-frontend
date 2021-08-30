@@ -482,9 +482,9 @@ const RewardCalculatorPage = () => {
 							setStakingPath={setStakingPath}
 							transferAmount={
 								controllerBalances
-									? networkInfo.reserveAmount -
-									  (parseInt(controllerBalances?.availableBalance) -
-											apiInstance?.consts.balances.existentialDeposit.toNumber()) /
+									? networkInfo.reserveAmount +
+									  (apiInstance?.consts.balances.existentialDeposit.toNumber() -
+											parseInt(controllerBalances?.availableBalance)) /
 											Math.pow(10, networkInfo.decimalPlaces)
 									: 0
 							}
@@ -539,12 +539,8 @@ const RewardCalculatorPage = () => {
 											totalAvailableStakingAmount={totalAvailableStakingAmount}
 											minPossibleStake={minPossibleStake}
 											controllerUnavailable={controllerUnavailable}
-											controllerAvailableAmount={
-												controllerBalances
-													? (parseInt(controllerBalances?.availableBalance) -
-															apiInstance?.consts.balances.existentialDeposit.toNumber()) /
-													  Math.pow(10, networkInfo.decimalPlaces)
-													: null
+											isSameStashController={
+												selectedAccount?.address === controllerAccount?.address
 											}
 										/>
 									)}

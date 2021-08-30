@@ -451,12 +451,6 @@ const Validators = () => {
 		}
 	};
 
-	const onPayment = async () => {
-		updateTransactionState(Events.INTENT_STAKING);
-		if (transactionHash) setTransactionHash(null);
-		router.push("/payment", "/payment", { shallow: true });
-	};
-
 	const trackRewardCalculatedEvent = debounce((eventData) => {
 		track(goalCodes.VALIDATOR.VALUE_CHANGED);
 		trackEvent(Events.REWARD_CALCULATED, eventData);
@@ -556,9 +550,9 @@ const Validators = () => {
 					setStakingPath={setStakingPath}
 					transferAmount={
 						controllerBalances
-							? networkInfo.reserveAmount -
-							  (parseInt(controllerBalances?.availableBalance) -
-									apiInstance?.consts.balances.existentialDeposit.toNumber()) /
+							? networkInfo.reserveAmount +
+							  (apiInstance?.consts.balances.existentialDeposit.toNumber() -
+									parseInt(controllerBalances?.availableBalance)) /
 									Math.pow(10, networkInfo.decimalPlaces)
 							: 0
 					}
@@ -591,8 +585,9 @@ const Validators = () => {
 				trackRewardCalculatedEvent={trackRewardCalculatedEvent}
 				minPossibleStake={minPossibleStake}
 				controllerUnavailable={controllerUnavailable}
-				controllerBalances={controllerBalances}
-				apiInstance={apiInstance}
+				isSameStashController={
+					selectedAccount?.address === controllerAccount?.address
+				}
 			/>
 			<ValidatorsResult
 				stakingAmount={amount}
