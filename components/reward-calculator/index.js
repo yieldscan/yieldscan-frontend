@@ -233,7 +233,7 @@ const RewardCalculatorPage = () => {
 			(parseInt(controllerBalances?.availableBalance) -
 				apiInstance?.consts.balances.existentialDeposit.toNumber()) /
 				Math.pow(10, networkInfo.decimalPlaces) <
-				networkInfo.reserveAmount / 4
+				networkInfo.reserveAmount / 2
 		) {
 			toggleIsLowBalanceOpen();
 		} else if (
@@ -483,9 +483,9 @@ const RewardCalculatorPage = () => {
 							transferAmount={
 								controllerBalances
 									? networkInfo.reserveAmount +
-									  apiInstance?.consts.balances.existentialDeposit.toNumber() /
-											Math.pow(10, networkInfo.decimalPlaces) -
-									  parseInt(controllerBalances?.availableBalance)
+									  (apiInstance?.consts.balances.existentialDeposit.toNumber() -
+											parseInt(controllerBalances?.availableBalance)) /
+											Math.pow(10, networkInfo.decimalPlaces)
 									: 0
 							}
 							controllerAccount={controllerAccount}

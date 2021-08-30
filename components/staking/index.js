@@ -480,8 +480,11 @@ const Staking = () => {
 			accountsBalances[selected?.address].availableBalance <
 			ysFees +
 				apiInstance?.consts.balances.existentialDeposit.toNumber() +
-				(networkInfo.reserveAmount * Math.pow(10, networkInfo.decimalPlaces)) /
-					4
+				Math.trunc(
+					(networkInfo.reserveAmount *
+						Math.pow(10, networkInfo.decimalPlaces)) /
+						2
+				)
 				? setControllerTransferAmount(() =>
 						Math.trunc(
 							ysFees +
@@ -498,12 +501,10 @@ const Staking = () => {
 	useEffect(() => {
 		if (stakingPath === "transfer" && controllerBalances) {
 			setTransferFundsAmount(
-				Math.trunc(
-					(networkInfo.reserveAmount -
-						(parseInt(controllerBalances?.availableBalance) -
-							apiInstance?.consts.balances.existentialDeposit.toNumber()) /
-							Math.pow(10, networkInfo.decimalPlaces)) *
-						Math.pow(10, networkInfo.decimalPlaces)
+				Math.pow(
+					networkInfo.reserveAmount * Math.pow(10, networkInfo.decimalPlaces) +
+						(apiInstance?.consts.balances.existentialDeposit.toNumber() -
+							parseInt(controllerBalances?.availableBalance))
 				)
 			);
 		}

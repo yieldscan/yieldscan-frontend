@@ -44,14 +44,14 @@ const LowBalanceAlert = ({
 					threshold of 
 					${formatCurrency.methods.formatAmount(
 						Math.trunc(
-							Number(minPossibleStake) * 10 ** networkInfo.decimalPlaces
+							minPossibleStake * Math.pow(10, networkInfo.decimalPlaces)
 						),
 						networkInfo
 					)}. We additionally require users to keep 
 					${formatCurrency.methods.formatAmount(
 						Math.trunc(
-							Number(networkInfo.reserveAmount) *
-								10 ** networkInfo.decimalPlaces
+							networkInfo.reserveAmount *
+								Math.pow(10, networkInfo.decimalPlaces)
 						),
 						networkInfo
 					)} as a reserve in their accounts. `
@@ -70,7 +70,7 @@ const LowBalanceAlert = ({
 				setDescription(
 					`Your inputted amount is less than the minimum allowed staking amount of ${formatCurrency.methods.formatAmount(
 						Math.trunc(
-							Number(minPossibleStake) * 10 ** networkInfo.decimalPlaces
+							minPossibleStake * Math.pow(10, networkInfo.decimalPlaces)
 						),
 						networkInfo
 					)}. `
@@ -80,7 +80,7 @@ const LowBalanceAlert = ({
 						networkInfo.name
 					} network doesn't allow staking of amounts less than ${formatCurrency.methods.formatAmount(
 						Math.trunc(
-							Number(minPossibleStake) * 10 ** networkInfo.decimalPlaces
+							minPossibleStake * Math.pow(10, networkInfo.decimalPlaces)
 						),
 						networkInfo
 					)}.`
@@ -97,14 +97,14 @@ const LowBalanceAlert = ({
 					`Your inputted amount is more than your available free
 					account balance of ${formatCurrency.methods.formatAmount(
 						Math.trunc(
-							Number(totalPossibleStakingAmount) *
-								10 ** networkInfo.decimalPlaces
+							totalPossibleStakingAmount *
+								Math.pow(10, networkInfo.decimalPlaces)
 						),
 						networkInfo
 					)} minus ${formatCurrency.methods.formatAmount(
 						Math.trunc(
-							Number(networkInfo.reserveAmount) *
-								10 ** networkInfo.decimalPlaces
+							networkInfo.reserveAmount *
+								Math.pow(10, networkInfo.decimalPlaces)
 						),
 						networkInfo
 					)}. Press the max
@@ -113,8 +113,8 @@ const LowBalanceAlert = ({
 				setPopoverContent(`The subtracted
 					${formatCurrency.methods.formatAmount(
 						Math.trunc(
-							Number(networkInfo.reserveAmount) *
-								10 ** networkInfo.decimalPlaces
+							networkInfo.reserveAmount *
+								Math.pow(10, networkInfo.decimalPlaces)
 						),
 						networkInfo
 					)}
@@ -132,33 +132,12 @@ const LowBalanceAlert = ({
 				setDescription(
 					`Your active bonded amount is less than min allowed staking amount of ${formatCurrency.methods.formatAmount(
 						Math.trunc(
-							Number(minPossibleStake) * 10 ** networkInfo.decimalPlaces
+							minPossibleStake * Math.pow(10, networkInfo.decimalPlaces)
 						),
 						networkInfo
 					)}. Go to overview page to invest more.`
 				);
 				setPopoverContent(null);
-			} else if (
-				isSameStashController &&
-				totalAvailableStakingAmount < networkInfo.reserveAmount / 4
-			) {
-				setStatus("error");
-				setTitleColor("red.500");
-				setTitle("Insufficient Balance");
-				setDescriptionColor("red.500");
-				setDescription(
-					`You need an additional ${formatCurrency.methods.formatAmount(
-						Math.trunc(
-							Number(networkInfo.reserveAmount - totalAvailableStakingAmount) *
-								10 ** networkInfo.decimalPlaces
-						),
-						networkInfo
-					)} to proceed further. `
-				);
-				setPopoverContent(`This is to ensure that you have a
-							decent amount of funds in your
-							account to pay transaction fees for claiming rewards, unbonding
-							funds, changing on-chain staking preferences, etc.`);
 			} else if (controllerUnavailable) {
 				setStatus("warning");
 				setTitleColor("#FDB808");
@@ -172,6 +151,27 @@ const LowBalanceAlert = ({
 			} else if (
 				isSameStashController &&
 				totalAvailableStakingAmount < networkInfo.reserveAmount / 2
+			) {
+				setStatus("error");
+				setTitleColor("red.500");
+				setTitle("Insufficient Balance");
+				setDescriptionColor("red.500");
+				setDescription(
+					`You need an additional ${formatCurrency.methods.formatAmount(
+						Math.trunc(
+							(networkInfo.reserveAmount - totalAvailableStakingAmount) *
+								Math.pow(10, networkInfo.decimalPlaces)
+						),
+						networkInfo
+					)} to proceed further. `
+				);
+				setPopoverContent(`This is to ensure that you have a
+							decent amount of funds in your
+							account to pay transaction fees for claiming rewards, unbonding
+							funds, changing on-chain staking preferences, etc.`);
+			} else if (
+				isSameStashController &&
+				totalAvailableStakingAmount < networkInfo.reserveAmount
 			) {
 				setStatus("warning");
 				setTitleColor("#FDB808");
