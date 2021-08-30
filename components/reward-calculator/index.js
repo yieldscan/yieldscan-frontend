@@ -482,9 +482,9 @@ const RewardCalculatorPage = () => {
 							setStakingPath={setStakingPath}
 							transferAmount={
 								controllerBalances
-									? networkInfo.reserveAmount -
-									  (parseInt(controllerBalances?.availableBalance) -
-											apiInstance?.consts.balances.existentialDeposit.toNumber()) /
+									? networkInfo.reserveAmount +
+									  (apiInstance?.consts.balances.existentialDeposit.toNumber() -
+											parseInt(controllerBalances?.availableBalance)) /
 											Math.pow(10, networkInfo.decimalPlaces)
 									: 0
 							}
@@ -497,6 +497,9 @@ const RewardCalculatorPage = () => {
 							toStaking={toStaking}
 							networkInfo={networkInfo}
 							setStakingPath={setStakingPath}
+							isSameStashController={
+								selectedAccount?.address === controllerAccount?.address
+							}
 						/>
 					)}
 					{activeBondedAmount > 0 && (
@@ -527,17 +530,7 @@ const RewardCalculatorPage = () => {
 								{selectedAccount &&
 									balances &&
 									stakingInfo &&
-									!simulationChecked &&
-									(amount >
-										totalPossibleStakingAmount - networkInfo.reserveAmount ||
-										totalPossibleStakingAmount - networkInfo.reserveAmount <=
-											0 ||
-										amount < minPossibleStake ||
-										totalPossibleStakingAmount <
-											minPossibleStake + networkInfo.reserveAmount ||
-										activeBondedAmount >
-											totalPossibleStakingAmount - networkInfo.reserveAmount ||
-										controllerUnavailable) && (
+									!simulationChecked && (
 										<LowBalanceAlert
 											amount={amount}
 											activeBondedAmount={activeBondedAmount}
@@ -546,12 +539,8 @@ const RewardCalculatorPage = () => {
 											totalAvailableStakingAmount={totalAvailableStakingAmount}
 											minPossibleStake={minPossibleStake}
 											controllerUnavailable={controllerUnavailable}
-											controllerAvailableAmount={
-												controllerBalances
-													? (parseInt(controllerBalances?.availableBalance) -
-															apiInstance?.consts.balances.existentialDeposit.toNumber()) /
-													  Math.pow(10, networkInfo.decimalPlaces)
-													: null
+											isSameStashController={
+												selectedAccount?.address === controllerAccount?.address
 											}
 										/>
 									)}

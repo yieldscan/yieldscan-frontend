@@ -142,6 +142,7 @@ const Validators = () => {
 	const [result, setResult] = useState({});
 	const [minPossibleStake, setMinPossibleStake] = useState(0);
 
+	const [controllerUnavailable, setControllerUnavailable] = useState();
 	const [ysFees, setYsFees] = useState();
 	const [transactionFees, setTransactionFees] = useState();
 
@@ -171,6 +172,10 @@ const Validators = () => {
 			  )[0]
 			: null;
 		setControllerAccount(account);
+
+		if (isNil(account)) {
+			setControllerUnavailable(true);
+		} else setControllerUnavailable(false);
 	}, [
 		selectedAccount?.address,
 		JSON.stringify(stakingInfo),
@@ -446,12 +451,6 @@ const Validators = () => {
 		}
 	};
 
-	const onPayment = async () => {
-		updateTransactionState(Events.INTENT_STAKING);
-		if (transactionHash) setTransactionHash(null);
-		router.push("/payment", "/payment", { shallow: true });
-	};
-
 	const trackRewardCalculatedEvent = debounce((eventData) => {
 		track(goalCodes.VALIDATOR.VALUE_CHANGED);
 		trackEvent(Events.REWARD_CALCULATED, eventData);
@@ -551,9 +550,9 @@ const Validators = () => {
 					setStakingPath={setStakingPath}
 					transferAmount={
 						controllerBalances
-							? networkInfo.reserveAmount -
-							  (parseInt(controllerBalances?.availableBalance) -
-									apiInstance?.consts.balances.existentialDeposit.toNumber()) /
+							? networkInfo.reserveAmount +
+							  (apiInstance?.consts.balances.existentialDeposit.toNumber() -
+									parseInt(controllerBalances?.availableBalance)) /
 									Math.pow(10, networkInfo.decimalPlaces)
 							: 0
 					}
@@ -566,6 +565,9 @@ const Validators = () => {
 					toStaking={toStaking}
 					networkInfo={networkInfo}
 					setStakingPath={setStakingPath}
+					isSameStashController={
+						selectedAccount?.address === controllerAccount?.address
+					}
 				/>
 			)}
 			<EditAmountModal
@@ -582,6 +584,10 @@ const Validators = () => {
 				networkInfo={networkInfo}
 				trackRewardCalculatedEvent={trackRewardCalculatedEvent}
 				minPossibleStake={minPossibleStake}
+				controllerUnavailable={controllerUnavailable}
+				isSameStashController={
+					selectedAccount?.address === controllerAccount?.address
+				}
 			/>
 			<ValidatorsResult
 				stakingAmount={amount}
