@@ -174,7 +174,9 @@ const FundsUpdate = withSlideIn(
 		}, [amount, totalStakingAmount]);
 
 		useEffect(() => {
-			if (
+			if (isNil(amount) || isNaN(amount) || amount <= 0 || amount === "") {
+				setCalculationDisabled(true);
+			} else if (
 				type === "unbond" &&
 				amount >
 					stakingInfo.stakingLedger.active /
@@ -193,8 +195,6 @@ const FundsUpdate = withSlideIn(
 			) {
 				setCalculationDisabled(true);
 			} else if (type === "rebond" && amount > totalUnbonding) {
-				setCalculationDisabled(true);
-			} else if (amount === 0 || amount === undefined || amount === "") {
 				setCalculationDisabled(true);
 			} else setCalculationDisabled(false);
 		}, [amount]);

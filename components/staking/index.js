@@ -18,7 +18,7 @@ import { useRouter } from "next/router";
 import { getNetworkInfo } from "yieldscan.config";
 import StakeToEarn from "./StakeToEarn";
 import Confirmation from "./Confirmation";
-import stake from "@lib/stake";
+import signAndSend from "@lib/signAndSend";
 import axios from "@lib/axios";
 import { useToast } from "@chakra-ui/core";
 import ConfettiGenerator from "confetti-js";
@@ -252,7 +252,7 @@ const Staking = () => {
 		};
 
 		if (transactionState.stakingAmount && initialStakingPath !== "transfer") {
-			stake(apiInstance, handlers, transactions, injectorAccount).catch(
+			signAndSend(apiInstance, handlers, transactions, injectorAccount).catch(
 				(error) => {
 					handlers.onFinish(1, error.message);
 				}
@@ -421,7 +421,7 @@ const Staking = () => {
 			},
 		};
 
-		return stake(apiInstance, handlers, _transaction, injector).catch(
+		return signAndSend(apiInstance, handlers, _transaction, injector).catch(
 			(error) => {
 				handlers.onFinish(1, error.message);
 			}

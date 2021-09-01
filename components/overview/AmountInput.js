@@ -1,7 +1,7 @@
 import { InputGroup, Input, InputRightElement } from "@chakra-ui/core";
 import formatCurrency from "@lib/format-currency";
 import { useAccounts } from "@lib/store";
-import { get } from "lodash";
+import { isNil } from "lodash";
 import { useState, useEffect } from "react";
 
 const AmountInputDefault = ({
@@ -10,35 +10,28 @@ const AmountInputDefault = ({
 	value,
 	totalUnbonding,
 	availableBalance,
-	totalUnbondingFiat,
 	onChange,
 	networkInfo,
 }) => {
-	const [inputValue, setInputValue] = useState(value.currency);
 	const maxAmount =
 		type === "bond"
 			? availableBalance - networkInfo.reserveAmount < 0
 				? 0
-				: Math.trunc(
-						availableBalance * 10 ** networkInfo.decimalPlaces -
-							networkInfo.reserveAmount * 10 ** networkInfo.decimalPlaces
-				  ) /
-				  10 ** networkInfo.decimalPlaces
+				: Math.trunc(availableBalance - networkInfo.reserveAmount)
 			: type === "unbond"
 			? bonded
 			: totalUnbonding;
 
-	// useEffect(() => {
-	// 	if (bonded) {
-	// 		onChange(bonded);
-	// 		setInputValue(Number(Math.max(bonded, 0)));
-	// 	}
-	// }, [bonded]);
+	const [inputValue, setInputValue] = useState(value.currency);
 
 	const handleChange = (value) => {
 		onChange(Number(value));
 		setInputValue(value);
 	};
+
+	useEffect(() => {
+		if (maxAmount) handleChange(maxAmount);
+	}, [maxAmount]);
 
 	return (
 		<InputGroup className="rounded-full">
@@ -59,6 +52,13 @@ const AmountInputDefault = ({
 				}}
 				border="none"
 				fontSize="lg"
+				isInvalid={
+					isNil(value?.currency) ||
+					value.currency === "" ||
+					value?.currency <= 0 ||
+					value?.currency > maxAmount
+				}
+				errorBorderColor="crimson"
 				color="gray.600"
 			/>
 			<h6
@@ -101,7 +101,6 @@ const AmountInput = ({
 	type,
 	totalUnbonding,
 	availableBalance,
-	totalUnbondingFiat,
 	networkInfo,
 	onChange,
 }) => {
@@ -113,7 +112,6 @@ const AmountInput = ({
 			onChange={onChange}
 			availableBalance={availableBalance}
 			totalUnbonding={totalUnbonding}
-			totalUnbondingFiat={totalUnbondingFiat}
 			networkInfo={networkInfo}
 		/>
 	);

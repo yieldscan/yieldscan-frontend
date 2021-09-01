@@ -34,6 +34,8 @@ import { Events, trackEvent, track, goalCodes } from "@lib/analytics";
 import ProgressiveImage from "react-progressive-image";
 import RedeemUnbonded from "./RedeemUnbonded";
 import Image from "next/image";
+import InvestMoreModal from "./InvestMoreModal";
+import ReBondModal from "./ReBondModal";
 
 const Tabs = {
 	ACTIVE_VALIDATORS: "validators",
@@ -81,6 +83,16 @@ const Overview = () => {
 		isOpen: fundsUpdateModalOpen,
 		onToggle: toggleFundsUpdateModal,
 		onClose: closeFundsUpdateModal,
+	} = useDisclosure();
+	const {
+		isOpen: investMoreModalOpen,
+		onToggle: toggleInvestMoreModal,
+		onClose: closeInvestMoreModal,
+	} = useDisclosure();
+	const {
+		isOpen: reBondModalOpen,
+		onToggle: toggleReBondModal,
+		onClose: closeReBondModal,
 	} = useDisclosure();
 	const {
 		isOpen: openUnbondingList,
@@ -259,6 +271,32 @@ const Overview = () => {
 		</div>
 	) : (
 		<div className="py-10 w-full h-full">
+			{investMoreModalOpen && (
+				<InvestMoreModal
+					apiInstance={apiInstance}
+					isOpen={investMoreModalOpen}
+					close={closeInvestMoreModal}
+					nominations={allNominations}
+					selectedAccount={selectedAccount}
+					balance={balances}
+					stakingInfo={stakingInfo}
+					networkInfo={networkInfo}
+					minPossibleStake={minPossibleStake}
+				/>
+			)}
+			{reBondModalOpen && (
+				<ReBondModal
+					apiInstance={apiInstance}
+					isOpen={reBondModalOpen}
+					close={closeReBondModal}
+					nominations={allNominations}
+					selectedAccount={selectedAccount}
+					balance={balances}
+					stakingInfo={stakingInfo}
+					networkInfo={networkInfo}
+					minPossibleStake={minPossibleStake}
+				/>
+			)}
 			<FundsUpdate
 				apiInstance={apiInstance}
 				isOpen={fundsUpdateModalOpen}
@@ -296,9 +334,9 @@ const Overview = () => {
 						stats={isNil(userData) ? null : userData.stats}
 						stakingInfo={stakingInfo}
 						validators={isNil(userData) ? null : userData.validatorsInfo}
-						bondFunds={() => openFundsUpdateModal("bond")}
+						bondFunds={toggleInvestMoreModal}
 						unbondFunds={() => openFundsUpdateModal("unbond")}
-						rebondFunds={() => openFundsUpdateModal("rebond")}
+						rebondFunds={toggleReBondModal}
 						toggleRedeemUnbonded={toggleRedeemUnbonded}
 						openUnbondingListModal={() => openUnbondingListModal()}
 						openRewardDestinationModal={toggleRewardDestinationModal}
