@@ -267,7 +267,7 @@ const InvestMoreModal = withSlideIn(
 				setTransactionFee(0);
 				setInjectorAccount(null);
 				const substrateStashId = encodeAddress(
-					decodeAddress(stakingInfo?.controllerId),
+					decodeAddress(selectedAccount?.address),
 					42
 				);
 

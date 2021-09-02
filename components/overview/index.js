@@ -23,7 +23,6 @@ import {
 } from "@lib/store";
 import { useWalletConnect } from "@components/wallet-connect";
 import { isNil } from "lodash";
-import FundsUpdate from "./FundsUpdate";
 import UnbondingList from "./UnbondingList";
 import Routes from "@lib/routes";
 import { useRouter } from "next/router";
@@ -66,7 +65,6 @@ const Overview = () => {
 	const [eraProgress, setEraProgress] = useState();
 	const [activeEra, setActiveEra] = useState();
 	const [validatorsLoading, setValidatorsLoading] = useState(true);
-	const [fundsUpdateModalType, setFundsUpdateModalType] = useState();
 	const handleValToggle = () => setShowValidators(!showValidators);
 	const [selectedTab, setSelectedTab] = useState(Tabs.NOMINATIONS);
 	const [minPossibleStake, setMinPossibleStake] = useState(0);
@@ -79,11 +77,6 @@ const Overview = () => {
 		isOpen: editControllerModalOpen,
 		onToggle: toggleEditControllerModal,
 		onClose: closeEditControllerModal,
-	} = useDisclosure();
-	const {
-		isOpen: fundsUpdateModalOpen,
-		onToggle: toggleFundsUpdateModal,
-		onClose: closeFundsUpdateModal,
 	} = useDisclosure();
 	const {
 		isOpen: investMoreModalOpen,
@@ -183,11 +176,6 @@ const Overview = () => {
 	const onEditController = () => {
 		closeRewardDestinationModal();
 		toggleEditControllerModal();
-	};
-
-	const openFundsUpdateModal = (type) => {
-		setFundsUpdateModalType(type);
-		toggleFundsUpdateModal();
 	};
 
 	const openUnbondingListModal = () => {
@@ -316,18 +304,6 @@ const Overview = () => {
 					minPossibleStake={minPossibleStake}
 				/>
 			)}
-			{/* <FundsUpdate
-				apiInstance={apiInstance}
-				isOpen={fundsUpdateModalOpen}
-				close={closeFundsUpdateModal}
-				type={fundsUpdateModalType}
-				nominations={allNominations}
-				selectedAccount={selectedAccount}
-				balance={balances}
-				stakingInfo={stakingInfo}
-				networkInfo={networkInfo}
-				minPossibleStake={minPossibleStake}
-			/> */}
 			<UnbondingList
 				api={apiInstance}
 				isOpen={openUnbondingList}

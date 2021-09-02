@@ -28,11 +28,13 @@ const OverviewCards = ({
 	const { isInElection } = useNetworkElection();
 	const { coinGeckoPriceUSD } = useCoinGeckoPriceUSD();
 
-	const isActivelyStaking = isNil(validators)
-		? false
-		: validators.filter((validator) => validator.isElected).length !== 0
-		? true
-		: false;
+	const isActivelyStaking =
+		isNil(validators) ||
+		(!isNil(stakingInfo?.nominators) && stakingInfo?.nominators.length === 0)
+			? false
+			: validators.filter((validator) => validator.isElected).length !== 0
+			? true
+			: false;
 
 	const [redeemableBalanceFiat, setRedeemableBalanceFiat] = useState();
 	const [totalUnbonding, setTotalUnbonding] = useState();
