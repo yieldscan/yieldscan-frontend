@@ -5,43 +5,42 @@ import { useEffect, useState } from "react";
 import { useCoinGeckoPriceUSD } from "@lib/store";
 import getUpdateFundsTransactionFee from "@lib/getUpdateFundsTransactionFee";
 import { isNil } from "lodash";
+import { NextButton } from "@components/common/BottomButton";
 const AmountConfirmation = ({
 	stashId,
 	amount,
 	subCurrency,
 	type,
-	close,
-	nominations,
-	handlePopoverClose,
 	api,
 	stakingInfo,
 	networkInfo,
 	onConfirm,
+	transactionFee,
 }) => {
 	const { coinGeckoPriceUSD } = useCoinGeckoPriceUSD();
-	const [transactionFee, setTransactionFee] = useState();
 	const [subFeeCurrency, setSubFeeCurrency] = useState();
 	const [totalAmount, setTotalAmount] = useState(0);
 	const [totalAmountFiat, setTotalAmountFiat] = useState(0);
-	useEffect(() => {
-		if (!transactionFee) {
-			getUpdateFundsTransactionFee(
-				stashId,
-				amount,
-				type,
-				stakingInfo.stakingLedger.active /
-					Math.pow(10, networkInfo.decimalPlaces),
-				api,
-				networkInfo
-			).then((data) => {
-				if (type == "unbond") {
-					data.partialFee !== undefined
-						? setTransactionFee(data.partialFee.toNumber())
-						: setTransactionFee(0);
-				} else setTransactionFee(data);
-			});
-		}
-	}, [amount, stashId, networkInfo, type]);
+
+	// useEffect(() => {
+	// 	if (!transactionFee) {
+	// 		getUpdateFundsTransactionFee(
+	// 			stashId,
+	// 			amount,
+	// 			type,
+	// 			stakingInfo.stakingLedger.active /
+	// 				Math.pow(10, networkInfo.decimalPlaces),
+	// 			api,
+	// 			networkInfo
+	// 		).then((data) => {
+	// 			if (type == "unbond") {
+	// 				data.partialFee !== undefined
+	// 					? setTransactionFee(data.partialFee.toNumber())
+	// 					: setTransactionFee(0);
+	// 			} else setTransactionFee(data);
+	// 		});
+	// 	}
+	// }, [amount, stashId, networkInfo, type]);
 
 	useEffect(() => {
 		if (transactionFee) {
@@ -151,7 +150,7 @@ const AmountConfirmation = ({
 					<p className="text-gray-700 text-xs">Transaction Fee</p>
 
 					<div className="flex flex-col">
-						{!isNil(transactionFee) ? (
+						{transactionFee > 0 ? (
 							<div>
 								<p className="text-sm text-right">
 									{formatCurrency.methods.formatAmount(
@@ -173,7 +172,7 @@ const AmountConfirmation = ({
 				<Divider my={6} />
 				<div className="flex justify-between">
 					<p className="text-gray-700 text-sm font-semibold">Total Amount</p>
-					{!isNil(transactionFee) && (
+					{transactionFee > 0 ? (
 						<div className="flex flex-col">
 							<p className="text-lg text-right font-bold">
 								{type === "bond" || type == "rebond"
@@ -196,16 +195,15 @@ const AmountConfirmation = ({
 								</p>
 							)}
 						</div>
+					) : (
+						<Spinner />
 					)}
 				</div>
 			</div>
-			<div className="w-full flex-center">
-				<button
-					className="rounded-full font-medium px-12 py-3 bg-teal-500 mt-40 mb-40 text-white"
-					onClick={onConfirm}
-				>
+			<div className="w-full flex-center my-4">
+				<NextButton onClick={onConfirm} disabled={transactionFee === 0}>
 					Confirm
-				</button>
+				</NextButton>
 			</div>
 		</div>
 	);

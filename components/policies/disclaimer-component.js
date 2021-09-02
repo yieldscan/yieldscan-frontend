@@ -6,10 +6,7 @@ const DisclaimerComponent = () => (
 			1. Information published on yieldscan.onrender.com
 		</h1>
 		<p>
-			The website{" "}
-			<a href="https://yieldscan.onrender.com/">
-				https://yieldscan.onrender.com/
-			</a>{" "}
+			The website <a href="https://yieldscan.app/">https://yieldscan.app/</a>{" "}
 			(hereinafter, referred to as the &quot;Website&quot;) provides information
 			and material of a general nature. You are not authorized and nor should
 			you rely on the Website for legal advice, business advice, or advice of

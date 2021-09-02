@@ -23,7 +23,6 @@ import {
 } from "@lib/store";
 import { useWalletConnect } from "@components/wallet-connect";
 import { isNil } from "lodash";
-import FundsUpdate from "./FundsUpdate";
 import UnbondingList from "./UnbondingList";
 import Routes from "@lib/routes";
 import { useRouter } from "next/router";
@@ -34,6 +33,9 @@ import { Events, trackEvent, track, goalCodes } from "@lib/analytics";
 import ProgressiveImage from "react-progressive-image";
 import RedeemUnbonded from "./RedeemUnbonded";
 import Image from "next/image";
+import InvestMoreModal from "./InvestMoreModal";
+import ReBondModal from "./ReBondModal";
+import WithdrawModal from "./WithdrawModal";
 
 const Tabs = {
 	ACTIVE_VALIDATORS: "validators",
@@ -63,7 +65,6 @@ const Overview = () => {
 	const [eraProgress, setEraProgress] = useState();
 	const [activeEra, setActiveEra] = useState();
 	const [validatorsLoading, setValidatorsLoading] = useState(true);
-	const [fundsUpdateModalType, setFundsUpdateModalType] = useState();
 	const handleValToggle = () => setShowValidators(!showValidators);
 	const [selectedTab, setSelectedTab] = useState(Tabs.NOMINATIONS);
 	const [minPossibleStake, setMinPossibleStake] = useState(0);
@@ -78,9 +79,19 @@ const Overview = () => {
 		onClose: closeEditControllerModal,
 	} = useDisclosure();
 	const {
-		isOpen: fundsUpdateModalOpen,
-		onToggle: toggleFundsUpdateModal,
-		onClose: closeFundsUpdateModal,
+		isOpen: investMoreModalOpen,
+		onToggle: toggleInvestMoreModal,
+		onClose: closeInvestMoreModal,
+	} = useDisclosure();
+	const {
+		isOpen: reBondModalOpen,
+		onToggle: toggleReBondModal,
+		onClose: closeReBondModal,
+	} = useDisclosure();
+	const {
+		isOpen: withdrawModalOpen,
+		onToggle: toggleWithdrawModal,
+		onClose: closeWithdrawModal,
 	} = useDisclosure();
 	const {
 		isOpen: openUnbondingList,
@@ -165,11 +176,6 @@ const Overview = () => {
 	const onEditController = () => {
 		closeRewardDestinationModal();
 		toggleEditControllerModal();
-	};
-
-	const openFundsUpdateModal = (type) => {
-		setFundsUpdateModalType(type);
-		toggleFundsUpdateModal();
 	};
 
 	const openUnbondingListModal = () => {
@@ -259,18 +265,45 @@ const Overview = () => {
 		</div>
 	) : (
 		<div className="py-10 w-full h-full">
-			<FundsUpdate
-				apiInstance={apiInstance}
-				isOpen={fundsUpdateModalOpen}
-				close={closeFundsUpdateModal}
-				type={fundsUpdateModalType}
-				nominations={allNominations}
-				selectedAccount={selectedAccount}
-				balance={balances}
-				stakingInfo={stakingInfo}
-				networkInfo={networkInfo}
-				minPossibleStake={minPossibleStake}
-			/>
+			{investMoreModalOpen && (
+				<InvestMoreModal
+					apiInstance={apiInstance}
+					isOpen={investMoreModalOpen}
+					close={closeInvestMoreModal}
+					nominations={allNominations}
+					selectedAccount={selectedAccount}
+					balance={balances}
+					stakingInfo={stakingInfo}
+					networkInfo={networkInfo}
+					minPossibleStake={minPossibleStake}
+				/>
+			)}
+			{reBondModalOpen && (
+				<ReBondModal
+					apiInstance={apiInstance}
+					isOpen={reBondModalOpen}
+					close={closeReBondModal}
+					nominations={allNominations}
+					selectedAccount={selectedAccount}
+					balance={balances}
+					stakingInfo={stakingInfo}
+					networkInfo={networkInfo}
+					minPossibleStake={minPossibleStake}
+				/>
+			)}
+			{withdrawModalOpen && (
+				<WithdrawModal
+					apiInstance={apiInstance}
+					isOpen={withdrawModalOpen}
+					close={closeWithdrawModal}
+					nominations={allNominations}
+					selectedAccount={selectedAccount}
+					balance={balances}
+					stakingInfo={stakingInfo}
+					networkInfo={networkInfo}
+					minPossibleStake={minPossibleStake}
+				/>
+			)}
 			<UnbondingList
 				api={apiInstance}
 				isOpen={openUnbondingList}
@@ -296,9 +329,9 @@ const Overview = () => {
 						stats={isNil(userData) ? null : userData.stats}
 						stakingInfo={stakingInfo}
 						validators={isNil(userData) ? null : userData.validatorsInfo}
-						bondFunds={() => openFundsUpdateModal("bond")}
-						unbondFunds={() => openFundsUpdateModal("unbond")}
-						rebondFunds={() => openFundsUpdateModal("rebond")}
+						bondFunds={toggleInvestMoreModal}
+						unbondFunds={toggleWithdrawModal}
+						rebondFunds={toggleReBondModal}
 						toggleRedeemUnbonded={toggleRedeemUnbonded}
 						openUnbondingListModal={() => openUnbondingListModal()}
 						openRewardDestinationModal={toggleRewardDestinationModal}
