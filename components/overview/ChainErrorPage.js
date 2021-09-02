@@ -1,13 +1,14 @@
+import { NextButton } from "@components/common/BottomButton";
 import * as Sentry from "@sentry/node";
 import Image from "next/image";
 const ChainErrorPage = ({ onConfirm, errMessage }) => {
 	return (
-		<div className="mx-10 mt-8 mb-20 flex flex-col text-center items-center">
+		<div className="mx-10 mt-8 mb-20 flex flex-col text-center items-center space-y-4">
 			<Image
 				src="/images/polkadot_alert.png"
 				alt="alert"
-				width="200"
-				height="200"
+				width="120"
+				height="120"
 			/>
 			<h3 className="mt-4 text-2xl">
 				Oops. There was an error processing this staking request
@@ -24,22 +25,18 @@ const ChainErrorPage = ({ onConfirm, errMessage }) => {
             >
                 Track this transaction on PolkaScan
             </a> */}
-			<button
-				className="mt-8 px-24 py-4 bg-teal-500 text-white rounded-lg"
-				onClick={onConfirm}
-			>
-				Retry
-			</button>
-			<button
-				className="mt-8 px-24 py-4 bg-teal-500 text-white rounded-lg"
-				onClick={() =>
+			<NextButton onClick={onConfirm}>Retry</NextButton>
+			<NextButton
+				onClick={() => {
+					window?.open("https://discord.gg/nQYhcg9RPU", "_blank");
+
 					Sentry.showReportDialog({
 						eventId: Sentry.captureException(errMessage),
-					})
-				}
+					});
+				}}
 			>
 				Share this with the help center
-			</button>
+			</NextButton>
 		</div>
 	);
 };
