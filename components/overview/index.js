@@ -36,6 +36,7 @@ import RedeemUnbonded from "./RedeemUnbonded";
 import Image from "next/image";
 import InvestMoreModal from "./InvestMoreModal";
 import ReBondModal from "./ReBondModal";
+import WithdrawModal from "./WithdrawModal";
 
 const Tabs = {
 	ACTIVE_VALIDATORS: "validators",
@@ -93,6 +94,11 @@ const Overview = () => {
 		isOpen: reBondModalOpen,
 		onToggle: toggleReBondModal,
 		onClose: closeReBondModal,
+	} = useDisclosure();
+	const {
+		isOpen: withdrawModalOpen,
+		onToggle: toggleWithdrawModal,
+		onClose: closeWithdrawModal,
 	} = useDisclosure();
 	const {
 		isOpen: openUnbondingList,
@@ -297,7 +303,20 @@ const Overview = () => {
 					minPossibleStake={minPossibleStake}
 				/>
 			)}
-			<FundsUpdate
+			{withdrawModalOpen && (
+				<WithdrawModal
+					apiInstance={apiInstance}
+					isOpen={withdrawModalOpen}
+					close={closeWithdrawModal}
+					nominations={allNominations}
+					selectedAccount={selectedAccount}
+					balance={balances}
+					stakingInfo={stakingInfo}
+					networkInfo={networkInfo}
+					minPossibleStake={minPossibleStake}
+				/>
+			)}
+			{/* <FundsUpdate
 				apiInstance={apiInstance}
 				isOpen={fundsUpdateModalOpen}
 				close={closeFundsUpdateModal}
@@ -308,7 +327,7 @@ const Overview = () => {
 				stakingInfo={stakingInfo}
 				networkInfo={networkInfo}
 				minPossibleStake={minPossibleStake}
-			/>
+			/> */}
 			<UnbondingList
 				api={apiInstance}
 				isOpen={openUnbondingList}
@@ -335,7 +354,7 @@ const Overview = () => {
 						stakingInfo={stakingInfo}
 						validators={isNil(userData) ? null : userData.validatorsInfo}
 						bondFunds={toggleInvestMoreModal}
-						unbondFunds={() => openFundsUpdateModal("unbond")}
+						unbondFunds={toggleWithdrawModal}
 						rebondFunds={toggleReBondModal}
 						toggleRedeemUnbonded={toggleRedeemUnbonded}
 						openUnbondingListModal={() => openUnbondingListModal()}

@@ -5,20 +5,16 @@ const TermsComponent = () => (
 	<React.Fragment>
 		<h1 id="terms-of-service-of-https-yieldscan-onrender-com">
 			Terms of Service of{" "}
-			<a href="https://yieldscan.onrender.com">
-				https://yieldscan.onrender.com
-			</a>
+			<a href="https://yieldscan.app">https://yieldscan.app</a>
 		</h1>
 		<p>
 			YieldScan (&quot;Us&quot; or &quot;We&quot;) provides the{" "}
-			<a href="https://yieldscan.onrender.com">
-				https://yieldscan.onrender.com
-			</a>{" "}
-			website and various related services (collectively, the
-			&quot;Website&quot;) to you, the User, subject to your compliance with all
-			the terms, conditions, and notices contained or referenced herein (the
-			&quot;Terms of Service&quot;), as well as any other written agreement
-			between us and you, including but not limited to the &quot;
+			<a href="https://yieldscan.app">https://yieldscan.app</a> website and
+			various related services (collectively, the &quot;Website&quot;) to you,
+			the User, subject to your compliance with all the terms, conditions, and
+			notices contained or referenced herein (the &quot;Terms of Service&quot;),
+			as well as any other written agreement between us and you, including but
+			not limited to the &quot;
 			<Link href="/privacy">
 				<a>Privacy Policy</a>
 			</Link>

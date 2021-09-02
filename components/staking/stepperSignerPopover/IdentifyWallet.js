@@ -16,7 +16,12 @@ const IdentifyWallet = ({
 					Please make sure you select the correct option else your transaction
 					may fail.
 				</p>
-				<a className="w-full text-sm text-center text-gray-700 font-semibold underline cursor-pointer px-2">
+				<a
+					className="w-full text-sm text-center text-gray-700 font-semibold underline cursor-pointer px-2"
+					href="https://intercom.help/yieldscan/en/articles/5353515-how-to-check-which-accounts-on-polkadot-js-wallet-are-imported-through-a-hardware-wallet"
+					target="_blank"
+					rel="noreferrer"
+				>
 					How to check?
 				</a>
 			</div>

@@ -194,7 +194,7 @@ const ReBondModal = withSlideIn(
 					});
 
 					if (status === 0) {
-						track(goalCodes.OVERVIEW.BOND_EXTRA_SUCCESSFUL);
+						track(goalCodes.OVERVIEW.REBOND_SUCCESSFUL);
 						updateTransactionData(
 							selectedAccount?.address,
 							networkInfo.network,
@@ -223,7 +223,7 @@ const ReBondModal = withSlideIn(
 							setErrMessage(message);
 						}
 						if (message !== "Cancelled") {
-							track(goalCodes.OVERVIEW.BOND_EXTRA_UNSUCCESSFUL);
+							track(goalCodes.OVERVIEW.REBOND_UNSUCCESSFUL);
 							updateTransactionData(
 								selectedAccount?.address,
 								networkInfo.network,
@@ -389,12 +389,12 @@ const ReBondModal = withSlideIn(
 												)}
 												<div className="flex justify-between">
 													<span className="text-gray-700 text-xs">
-														I want to invest additional funds of
+														I want to rebond
 													</span>
 													<span className="text-gray-700 text-xxs mt-2">
-														Available Balance:{" "}
+														Unbonding Amount:{" "}
 														{formatCurrency.methods.formatAmount(
-															balance?.availableBalance,
+															totalUnbonding,
 															networkInfo
 														)}
 													</span>
