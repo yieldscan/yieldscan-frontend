@@ -58,7 +58,7 @@ const InvestMoreModal = withSlideIn(
 		const [updatingFunds, setUpdatingFunds] = useState(false);
 		const [stakingEvent, setStakingEvent] = useState();
 		const [processComplete, setProcessComplete] = useState(false);
-		const [chainError, setChainError] = useState(true);
+		const [chainError, setChainError] = useState(false);
 		const [transactions, setTransactions] = useState(null);
 		const [injectorAccount, setInjectorAccount] = useState(null);
 		const [transactionFee, setTransactionFee] = useState(0);
@@ -299,7 +299,7 @@ const InvestMoreModal = withSlideIn(
 				isCentered
 				closeOnOverlayClick={closeOnOverlayClick}
 				closeOnEsc={closeOnOverlayClick}
-				size={currentStep == 0 && !chainError ? "md" : "xl"}
+				size={currentStep == 0 ? "md" : "xl"}
 			>
 				<ModalOverlay />
 				<ModalContent rounded="lg">
