@@ -317,7 +317,21 @@ const EarningsOutput = ({
 				)}
 			</div>
 			<FormLabel fontSize="sm" className="mt-4 font-medium text-gray-700">
-				Your overall earnings
+				<div className="flex flex-row justify-center items-center">
+					<p>Your overall earnings</p>
+					{/* <p className="text-xxs ml-4">powered by</p> */}
+					<button
+						className="border-0 flex justify-center items-center ml-2"
+						onClick={() => window?.open("https://www.subscan.io/", "_blank")}
+					>
+						<Image
+							src="/images/subscanLogo.png"
+							alt="subscan"
+							width="60"
+							height="12"
+						/>
+					</button>
+				</div>
 			</FormLabel>
 			<div className="flex justify-between items-center">
 				<h2

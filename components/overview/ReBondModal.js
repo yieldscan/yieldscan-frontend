@@ -299,6 +299,9 @@ const ReBondModal = withSlideIn(
 			}
 		}, [amount]);
 
+		console.log("totalUnbonding");
+		console.log(totalUnbonding);
+
 		return (
 			<Modal
 				isOpen={true}
@@ -334,97 +337,101 @@ const ReBondModal = withSlideIn(
 										<h3 className="mt-4 text-2xl text-gray-700 font-semibold">
 											Rebond
 										</h3>
-										<div className="flex-center w-full h-full">
-											<div className="mt-10 w-full">
-												{totalStakingAmount < minPossibleStake ? (
-													<div className="rounded-lg px-5 py-2 text-sm bg-red-200 text-red-600 mb-4">
-														<span>
-															We cannot stake this amount because your total
-															combined stake does not cross the{" "}
-															{minPossibleStake} {networkInfo.denom} minimum
-															staking threshold mandated by the{" "}
-															{networkInfo.name} network or the free balance in
-															your account falls below the recommended{" "}
-															{networkInfo.reserveAmount} {networkInfo.denom}.{" "}
-															<Popover trigger="hover" usePortal>
-																<PopoverTrigger>
-																	<span className="underline cursor-help">
-																		Why?
-																	</span>
-																</PopoverTrigger>
-																<PopoverContent
-																	zIndex={99999}
-																	_focus={{ outline: "none" }}
-																	bg="gray.700"
-																	border="none"
-																>
-																	<PopoverArrow />
-																	<PopoverBody>
-																		<span className="text-white text-xs">
-																			The recommended{" "}
-																			{networkInfo.reserveAmount}{" "}
-																			{networkInfo.denom} account balance is to
-																			ensure that you have a decent amount of
-																			funds in your account to pay transaction
-																			fees for claiming rewards, unbonding
-																			funds, changing on-chain staking
-																			preferences, etc.
-																		</span>
-																	</PopoverBody>
-																</PopoverContent>
-															</Popover>
-														</span>
-													</div>
-												) : (
-													amount >
-														totalUnbonding /
-															Math.pow(10, networkInfo.decimalPlaces) && (
+										{isNil(totalUnbonding) ? (
+											<div className="flex w-full h-full loader"></div>
+										) : (
+											<div className="flex-center w-full h-full">
+												<div className="mt-10 w-full">
+													{totalStakingAmount < minPossibleStake ? (
 														<div className="rounded-lg px-5 py-2 text-sm bg-red-200 text-red-600 mb-4">
 															<span>
-																We cannot rebond this amount since its greater
-																than the total unbonding amount.
+																We cannot stake this amount because your total
+																combined stake does not cross the{" "}
+																{minPossibleStake} {networkInfo.denom} minimum
+																staking threshold mandated by the{" "}
+																{networkInfo.name} network or the free balance
+																in your account falls below the recommended{" "}
+																{networkInfo.reserveAmount} {networkInfo.denom}.{" "}
+																<Popover trigger="hover" usePortal>
+																	<PopoverTrigger>
+																		<span className="underline cursor-help">
+																			Why?
+																		</span>
+																	</PopoverTrigger>
+																	<PopoverContent
+																		zIndex={99999}
+																		_focus={{ outline: "none" }}
+																		bg="gray.700"
+																		border="none"
+																	>
+																		<PopoverArrow />
+																		<PopoverBody>
+																			<span className="text-white text-xs">
+																				The recommended{" "}
+																				{networkInfo.reserveAmount}{" "}
+																				{networkInfo.denom} account balance is
+																				to ensure that you have a decent amount
+																				of funds in your account to pay
+																				transaction fees for claiming rewards,
+																				unbonding funds, changing on-chain
+																				staking preferences, etc.
+																			</span>
+																		</PopoverBody>
+																	</PopoverContent>
+																</Popover>
 															</span>
 														</div>
-													)
-												)}
-												<div className="flex justify-between">
-													<span className="text-gray-700 text-xs">
-														I want to rebond
-													</span>
-													<span className="text-gray-700 text-xxs mt-2">
-														Unbonding Amount:{" "}
-														{formatCurrency.methods.formatAmount(
-															totalUnbonding,
-															networkInfo
-														)}
-													</span>
-												</div>
-												<div className="flex flex-col">
-													<AmountInput
-														bonded={
-															stakingInfo.stakingLedger.active /
-															Math.pow(10, networkInfo.decimalPlaces)
-														}
-														value={{
-															currency: amount,
-															subCurrency: subCurrency,
-														}}
-														networkInfo={networkInfo}
-														availableBalance={
-															balance.availableBalance /
-															Math.pow(10, networkInfo.decimalPlaces)
-														}
-														totalUnbonding={
+													) : (
+														amount >
 															totalUnbonding /
-															Math.pow(10, networkInfo.decimalPlaces)
-														}
-														totalUnbondingFiat={totalUnbondingFiat}
-														type={type}
-														onChange={setAmount}
-													/>
+																Math.pow(10, networkInfo.decimalPlaces) && (
+															<div className="rounded-lg px-5 py-2 text-sm bg-red-200 text-red-600 mb-4">
+																<span>
+																	We cannot rebond this amount since its greater
+																	than the total unbonding amount.
+																</span>
+															</div>
+														)
+													)}
+													<div className="flex justify-between">
+														<span className="text-gray-700 text-xs">
+															I want to rebond
+														</span>
+														<span className="text-gray-700 text-xxs mt-2">
+															Unbonding Amount:{" "}
+															{formatCurrency.methods.formatAmount(
+																totalUnbonding,
+																networkInfo
+															)}
+														</span>
+													</div>
+													<div className="flex flex-col">
+														<AmountInput
+															bonded={
+																stakingInfo.stakingLedger.active /
+																Math.pow(10, networkInfo.decimalPlaces)
+															}
+															value={{
+																currency: amount,
+																subCurrency: subCurrency,
+															}}
+															networkInfo={networkInfo}
+															availableBalance={
+																balance.availableBalance /
+																Math.pow(10, networkInfo.decimalPlaces)
+															}
+															totalUnbonding={
+																totalUnbonding /
+																Math.pow(10, networkInfo.decimalPlaces)
+															}
+															totalUnbondingFiat={totalUnbondingFiat}
+															type={type}
+															onChange={setAmount}
+														/>
+													</div>
 												</div>
 											</div>
-										</div>
+										)}
 										<div className="flex-center">
 											<button
 												className={`rounded-full font-medium px-12 py-3 ${
