@@ -9,6 +9,7 @@ import {
 } from "@chakra-ui/core";
 import Identicon from "@components/common/Identicon";
 import withSlideIn from "@components/common/withSlideIn";
+import { getName } from "@lib/getName";
 import Routes from "@lib/routes";
 
 const ValidatorCard = ({ info, stashId, onProfile = noop }) => {
