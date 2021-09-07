@@ -59,7 +59,7 @@ const LinkedValidatorsModal = withSlideIn(
 						{validators.map((validator) => (
 							<ValidatorCard
 								key={validator.stashId}
-								info={validator?.info}
+								info={validator}
 								stashId={validator.stashId}
 								onProfile={() => onProfile(validator.stashId)}
 							/>
