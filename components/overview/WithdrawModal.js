@@ -918,7 +918,7 @@ const WithdrawModal = withSlideIn(
 												) : (
 													controllerAccount &&
 													controllerBalances &&
-													transactionFee +
+													totalTransactionFee +
 														apiInstance?.consts.balances.existentialDeposit.toNumber() >
 														controllerBalances.availableBalance && (
 														<div className="rounded-lg px-5 py-2 text-sm bg-red-200 text-red-600 mb-4">
