@@ -11,7 +11,8 @@ import Identicon from "@components/common/Identicon";
 import withSlideIn from "@components/common/withSlideIn";
 import Routes from "@lib/routes";
 
-const ValidatorCard = ({ name, stashId, onProfile = noop }) => {
+const ValidatorCard = ({ info, stashId, onProfile = noop }) => {
+	const displayName = getName(info?.display, info?.displayParent, stashId);
 	return (
 		<div
 			className="flex items-center justify-between rounded-lg border border-gray-200 py-2 w-full mb-2 cursor-pointer"
@@ -21,9 +22,7 @@ const ValidatorCard = ({ name, stashId, onProfile = noop }) => {
 				<Identicon address={stashId} size="3rem" />
 				<div className="flex flex-col ml-2">
 					<h3 className="text-gray-700">
-						<span className="font-medium">
-							{name || stashId.slice(0, 6) + "..." + stashId.slice(-6) || "-"}
-						</span>
+						<span className="font-medium">{displayName}</span>
 					</h3>
 					<p className="text-gray-600 text-xs">{stashId || ""}</p>
 				</div>
@@ -59,7 +58,7 @@ const LinkedValidatorsModal = withSlideIn(
 						{validators.map((validator) => (
 							<ValidatorCard
 								key={validator.stashId}
-								name={validator.name}
+								info={validator?.info}
 								stashId={validator.stashId}
 								onProfile={() => onProfile(validator.stashId)}
 							/>
