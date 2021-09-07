@@ -323,11 +323,6 @@ const Overview = () => {
 					stakingInfo={stakingInfo}
 					networkInfo={networkInfo}
 					minPossibleStake={minPossibleStake}
-					controllerAccount={controllerAccount}
-					controllerBalances={controllerBalances}
-					isSameStashController={
-						selectedAccount?.address === controllerAccount?.address
-					}
 				/>
 			)}
 			{reBondModalOpen && (
