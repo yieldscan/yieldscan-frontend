@@ -147,6 +147,7 @@ const CouncilMemberProfile = () => {
 							{selectedTab === ProfileTabsConfig.VISUALISATION && (
 								<CouncilViz
 									memberInfo={memberInfo}
+									stashId={councilMemberAccountId}
 									networkName="KUSAMA COUNCIL"
 									networkInfo={networkInfo}
 								/>

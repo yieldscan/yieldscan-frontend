@@ -1,3 +1,4 @@
+import { getName } from "@lib/getName";
 import React from "react";
 import { Circle, Line, Text, Rect } from "react-konva";
 
@@ -29,11 +30,12 @@ class Circleandline extends React.Component {
 		const cardWidth = 159;
 		const cardHeight = 69;
 
-		let backer = this.props.name !== null ? this.props.name : this.props.backer;
+		const backer = getName(
+			this.props.info?.display,
+			this.props.info?.displayParent,
+			this.props.backer
+		);
 
-		if (backer.length > 11) {
-			backer = backer.slice(0, 5) + "..." + backer.slice(-5);
-		}
 		let stake =
 			"Stake: " +
 			this.props.stake.toString().slice(0, 7) +

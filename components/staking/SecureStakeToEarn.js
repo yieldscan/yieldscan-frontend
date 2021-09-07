@@ -96,7 +96,7 @@ const SecureStakeToEarn = ({
 								{selectedValidators.map((validator) => (
 									<ValidatorCard
 										key={validator.stashId}
-										info={validator.info}
+										info={validator?.info}
 										stashId={validator.stashId}
 										riskScore={validator.riskScore.toFixed(2)}
 										commission={validator.commission}

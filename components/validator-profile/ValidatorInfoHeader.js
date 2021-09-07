@@ -11,6 +11,7 @@ import {
 	PopoverBody,
 } from "@chakra-ui/core";
 import Image from "next/image";
+import { getName } from "@lib/getName";
 
 const ValidatorInfoHeader = ({
 	stashId,
@@ -31,6 +32,12 @@ const ValidatorInfoHeader = ({
 		);
 	}
 
+	const displayName = getName(
+		socialInfo?.display,
+		socialInfo?.displayParent,
+		stashId
+	);
+
 	const openWindow = (url) => {
 		window.open(url, "_blank");
 	};
@@ -45,9 +52,7 @@ const ValidatorInfoHeader = ({
 					<div className="flex items-center">
 						<div>
 							<h3 className="mr-4 text-xl text-gray-700 font-semibold">
-								{get(socialInfo, "name") ||
-									stashId.slice(0, 6) + "..." + stashId.slice(-6) ||
-									"-"}
+								{displayName}
 							</h3>
 							{socialInfo?.legal && (
 								<p className="text-gray-600 text-sm">
