@@ -169,7 +169,9 @@ const Overview = () => {
 	useEffect(async () => {
 		if (apiInstance) {
 			const data = await apiInstance?.query.staking.minNominatorBond();
-			setMinPossibleStake(JSON.parse(data) / 10 ** networkInfo.decimalPlaces);
+			setMinPossibleStake(
+				parseInt(data) / Math.pow(10, networkInfo.decimalPlaces)
+			);
 		}
 	}, [selectedNetwork, apiInstance]);
 

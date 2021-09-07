@@ -1,9 +1,10 @@
 import Identicon from "@components/common/Identicon";
 import RiskTag from "@components/reward-calculator/RiskTag";
 import formatCurrency from "@lib/format-currency";
+import { getName } from "@lib/getName";
 
 const ValidatorCard = ({
-	name,
+	info,
 	stashId,
 	riskScore,
 	commission,
@@ -13,11 +14,7 @@ const ValidatorCard = ({
 	nominators,
 	onProfile = noop,
 }) => {
-	const displayName = name
-		? name.length > 13
-			? name.slice(0, 5) + "..." + name.slice(-5)
-			: name
-		: stashId.slice(0, 5) + "..." + stashId.slice(-5);
+	const displayName = getName(info?.display, info?.displayParent, stashId);
 	return (
 		<div className="flex items-center justify-between rounded-lg border border-gray-200 py-2 w-full mb-2">
 			<div className="flex items-center ml-4">

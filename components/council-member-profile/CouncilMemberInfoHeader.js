@@ -12,6 +12,8 @@ import {
 	PopoverBody,
 } from "@chakra-ui/core";
 
+import { getName } from "@lib/getName";
+
 const CouncilMemberInfoHeader = ({
 	stashId,
 	vision = "",
@@ -35,6 +37,11 @@ const CouncilMemberInfoHeader = ({
 		window.open(url, "_blank");
 	};
 
+	const displayName = getName(
+		get(socialInfo, "info.display"),
+		get(socialInfo, "info.displayParent"),
+		stashId
+	);
 	return (
 		<div className="flex">
 			<div className="mr-4">
@@ -45,9 +52,7 @@ const CouncilMemberInfoHeader = ({
 					<div className="flex items-center">
 						<div>
 							<h3 className="mr-4 text-xl text-gray-700 font-semibold">
-								{get(socialInfo, "name") ||
-									stashId.slice(0, 6) + "..." + stashId.slice(-6) ||
-									"-"}
+								{displayName}
 							</h3>
 							{socialInfo.legal && (
 								<p className="text-gray-600 text-sm">

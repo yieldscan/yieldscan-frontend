@@ -67,7 +67,7 @@ const OverviewCards = ({
 		<div className="flex justify-between items-center h-auto w-full max-w-lg text-gray-700">
 			<div className="bg-white min-h-12-rem py-4 px-8 text-center flex flex-col justify-center shadow-custom rounded-xl h-full w-full">
 				<div className="flex flex-col items-center justify-between mt-5">
-					{JSON.parse(stakingInfo.stakingLedger.active) !== 0 &&
+					{!stakingInfo?.stakingLedger.active.isEmpty &&
 						stakingInfo.stakingLedger.active /
 							Math.pow(10, networkInfo.decimalPlaces) <
 							minPossibleStake && (

@@ -5,9 +5,10 @@ import { useRouter } from "next/router";
 import Routes from "@lib/routes";
 import Identicon from "@components/common/Identicon";
 import formatCurrency from "@lib/format-currency";
+import { getName } from "@lib/getName";
 
 const ValidatorCard = ({
-	name = "",
+	info,
 	stashId,
 	selected,
 	riskScore,
@@ -20,11 +21,7 @@ const ValidatorCard = ({
 	onProfile = noop,
 	networkInfo,
 }) => {
-	const displayName = name
-		? name.length > 13
-			? name.slice(0, 5) + "..." + name.slice(-5)
-			: name
-		: stashId.slice(0, 5) + "..." + stashId.slice(-5);
+	const displayName = getName(info?.display, info?.displayParent, stashId);
 	return (
 		<div
 			className={`
@@ -155,7 +152,8 @@ const ValidatorsTable = ({
 								<AlertCircle />
 							</div>
 							<p className=" text-sm font-light">
-								There was an error fetching validator data. Please refresh the page.
+								There was an error fetching validator data. Please refresh the
+								page.
 							</p>
 						</div>
 					</div>
@@ -166,7 +164,7 @@ const ValidatorsTable = ({
 								<AlertCircle />
 							</div>
 							<p className=" text-sm font-light">
-							No validators found. Try updating your filters.
+								No validators found. Try updating your filters.
 							</p>
 						</div>
 					</div>
@@ -174,7 +172,7 @@ const ValidatorsTable = ({
 					validators.map((validator) => (
 						<ValidatorCard
 							key={validator.stashId}
-							name={validator.name}
+							info={validator?.info}
 							stashId={validator.stashId}
 							riskScore={Number((validator.riskScore || 0).toFixed(2))}
 							ownStake={validator.ownStake ? Number(validator.ownStake) : "-"}
