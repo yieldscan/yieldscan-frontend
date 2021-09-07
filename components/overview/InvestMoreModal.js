@@ -49,6 +49,9 @@ const InvestMoreModal = withSlideIn(
 		stakingInfo,
 		networkInfo,
 		minPossibleStake,
+		controllerAccount,
+		controllerBalances,
+		isSameStashController,
 	}) => {
 		const toast = useToast();
 		const { coinGeckoPriceUSD } = useCoinGeckoPriceUSD();
@@ -160,6 +163,14 @@ const InvestMoreModal = withSlideIn(
 					Math.pow(10, networkInfo.decimalPlaces) +
 					amount <
 					minPossibleStake
+			) {
+				setCalculationDisabled(true);
+			} else if (
+				controllerAccount &&
+				controllerBalances &&
+				transactionFee +
+					apiInstance?.consts.balances.existentialDeposit.toNumber() >
+					controllerBalances.availableBalance
 			) {
 				setCalculationDisabled(true);
 			} else setCalculationDisabled(false);
@@ -368,16 +379,29 @@ const InvestMoreModal = withSlideIn(
 															</Popover>
 														</span>
 													</div>
+												) : amount >
+												  balance?.availableBalance /
+														Math.pow(10, networkInfo.decimalPlaces) -
+														networkInfo.reserveAmount ? (
+													<div className="rounded-lg px-5 py-2 text-sm bg-red-200 text-red-600 mb-4">
+														<span>
+															Insufficient Balance: We cannot stake this amount
+															as it crosses the maximum available balance for
+															staking in your account.{" "}
+														</span>
+													</div>
 												) : (
-													amount >
-														balance?.availableBalance /
-															Math.pow(10, networkInfo.decimalPlaces) -
-															networkInfo.reserveAmount && (
+													controllerAccount &&
+													controllerBalances &&
+													transactionFee +
+														apiInstance?.consts.balances.existentialDeposit.toNumber() >
+														controllerBalances.availableBalance && (
 														<div className="rounded-lg px-5 py-2 text-sm bg-red-200 text-red-600 mb-4">
 															<span>
-																Insufficient Balance: We cannot stake this
-																amount as it crosses the maximum available
-																balance for staking in your account.{" "}
+																{isSameStashController
+																	? "Account "
+																	: "Controller "}
+																Balance insufficient to pay transaction fees.
 															</span>
 														</div>
 													)

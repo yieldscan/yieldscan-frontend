@@ -49,6 +49,9 @@ const ReBondModal = withSlideIn(
 		stakingInfo,
 		networkInfo,
 		minPossibleStake,
+		controllerAccount,
+		controllerBalances,
+		isSameStashController,
 	}) => {
 		const toast = useToast();
 		const { coinGeckoPriceUSD } = useCoinGeckoPriceUSD();
@@ -155,6 +158,14 @@ const ReBondModal = withSlideIn(
 					Math.pow(10, networkInfo.decimalPlaces) +
 					amount <
 					minPossibleStake
+			) {
+				setCalculationDisabled(true);
+			} else if (
+				controllerAccount &&
+				controllerBalances &&
+				transactionFee +
+					apiInstance?.consts.balances.existentialDeposit.toNumber() >
+					controllerBalances.availableBalance
 			) {
 				setCalculationDisabled(true);
 			} else setCalculationDisabled(false);
@@ -299,9 +310,6 @@ const ReBondModal = withSlideIn(
 			}
 		}, [amount]);
 
-		console.log("totalUnbonding");
-		console.log(totalUnbonding);
-
 		return (
 			<Modal
 				isOpen={true}
@@ -381,14 +389,27 @@ const ReBondModal = withSlideIn(
 																</Popover>
 															</span>
 														</div>
+													) : amount >
+													  totalUnbonding /
+															Math.pow(10, networkInfo.decimalPlaces) ? (
+														<div className="rounded-lg px-5 py-2 text-sm bg-red-200 text-red-600 mb-4">
+															<span>
+																We cannot rebond this amount since its greater
+																than the total unbonding amount.
+															</span>
+														</div>
 													) : (
-														amount >
-															totalUnbonding /
-																Math.pow(10, networkInfo.decimalPlaces) && (
+														controllerAccount &&
+														controllerBalances &&
+														transactionFee +
+															apiInstance?.consts.balances.existentialDeposit.toNumber() >
+															controllerBalances.availableBalance && (
 															<div className="rounded-lg px-5 py-2 text-sm bg-red-200 text-red-600 mb-4">
 																<span>
-																	We cannot rebond this amount since its greater
-																	than the total unbonding amount.
+																	{isSameStashController
+																		? "Account "
+																		: "Controller "}
+																	Balance insufficient to pay transaction fees.
 																</span>
 															</div>
 														)

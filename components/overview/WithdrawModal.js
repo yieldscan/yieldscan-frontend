@@ -475,6 +475,9 @@ const WithdrawModal = withSlideIn(
 		stakingInfo,
 		networkInfo,
 		minPossibleStake,
+		controllerAccount,
+		controllerBalances,
+		isSameStashController,
 	}) => {
 		const toast = useToast();
 		const { coinGeckoPriceUSD } = useCoinGeckoPriceUSD();
@@ -498,7 +501,7 @@ const WithdrawModal = withSlideIn(
 		const [isLast, setIsLast] = useState(true);
 		const [closeOnOverlayClick, setCloseOnOverlayClick] = useState(true);
 		const [calculationDisabled, setCalculationDisabled] = useState(true);
-
+		const [totalTransactionFee, setTotalTransactionFee] = useState(0);
 		const [totalStakingAmount, setTotalStakingAmount] = useState(
 			() =>
 				stakingInfo.stakingLedger.active /
@@ -586,6 +589,14 @@ const WithdrawModal = withSlideIn(
 				amount >
 				stakingInfo.stakingLedger.active /
 					Math.pow(10, networkInfo.decimalPlaces)
+			) {
+				setCalculationDisabled(true);
+			} else if (
+				controllerAccount &&
+				controllerBalances &&
+				transactionFee +
+					apiInstance?.consts.balances.existentialDeposit.toNumber() >
+					controllerBalances.availableBalance
 			) {
 				setCalculationDisabled(true);
 			} else setCalculationDisabled(false);
@@ -803,6 +814,7 @@ const WithdrawModal = withSlideIn(
 				setTransactions([..._transactions]);
 				setInjectorAccount(substrateControllerId);
 				setTransactionFee(() => fee.partialFee.toNumber());
+				setTotalTransactionFee(transactionFee * 2.5); // hack approximation to ensure ample fees even in the case of multistep unbond
 			}
 		}, [stepperTransactions, stepperIndex, isLedger]);
 
@@ -864,46 +876,58 @@ const WithdrawModal = withSlideIn(
 															current investment value.{" "}
 														</span>
 													</div>
-												) : (
-													stakingInfo?.stakingLedger.active /
+												) : stakingInfo?.stakingLedger.active /
 														Math.pow(10, networkInfo.decimalPlaces) -
 														amount <
 														minPossibleStake &&
-													stakingInfo?.stakingLedger.active /
+												  stakingInfo?.stakingLedger.active /
 														Math.pow(10, networkInfo.decimalPlaces) !==
-														amount && (
-														<div className="rounded-lg px-5 py-2 text-sm bg-yellow-200 text-yellow-600 mb-4">
-															<span>
-																We recommend you to select the max option to
-																unbond all.{" "}
-															</span>
-															<Popover trigger="hover" usePortal>
-																<PopoverTrigger>
-																	<span className="underline cursor-help">
-																		Why?
+														amount ? (
+													<div className="rounded-lg px-5 py-2 text-sm bg-yellow-200 text-yellow-600 mb-4">
+														<span>
+															We recommend you to select the max option to
+															unbond all.{" "}
+														</span>
+														<Popover trigger="hover" usePortal>
+															<PopoverTrigger>
+																<span className="underline cursor-help">
+																	Why?
+																</span>
+															</PopoverTrigger>
+															<PopoverContent
+																zIndex={99999}
+																_focus={{ outline: "none" }}
+																bg="gray.700"
+																border="none"
+															>
+																<PopoverArrow />
+																<PopoverBody>
+																	<span className="text-white text-xs">
+																		After withdrawing the remaining bonded
+																		amount will be less than {minPossibleStake}{" "}
+																		{networkInfo.denom}, the minimum staking
+																		threshold mandated by the {networkInfo.name}{" "}
+																		network and you won't remain a part of the
+																		elected network and thus you won't be
+																		receiving any rewards for the bonded amount.
 																	</span>
-																</PopoverTrigger>
-																<PopoverContent
-																	zIndex={99999}
-																	_focus={{ outline: "none" }}
-																	bg="gray.700"
-																	border="none"
-																>
-																	<PopoverArrow />
-																	<PopoverBody>
-																		<span className="text-white text-xs">
-																			After withdrawing the remaining bonded
-																			amount will be less than{" "}
-																			{minPossibleStake} {networkInfo.denom},
-																			the minimum staking threshold mandated by
-																			the {networkInfo.name} network and you
-																			won't remain a part of the elected network
-																			and thus you won't be receiving any
-																			rewards for the bonded amount.
-																		</span>
-																	</PopoverBody>
-																</PopoverContent>
-															</Popover>
+																</PopoverBody>
+															</PopoverContent>
+														</Popover>
+													</div>
+												) : (
+													controllerAccount &&
+													controllerBalances &&
+													transactionFee +
+														apiInstance?.consts.balances.existentialDeposit.toNumber() >
+														controllerBalances.availableBalance && (
+														<div className="rounded-lg px-5 py-2 text-sm bg-red-200 text-red-600 mb-4">
+															<span>
+																{isSameStashController
+																	? "Account "
+																	: "Controller "}
+																Balance insufficient to pay transaction fees.
+															</span>
 														</div>
 													)
 												)}
