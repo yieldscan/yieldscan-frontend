@@ -2,6 +2,7 @@ import React from "react";
 import { Stage, Layer, Circle, Line, Rect, Text } from "react-konva";
 import WhiteCircles from "./WhiteCircles";
 import Network from "./Network";
+import { getName } from "@lib/getName";
 
 class ValidatorViz extends React.Component {
 	constructor() {
@@ -29,16 +30,13 @@ class ValidatorViz extends React.Component {
 			this.state.stageHeight !== undefined
 				? this.state.stageHeight
 				: window.innerHeight;
-		let valText = "";
-		if (this.props.validatorData !== undefined) {
-			valText =
-				this.props.validatorData.socialInfo.name !== null
-					? this.props.validatorData.socialInfo.name
-					: this.props.validatorData.keyStats.stashId;
-			if (valText.length > 11) {
-				valText = valText.slice(0, 5) + "..." + valText.slice(-5);
-			}
-		}
+
+		const valText = getName(
+			this.props.validatorData?.socialInfo?.display,
+			this.props.validatorData?.socialInfo?.displayParent,
+			this.props.validatorData?.keyStats?.stashId
+		);
+
 		let radius = 400;
 
 		const validatorRectangleWidth = 110;

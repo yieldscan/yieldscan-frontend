@@ -2,6 +2,7 @@ import React from "react";
 import { Stage, Layer, Circle, Line, Rect, Text } from "react-konva";
 import WhiteCircles from "./WhiteCircles";
 import Network from "./Network";
+import { getName } from "@lib/getName";
 
 class CouncilViz extends React.Component {
 	constructor() {
@@ -29,16 +30,11 @@ class CouncilViz extends React.Component {
 			this.state.stageHeight !== undefined
 				? this.state.stageHeight
 				: window.innerHeight;
-		let valText = "";
-		if (this.props.memberInfo !== undefined) {
-			valText =
-				this.props.memberInfo.socialInfo.name !== null
-					? this.props.memberInfo.socialInfo.name
-					: this.props.memberInfo.keyStats.stashId;
-			if (valText.length > 11) {
-				valText = valText.slice(0, 5) + "..." + valText.slice(-5);
-			}
-		}
+		const valText = getName(
+			this.props.memberInfo?.socialInfo?.display,
+			this.props.memberInfo?.socialInfo?.displayParent,
+			this.props?.stashId
+		);
 		const NetworkName = this.props.networkName;
 		let radius = 400;
 

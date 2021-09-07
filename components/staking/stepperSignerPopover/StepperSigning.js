@@ -156,7 +156,7 @@ const ValidatorsList = ({
 			{selectedValidators.map((validator) => (
 				<ValidatorCard
 					key={validator.stashId}
-					name={validator.name}
+					info={validator?.info}
 					stashId={validator.stashId}
 					riskScore={validator.riskScore.toFixed(2)}
 					commission={validator.commission}

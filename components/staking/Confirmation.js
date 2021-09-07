@@ -153,7 +153,7 @@ const Confirmation = ({
 					</button>
 				</div>
 				<div className="flex-1 flex justify-center items-center pb-4">
-					<div className="flex flex-col w-full max-w-lg items-center justify-center space-y-4">
+					<div className="flex flex-col w-full max-w-xl items-center justify-center space-y-4">
 						<div className="w-full flex justify-center items-center">
 							<Circle size={60} color="#2BCACA" />
 						</div>
@@ -180,7 +180,7 @@ const Confirmation = ({
 								/>
 							</div>
 						</div>
-						<div className="w-full p-2">
+						<div className="w-full">
 							<button
 								onClick={handleValToggle}
 								className="flex text-gray-600 text-xs"
@@ -207,7 +207,7 @@ const Confirmation = ({
 										{selectedValidators.map((validator) => (
 											<ValidatorCard
 												key={validator.stashId}
-												name={validator.name}
+												info={validator?.info}
 												stashId={validator.stashId}
 												riskScore={validator.riskScore.toFixed(2)}
 												commission={validator.commission}
