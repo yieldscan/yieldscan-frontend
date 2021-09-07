@@ -594,7 +594,7 @@ const WithdrawModal = withSlideIn(
 			} else if (
 				controllerAccount &&
 				controllerBalances &&
-				transactionFee +
+				totalTransactionFee +
 					apiInstance?.consts.balances.existentialDeposit.toNumber() >
 					controllerBalances.availableBalance
 			) {
