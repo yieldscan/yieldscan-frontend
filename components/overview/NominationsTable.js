@@ -4,6 +4,7 @@ import RiskTag from "@components/reward-calculator/RiskTag";
 import Identicon from "@components/common/Identicon";
 import Routes from "@lib/routes";
 import formatCurrency from "@lib/format-currency";
+import { getName } from "@lib/getName";
 
 const StatusTag = ({ status }) => {
 	const getColor = () => {
@@ -24,7 +25,7 @@ const StatusTag = ({ status }) => {
 };
 
 const ValidatorCard = ({
-	name,
+	info,
 	stashId,
 	riskScore,
 	stakedAmount,
@@ -33,11 +34,7 @@ const ValidatorCard = ({
 	onProfile = noop,
 	networkInfo,
 }) => {
-	const displayName = name
-		? name.length > 13
-			? name.slice(0, 5) + "..." + name.slice(-5)
-			: name
-		: stashId.slice(0, 5) + "..." + stashId.slice(-5);
+	const displayName = getName(info?.display, info?.displayParent, stashId);
 	return (
 		<div className="flex items-center justify-between rounded-lg border border-gray-200 py-2 w-full mb-2">
 			<div className="flex items-center ml-4">
@@ -114,7 +111,7 @@ const NominationsTable = ({ validators, networkInfo }) => {
 					.map((validator) => (
 						<ValidatorCard
 							key={validator.stashId}
-							name={validator.name}
+							info={validator?.info}
 							stashId={validator.stashId}
 							commission={validator.commission}
 							riskScore={Number((validator.riskScore || 0).toFixed(2))}

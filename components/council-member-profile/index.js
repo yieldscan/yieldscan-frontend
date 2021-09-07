@@ -61,35 +61,27 @@ const CouncilMemberProfile = () => {
 	};
 
 	useEffect(() => {
-		initData();
-	}, []);
+		if (councilMemberAccountId) {
+			initData();
+		}
+	}, [councilMemberAccountId]);
 
-	if (loading || accountInfoLoading) {
-		return (
-			<div className="flex-center w-full h-full">
-				<div className="flex-center flex-col">
-					<Spinner size="xl" color="teal.500" thickness="4px" />
-					<span className="text-sm text-gray-600 mt-5">
-						Fetching profile...
-					</span>
-				</div>
+	return loading || accountInfoLoading ? (
+		<div className="flex-center w-full h-full">
+			<div className="flex-center flex-col">
+				<Spinner size="xl" color="teal.500" thickness="4px" />
+				<span className="text-sm text-gray-600 mt-5">Fetching profile...</span>
 			</div>
-		);
-	}
-
-	if (error) {
-		return (
-			<div className="flex-center flex-col mt-40">
-				<div className="text-4xl">🧐</div>
-				<h3>
-					Sorry, this member's info couldn't be fetched! We'll surely look into
-					this.
-				</h3>
-			</div>
-		);
-	}
-
-	return (
+		</div>
+	) : error ? (
+		<div className="flex-center flex-col mt-40">
+			<div className="text-4xl">🧐</div>
+			<h3>
+				Sorry, this member's info couldn't be fetched! We'll surely look into
+				this.
+			</h3>
+		</div>
+	) : (
 		<div className="px-16 py-16">
 			{editProfileOpen ? (
 				<>
@@ -147,6 +139,7 @@ const CouncilMemberProfile = () => {
 							{selectedTab === ProfileTabsConfig.VISUALISATION && (
 								<CouncilViz
 									memberInfo={memberInfo}
+									stashId={councilMemberAccountId}
 									networkName="KUSAMA COUNCIL"
 									networkInfo={networkInfo}
 								/>

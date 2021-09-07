@@ -27,7 +27,7 @@ const SecureStakeToEarn = ({
 	const [showValidators, setShowValidators] = useState(false);
 
 	const handleValToggle = () => {
-		if(!showValidators){
+		if (!showValidators) {
 			track(goalCodes.STAKING.SECURE.CLICKED_SHOW_VALIDATORS);
 		}
 		setShowValidators((show) => !show);
@@ -92,11 +92,11 @@ const SecureStakeToEarn = ({
 					</button>
 					<Collapse isOpen={showValidators}>
 						<div className="mt-2 rounded-xl">
-							<div className="overflow-auto">
+							<div className="h-48 w-full overflow-scroll">
 								{selectedValidators.map((validator) => (
 									<ValidatorCard
 										key={validator.stashId}
-										name={validator.name}
+										info={validator?.info}
 										stashId={validator.stashId}
 										riskScore={validator.riskScore.toFixed(2)}
 										commission={validator.commission}

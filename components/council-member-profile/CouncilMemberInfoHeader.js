@@ -12,6 +12,8 @@ import {
 	PopoverBody,
 } from "@chakra-ui/core";
 
+import { getName } from "@lib/getName";
+
 const CouncilMemberInfoHeader = ({
 	stashId,
 	vision = "",
@@ -35,6 +37,11 @@ const CouncilMemberInfoHeader = ({
 		window.open(url, "_blank");
 	};
 
+	const displayName = getName(
+		get(socialInfo, "info.display"),
+		get(socialInfo, "info.displayParent"),
+		stashId
+	);
 	return (
 		<div className="flex">
 			<div className="mr-4">
@@ -45,11 +52,9 @@ const CouncilMemberInfoHeader = ({
 					<div className="flex items-center">
 						<div>
 							<h3 className="mr-4 text-xl text-gray-700 font-semibold">
-								{get(socialInfo, "name") ||
-									stashId.slice(0, 6) + "..." + stashId.slice(-6) ||
-									"-"}
+								{displayName}
 							</h3>
-							{socialInfo.legal && (
+							{socialInfo?.legal && (
 								<p className="text-gray-600 text-sm">
 									{get(socialInfo, "legal")}
 								</p>
@@ -58,7 +63,7 @@ const CouncilMemberInfoHeader = ({
 						<ProfileBadge score={transparencyScore.total} />
 					</div>
 					<div className="flex items-center">
-						{socialInfo.twitter && (
+						{socialInfo?.twitter && (
 							<button
 								className="mr-4 text-sm flex items-center hover:underline"
 								style={{ color: "#1DA1F2" }}
@@ -72,7 +77,7 @@ const CouncilMemberInfoHeader = ({
 								<span>{get(socialInfo, "twitter")}</span>
 							</button>
 						)}
-						{socialInfo.riot && (
+						{socialInfo?.riot && (
 							<button
 								className="mr-4 text-sm flex items-center hover:underline"
 								style={{ color: "#0dbd8b" }}
@@ -88,7 +93,7 @@ const CouncilMemberInfoHeader = ({
 								<span>{get(socialInfo, "riot")}</span>
 							</button>
 						)}
-						{socialInfo.web && (
+						{socialInfo?.web && (
 							<button
 								className="mr-4 text-sm flex items-center hover:underline"
 								onClick={() => openWindow(socialInfo.web)}
@@ -97,7 +102,7 @@ const CouncilMemberInfoHeader = ({
 								<span>{get(socialInfo, "web")}</span>
 							</button>
 						)}
-						{socialInfo.email && (
+						{socialInfo?.email && (
 							<a
 								className="bg-gray-200 rounded-full w-8 h-8 flex items-center justify-center"
 								href={`mailto:${get(socialInfo, "email")}`}

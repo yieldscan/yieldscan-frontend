@@ -299,9 +299,6 @@ const ReBondModal = withSlideIn(
 			}
 		}, [amount]);
 
-		console.log("totalUnbonding");
-		console.log(totalUnbonding);
-
 		return (
 			<Modal
 				isOpen={true}
