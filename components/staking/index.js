@@ -501,7 +501,7 @@ const Staking = () => {
 	useEffect(() => {
 		if (stakingPath === "transfer" && controllerBalances) {
 			setTransferFundsAmount(
-				Math.pow(
+				Math.trunc(
 					networkInfo.reserveAmount * Math.pow(10, networkInfo.decimalPlaces) +
 						(apiInstance?.consts.balances.existentialDeposit.toNumber() -
 							parseInt(controllerBalances?.availableBalance))
