@@ -49,35 +49,36 @@ const SecureStakeToEarn = ({
 				</p>
 			</div>
 			<div className="flex flex-col w-full max-w-xl text-gray-700 text-sm space-y-2 font-semibold">
-				{((activeBondedAmount > 0 &&
-					balances?.availableBalance.toNumber() <
-						controllerTransferAmount +
-							transactionFee +
-							(networkInfo.reserveAmount *
-								Math.pow(10, networkInfo.decimalPlaces)) /
-								2) ||
-					(activeBondedAmount === 0 &&
+				{controllerTransferAmount > 0 &&
+					((activeBondedAmount > 0 &&
 						balances?.availableBalance.toNumber() <
 							controllerTransferAmount +
 								transactionFee +
-								Math.trunc(
-									stakingAmount * Math.pow(10, networkInfo.decimalPlaces)
-								) +
-								networkInfo.reserveAmount *
-									Math.pow(10, networkInfo.decimalPlaces)) ||
-					balances.freeBalance.toNumber() -
-						(controllerTransferAmount + transactionFee) <
-						apiInstance?.consts.balances.existentialDeposit.toNumber()) && (
-					<div className="flex flex-row w-full bg-red-100 rounded-lg p-4 justify-center items-center space-x-2">
-						<div>
-							<AlertOctagon size="40" className="text-red-600" />
-						</div>
+								(networkInfo.reserveAmount *
+									Math.pow(10, networkInfo.decimalPlaces)) /
+									2) ||
+						(activeBondedAmount === 0 &&
+							balances?.availableBalance.toNumber() <
+								controllerTransferAmount +
+									transactionFee +
+									Math.trunc(
+										stakingAmount * Math.pow(10, networkInfo.decimalPlaces)
+									) +
+									networkInfo.reserveAmount *
+										Math.pow(10, networkInfo.decimalPlaces)) ||
+						balances.freeBalance.toNumber() -
+							(controllerTransferAmount + transactionFee) <
+							apiInstance?.consts.balances.existentialDeposit.toNumber()) && (
+						<div className="flex flex-row w-full bg-red-100 rounded-lg p-4 justify-center items-center space-x-2">
+							<div>
+								<AlertOctagon size="40" className="text-red-600" />
+							</div>
 
-						<span className="w-full text-md text-gray-700 font-semibold">
-							Stash balance not enough to proceed ahead.
-						</span>
-					</div>
-				)}
+							<span className="w-full text-md text-gray-700 font-semibold">
+								Stash balance not enough to proceed ahead.
+							</span>
+						</div>
+					)}
 				<div>
 					<p className="ml-2">Stash Account</p>
 					<Account
@@ -234,26 +235,27 @@ const SecureStakeToEarn = ({
 						// className="w-full rounded-lg font-medium px-12 py-3 bg-teal-500 transform hover:bg-teal-700 text-white"
 						onClick={() => toggleIsAuthPopoverOpen()}
 						disabled={
-							transactionFee === 0 ||
-							(activeBondedAmount > 0 &&
-								balances?.availableBalance.toNumber() <
-									controllerTransferAmount +
-										transactionFee +
-										(networkInfo.reserveAmount *
-											Math.pow(10, networkInfo.decimalPlaces)) /
-											2) ||
-							(activeBondedAmount === 0 &&
-								balances?.availableBalance.toNumber() <
-									controllerTransferAmount +
-										transactionFee +
-										Math.trunc(
-											stakingAmount * Math.pow(10, networkInfo.decimalPlaces)
-										) +
-										networkInfo.reserveAmount *
-											Math.pow(10, networkInfo.decimalPlaces)) ||
-							balances.freeBalance.toNumber() -
-								(controllerTransferAmount + transactionFee) <
-								apiInstance?.consts.balances.existentialDeposit.toNumber()
+							controllerTransferAmount > 0 &&
+							(transactionFee === 0 ||
+								(activeBondedAmount > 0 &&
+									balances?.availableBalance.toNumber() <
+										controllerTransferAmount +
+											transactionFee +
+											(networkInfo.reserveAmount *
+												Math.pow(10, networkInfo.decimalPlaces)) /
+												2) ||
+								(activeBondedAmount === 0 &&
+									balances?.availableBalance.toNumber() <
+										controllerTransferAmount +
+											transactionFee +
+											Math.trunc(
+												stakingAmount * Math.pow(10, networkInfo.decimalPlaces)
+											) +
+											networkInfo.reserveAmount *
+												Math.pow(10, networkInfo.decimalPlaces)) ||
+								balances.freeBalance.toNumber() -
+									(controllerTransferAmount + transactionFee) <
+									apiInstance?.consts.balances.existentialDeposit.toNumber())
 						}
 					>
 						Just stake, baby!
