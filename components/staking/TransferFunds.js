@@ -318,9 +318,11 @@ const ConfirmTransfer = ({
 										Please confirm the details below
 									</p>
 								</div>
-								{senderBalances?.availableBalance.toNumber() -
-									(transferFundsAmount + transactionFee) <
-									apiInstance?.consts.balances.existentialDeposit.toNumber() && (
+								{(senderBalances?.availableBalance.toNumber() <
+									transferFundsAmount + transactionFee ||
+									senderBalances?.freeBalance.toNumber() -
+										(transferFundsAmount + transactionFee) <
+										apiInstance?.consts.balances.existentialDeposit.toNumber()) && (
 									<div className="flex flex-row w-full bg-red-100 rounded-lg p-4 justify-center items-center space-x-2">
 										<div>
 											<AlertOctagon size="20" className="text-red-600" />
@@ -431,16 +433,20 @@ const ConfirmTransfer = ({
 								${
 									transactionFee === 0
 										? "bg-teal-500 opacity-100 cursor-not-allowed"
-										: senderBalances?.availableBalance.toNumber() -
+										: senderBalances?.availableBalance.toNumber() <
+												transferFundsAmount + transactionFee ||
+										  senderBalances?.freeBalance.toNumber() -
 												(transferFundsAmount + transactionFee) <
-										  apiInstance?.consts.balances.existentialDeposit.toNumber()
+												apiInstance?.consts.balances.existentialDeposit.toNumber()
 										? "bg-gray-700 opacity-25 cursor-not-allowed"
 										: "bg-teal-500 opacity-100 cursor-pointer"
 								}`}
 									onClick={transferFunds}
 									disabled={
 										transactionFee === 0 ||
-										senderBalances?.availableBalance.toNumber() -
+										senderBalances?.availableBalance.toNumber() <
+											transferFundsAmount + transactionFee ||
+										senderBalances?.freeBalance.toNumber() -
 											(transferFundsAmount + transactionFee) <
 											apiInstance?.consts.balances.existentialDeposit.toNumber()
 									}

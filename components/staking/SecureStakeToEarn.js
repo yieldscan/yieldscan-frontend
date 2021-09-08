@@ -3,7 +3,7 @@ import { get } from "lodash";
 import formatCurrency from "@lib/format-currency";
 import { HelpPopover } from "@components/reward-calculator";
 import { Spinner, Divider, Collapse } from "@chakra-ui/core";
-import { ArrowLeft, ChevronRight } from "react-feather";
+import { AlertOctagon, ArrowLeft, ChevronRight } from "react-feather";
 import ValidatorCard from "./ValidatorCard";
 import Account from "../wallet-connect/Account";
 import { NextButton } from "@components/common/BottomButton";
@@ -21,6 +21,8 @@ const SecureStakeToEarn = ({
 	transactionFee,
 	toggleIsAuthPopoverOpen,
 	ysFees,
+	apiInstance,
+	stakingInfo,
 }) => {
 	const selectedValidators = get(transactionState, "selectedValidators", []);
 	const stakingAmount = get(transactionState, "stakingAmount", 0);
@@ -33,6 +35,10 @@ const SecureStakeToEarn = ({
 		setShowValidators((show) => !show);
 	};
 
+	const activeBondedAmount =
+		parseInt(get(stakingInfo, "stakingLedger.active", 0)) /
+		Math.pow(10, networkInfo.decimalPlaces);
+
 	return (
 		<div className="flex flex-col w-full justify-center text-gray-700 space-y-4 p-4">
 			<div className="space-y-2">
@@ -43,6 +49,35 @@ const SecureStakeToEarn = ({
 				</p>
 			</div>
 			<div className="flex flex-col w-full max-w-xl text-gray-700 text-sm space-y-2 font-semibold">
+				{((activeBondedAmount > 0 &&
+					balances?.availableBalance.toNumber() <
+						controllerTransferAmount +
+							transactionFee +
+							(networkInfo.reserveAmount *
+								Math.pow(10, networkInfo.decimalPlaces)) /
+								2) ||
+					(activeBondedAmount === 0 &&
+						balances?.availableBalance.toNumber() <
+							controllerTransferAmount +
+								transactionFee +
+								Math.trunc(
+									stakingAmount * Math.pow(10, networkInfo.decimalPlaces)
+								) +
+								networkInfo.reserveAmount *
+									Math.pow(10, networkInfo.decimalPlaces)) ||
+					balances.freeBalance.toNumber() -
+						(controllerTransferAmount + transactionFee) <
+						apiInstance?.consts.balances.existentialDeposit.toNumber()) && (
+					<div className="flex flex-row w-full bg-red-100 rounded-lg p-4 justify-center items-center space-x-2">
+						<div>
+							<AlertOctagon size="40" className="text-red-600" />
+						</div>
+
+						<span className="w-full text-md text-gray-700 font-semibold">
+							Stash balance not enough to proceed ahead.
+						</span>
+					</div>
+				)}
 				<div>
 					<p className="ml-2">Stash Account</p>
 					<Account
@@ -198,7 +233,28 @@ const SecureStakeToEarn = ({
 					<NextButton
 						// className="w-full rounded-lg font-medium px-12 py-3 bg-teal-500 transform hover:bg-teal-700 text-white"
 						onClick={() => toggleIsAuthPopoverOpen()}
-						disabled={transactionFee === 0}
+						disabled={
+							transactionFee === 0 ||
+							(activeBondedAmount > 0 &&
+								balances?.availableBalance.toNumber() <
+									controllerTransferAmount +
+										transactionFee +
+										(networkInfo.reserveAmount *
+											Math.pow(10, networkInfo.decimalPlaces)) /
+											2) ||
+							(activeBondedAmount === 0 &&
+								balances?.availableBalance.toNumber() <
+									controllerTransferAmount +
+										transactionFee +
+										Math.trunc(
+											stakingAmount * Math.pow(10, networkInfo.decimalPlaces)
+										) +
+										networkInfo.reserveAmount *
+											Math.pow(10, networkInfo.decimalPlaces)) ||
+							balances.freeBalance.toNumber() -
+								(controllerTransferAmount + transactionFee) <
+								apiInstance?.consts.balances.existentialDeposit.toNumber()
+						}
 					>
 						Just stake, baby!
 					</NextButton>

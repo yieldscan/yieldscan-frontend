@@ -303,6 +303,8 @@ const SecureStakingSetup = ({
 						confirmedControllerAccount={confirmedControllerAccount}
 						toggleIsAuthPopoverOpen={toggleIsAuthPopoverOpen}
 						ysFees={ysFees}
+						apiInstance={apiInstance}
+						stakingInfo={stakingInfo}
 					/>
 				)}
 			</div>
