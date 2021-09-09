@@ -85,12 +85,14 @@ const SecureStakingSetup = ({
 	const handleOnClickBackToSettinUpYourController = (
 		unadjustedStakingAmount
 	) => {
-		setTransactionState({
-			stakingAmount:
-				unadjustedStakingAmount / Math.pow(10, networkInfo.decimalPlaces),
-		});
-		setAdjustedStakingAmount(null);
-		setUnadjustedStakingAmount(null);
+		if (adjustedStakingAmount) {
+			setTransactionState({
+				stakingAmount:
+					unadjustedStakingAmount / Math.pow(10, networkInfo.decimalPlaces),
+			});
+			setAdjustedStakingAmount(null);
+			setUnadjustedStakingAmount(null);
+		}
 	};
 
 	useEffect(() => {
