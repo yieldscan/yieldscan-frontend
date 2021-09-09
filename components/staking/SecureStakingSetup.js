@@ -245,6 +245,7 @@ const SecureStakingSetup = ({
 		stakingInfo,
 		controllerTransferAmount,
 		ysFees,
+		stakingAmount,
 		selectedValidators,
 		selected?.address,
 	]);
