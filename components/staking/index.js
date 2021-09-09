@@ -66,9 +66,11 @@ const Staking = () => {
 	const [transactionFee, setTransactionFee] = useState(0);
 	const [transactionType, setTransactionType] = useState(null);
 	const [senderAccount, setSenderAccount] = useState(null);
-
+	const [minPossibleStake, setMinPossibleStake] = useState(0);
 	const selectedValidators = get(transactionState, "selectedValidators", []);
 	const stakingAmount = get(transactionState, "stakingAmount", 0);
+	const [adjustedStakingAmount, setAdjustedStakingAmount] = useState(null);
+	const [unadjustedStakingAmount, setUnadjustedStakingAmount] = useState(null);
 
 	const [controllerStashInfo, setControllerStashInfo] = useState(
 		() => accountsControllerStashInfo[selectedAccount?.address]
@@ -440,6 +442,15 @@ const Staking = () => {
 		} else setYsFees(0);
 	}, [networkInfo, stakingAmount]);
 
+	useEffect(async () => {
+		if (apiInstance) {
+			const data = await apiInstance?.query.staking.minNominatorBond();
+			setMinPossibleStake(
+				() => parseInt(data) / Math.pow(10, networkInfo.decimalPlaces)
+			);
+		}
+	}, [selectedNetwork, apiInstance]);
+
 	useEffect(() => {
 		if (stakingInfo) {
 			isNil(stakingInfo?.controllerId)
@@ -675,6 +686,11 @@ const Staking = () => {
 					stakingAmount={stakingAmount}
 					selectedValidators={selectedValidators}
 					setStepperTransactions={setStepperTransactions}
+					minPossibleStake={minPossibleStake}
+					adjustedStakingAmount={adjustedStakingAmount}
+					setAdjustedStakingAmount={setAdjustedStakingAmount}
+					unadjustedStakingAmount={unadjustedStakingAmount}
+					setUnadjustedStakingAmount={setUnadjustedStakingAmount}
 				/>
 			) : stakingPath === "express" ? (
 				<Confirmation

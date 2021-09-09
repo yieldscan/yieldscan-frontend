@@ -23,6 +23,11 @@ const SecureStakeToEarn = ({
 	ysFees,
 	apiInstance,
 	stakingInfo,
+	adjustedStakingAmount,
+	setAdjustedStakingAmount,
+	unadjustedStakingAmount,
+	setUnadjustedStakingAmount,
+	handleOnClickBackToSettinUpYourController,
 }) => {
 	const selectedValidators = get(transactionState, "selectedValidators", []);
 	const stakingAmount = get(transactionState, "stakingAmount", 0);
@@ -49,36 +54,31 @@ const SecureStakeToEarn = ({
 				</p>
 			</div>
 			<div className="flex flex-col w-full max-w-xl text-gray-700 text-sm space-y-2 font-semibold">
-				{controllerTransferAmount > 0 &&
-					((activeBondedAmount > 0 &&
-						balances?.availableBalance.toNumber() <
-							controllerTransferAmount +
-								transactionFee +
-								(networkInfo.reserveAmount *
-									Math.pow(10, networkInfo.decimalPlaces)) /
-									2) ||
-						(activeBondedAmount === 0 &&
-							balances?.availableBalance.toNumber() <
-								controllerTransferAmount +
-									transactionFee +
-									Math.trunc(
-										stakingAmount * Math.pow(10, networkInfo.decimalPlaces)
-									) +
-									networkInfo.reserveAmount *
-										Math.pow(10, networkInfo.decimalPlaces)) ||
-						balances.freeBalance.toNumber() -
-							(controllerTransferAmount + transactionFee) <
-							apiInstance?.consts.balances.existentialDeposit.toNumber()) && (
-						<div className="flex flex-row w-full bg-red-100 rounded-lg p-4 justify-center items-center space-x-2">
-							<div>
-								<AlertOctagon size="40" className="text-red-600" />
-							</div>
-
-							<span className="w-full text-md text-gray-700 font-semibold">
-								Stash balance not enough to proceed ahead.
+				{controllerTransferAmount > 0 && adjustedStakingAmount && (
+					<div className="flex flex-row w-full bg-yellow-200 bg-opacity-50 rounded-lg p-4 items-center space-x-2">
+						<div>
+							<AlertOctagon size="40" className="text-orange-300" />
+						</div>
+						<div className="flex flex-col p-2">
+							<h1 className="w-full text-md text-gray-700 font-semibold">
+								Staking Amount Changed
+							</h1>
+							<span className="w-full h-full text-sm text-gray-600 font-semibold">
+								Your staking amount has been changed from{" "}
+								{formatCurrency.methods.formatAmount(
+									unadjustedStakingAmount,
+									networkInfo
+								)}{" "}
+								to{" "}
+								{formatCurrency.methods.formatAmount(
+									adjustedStakingAmount,
+									networkInfo
+								)}
+								.
 							</span>
 						</div>
-					)}
+					</div>
+				)}
 				<div>
 					<p className="ml-2">Stash Account</p>
 					<Account
@@ -234,29 +234,7 @@ const SecureStakeToEarn = ({
 					<NextButton
 						// className="w-full rounded-lg font-medium px-12 py-3 bg-teal-500 transform hover:bg-teal-700 text-white"
 						onClick={() => toggleIsAuthPopoverOpen()}
-						disabled={
-							controllerTransferAmount > 0 &&
-							(transactionFee === 0 ||
-								(activeBondedAmount > 0 &&
-									balances?.availableBalance.toNumber() <
-										controllerTransferAmount +
-											transactionFee +
-											(networkInfo.reserveAmount *
-												Math.pow(10, networkInfo.decimalPlaces)) /
-												2) ||
-								(activeBondedAmount === 0 &&
-									balances?.availableBalance.toNumber() <
-										controllerTransferAmount +
-											transactionFee +
-											Math.trunc(
-												stakingAmount * Math.pow(10, networkInfo.decimalPlaces)
-											) +
-											networkInfo.reserveAmount *
-												Math.pow(10, networkInfo.decimalPlaces)) ||
-								balances.freeBalance.toNumber() -
-									(controllerTransferAmount + transactionFee) <
-									apiInstance?.consts.balances.existentialDeposit.toNumber())
-						}
+						disabled={transactionFee === 0}
 					>
 						Just stake, baby!
 					</NextButton>
@@ -266,7 +244,12 @@ const SecureStakeToEarn = ({
 				<button>
 					<div
 						className="flex flex-row space-x-2 items-center"
-						onClick={() => decrementCurrentStep()}
+						onClick={() => {
+							handleOnClickBackToSettinUpYourController(
+								unadjustedStakingAmount
+							);
+							decrementCurrentStep();
+						}}
 					>
 						<ArrowLeft size="18" />
 						<span>Setting up your controller</span>
