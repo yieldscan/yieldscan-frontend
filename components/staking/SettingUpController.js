@@ -178,7 +178,7 @@ const SelectControllerAccount = ({
 
 					<div className="flex flex-col p-2">
 						<h1 className="w-full text-md text-gray-700 font-semibold">
-							Staking Amount Changed
+							Staking amount will be changed
 						</h1>
 
 						<span className="w-full h-full text-sm text-gray-600 font-semibold">
