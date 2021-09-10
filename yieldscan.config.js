@@ -10,7 +10,7 @@ export const networks = [
 		coinGeckoDenom: "polkadot",
 		decimalPlaces: 10,
 		feesAddress: process.env.NEXT_PUBLIC_POLKADOT_FEES_ADDRESS,
-		feesEnabled: isNil(process.env?.NEXT_PUBLIC_POLKADOT_FEES_ENABLED)
+		feesEnabled: isNil(process?.env?.NEXT_PUBLIC_POLKADOT_FEES_ENABLED)
 			? false
 			: JSON.parse(process.env.NEXT_PUBLIC_POLKADOT_FEES_ENABLED),
 		feesRatio: process.env.NEXT_PUBLIC_POLKADOT_FEES_RATIO,
@@ -30,7 +30,7 @@ export const networks = [
 		isTestNetwork: false,
 		denom: "KSM",
 		feesAddress: process.env.NEXT_PUBLIC_KUSAMA_FEES_ADDRESS,
-		feesEnabled: isNil(process.env?.NEXT_PUBLIC_KUSAMA_FEES_ENABLED)
+		feesEnabled: isNil(process?.env?.NEXT_PUBLIC_KUSAMA_FEES_ENABLED)
 			? false
 			: JSON.parse(process.env.NEXT_PUBLIC_KUSAMA_FEES_ENABLED),
 		feesRatio: process.env.NEXT_PUBLIC_KUSAMA_FEES_RATIO,
@@ -52,7 +52,7 @@ export const networks = [
 		isTestNetwork: true,
 		denom: "WND",
 		feesAddress: process.env.NEXT_PUBLIC_WESTEND_FEES_ADDRESS,
-		feesEnabled: isNil(process.env?.NEXT_PUBLIC_WESTEND_FEES_ENABLED)
+		feesEnabled: isNil(process?.env?.NEXT_PUBLIC_WESTEND_FEES_ENABLED)
 			? false
 			: JSON.parse(process.env.NEXT_PUBLIC_WESTEND_FEES_ENABLED),
 		feesRatio: process.env.NEXT_PUBLIC_WESTEND_FEES_RATIO,
