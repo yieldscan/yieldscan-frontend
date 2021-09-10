@@ -3,7 +3,7 @@ import { get } from "lodash";
 import formatCurrency from "@lib/format-currency";
 import { HelpPopover } from "@components/reward-calculator";
 import { Spinner, Divider, Collapse } from "@chakra-ui/core";
-import { ArrowLeft, ChevronRight } from "react-feather";
+import { AlertOctagon, ArrowLeft, ChevronRight } from "react-feather";
 import ValidatorCard from "./ValidatorCard";
 import Account from "../wallet-connect/Account";
 import { NextButton } from "@components/common/BottomButton";
@@ -21,6 +21,13 @@ const SecureStakeToEarn = ({
 	transactionFee,
 	toggleIsAuthPopoverOpen,
 	ysFees,
+	apiInstance,
+	stakingInfo,
+	adjustedStakingAmount,
+	setAdjustedStakingAmount,
+	unadjustedStakingAmount,
+	setUnadjustedStakingAmount,
+	handleOnClickBackToSettinUpYourController,
 }) => {
 	const selectedValidators = get(transactionState, "selectedValidators", []);
 	const stakingAmount = get(transactionState, "stakingAmount", 0);
@@ -33,6 +40,10 @@ const SecureStakeToEarn = ({
 		setShowValidators((show) => !show);
 	};
 
+	const activeBondedAmount =
+		parseInt(get(stakingInfo, "stakingLedger.active", 0)) /
+		Math.pow(10, networkInfo.decimalPlaces);
+
 	return (
 		<div className="flex flex-col w-full justify-center text-gray-700 space-y-4 p-4">
 			<div className="space-y-2">
@@ -43,6 +54,31 @@ const SecureStakeToEarn = ({
 				</p>
 			</div>
 			<div className="flex flex-col w-full max-w-xl text-gray-700 text-sm space-y-2 font-semibold">
+				{controllerTransferAmount > 0 && adjustedStakingAmount && (
+					<div className="flex flex-row w-full bg-yellow-200 bg-opacity-50 rounded-lg p-4 items-center space-x-2">
+						<div>
+							<AlertOctagon size="40" className="text-orange-300" />
+						</div>
+						<div className="flex flex-col p-2">
+							<h1 className="w-full text-md text-gray-700 font-semibold">
+								Staking Amount Changed
+							</h1>
+							<span className="w-full h-full text-sm text-gray-600 font-semibold">
+								Your staking amount has been changed from{" "}
+								{formatCurrency.methods.formatAmount(
+									unadjustedStakingAmount,
+									networkInfo
+								)}{" "}
+								to{" "}
+								{formatCurrency.methods.formatAmount(
+									adjustedStakingAmount,
+									networkInfo
+								)}
+								.
+							</span>
+						</div>
+					</div>
+				)}
 				<div>
 					<p className="ml-2">Stash Account</p>
 					<Account
@@ -208,7 +244,12 @@ const SecureStakeToEarn = ({
 				<button>
 					<div
 						className="flex flex-row space-x-2 items-center"
-						onClick={() => decrementCurrentStep()}
+						onClick={() => {
+							handleOnClickBackToSettinUpYourController(
+								unadjustedStakingAmount
+							);
+							decrementCurrentStep();
+						}}
 					>
 						<ArrowLeft size="18" />
 						<span>Setting up your controller</span>

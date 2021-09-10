@@ -28,6 +28,10 @@ const RedeemUnbonded = withSlideIn(
 		stakingInfo,
 		selectedAccount,
 		networkInfo,
+		apiInstance,
+		controllerAccount,
+		controllerBalances,
+		isSameStashController,
 	}) => {
 		const toast = useToast();
 		const { coinGeckoPriceUSD } = useCoinGeckoPriceUSD();
@@ -198,6 +202,16 @@ const RedeemUnbonded = withSlideIn(
 								<>
 									<h3 className="mt-4 text-2xl">Confirmation</h3>
 									<div className="w-full mt-8">
+										{controllerAccount &&
+											controllerBalances &&
+											transactionFee +
+												apiInstance?.consts.balances.existentialDeposit.toNumber() >
+												controllerBalances.availableBalance && (
+												<div className="rounded-lg px-5 py-2 text-sm bg-red-200 text-red-600 mb-8">
+													{isSameStashController ? "Account " : "Controller "}
+													Balance insufficient to pay transaction fees.
+												</div>
+											)}
 										<div className="flex justify-between">
 											<p className="text-gray-700 text-xs">Redeemable Amount</p>
 											<div className="flex flex-col">
@@ -236,8 +250,23 @@ const RedeemUnbonded = withSlideIn(
 									</div>
 									<div className="w-full flex-center">
 										<button
-											className="rounded-full font-medium px-12 py-3 bg-teal-500 mt-40 mb-40 text-white"
+											className={`rounded-full font-medium px-12 py-3 ${
+												controllerAccount &&
+												controllerBalances &&
+												transactionFee +
+													apiInstance?.consts.balances.existentialDeposit.toNumber() >
+													controllerBalances.availableBalance
+													? "bg-gray-700 opacity-25 cursor-not-allowed"
+													: "bg-teal-500 opacity-100 cursor-pointer"
+											}mt-40 mb-40 text-white`}
 											onClick={onConfirm}
+											disabled={
+												controllerAccount &&
+												controllerBalances &&
+												transactionFee +
+													apiInstance?.consts.balances.existentialDeposit.toNumber() >
+													controllerBalances.availableBalance
+											}
 										>
 											Confirm
 										</button>

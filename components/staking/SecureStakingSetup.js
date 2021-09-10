@@ -25,6 +25,7 @@ const SecureStakingSetup = ({
 	accountsControllerStashInfo,
 	accountsBalances,
 	ysFees,
+	setTransactionState,
 	selected,
 	setSelected,
 	confirmedControllerAccount,
@@ -41,6 +42,11 @@ const SecureStakingSetup = ({
 	stakingAmount,
 	selectedValidators,
 	setStepperTransactions,
+	minPossibleStake,
+	adjustedStakingAmount,
+	setAdjustedStakingAmount,
+	unadjustedStakingAmount,
+	setUnadjustedStakingAmount,
 }) => {
 	const [currentStep, setCurrentStep] = useState(() =>
 		confirmedControllerAccount && selected ? 2 : 0
@@ -55,14 +61,38 @@ const SecureStakingSetup = ({
 		setSelected(account);
 		setIsStashPopoverOpen(false);
 	};
-	const handleOnClickNext = (account) => {
+	const handleOnClickNext = (account, adjustedStakingAmount) => {
 		if (controllerTransferAmount > 0) {
 			track(goalCodes.STAKING.SECURE.LAST_STEP_WITH_CONTROLLER_TRANSFER);
 		} else {
 			track(goalCodes.STAKING.SECURE.LAST_STEP_WITHOUT_CONTROLLER_TRANSFER);
 		}
 		setConfirmedControllerAccount(account);
+
+		if (adjustedStakingAmount) {
+			setUnadjustedStakingAmount(
+				stakingAmount * Math.pow(10, networkInfo.decimalPlaces)
+			);
+			setTransactionState({
+				stakingAmount:
+					adjustedStakingAmount / Math.pow(10, networkInfo.decimalPlaces),
+			});
+		}
+
 		incrementCurrentStep();
+	};
+
+	const handleOnClickBackToSettinUpYourController = (
+		unadjustedStakingAmount
+	) => {
+		if (adjustedStakingAmount) {
+			setTransactionState({
+				stakingAmount:
+					unadjustedStakingAmount / Math.pow(10, networkInfo.decimalPlaces),
+			});
+			setAdjustedStakingAmount(null);
+			setUnadjustedStakingAmount(null);
+		}
 	};
 
 	useEffect(() => {
@@ -91,7 +121,7 @@ const SecureStakingSetup = ({
 	]);
 
 	useEffect(async () => {
-		if (confirmedControllerAccount) {
+		if (selected) {
 			setTransactionFee(0);
 			setTransactions(null);
 			setInjectorAccount(null);
@@ -102,7 +132,7 @@ const SecureStakingSetup = ({
 				decodeAddress(selectedAccount?.address)
 			);
 			const substrateSelectedControllerId = encodeAddress(
-				decodeAddress(confirmedControllerAccount?.address)
+				decodeAddress(selected?.address)
 			);
 
 			const amount = Math.trunc(
@@ -213,10 +243,11 @@ const SecureStakingSetup = ({
 		}
 	}, [
 		stakingInfo,
-		confirmedControllerAccount,
 		controllerTransferAmount,
 		ysFees,
+		stakingAmount,
 		selectedValidators,
+		selected?.address,
 	]);
 
 	return (
@@ -287,6 +318,16 @@ const SecureStakingSetup = ({
 						handleOnClick={handleOnClick}
 						controllerTransferAmount={controllerTransferAmount}
 						handleOnClickNext={handleOnClickNext}
+						transactionFee={transactionFee}
+						stakingInfo={stakingInfo}
+						balances={balances}
+						transactionState={transactionState}
+						setTransactionState={setTransactionState}
+						minPossibleStake={minPossibleStake}
+						adjustedStakingAmount={adjustedStakingAmount}
+						setAdjustedStakingAmount={setAdjustedStakingAmount}
+						unadjustedStakingAmount={unadjustedStakingAmount}
+						setUnadjustedStakingAmount={setUnadjustedStakingAmount}
 					/>
 				) : (
 					<SecureStakeToEarn
@@ -303,6 +344,15 @@ const SecureStakingSetup = ({
 						confirmedControllerAccount={confirmedControllerAccount}
 						toggleIsAuthPopoverOpen={toggleIsAuthPopoverOpen}
 						ysFees={ysFees}
+						apiInstance={apiInstance}
+						stakingInfo={stakingInfo}
+						adjustedStakingAmount={adjustedStakingAmount}
+						setAdjustedStakingAmount={setAdjustedStakingAmount}
+						unadjustedStakingAmount={unadjustedStakingAmount}
+						setUnadjustedStakingAmount={setUnadjustedStakingAmount}
+						handleOnClickBackToSettinUpYourController={
+							handleOnClickBackToSettinUpYourController
+						}
 					/>
 				)}
 			</div>

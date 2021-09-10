@@ -83,7 +83,7 @@ const TransferFunds = ({
 	useEffect(() => {
 		transferFundsAmount <
 		ysFees +
-			apiInstance?.consts.balances.existentialDeposit.toNumber() * 2 -
+			networkInfo.reserveAmount * Math.pow(10, networkInfo.decimalPlaces) -
 			controllerBalances?.availableBalance
 			? setIsLowAmount(true)
 			: setIsLowAmount(false);
@@ -180,8 +180,8 @@ const TransferFunds = ({
 										{formatCurrency.methods.formatAmount(
 											Math.trunc(
 												ysFees +
-													apiInstance?.consts.balances.existentialDeposit.toNumber() *
-														2 -
+													networkInfo.reserveAmount *
+														Math.pow(10, networkInfo.decimalPlaces) -
 													controllerBalances?.availableBalance
 											),
 											networkInfo
@@ -296,7 +296,7 @@ const ConfirmTransfer = ({
 			isCentered
 		>
 			<ModalOverlay />
-			<ModalContent rounded="lg" height="xl" {...styles} py={4}>
+			<ModalContent rounded="lg" height="xxl" {...styles} py={4}>
 				<ModalCloseButton
 					onClick={close}
 					boxShadow="0 0 0 0 #fff"
@@ -318,6 +318,23 @@ const ConfirmTransfer = ({
 										Please confirm the details below
 									</p>
 								</div>
+								{(senderBalances?.availableBalance.toNumber() <
+									transferFundsAmount + transactionFee ||
+									senderBalances?.freeBalance.toNumber() -
+										(transferFundsAmount + transactionFee) <
+										apiInstance?.consts.balances.existentialDeposit.toNumber()) && (
+									<div className="flex flex-row w-full bg-red-100 rounded-lg p-4 justify-center items-center space-x-2">
+										<div>
+											<AlertOctagon size="20" className="text-red-600" />
+										</div>
+
+										<span className="w-full text-md text-gray-700 font-semibold">
+											Sender account won't have enough funds left to pay for the
+											transaction fees of this transaction. Please lower the
+											transfer amount.
+										</span>
+									</div>
+								)}
 								<div>
 									<p className="ml-2">From:</p>
 									<Account
@@ -412,9 +429,27 @@ const ConfirmTransfer = ({
 							</div>
 							<div className="w-full mt-4">
 								<button
-									className={`w-full rounded-lg min-w-32 font-medium p-3 bg-teal-500 text-white z-20`}
+									className={`w-full rounded-lg min-w-32 font-medium p-3 text-white z-20 
+								${
+									transactionFee === 0
+										? "bg-teal-500 opacity-100 cursor-not-allowed"
+										: senderBalances?.availableBalance.toNumber() <
+												transferFundsAmount + transactionFee ||
+										  senderBalances?.freeBalance.toNumber() -
+												(transferFundsAmount + transactionFee) <
+												apiInstance?.consts.balances.existentialDeposit.toNumber()
+										? "bg-gray-700 opacity-25 cursor-not-allowed"
+										: "bg-teal-500 opacity-100 cursor-pointer"
+								}`}
 									onClick={transferFunds}
-									// disabled={}
+									disabled={
+										transactionFee === 0 ||
+										senderBalances?.availableBalance.toNumber() <
+											transferFundsAmount + transactionFee ||
+										senderBalances?.freeBalance.toNumber() -
+											(transferFundsAmount + transactionFee) <
+											apiInstance?.consts.balances.existentialDeposit.toNumber()
+									}
 								>
 									Transfer
 								</button>

@@ -67,6 +67,20 @@ const Overview = () => {
 	const [validatorsLoading, setValidatorsLoading] = useState(true);
 	const handleValToggle = () => setShowValidators(!showValidators);
 	const [selectedTab, setSelectedTab] = useState(Tabs.NOMINATIONS);
+	const [controllerAccount, setControllerAccount] = useState(() =>
+		accountsStakingInfo[selectedAccount?.address]?.controllerId
+			? accounts?.filter(
+					(account) =>
+						account.address ===
+						accountsStakingInfo[
+							selectedAccount?.address
+						]?.controllerId.toString()
+			  )[0]
+			: null
+	);
+	const [controllerBalances, setControllerBalances] = useState(
+		() => accountsBalances[controllerAccount?.address]
+	);
 	const [minPossibleStake, setMinPossibleStake] = useState(0);
 	const {
 		isOpen: isRewardDestinationModalOpen,
@@ -175,6 +189,37 @@ const Overview = () => {
 		}
 	}, [selectedNetwork, apiInstance]);
 
+	useEffect(() => {
+		if (stakingInfo?.accountId?.toString() !== selectedAccount?.address) {
+			setControllerAccount(null);
+		}
+		const account = accountsStakingInfo[selectedAccount?.address]?.controllerId
+			? accounts?.filter(
+					(account) =>
+						account.address ===
+						accountsStakingInfo[
+							selectedAccount?.address
+						]?.controllerId?.toString()
+			  )[0]
+			: null;
+		setControllerAccount(account);
+	}, [
+		selectedAccount?.address,
+		JSON.stringify(stakingInfo),
+		JSON.stringify(accountsStakingInfo),
+	]);
+
+	useEffect(() => {
+		if (stakingInfo?.accountId.toString() !== selectedAccount?.address) {
+			setControllerBalances(null);
+		}
+		setControllerBalances(accountsBalances[controllerAccount?.address]);
+	}, [
+		controllerAccount?.address,
+		selectedAccount?.address,
+		JSON.stringify(stakingInfo),
+		JSON.stringify(accountsBalances[controllerAccount?.address]),
+	]);
 	const onEditController = () => {
 		closeRewardDestinationModal();
 		toggleEditControllerModal();
@@ -291,6 +336,11 @@ const Overview = () => {
 					stakingInfo={stakingInfo}
 					networkInfo={networkInfo}
 					minPossibleStake={minPossibleStake}
+					controllerAccount={controllerAccount}
+					controllerBalances={controllerBalances}
+					isSameStashController={
+						selectedAccount?.address === controllerAccount?.address
+					}
 				/>
 			)}
 			{withdrawModalOpen && (
@@ -304,6 +354,11 @@ const Overview = () => {
 					stakingInfo={stakingInfo}
 					networkInfo={networkInfo}
 					minPossibleStake={minPossibleStake}
+					controllerAccount={controllerAccount}
+					controllerBalances={controllerBalances}
+					isSameStashController={
+						selectedAccount?.address === controllerAccount?.address
+					}
 				/>
 			)}
 			<UnbondingList
@@ -324,6 +379,12 @@ const Overview = () => {
 				stakingInfo={stakingInfo}
 				selectedAccount={selectedAccount}
 				networkInfo={networkInfo}
+				apiInstance={apiInstance}
+				controllerAccount={controllerAccount}
+				controllerBalances={controllerBalances}
+				isSameStashController={
+					selectedAccount?.address === controllerAccount?.address
+				}
 			/>
 			<div className="flex-col">
 				<div className="flex">

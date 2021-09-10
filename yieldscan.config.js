@@ -1,9 +1,5 @@
-// Selected network
-// const selectedNetwork = `Polkadot`;
-const selectedNetwork = `Kusama`;
-// const selectedNetwork = `Westend`;
+import { isNil } from "lodash";
 
-// Substrate networks
 export const networks = [
 	{
 		id: "polkadot-cc1",
@@ -14,7 +10,9 @@ export const networks = [
 		coinGeckoDenom: "polkadot",
 		decimalPlaces: 10,
 		feesAddress: process.env.NEXT_PUBLIC_POLKADOT_FEES_ADDRESS,
-		feesEnabled: JSON.parse(process.env.NEXT_PUBLIC_POLKADOT_FEES_ENABLED),
+		feesEnabled: isNil(process?.env?.NEXT_PUBLIC_POLKADOT_FEES_ENABLED)
+			? false
+			: JSON.parse(process.env.NEXT_PUBLIC_POLKADOT_FEES_ENABLED),
 		feesRatio: process.env.NEXT_PUBLIC_POLKADOT_FEES_RATIO,
 		twitterUrl: "@Polkadot",
 		addressPrefix: 0,
@@ -32,7 +30,9 @@ export const networks = [
 		isTestNetwork: false,
 		denom: "KSM",
 		feesAddress: process.env.NEXT_PUBLIC_KUSAMA_FEES_ADDRESS,
-		feesEnabled: JSON.parse(process.env.NEXT_PUBLIC_KUSAMA_FEES_ENABLED),
+		feesEnabled: isNil(process?.env?.NEXT_PUBLIC_KUSAMA_FEES_ENABLED)
+			? false
+			: JSON.parse(process.env.NEXT_PUBLIC_KUSAMA_FEES_ENABLED),
 		feesRatio: process.env.NEXT_PUBLIC_KUSAMA_FEES_RATIO,
 		twitterUrl: "@kusamanetwork",
 		coinGeckoDenom: "kusama",
@@ -52,7 +52,9 @@ export const networks = [
 		isTestNetwork: true,
 		denom: "WND",
 		feesAddress: process.env.NEXT_PUBLIC_WESTEND_FEES_ADDRESS,
-		feesEnabled: JSON.parse(process.env.NEXT_PUBLIC_WESTEND_FEES_ENABLED),
+		feesEnabled: isNil(process?.env?.NEXT_PUBLIC_WESTEND_FEES_ENABLED)
+			? false
+			: JSON.parse(process.env.NEXT_PUBLIC_WESTEND_FEES_ENABLED),
 		feesRatio: process.env.NEXT_PUBLIC_WESTEND_FEES_RATIO,
 		twitterUrl: "@westend",
 		coinGeckoDenom: undefined,
@@ -90,5 +92,3 @@ export const getAllNetworks = () => {
 		.map((network) => network.name);
 	return supportedNetworks;
 };
-
-export const network = networks.find(({ name }) => name === selectedNetwork);
