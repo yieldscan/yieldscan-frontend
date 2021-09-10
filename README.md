@@ -65,7 +65,8 @@ Important packages:
 
   ```env
   # Main API endpoint
-  NEXT_PUBLIC_API_BASE_URL=<base-url-of-deployed/local-api>
+  NEXT_PUBLIC_API_BASE_URL="<base-url-of-deployed/local-api>/api"
+  # example: NEXT_PUBLIC_API_BASE_URL="http://localhost:5000/api"
 
   # Manage Testnets
   NEXT_PUBLIC_TESTNETS_ENABLED=true # if true westend will be enabled
