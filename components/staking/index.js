@@ -77,11 +77,6 @@ const Staking = () => {
 	);
 
 	const [ysFees, setYsFees] = useState(0);
-	Math.trunc(
-		get(transactionState, "stakingAmount", 0) *
-			0.00125 *
-			Math.pow(10, networkInfo.decimalPlaces)
-	);
 
 	const [controllerAccount, setControllerAccount] = useState(() =>
 		isNil(stakingInfo?.controllerId)

@@ -16,7 +16,10 @@ import {
 	PopoverContent,
 	PopoverArrow,
 	PopoverBody,
+	Divider,
 } from "@chakra-ui/core";
+import { NextButton } from "@components/common/BottomButton";
+import { HelpPopover } from "@components/reward-calculator";
 import withSlideIn from "@components/common/withSlideIn";
 import { decodeAddress, encodeAddress } from "@polkadot/util-crypto";
 import RiskTag from "@components/reward-calculator/RiskTag";
@@ -25,7 +28,7 @@ import calculateReward from "@lib/calculate-reward";
 import formatCurrency from "@lib/format-currency";
 import updateFunds from "@lib/polkadot/update-funds";
 import { usePolkadotApi, useAccounts, useCoinGeckoPriceUSD } from "@lib/store";
-import { ExternalLink } from "react-feather";
+import { ArrowRight, Check, ExternalLink } from "react-feather";
 import Routes from "@lib/routes";
 import Identicon from "@components/common/Identicon";
 import ChainErrorPage from "@components/overview/ChainErrorPage";
@@ -36,6 +39,438 @@ import AmountConfirmation from "./AmountConfirmation";
 import { track, goalCodes } from "@lib/analytics";
 import { network } from "yieldscan.config";
 import signAndSend from "@lib/signAndSend";
+import YieldScanApp from "pages/_app";
+import Image from "next/image";
+
+const BondExtra = ({
+	amount,
+	subCurrency,
+	type,
+	api,
+	stakingInfo,
+	networkInfo,
+	onConfirm,
+	transactionFee,
+}) => {
+	const { coinGeckoPriceUSD } = useCoinGeckoPriceUSD();
+	const [subFeeCurrency, setSubFeeCurrency] = useState();
+	const [totalAmount, setTotalAmount] = useState(0);
+	const [totalAmountFiat, setTotalAmountFiat] = useState(0);
+
+	useEffect(() => {
+		if (transactionFee) {
+			setSubFeeCurrency(
+				(transactionFee / Math.pow(10, networkInfo.decimalPlaces)) *
+					coinGeckoPriceUSD
+			);
+		}
+	}, [transactionFee]);
+
+	useEffect(() => {
+		if (totalAmount) {
+			setTotalAmountFiat(totalAmount * coinGeckoPriceUSD);
+		}
+	}, [totalAmount]);
+
+	useEffect(() => {
+		if (!totalAmount) {
+			type === "bond" || type == "rebond"
+				? setTotalAmount(
+						amount +
+							stakingInfo.stakingLedger.active /
+								Math.pow(10, networkInfo.decimalPlaces)
+				  )
+				: setTotalAmount(
+						stakingInfo.stakingLedger.active /
+							Math.pow(10, networkInfo.decimalPlaces) -
+							amount
+				  );
+		}
+	}, [amount, stakingInfo]);
+
+	return (
+		<div className="w-full flex flex-col">
+			<div className="w-full flex flex-col">
+				<div className="mt-2 mb-8 rounded text-gray-900 flex items-center justify-between">
+					<div className="rounded-lg flex-col ml-2">
+						<span className="text-gray-500 white-space-nowrap text-xs">
+							Current Investment Value
+						</span>
+						<h3 className="text-2xl white-space-nowrap">
+							{formatCurrency.methods.formatAmount(
+								stakingInfo.stakingLedger.active,
+								networkInfo
+							)}
+						</h3>
+						<span className="text-sm font-medium text-teal-500">
+							$
+							{(
+								(stakingInfo.stakingLedger.active /
+									Math.pow(10, networkInfo.decimalPlaces)) *
+								coinGeckoPriceUSD
+							).toFixed(2)}
+						</span>
+					</div>
+					<div>
+						<ArrowRight size="2rem" />
+					</div>
+					<div className="rounded-lg flex-col mr-2 ">
+						<span className="text-gray-500 white-space-nowrap  text-xs">
+							Final Investment Value
+						</span>
+						<h3 className="text-2xl white-space-nowrap">
+							{formatCurrency.methods.formatAmount(
+								Math.trunc(
+									totalAmount * Math.pow(10, networkInfo.decimalPlaces)
+								),
+								networkInfo
+							)}
+						</h3>
+						<span className="text-sm font-medium text-teal-500">
+							${totalAmountFiat.toFixed(2)}
+						</span>
+					</div>
+				</div>
+			</div>
+			{/* <button
+				className="mt-8 px-24 py-4 bg-teal-500 text-white rounded-lg"
+				onClick={handlePopoverClose}
+			>
+				Back to Dashboard
+			</button> */}
+			<div className="w-full mt-8">
+				<div className="flex justify-between">
+					<p className="text-gray-700 text-xs">Additional Investment Amount</p>
+					<div className="flex flex-col">
+						<p className="text-sm text-right">
+							{type === "bond" || type == "rebond"
+								? formatCurrency.methods.formatAmount(
+										Math.trunc(amount * 10 ** networkInfo.decimalPlaces),
+										networkInfo
+								  )
+								: formatCurrency.methods.formatAmount(0, networkInfo)}
+						</p>
+						<p className="text-xs text-right text-gray-600">
+							$
+							{Number(
+								type === "bond" || type == "rebond"
+									? amount * coinGeckoPriceUSD
+									: 0
+							).toFixed(2)}
+						</p>
+					</div>
+				</div>
+				<div className="flex justify-between mt-4">
+					<p className="text-gray-700 text-xs">Transaction Fee</p>
+
+					<div className="flex flex-col">
+						{transactionFee > 0 ? (
+							<div>
+								<p className="text-sm text-right">
+									{formatCurrency.methods.formatAmount(
+										Math.trunc(transactionFee),
+										networkInfo
+									)}
+								</p>
+								{!isNil(subFeeCurrency) && (
+									<p className="text-xs text-right text-gray-600">
+										${subFeeCurrency.toFixed(2)}
+									</p>
+								)}
+							</div>
+						) : (
+							<Spinner />
+						)}
+					</div>
+				</div>
+				<Divider my={6} />
+				<div className="flex justify-between">
+					<p className="text-gray-700 text-sm font-semibold">Total Amount</p>
+					{transactionFee > 0 ? (
+						<div className="flex flex-col">
+							<p className="text-lg text-right font-bold">
+								{type === "bond" || type == "rebond"
+									? formatCurrency.methods.formatAmount(
+											Math.trunc(amount * 10 ** networkInfo.decimalPlaces) +
+												transactionFee,
+											networkInfo
+									  )
+									: formatCurrency.methods.formatAmount(
+											Math.trunc(transactionFee),
+											networkInfo
+									  )}
+							</p>
+							{!isNil(subFeeCurrency) && (
+								<p className="text-sm text-right text-gray-600 font-medium">
+									$
+									{type === "bond" || type == "rebond"
+										? (subCurrency + subFeeCurrency).toFixed(2)
+										: subFeeCurrency.toFixed(2)}
+								</p>
+							)}
+						</div>
+					) : (
+						<Spinner />
+					)}
+				</div>
+			</div>
+		</div>
+	);
+};
+
+const YieldScanFees = ({ networkInfo, transactionFee, ysFees }) => (
+	<div className="w-full flex flex-col space-x-2">
+		<div className="flex justify-between p-2">
+			<div className="text-xs text-gray-700 flex items-center">
+				<p>Yieldscan .125% Fee</p>
+				{/* <HelpPopover
+					content={
+						<p className="text-xs text-white">
+							This fee is used to pay for the resources used for processing the
+							transaction on the blockchain network. YieldScan doesn’t profit
+							from this fee in any way.
+						</p>
+					}
+				/> */}
+			</div>
+			<div className="flex flex-col">
+				{ysFees !== 0 ? (
+					<div>
+						<p className="text-gray-700 text-sm font-semibold text-right">
+							{formatCurrency.methods.formatAmount(
+								Math.trunc(ysFees),
+								networkInfo
+							)}
+						</p>
+					</div>
+				) : (
+					<Spinner />
+				)}
+			</div>
+		</div>
+		<div className="flex justify-between mt-4">
+			<div className="text-xs text-gray-700 flex items-center">
+				<p>Transaction Fee</p>
+				<HelpPopover
+					content={
+						<p className="text-xs text-white">
+							This fee is used to pay for the resources used for processing the
+							transaction on the blockchain network. YieldScan doesn’t profit
+							from this fee in any way.
+						</p>
+					}
+				/>
+			</div>
+			<div className="flex flex-col">
+				{transactionFee !== 0 ? (
+					<div>
+						<p className="text-gray-700 text-sm font-semibold text-right">
+							{formatCurrency.methods.formatAmount(
+								Math.trunc(transactionFee),
+								networkInfo
+							)}
+						</p>
+					</div>
+				) : (
+					<Spinner />
+				)}
+			</div>
+		</div>
+		<Divider my={6} />
+		<div className="flex justify-between">
+			<p className="text-gray-700 text-base font-semibold">Total Amount</p>
+			{transactionFee !== 0 ? (
+				<div className="flex flex-col">
+					<p className="text-gray-700 text-lg text-right font-bold">
+						{formatCurrency.methods.formatAmount(
+							Math.trunc(transactionFee + ysFees),
+							networkInfo
+						)}
+					</p>
+					{/* <p className="text-sm text-right text-gray-600 font-medium">
+	${(subCurrency + subFeeCurrency).toFixed(2)}
+</p> */}
+				</div>
+			) : (
+				<Spinner />
+			)}
+		</div>
+	</div>
+);
+
+const StepperSigning = ({
+	onConfirm,
+	stepperTransactions,
+	currentStep,
+	transactionFee,
+	amount,
+	subCurrency,
+	type,
+	stashId,
+	stakingInfo,
+	networkInfo,
+	api,
+	ysFees,
+}) => {
+	return (
+		<div className="w-full flex flex-col justify-center items-center space-y-4 p-4">
+			<h1 className="w-full text-xl text-center text-gray-700 font-semibold p-2">
+				Invest More
+			</h1>
+			<div className="w-full flex flex-row items-center">
+				{stepperTransactions?.map((a, index) => (
+					<div key={index} className="w-full flex flex-row items-center">
+						<div className="flex w-1/3 justify-center items-center">
+							{index !== 0 && (
+								<div className="flex w-full border-b h-0 border-gray-500 rounded-full"></div>
+							)}
+						</div>
+						<div className="w-1/3 flex justify-center">
+							{currentStep <= index + 2 ? (
+								<div
+									className={`h-8 w-8 border-2 ${
+										index + 2 === currentStep
+											? "border-teal-500 text-teal-500"
+											: "border-gray-500 text-gray-500"
+									} rounded-full flex items-center text-lg justify-center`}
+								>
+									{index + 1}
+								</div>
+							) : (
+								<Check
+									className="p-1 mr-2 rounded-full text-white bg-teal-500 bg-opacity-100"
+									strokeWidth="4px"
+									size={30}
+								/>
+							)}
+						</div>
+						<div className="flex w-1/3 justify-center items-center">
+							{index !== stepperTransactions?.length - 1 && (
+								<div className="flex w-full border-b h-0 border-gray-500 rounded-full"></div>
+							)}
+						</div>
+					</div>
+				))}
+			</div>
+			<div className="w-full flex flex-row items-center">
+				{stepperTransactions?.map((a, index) => (
+					<div
+						key={index}
+						className="w-full flex flex-row items-center justify-center"
+					>
+						<p
+							className={`w-full text-center text-sm ${
+								currentStep <= index ? "text-gray-500" : "text-teal-500"
+							} ${currentStep !== index + 1 && "font-light"} `}
+						>
+							{a?.transactionHeading}
+						</p>
+					</div>
+				))}
+			</div>
+			{stepperTransactions[currentStep]?.transactionType === "bondExtra" ? (
+				<BondExtra
+					amount={amount}
+					subCurrency={subCurrency}
+					type={type}
+					stashId={stashId}
+					stakingInfo={stakingInfo}
+					networkInfo={networkInfo}
+					api={api}
+					onConfirm={onConfirm}
+					transactionFee={transactionFee}
+				/>
+			) : (
+				<YieldScanFees
+					networkInfo={networkInfo}
+					transactionFee={transactionFee}
+					ysFees={ysFees}
+				/>
+			)}
+			<div className="mt-4 w-full text-center">
+				<NextButton onClick={onConfirm} disabled={transactionFee === 0}>
+					Continue to sign
+				</NextButton>
+			</div>
+		</div>
+	);
+};
+
+const IdentifyWallet = ({ setIsLedger, setCurrentStep }) => {
+	return (
+		<div className="w-full flex flex-col justify-center items-center space-y-4 p-4">
+			<h1 className="w-full text-xl text-center text-gray-700 font-semibold p-2">
+				Tell us your account’s source
+			</h1>
+			<div className="w-full flex flex-col justify-center items-center space-y-2">
+				<p className="w-full text-sm text-center text-gray-700 font-light px-4">
+					We optimize your transaction signing process using this information.
+					Please make sure you select the correct option else your transaction
+					may fail.
+				</p>
+				<a
+					className="w-full text-sm text-center text-gray-700 font-semibold underline cursor-pointer px-2"
+					href="https://intercom.help/yieldscan/en/articles/5353515-how-to-check-which-accounts-on-polkadot-js-wallet-are-imported-through-a-hardware-wallet"
+					target="_blank"
+					rel="noreferrer"
+				>
+					How to check?
+				</a>
+			</div>
+			<div className="w-full flex text-gray-700 flex-col space-y-2 p-2">
+				<button
+					className="w-full flex rounded-lg border items-center shadow-md hover:shadow-lg p-8 transform hover:scale-102"
+					onClick={() => {
+						setIsLedger(true);
+						setCurrentStep(2);
+					}}
+				>
+					<div className="w-full flex-1 flex flex-row items-center text-left space-x-6">
+						<Image
+							src="/images/ledgerIcon.svg"
+							width="80"
+							height="80"
+							alt="walletIcon"
+						/>
+						<div className="flex flex-col text-left">
+							<h2 className="text-lg font-semibold">Ledger hardware wallet</h2>
+							<p className="text-gray-600 text-sm max-w-md">
+								{
+									"Select this option if you’re using a hardware wallet connected through polkadot{.js}"
+								}
+							</p>
+						</div>
+					</div>
+				</button>
+				<button
+					className="w-full flex rounded-lg border items-center shadow-md hover:shadow-lg p-8 transform hover:scale-102"
+					onClick={() => {
+						setIsLedger(false);
+						setCurrentStep(2);
+					}}
+				>
+					<div className="w-full flex-1 flex flex-row items-center text-left space-x-6">
+						<Image
+							src="/images/polkadot-ext.svg"
+							width="80"
+							height="80"
+							alt="walletIcon"
+						/>
+						<div className="flex flex-col text-left">
+							<h2 className="text-lg font-semibold">
+								{"Using a polkadot{.js} account"}
+							</h2>
+							<p className="text-gray-600 text-sm max-w-md">
+								Select this if you’re using a non-ledger account or if you don’t
+								know what a ledger device is
+							</p>
+						</div>
+					</div>
+				</button>
+			</div>
+		</div>
+	);
+};
 
 const InvestMoreModal = withSlideIn(
 	({
@@ -49,6 +484,8 @@ const InvestMoreModal = withSlideIn(
 		stakingInfo,
 		networkInfo,
 		minPossibleStake,
+		ysFees,
+		setYsFees,
 	}) => {
 		const toast = useToast();
 		const { coinGeckoPriceUSD } = useCoinGeckoPriceUSD();
@@ -58,6 +495,9 @@ const InvestMoreModal = withSlideIn(
 		const [updatingFunds, setUpdatingFunds] = useState(false);
 		const [stakingEvent, setStakingEvent] = useState();
 		const [processComplete, setProcessComplete] = useState(false);
+		const [stepperTransactions, setStepperTransactions] = useState(null);
+		const [stepperIndex, setStepperIndex] = useState(0);
+		const [isLedger, setIsLedger] = useState(false);
 		const [chainError, setChainError] = useState(false);
 		const [transactions, setTransactions] = useState(null);
 		const [injectorAccount, setInjectorAccount] = useState(null);
@@ -68,7 +508,8 @@ const InvestMoreModal = withSlideIn(
 		const [isSuccessful, setIsSuccessful] = useState(null);
 		const [closeOnOverlayClick, setCloseOnOverlayClick] = useState(true);
 		const [calculationDisabled, setCalculationDisabled] = useState(true);
-
+		const [isLast, setIsLast] = useState(true);
+		const [totalTransactionFee, setTotalTransactionFee] = useState(0);
 		const [totalStakingAmount, setTotalStakingAmount] = useState(
 			() =>
 				stakingInfo.stakingLedger.active /
@@ -114,23 +555,6 @@ const InvestMoreModal = withSlideIn(
 		const handleOnClickProceed = () => {
 			setCurrentStep(1);
 		};
-		// useEffect(() => {
-		// 	const timePeriodValue = 12,
-		// 		timePeriodUnit = "months";
-
-		// 	calculateReward(
-		// 		coinGeckoPriceUSD,
-		// 		validators,
-		// 		totalStakingAmount,
-		// 		timePeriodValue,
-		// 		timePeriodUnit,
-		// 		compounding,
-		// 		networkInfo
-		// 	).then((result) => {
-		// 		// setTotalStakingAmount(totalStakingAmount);
-		// 		setEstimatedReturns(get(result, "returns", 0));
-		// 	});
-		// }, [amount, compounding]);
 
 		useEffect(() => {
 			if (amount) {
@@ -164,6 +588,18 @@ const InvestMoreModal = withSlideIn(
 				setCalculationDisabled(true);
 			} else setCalculationDisabled(false);
 		}, [amount]);
+
+		useEffect(() => {
+			if (networkInfo?.feesEnabled) {
+				setYsFees(() =>
+					Math.trunc(
+						amount *
+							networkInfo.feesRatio *
+							Math.pow(10, networkInfo.decimalPlaces)
+					)
+				);
+			} else setYsFees(0);
+		}, [networkInfo, amount]);
 
 		const onConfirm = () => {
 			setUpdatingFunds(true);
@@ -200,22 +636,31 @@ const InvestMoreModal = withSlideIn(
 
 					if (status === 0) {
 						track(goalCodes.OVERVIEW.BOND_EXTRA_SUCCESSFUL);
-						updateTransactionData(
-							selectedAccount?.address,
-							networkInfo.network,
-							stakingInfo.stakingLedger.active /
-								Math.pow(10, networkInfo.decimalPlaces),
-							stakingInfo.stakingLedger.active /
-								Math.pow(10, networkInfo.decimalPlaces) +
-								amount,
-							tranHash,
-							true
-						);
+						if (isLast) {
+							updateTransactionData(
+								selectedAccount?.address,
+								networkInfo.network,
+								stakingInfo.stakingLedger.active /
+									Math.pow(10, networkInfo.decimalPlaces),
+								stakingInfo.stakingLedger.active /
+									Math.pow(10, networkInfo.decimalPlaces) +
+									amount,
+								tranHash,
+								true
+							);
+						}
 						setIsSuccessful(true);
-						setStakingEvent("Investing more successful!");
+						setStakingEvent(
+							isLast
+								? "Investing more successful!"
+								: "Successfull! Please pay Yieldscan Fees now."
+						);
 						setTimeout(() => {
-							setProcessComplete(true);
+							if (isLast) {
+								setProcessComplete(true);
+							} else setStepperIndex(1);
 							setUpdatingFunds(false);
+							setIsSuccessful(null);
 							setCloseOnOverlayClick(true);
 						}, 5000);
 						// setProcessComplete(true);
@@ -262,10 +707,10 @@ const InvestMoreModal = withSlideIn(
 		};
 
 		useEffect(async () => {
+			setStepperTransactions(null);
 			if (!isNil(stakingInfo)) {
-				setTransactions(null);
-				setTransactionFee(0);
-				setInjectorAccount(null);
+				// setTransactionFee(0);
+				// setInjectorAccount(null);
 				const substrateStashId = encodeAddress(
 					decodeAddress(selectedAccount?.address),
 					42
@@ -277,8 +722,92 @@ const InvestMoreModal = withSlideIn(
 
 				const _transactions = [];
 
-				_transactions.push(apiInstance.tx.staking.bondExtra(rawAmount));
+				_transactions.push({
+					transactionType: "bondExtra",
+					transactionHeading: "Lock funds",
+					injectorAccount: substrateStashId,
+					substrateStashId: substrateStashId,
+					stakingAmount: rawAmount,
+				});
 
+				if (
+					ysFees > 0 &&
+					networkInfo?.feesEnabled &&
+					networkInfo?.feesAddress
+				) {
+					_transactions.push({
+						transactionType: "yieldscanFees",
+						transactionHeading: "Pay Yieldscan Fees",
+						injectorAccount: substrateStashId,
+						ysFees: ysFees,
+						substrateControllerId: substrateStashId,
+					});
+				}
+
+				setStepperTransactions([..._transactions]);
+			}
+		}, [amount, ysFees]);
+
+		useEffect(async () => {
+			setTransactions(null);
+			setTransactionFee(0);
+			setInjectorAccount(null);
+			if (!isNil(stakingInfo) && stepperTransactions?.length > 0) {
+				const _transactions = [];
+				const substrateStashId = encodeAddress(
+					decodeAddress(selectedAccount?.address),
+					42
+				);
+				const rawAmount = Math.trunc(
+					amount * Math.pow(10, networkInfo.decimalPlaces)
+				);
+
+				if (stepperTransactions.length > 1) {
+					if (isLedger) {
+						if (
+							stepperTransactions[stepperIndex].transactionType === "bondExtra"
+						) {
+							_transactions.push(apiInstance.tx.staking.bondExtra(rawAmount));
+							setIsLast(false);
+						} else if (
+							stepperTransactions[stepperIndex].transactionType ===
+							"yieldscanFees"
+						) {
+							_transactions.push(
+								apiInstance.tx.balances.transferKeepAlive(
+									networkInfo.feesAddress,
+									ysFees
+								)
+							);
+							setIsLast(true);
+						}
+					} else {
+						if (
+							ysFees > 0 &&
+							networkInfo?.feesEnabled &&
+							networkInfo?.feesAddress
+						) {
+							_transactions.push(
+								apiInstance.tx.staking.bondExtra(rawAmount),
+								apiInstance.tx.balances.transferKeepAlive(
+									networkInfo.feesAddress,
+									ysFees
+								)
+							);
+						} else {
+							_transactions.push(
+								apiInstance.tx.balances.transferKeepAlive(
+									networkInfo.feesAddress,
+									ysFees
+								)
+							);
+						}
+						setIsLast(true);
+					}
+				} else {
+					_transactions.push(apiInstance.tx.staking.bondExtra(rawAmount));
+					setIsLast(true);
+				}
 				const fee =
 					_transactions.length > 1
 						? await apiInstance.tx.utility
@@ -289,8 +818,9 @@ const InvestMoreModal = withSlideIn(
 				setTransactions([..._transactions]);
 				setInjectorAccount(substrateStashId);
 				setTransactionFee(() => fee.partialFee.toNumber());
+				setTotalTransactionFee(transactionFee * 2.5); // hack approximation to ensure ample fees even in the case of multistep unbond
 			}
-		}, [amount]);
+		}, [stepperTransactions, stepperIndex, isLedger]);
 
 		return (
 			<Modal
@@ -438,6 +968,35 @@ const InvestMoreModal = withSlideIn(
 								!updatingFunds &&
 								!processComplete &&
 								!chainError && (
+									<IdentifyWallet
+										setIsLedger={setIsLedger}
+										setCurrentStep={setCurrentStep}
+									/>
+								)}
+							{currentStep === 2 &&
+							!updatingFunds &&
+							!processComplete &&
+							!chainError &&
+							isLedger &&
+							stepperTransactions?.length > 1 ? (
+								<StepperSigning
+									amount={amount}
+									subCurrency={subCurrency}
+									type={type}
+									stashId={selectedAccount?.address}
+									stakingInfo={stakingInfo}
+									networkInfo={networkInfo}
+									api={apiInstance}
+									stepperTransactions={stepperTransactions}
+									currentStep={stepperIndex}
+									onConfirm={onConfirm}
+									transactionFee={transactionFee}
+									ysFees={ysFees}
+								/>
+							) : (
+								currentStep === 2 &&
+								!updatingFunds &&
+								!processComplete && (
 									<AmountConfirmation
 										amount={amount}
 										subCurrency={subCurrency}
@@ -449,7 +1008,8 @@ const InvestMoreModal = withSlideIn(
 										onConfirm={onConfirm}
 										transactionFee={transactionFee}
 									/>
-								)}
+								)
+							)}
 							{updatingFunds && !processComplete && !chainError && (
 								<div className="grid grid-rows-2 gap-2 h-96 items-center justify-content justify-center">
 									<div className="w-full h-full flex justify-center items-end">

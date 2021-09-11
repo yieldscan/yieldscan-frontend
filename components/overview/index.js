@@ -67,6 +67,7 @@ const Overview = () => {
 	const [validatorsLoading, setValidatorsLoading] = useState(true);
 	const handleValToggle = () => setShowValidators(!showValidators);
 	const [selectedTab, setSelectedTab] = useState(Tabs.NOMINATIONS);
+	const [ysFees, setYsFees] = useState(0);
 	const [controllerAccount, setControllerAccount] = useState(() =>
 		accountsStakingInfo[selectedAccount?.address]?.controllerId
 			? accounts?.filter(
@@ -323,6 +324,8 @@ const Overview = () => {
 					stakingInfo={stakingInfo}
 					networkInfo={networkInfo}
 					minPossibleStake={minPossibleStake}
+					ysFees={ysFees}
+					setYsFees={setYsFees}
 				/>
 			)}
 			{reBondModalOpen && (
