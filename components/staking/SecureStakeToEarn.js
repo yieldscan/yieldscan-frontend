@@ -234,7 +234,12 @@ const SecureStakeToEarn = ({
 					<NextButton
 						// className="w-full rounded-lg font-medium px-12 py-3 bg-teal-500 transform hover:bg-teal-700 text-white"
 						onClick={() => toggleIsAuthPopoverOpen()}
-						disabled={transactionFee === 0}
+						disabled={
+							transactionFee === 0 ||
+							(ysFees === 0 &&
+								networkInfo?.feesEnabled &&
+								networkInfo?.feesAddress)
+						}
 					>
 						Just stake, baby!
 					</NextButton>

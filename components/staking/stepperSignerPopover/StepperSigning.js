@@ -145,6 +145,70 @@ const AddFundsToController = ({
 	);
 };
 
+const YieldscanFees = ({ networkInfo, transactionFee, ysFees }) => {
+	return (
+		<div className="w-full px-4">
+			<div className="flex justify-between mt-4">
+				<p className="text-gray-700 text-xs">Yieldscan Fees Amount</p>
+				<div className="flex flex-col">
+					<p className="text-gray-700 text-sm font-semibold text-right">
+						{formatCurrency.methods.formatAmount(ysFees, networkInfo)}
+					</p>
+					{/* <p className="text-xs text-right text-gray-600">
+		${subCurrency.toFixed(2)}
+	</p> */}
+				</div>
+			</div>
+			<div className="flex justify-between mt-4">
+				<div className="text-xs text-gray-700 flex items-center">
+					<p>Transaction Fee</p>
+					<HelpPopover
+						content={
+							<p className="text-xs text-white">
+								This fee is used to pay for the resources used for processing
+								the transaction on the blockchain network. YieldScan doesn’t
+								profit from this fee in any way.
+							</p>
+						}
+					/>
+				</div>
+				<div className="flex flex-col">
+					{transactionFee !== 0 ? (
+						<div>
+							<p className="text-gray-700 text-sm font-semibold text-right">
+								{formatCurrency.methods.formatAmount(
+									Math.trunc(transactionFee),
+									networkInfo
+								)}
+							</p>
+							{/* <p className="text-xs text-right text-gray-600">
+			${subFeeCurrency.toFixed(2)}
+		</p> */}
+						</div>
+					) : (
+						<Spinner />
+					)}
+				</div>
+			</div>
+			<Divider my={6} />
+			<div className="flex justify-between">
+				<p className="text-gray-700 text-base font-semibold">Total Amount</p>
+				<div className="flex flex-col">
+					<p className="text-gray-700 text-lg text-right font-bold">
+						{formatCurrency.methods.formatAmount(
+							Math.trunc(ysFees + transactionFee),
+							networkInfo
+						)}
+					</p>
+					{/* <p className="text-sm text-right text-gray-600 font-medium">
+	${(subCurrency + subFeeCurrency).toFixed(2)}
+</p> */}
+				</div>
+			</div>
+		</div>
+	);
+};
+
 const ValidatorsList = ({
 	selectedValidators,
 	networkInfo,
@@ -365,6 +429,12 @@ const StepperSigning = ({
 				<SetControllerAccount
 					networkInfo={networkInfo}
 					transactionFee={transactionFee}
+				/>
+			) : transactionType === "yieldscanFees" ? (
+				<YieldscanFees
+					networkInfo={networkInfo}
+					transactionFee={transactionFee}
+					ysFees={ysFees}
 				/>
 			) : (
 				<></>

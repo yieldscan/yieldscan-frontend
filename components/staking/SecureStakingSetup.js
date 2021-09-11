@@ -227,6 +227,13 @@ const SecureStakingSetup = ({
 						ysFees
 					)
 				);
+				stepperTransactions.push({
+					transactionType: "yieldscanFees",
+					transactionHeading: "Pay Yieldscan Fees",
+					injectorAccount: substrateSelectedControllerId,
+					ysFees: ysFees,
+					substrateControllerId: substrateStashId,
+				});
 			}
 
 			const fee =

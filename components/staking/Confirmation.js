@@ -118,6 +118,13 @@ const Confirmation = ({
 						ysFees
 					)
 				);
+				stepperTransactions.push({
+					transactionType: "yieldscanFees",
+					transactionHeading: "Pay Yieldscan Fees",
+					injectorAccount: substrateStashId,
+					ysFees: ysFees,
+					substrateControllerId: substrateStashId,
+				});
 			}
 
 			const fee =
@@ -326,7 +333,12 @@ const Confirmation = ({
 						<div className="mt-4 w-full text-center">
 							<NextButton
 								onClick={toggleIsAuthPopoverOpen}
-								disabled={transactionFee === 0}
+								disabled={
+									transactionFee === 0 ||
+									(ysFees === 0 &&
+										networkInfo?.feesEnabled &&
+										networkInfo?.feesAddress)
+								}
 							>
 								Stake Now
 							</NextButton>

@@ -28,6 +28,7 @@ const StakeToEarn = ({
 	setInjectorAccount,
 	stakingAmount,
 	selectedValidators,
+	setStepperTransactions,
 }) => {
 	const [showValidators, setShowValidators] = useState(false);
 	// const [showAdvPrefs, setShowAdvPrefs] = useState(false);
@@ -49,13 +50,24 @@ const StakeToEarn = ({
 			setInjectorAccount(null);
 			const nominatedValidators = selectedValidators.map((v) => v.stashId);
 
+			const substrateStashId = encodeAddress(
+				decodeAddress(selectedAccount?.address)
+			);
+
 			const substrateControllerId = encodeAddress(
 				decodeAddress(controllerAccount?.address)
 			);
 
 			const transactions = [];
+			const stepperTransactions = [];
 
 			transactions.push(apiInstance.tx.staking.nominate(nominatedValidators));
+			stepperTransactions.push({
+				transactionType: "nominate",
+				transactionHeading: "Stake",
+				injectorAccount: substrateControllerId,
+				nominatedValidators: nominatedValidators,
+			});
 
 			if (ysFees > 0 && networkInfo?.feesEnabled && networkInfo?.feesAddress) {
 				transactions.push(
@@ -64,6 +76,13 @@ const StakeToEarn = ({
 						ysFees
 					)
 				);
+				stepperTransactions.push({
+					transactionType: "yieldscanFees",
+					transactionHeading: "Pay Yieldscan Fees",
+					injectorAccount: substrateControllerId,
+					ysFees: ysFees,
+					substrateControllerId: substrateStashId,
+				});
 			}
 
 			const fee = await apiInstance.tx.utility
@@ -71,6 +90,7 @@ const StakeToEarn = ({
 				.paymentInfo(substrateControllerId);
 
 			setTransactions([...transactions]);
+			setStepperTransactions([...stepperTransactions]);
 			setInjectorAccount(substrateControllerId);
 			setTransactionFee(() => fee.partialFee.toNumber());
 		}
@@ -257,7 +277,12 @@ const StakeToEarn = ({
 						<div className="mt-4 w-full text-center">
 							<NextButton
 								onClick={toggleIsAuthPopoverOpen}
-								disabled={transactionFee === 0}
+								disabled={
+									transactionFee === 0 ||
+									(ysFees === 0 &&
+										networkInfo?.feesEnabled &&
+										networkInfo?.feesAddress)
+								}
 							>
 								Stake Now
 							</NextButton>

@@ -254,6 +254,7 @@ const Staking = () => {
 		};
 
 		if (transactionState.stakingAmount && initialStakingPath !== "transfer") {
+			console.log(transactions);
 			signAndSend(apiInstance, handlers, transactions, injectorAccount).catch(
 				(error) => {
 					handlers.onFinish(1, error.message);
@@ -728,6 +729,7 @@ const Staking = () => {
 					setInjectorAccount={setInjectorAccount}
 					stakingAmount={stakingAmount}
 					selectedValidators={selectedValidators}
+					setStepperTransactions={setStepperTransactions}
 				/>
 			) : (
 				<></>

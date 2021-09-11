@@ -155,6 +155,26 @@ const StepperSigningPopover = ({
 			setStepperSuccessMessage("Controller successfully set!");
 			setInjectorAccount(stepTransactions[currentStep - 1]?.injectorAccount);
 			setTransactionFee(() => fee.partialFee.toNumber());
+		} else if (
+			currentStep > 0 &&
+			stepTransactions[currentStep - 1]?.transactionType === "yieldscanFees"
+		) {
+			const _transaction = [];
+			_transaction.push(
+				apiInstance.tx.balances.transferKeepAlive(
+					stepTransactions[currentStep - 1]?.injectorAccount,
+					stepTransactions[currentStep - 1]?.ysFees
+				)
+			);
+
+			const fee = await _transaction[0]?.paymentInfo(
+				stepTransactions[currentStep - 1]?.injectorAccount
+			);
+
+			setTransaction([..._transaction]);
+			setStepperSuccessMessage("Yieldscan Fees Successfully Paid");
+			setInjectorAccount(stepTransactions[currentStep - 1]?.injectorAccount);
+			setTransactionFee(() => fee.partialFee.toNumber());
 		}
 	}, [stepTransactions, currentStep]);
 
