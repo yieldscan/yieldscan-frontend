@@ -9,7 +9,9 @@ export const networks = [
 		denom: "DOT",
 		coinGeckoDenom: "polkadot",
 		decimalPlaces: 10,
-		feesAddress: process.env.NEXT_PUBLIC_POLKADOT_FEES_ADDRESS,
+		feesAddress: isNil(process?.env?.NEXT_PUBLIC_POLKADOT_FEES_ADDRESS)
+			? false
+			: process?.env?.NEXT_PUBLIC_POLKADOT_FEES_ADDRESS,
 		feesEnabled: isNil(process?.env?.NEXT_PUBLIC_POLKADOT_FEES_ENABLED)
 			? false
 			: JSON.parse(process.env.NEXT_PUBLIC_POLKADOT_FEES_ENABLED),
@@ -29,7 +31,9 @@ export const networks = [
 		network: "kusama",
 		isTestNetwork: false,
 		denom: "KSM",
-		feesAddress: process.env.NEXT_PUBLIC_KUSAMA_FEES_ADDRESS,
+		feesAddress: isNil(process?.env?.NEXT_PUBLIC_KUSAMA_FEES_ADDRESS)
+			? false
+			: process.env.NEXT_PUBLIC_KUSAMA_FEES_ADDRESS,
 		feesEnabled: isNil(process?.env?.NEXT_PUBLIC_KUSAMA_FEES_ENABLED)
 			? false
 			: JSON.parse(process.env.NEXT_PUBLIC_KUSAMA_FEES_ENABLED),
@@ -51,7 +55,9 @@ export const networks = [
 		network: "westend",
 		isTestNetwork: true,
 		denom: "WND",
-		feesAddress: process.env.NEXT_PUBLIC_WESTEND_FEES_ADDRESS,
+		feesAddress: isNil(process?.env?.NEXT_PUBLIC_WESTEND_FEES_ADDRESS)
+			? false
+			: process.env.NEXT_PUBLIC_WESTEND_FEES_ADDRESS,
 		feesEnabled: isNil(process?.env?.NEXT_PUBLIC_WESTEND_FEES_ENABLED)
 			? false
 			: JSON.parse(process.env.NEXT_PUBLIC_WESTEND_FEES_ENABLED),

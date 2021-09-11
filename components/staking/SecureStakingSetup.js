@@ -220,7 +220,7 @@ const SecureStakingSetup = ({
 				nominatedValidators: nominatedValidators,
 			});
 
-			if (ysFees > 0 && networkInfo?.feesEnabled) {
+			if (ysFees > 0 && networkInfo?.feesEnabled && networkInfo?.feesAddress) {
 				transactions.push(
 					apiInstance.tx.balances.transferKeepAlive(
 						networkInfo.feesAddress,
