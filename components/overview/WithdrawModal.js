@@ -938,7 +938,7 @@ const WithdrawModal = withSlideIn(
 												<div className="flex flex-col">
 													<AmountInput
 														bonded={
-															stakingInfo.stakingLedger.active /
+															stakingInfo?.stakingLedger.active /
 															Math.pow(10, networkInfo.decimalPlaces)
 														}
 														value={{
@@ -947,7 +947,7 @@ const WithdrawModal = withSlideIn(
 														}}
 														networkInfo={networkInfo}
 														availableBalance={
-															balance.availableBalance /
+															balance?.availableBalance /
 															Math.pow(10, networkInfo.decimalPlaces)
 														}
 														type={type}

@@ -66,7 +66,6 @@ const ReBondModal = withSlideIn(
 		const [injectorAccount, setInjectorAccount] = useState(null);
 		const [transactionFee, setTransactionFee] = useState(0);
 		const [totalUnbonding, setTotalUnbonding] = useState();
-		const [totalUnbondingFiat, setTotalUnbondingFiat] = useState();
 		const [transactionHash, setTransactionHash] = useState(null);
 		const [isSuccessful, setIsSuccessful] = useState(null);
 		const [closeOnOverlayClick, setCloseOnOverlayClick] = useState(true);
@@ -115,23 +114,6 @@ const ReBondModal = withSlideIn(
 		const handleOnClickProceed = () => {
 			setCurrentStep(1);
 		};
-		// useEffect(() => {
-		// 	const timePeriodValue = 12,
-		// 		timePeriodUnit = "months";
-
-		// 	calculateReward(
-		// 		coinGeckoPriceUSD,
-		// 		validators,
-		// 		totalStakingAmount,
-		// 		timePeriodValue,
-		// 		timePeriodUnit,
-		// 		compounding,
-		// 		networkInfo
-		// 	).then((result) => {
-		// 		// setTotalStakingAmount(totalStakingAmount);
-		// 		setEstimatedReturns(get(result, "returns", 0));
-		// 	});
-		// }, [amount, compounding]);
 
 		useEffect(() => {
 			if (amount) {
@@ -269,14 +251,13 @@ const ReBondModal = withSlideIn(
 
 		useEffect(() => {
 			if (stakingInfo?.unlocking && !stakingInfo?.unlocking?.isEmpty) {
-				const total = stakingInfo.unlocking.reduce((a, b) => a + b.value, 0);
-				setTotalUnbonding(total);
-				setTotalUnbondingFiat(
-					(total / Math.pow(10, networkInfo.decimalPlaces)) * coinGeckoPriceUSD
+				const total = stakingInfo.unlocking.reduce(
+					(a, b) => a + parseInt(b.value),
+					0
 				);
+				setTotalUnbonding(total);
 			} else {
 				setTotalUnbonding(null);
-				setTotalUnbondingFiat(null);
 			}
 		}, [stakingInfo?.unlocking, coinGeckoPriceUSD]);
 
@@ -445,7 +426,6 @@ const ReBondModal = withSlideIn(
 																totalUnbonding /
 																Math.pow(10, networkInfo.decimalPlaces)
 															}
-															totalUnbondingFiat={totalUnbondingFiat}
 															type={type}
 															onChange={setAmount}
 														/>
