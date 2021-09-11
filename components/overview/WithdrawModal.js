@@ -469,7 +469,6 @@ const WithdrawModal = withSlideIn(
 		type = "unbond",
 		apiInstance,
 		close,
-		nominations,
 		selectedAccount,
 		balance,
 		stakingInfo,
@@ -494,8 +493,6 @@ const WithdrawModal = withSlideIn(
 		const [transactions, setTransactions] = useState(null);
 		const [injectorAccount, setInjectorAccount] = useState(null);
 		const [transactionFee, setTransactionFee] = useState(0);
-		const [totalUnbonding, setTotalUnbonding] = useState();
-		const [totalUnbondingFiat, setTotalUnbondingFiat] = useState();
 		const [transactionHash, setTransactionHash] = useState(null);
 		const [isSuccessful, setIsSuccessful] = useState(null);
 		const [isLast, setIsLast] = useState(true);
@@ -508,8 +505,6 @@ const WithdrawModal = withSlideIn(
 				Math.pow(10, networkInfo.decimalPlaces)
 		);
 
-		const [totalStakingAmountFiat, setTotalStakingAmountFiat] = useState(0);
-		const [validatorsLoading, setValidatorsLoading] = useState(true);
 		const [errMessage, setErrMessage] = useState();
 
 		const updateTransactionData = (
@@ -579,7 +574,6 @@ const WithdrawModal = withSlideIn(
 
 		useEffect(() => {
 			setSubCurrency(amount * coinGeckoPriceUSD);
-			setTotalStakingAmountFiat(totalStakingAmount * coinGeckoPriceUSD);
 		}, [amount, totalStakingAmount]);
 
 		useEffect(() => {
@@ -790,9 +784,7 @@ const WithdrawModal = withSlideIn(
 					} else {
 						_transactions.push(
 							apiInstance.tx.staking.chill(),
-							apiInstance.tx.staking.unbond(
-								stepperTransactions[stepperIndex].amount
-							)
+							apiInstance.tx.staking.unbond(stepperTransactions[1].amount)
 						);
 						setIsLast(true);
 					}
@@ -958,8 +950,6 @@ const WithdrawModal = withSlideIn(
 															balance.availableBalance /
 															Math.pow(10, networkInfo.decimalPlaces)
 														}
-														totalUnbonding={totalUnbonding}
-														totalUnbondingFiat={totalUnbondingFiat}
 														type={type}
 														onChange={setAmount}
 													/>
