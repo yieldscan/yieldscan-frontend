@@ -66,13 +66,7 @@ const WalletConnectPopover = ({ styles, networkInfo, isSetUp }) => {
 	const router = useRouter();
 	const { isOpen, close } = useWalletConnect();
 	const { walletConnectState, setWalletConnectState } = useWalletConnectState();
-	const {
-		accounts,
-		stashAccount,
-		accountsWithBalances,
-		setAccounts,
-		setStashAccount,
-	} = useAccounts();
+	const { accounts, setAccounts } = useAccounts();
 	const { selectedAccount, setSelectedAccount } = useSelectedAccount();
 	const { accountsBalances } = useAccountsBalances();
 	const { apiInstance } = usePolkadotApi();
@@ -96,21 +90,12 @@ const WalletConnectPopover = ({ styles, networkInfo, isSetUp }) => {
 		userStorage.setItem("autoConnectEnabled", "true");
 	};
 
-	// useEffect(() => {
-	// 	if (autoConnectEnabled) {
-	// 		setCurrentStep("connectWallet");
-	// 	}
-	// }, []);
-
 	useEffect(() => {
 		if (autoConnectEnabled) {
 			setCurrentStep("connectWallet");
-			// setState("connected");
 		} else {
 			setCurrentStep("beginnerInfo");
-			// setState(null);
 		}
-		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [networkInfo]);
 
 	useEffect(() => {
@@ -190,23 +175,6 @@ const WalletConnectPopover = ({ styles, networkInfo, isSetUp }) => {
 		};
 	}, [walletConnectState, currentStep, networkInfo, networkGenesisHash]);
 
-	// useEffect(() => {
-	// 	let timeoutId;
-	// 	if (redirectToSetUp && accounts) {
-	// 		timeoutId = setTimeout(() => {
-	// 			close();
-	// 			router.push("/setup-accounts");
-	// 		}, 2500);
-	// 	}
-	// 	return () => timeoutId && clearTimeout(timeoutId);
-	// }, [accounts, redirectToSetUp]);
-
-	// useEffect(() => {
-	// 	if (walletConnectState === WalletConnectStates.REJECTED) {
-	// 		close();
-	// 	}
-	// }, [state]);
-
 	useEffect(() => {
 		if (accounts) {
 			if (
@@ -216,7 +184,6 @@ const WalletConnectPopover = ({ styles, networkInfo, isSetUp }) => {
 						getFromLocalStorage(networkInfo.network, "selectedAccount")
 				).length === 0
 			) {
-				setStashAccount(null);
 				setCookie(null, networkInfo.network + "Default", null, {
 					maxAge: 7 * 24 * 60 * 60,
 				});
@@ -230,7 +197,6 @@ const WalletConnectPopover = ({ styles, networkInfo, isSetUp }) => {
 							getFromLocalStorage(networkInfo.network, "selectedAccount")
 					)
 					.map((account) => {
-						setStashAccount(account);
 						setCookie(null, networkInfo.network + "Default", account.address, {
 							maxAge: 7 * 24 * 60 * 60,
 						});
@@ -284,7 +250,6 @@ const WalletConnectPopover = ({ styles, networkInfo, isSetUp }) => {
 				network: networkInfo.name,
 			});
 		}
-		setStashAccount(account);
 		setCookie(null, networkInfo.network + "Default", account.address, {
 			maxAge: 7 * 24 * 60 * 60,
 		});

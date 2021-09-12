@@ -319,10 +319,10 @@ const StepperSigning = ({
 							)}
 						</div>
 						<div className="w-1/3 flex justify-center">
-							{currentStep <= index + 2 ? (
+							{currentStep <= index ? (
 								<div
 									className={`h-8 w-8 border-2 ${
-										index + 2 === currentStep
+										index === currentStep
 											? "border-teal-500 text-teal-500"
 											: "border-gray-500 text-gray-500"
 									} rounded-full flex items-center text-lg justify-center`}
@@ -469,7 +469,6 @@ const WithdrawModal = withSlideIn(
 		type = "unbond",
 		apiInstance,
 		close,
-		nominations,
 		selectedAccount,
 		balance,
 		stakingInfo,
@@ -494,8 +493,6 @@ const WithdrawModal = withSlideIn(
 		const [transactions, setTransactions] = useState(null);
 		const [injectorAccount, setInjectorAccount] = useState(null);
 		const [transactionFee, setTransactionFee] = useState(0);
-		const [totalUnbonding, setTotalUnbonding] = useState();
-		const [totalUnbondingFiat, setTotalUnbondingFiat] = useState();
 		const [transactionHash, setTransactionHash] = useState(null);
 		const [isSuccessful, setIsSuccessful] = useState(null);
 		const [isLast, setIsLast] = useState(true);
@@ -508,8 +505,6 @@ const WithdrawModal = withSlideIn(
 				Math.pow(10, networkInfo.decimalPlaces)
 		);
 
-		const [totalStakingAmountFiat, setTotalStakingAmountFiat] = useState(0);
-		const [validatorsLoading, setValidatorsLoading] = useState(true);
 		const [errMessage, setErrMessage] = useState();
 
 		const updateTransactionData = (
@@ -579,7 +574,6 @@ const WithdrawModal = withSlideIn(
 
 		useEffect(() => {
 			setSubCurrency(amount * coinGeckoPriceUSD);
-			setTotalStakingAmountFiat(totalStakingAmount * coinGeckoPriceUSD);
 		}, [amount, totalStakingAmount]);
 
 		useEffect(() => {
@@ -790,9 +784,7 @@ const WithdrawModal = withSlideIn(
 					} else {
 						_transactions.push(
 							apiInstance.tx.staking.chill(),
-							apiInstance.tx.staking.unbond(
-								stepperTransactions[stepperIndex].amount
-							)
+							apiInstance.tx.staking.unbond(stepperTransactions[1].amount)
 						);
 						setIsLast(true);
 					}
@@ -946,7 +938,7 @@ const WithdrawModal = withSlideIn(
 												<div className="flex flex-col">
 													<AmountInput
 														bonded={
-															stakingInfo.stakingLedger.active /
+															stakingInfo?.stakingLedger.active /
 															Math.pow(10, networkInfo.decimalPlaces)
 														}
 														value={{
@@ -955,11 +947,9 @@ const WithdrawModal = withSlideIn(
 														}}
 														networkInfo={networkInfo}
 														availableBalance={
-															balance.availableBalance /
+															balance?.availableBalance /
 															Math.pow(10, networkInfo.decimalPlaces)
 														}
-														totalUnbonding={totalUnbonding}
-														totalUnbondingFiat={totalUnbondingFiat}
 														type={type}
 														onChange={setAmount}
 													/>
