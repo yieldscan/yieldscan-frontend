@@ -50,14 +50,19 @@ const LowBalanceAlert = ({
 							minPossibleStake * Math.pow(10, networkInfo.decimalPlaces)
 						),
 						networkInfo
-					)}. We additionally require users to keep a minimum of
+					)}. ${
+						networkInfo.feesEnabled
+							? "Please also be informed that we have started charging a .125% fee. "
+							: ""
+					}
+					We additionally require users to keep a minimum of
 					${formatCurrency.methods.formatAmount(
 						Math.trunc(
 							networkInfo.reserveAmount *
 								Math.pow(10, networkInfo.decimalPlaces)
 						),
 						networkInfo
-					)} as a reserve in their accounts when they start staking. `
+					)} as a reserve in their accounts when they start staking.`
 				);
 				setPopoverContent(
 					`This is to ensure that you have a

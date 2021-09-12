@@ -14,8 +14,10 @@ export const networks = [
 			: process?.env?.NEXT_PUBLIC_POLKADOT_FEES_ADDRESS,
 		feesEnabled: isNil(process?.env?.NEXT_PUBLIC_POLKADOT_FEES_ENABLED)
 			? false
-			: JSON.parse(process.env.NEXT_PUBLIC_POLKADOT_FEES_ENABLED),
-		feesRatio: process.env.NEXT_PUBLIC_POLKADOT_FEES_RATIO,
+			: JSON.parse(process?.env?.NEXT_PUBLIC_POLKADOT_FEES_ENABLED),
+		feesRatio: isNil(process.env.NEXT_PUBLIC_POLKADOT_FEES_RATIO)
+			? 0
+			: process.env.NEXT_PUBLIC_POLKADOT_FEES_RATIO,
 		twitterUrl: "@Polkadot",
 		addressPrefix: 0,
 		nodeWs: process.env.NEXT_PUBLIC_POLKADOT,
@@ -37,7 +39,9 @@ export const networks = [
 		feesEnabled: isNil(process?.env?.NEXT_PUBLIC_KUSAMA_FEES_ENABLED)
 			? false
 			: JSON.parse(process.env.NEXT_PUBLIC_KUSAMA_FEES_ENABLED),
-		feesRatio: process.env.NEXT_PUBLIC_KUSAMA_FEES_RATIO,
+		feesRatio: isNil(process?.env?.NEXT_PUBLIC_KUSAMA_FEES_RATIO)
+			? 0
+			: process.env.NEXT_PUBLIC_KUSAMA_FEES_RATIO,
 		twitterUrl: "@kusamanetwork",
 		coinGeckoDenom: "kusama",
 		decimalPlaces: 12,
@@ -61,7 +65,9 @@ export const networks = [
 		feesEnabled: isNil(process?.env?.NEXT_PUBLIC_WESTEND_FEES_ENABLED)
 			? false
 			: JSON.parse(process.env.NEXT_PUBLIC_WESTEND_FEES_ENABLED),
-		feesRatio: process.env.NEXT_PUBLIC_WESTEND_FEES_RATIO,
+		feesRatio: isNil(process?.env?.NEXT_PUBLIC_WESTEND_FEES_RATIO)
+			? 0
+			: process.env.NEXT_PUBLIC_WESTEND_FEES_RATIO,
 		twitterUrl: "@westend",
 		coinGeckoDenom: undefined,
 		decimalPlaces: 12,

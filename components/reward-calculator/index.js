@@ -374,7 +374,7 @@ const RewardCalculatorPage = () => {
 				Math.trunc(
 					amount *
 						Math.pow(10, networkInfo.decimalPlaces) *
-						networkInfo.feesRatio
+						Number(networkInfo.feesRatio)
 				)
 			);
 		} else setYsFees(0);
@@ -400,19 +400,15 @@ const RewardCalculatorPage = () => {
 	useEffect(() => {
 		activeBondedAmount > 0
 			? setAmount(activeBondedAmount)
-			: totalPossibleStakingAmount -
-					networkInfo.reserveAmount -
-					ysFees / Math.pow(10, networkInfo.decimalPlaces) >
-					0 &&
+			: totalAvailableStakingAmount - networkInfo.reserveAmount > 0 &&
 			  balances &&
 			  stakingInfo
 			? setAmount(
-					(Math.trunc(
-						(totalPossibleStakingAmount - networkInfo.reserveAmount) *
-							10 ** networkInfo.decimalPlaces
-					) +
-						ysFees) /
-						Math.pow(10, networkInfo.decimalPlaces)
+					Math.trunc(
+						((totalAvailableStakingAmount - networkInfo.reserveAmount) /
+							(1 + Number(networkInfo.feesRatio))) *
+							Math.pow(10, networkInfo.decimalPlaces)
+					) / Math.pow(10, networkInfo.decimalPlaces)
 			  )
 			: selectedAccount &&
 			  totalPossibleStakingAmount === 0 &&
