@@ -543,6 +543,7 @@ const RewardCalculatorPage = () => {
 											isSameStashController={
 												selectedAccount?.address === controllerAccount?.address
 											}
+											ysFees={ysFees}
 										/>
 									)}
 								<h3 className="text-gray-700 text-xs mb-2">

@@ -88,7 +88,9 @@ const LowBalanceAlert = ({
 				);
 			} else if (
 				amount >
-				totalPossibleStakingAmount - networkInfo.reserveAmount - ysFees
+				totalPossibleStakingAmount -
+					networkInfo.reserveAmount -
+					ysFees / Math.pow(10, networkInfo.decimalPlaces)
 			) {
 				setStatus("error");
 				setTitleColor("red.500");
@@ -145,7 +147,8 @@ const LowBalanceAlert = ({
 			} else if (
 				(isSameStashController &&
 					totalAvailableStakingAmount <
-						networkInfo.reserveAmount / 2 + ysFees) ||
+						networkInfo.reserveAmount / 2 +
+							ysFees / Math.pow(10, networkInfo.decimalPlaces)) ||
 				(!isSameStashController &&
 					totalAvailableStakingAmount < networkInfo.reserveAmount / 2)
 			) {
@@ -156,11 +159,9 @@ const LowBalanceAlert = ({
 				setDescription(
 					`You need an additional ${formatCurrency.methods.formatAmount(
 						Math.trunc(
-							(networkInfo.reserveAmount +
-								ysFees -
-								totalAvailableStakingAmount) *
+							(networkInfo.reserveAmount + totalAvailableStakingAmount) *
 								Math.pow(10, networkInfo.decimalPlaces)
-						),
+						) + ysFees,
 						networkInfo
 					)} to proceed further. `
 				);
