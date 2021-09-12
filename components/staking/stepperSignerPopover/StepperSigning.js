@@ -31,8 +31,7 @@ const LockFunds = ({ networkInfo, amount, transactionFee, ysFees }) => {
 						content={
 							<p className="text-xs text-white">
 								This fee is used to pay for the resources used for processing
-								the transaction on the blockchain network. YieldScan doesn’t
-								profit from this fee in any way.
+								the transaction on the blockchain network.
 							</p>
 						}
 					/>
@@ -102,8 +101,7 @@ const AddFundsToController = ({
 						content={
 							<p className="text-xs text-white">
 								This fee is used to pay for the resources used for processing
-								the transaction on the blockchain network. YieldScan doesn’t
-								profit from this fee in any way.
+								the transaction on the blockchain network.
 							</p>
 						}
 					/>
@@ -166,8 +164,7 @@ const YieldscanFees = ({ networkInfo, transactionFee, ysFees }) => {
 						content={
 							<p className="text-xs text-white">
 								This fee is used to pay for the resources used for processing
-								the transaction on the blockchain network. YieldScan doesn’t
-								profit from this fee in any way.
+								the transaction on the blockchain network.
 							</p>
 						}
 					/>
@@ -239,8 +236,7 @@ const ValidatorsList = ({
 					content={
 						<p className="text-xs text-white">
 							This fee is used to pay for the resources used for processing the
-							transaction on the blockchain network. YieldScan doesn’t profit
-							from this fee in any way.
+							transaction on the blockchain network.
 						</p>
 					}
 				/>
@@ -290,8 +286,7 @@ const SetControllerAccount = ({ networkInfo, transactionFee }) => (
 					content={
 						<p className="text-xs text-white">
 							This fee is used to pay for the resources used for processing the
-							transaction on the blockchain network. YieldScan doesn’t profit
-							from this fee in any way.
+							transaction on the blockchain network.
 						</p>
 					}
 				/>
