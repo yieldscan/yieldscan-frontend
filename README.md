@@ -45,15 +45,17 @@ Important packages:
   - [InvestMoreModal](https://github.com/yieldscan/yieldscan-frontend/tree/master/components/overview/InvestMoreModal.js): Handles the bond extra operation.
   - [WithdrawModal](https://github.com/yieldscan/yieldscan-frontend/tree/master/components/overview/WithdrawModal.js): Handles the chill and unbonding operations.
   - [RedeemUnbonded](https://github.com/yieldscan/yieldscan-frontend/tree/master/components/overview/RedeemUnbonded.js): Handles the withdraw unbonded operation.
-  - [ReBondModal](https://github.com/yieldscan/yieldscan-frontend/tree/master/components/overview/ReBondModal.js): Handles the rebonding the unbonded amount operations.
+  - [ReBondModal](https://github.com/yieldscan/yieldscan-frontend/tree/master/components/overview/ReBondModal.js): Handles the rebonding the unbonding amount operations.
 
 - [components/reward-calculator](https://github.com/yieldscan/yieldscan-frontend/tree/master/components/reward-calculator): Provides user with the auto-generated validator sets of low, medium and high risks depending on the calculated estimated staking returns and risk-scores.
 
 - [components/staking](https://github.com/yieldscan/yieldscan-frontend/tree/master/components/staking): This module handles different staking flows for different cases:
 
-  - [StakeToEarn](): Distinct stash controller.
-  - [Confirmation](): Same stash controller.
-  - [SecureStakeToEarn](): For onboarding new users to the best practices in the ecosystem.
+  - [StakeToEarn](https://github.com/yieldscan/yieldscan-frontend/tree/master/components/staking/StakeToEarn.js): Distinct stash controller.
+  - [Confirmation](https://github.com/yieldscan/yieldscan-frontend/tree/master/components/staking/Confirmation.js): Same stash controller.
+  - [SecureStakeToEarn](https://github.com/yieldscan/yieldscan-frontend/tree/master/components/staking/SecureStakeToEarn.js): For onboarding new users to the best practices in the ecosystem.
+
+- [components/staking/stepperSignerPopover](https://github.com/yieldscan/yieldscan-frontend/tree/master/components/staking/stepperSignerPopover): For handling signing multiple transactions one by one.
 
 - [components/validators](https://github.com/yieldscan/yieldscan-frontend/tree/master/components/overview): This is for DYOR users for selecting the validators for staking based on different validator stats.
 
