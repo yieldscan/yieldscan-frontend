@@ -497,7 +497,6 @@ const WithdrawModal = withSlideIn(
 		const [isLast, setIsLast] = useState(true);
 		const [closeOnOverlayClick, setCloseOnOverlayClick] = useState(true);
 		const [calculationDisabled, setCalculationDisabled] = useState(true);
-		const [totalTransactionFee, setTotalTransactionFee] = useState(0);
 		const [totalStakingAmount, setTotalStakingAmount] = useState(
 			() =>
 				stakingInfo.stakingLedger.active /
@@ -587,7 +586,8 @@ const WithdrawModal = withSlideIn(
 			} else if (
 				controllerAccount &&
 				controllerBalances &&
-				totalTransactionFee +
+				(networkInfo.reserveAmount / 2) *
+					Math.pow(10, networkInfo.decimalPlaces) +
 					apiInstance?.consts.balances.existentialDeposit.toNumber() >
 					controllerBalances.availableBalance
 			) {
@@ -805,7 +805,6 @@ const WithdrawModal = withSlideIn(
 				setTransactions([..._transactions]);
 				setInjectorAccount(substrateControllerId);
 				setTransactionFee(() => fee.partialFee.toNumber());
-				setTotalTransactionFee(transactionFee * 2.5); // hack approximation to ensure ample fees even in the case of multistep unbond
 			}
 		}, [stepperTransactions, stepperIndex, isLedger]);
 
@@ -909,7 +908,8 @@ const WithdrawModal = withSlideIn(
 												) : (
 													controllerAccount &&
 													controllerBalances &&
-													totalTransactionFee +
+													(networkInfo.reserveAmount / 2) *
+														Math.pow(10, networkInfo.decimalPlaces) +
 														apiInstance?.consts.balances.existentialDeposit.toNumber() >
 														controllerBalances.availableBalance && (
 														<div className="rounded-lg px-5 py-2 text-sm bg-red-200 text-red-600 mb-4">
