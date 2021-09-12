@@ -34,7 +34,9 @@ const LowBalanceAlert = ({
 		if (activeBondedAmount === 0) {
 			if (
 				totalPossibleStakingAmount <
-				minPossibleStake + networkInfo.reserveAmount + ysFees
+				minPossibleStake +
+					networkInfo.reserveAmount +
+					ysFees / Math.pow(10, networkInfo.decimalPlaces)
 			) {
 				setStatus("error");
 				setTitleColor("red.500");
@@ -103,7 +105,9 @@ const LowBalanceAlert = ({
 								Math.pow(10, networkInfo.decimalPlaces)
 						),
 						networkInfo
-					)} reserve amount for new stakers and the Yieldscan .125% fee. Press the max
+					)} reserve amount for new stakers ${
+						networkInfo.feesEnabled ? "and the Yieldscan .125% fee." : "."
+					} Press the max
 					icon to autofill the maximum amount. `
 				);
 				setPopoverContent(`The
@@ -168,7 +172,11 @@ const LowBalanceAlert = ({
 				setPopoverContent(`This is to ensure that you have a
 							decent amount of funds in your
 							account to pay transaction fees for claiming rewards, unbonding
-							funds, changing on-chain staking preferences and the Yieldscan .125% fee for this transaction`);
+							funds, changing on-chain staking preferences ${
+								networkInfo.feesEnabled
+									? "and the Yieldscan .125% fee for this transaction."
+									: "etc."
+							}`);
 			} else if (
 				isSameStashController &&
 				totalAvailableStakingAmount < networkInfo.reserveAmount
