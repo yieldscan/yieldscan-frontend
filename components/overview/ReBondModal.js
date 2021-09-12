@@ -358,8 +358,9 @@ const ReBondModal = withSlideIn(
 																{minPossibleStake} {networkInfo.denom} minimum
 																staking threshold mandated by the{" "}
 																{networkInfo.name} network or the free balance
-																in your account falls below the recommended{" "}
-																{networkInfo.reserveAmount} {networkInfo.denom}.{" "}
+																in your account falls below the recommended
+																minimum of {networkInfo.reserveAmount / 2}{" "}
+																{networkInfo.denom}.{" "}
 																<Popover trigger="hover" usePortal>
 																	<PopoverTrigger>
 																		<span className="underline cursor-help">
@@ -375,8 +376,8 @@ const ReBondModal = withSlideIn(
 																		<PopoverArrow />
 																		<PopoverBody>
 																			<span className="text-white text-xs">
-																				The recommended{" "}
-																				{networkInfo.reserveAmount}{" "}
+																				The recommended minimum{" "}
+																				{networkInfo.reserveAmount / 2}{" "}
 																				{networkInfo.denom} account balance is
 																				to ensure that you have a decent amount
 																				of funds in your account to pay

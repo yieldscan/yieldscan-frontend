@@ -21,6 +21,7 @@ const LowBalanceAlert = ({
 	minPossibleStake,
 	controllerUnavailable,
 	isSameStashController,
+	ysFees,
 }) => {
 	const [status, setStatus] = useState();
 	const [title, setTitle] = useState();
@@ -33,7 +34,7 @@ const LowBalanceAlert = ({
 		if (activeBondedAmount === 0) {
 			if (
 				totalPossibleStakingAmount <
-				minPossibleStake + networkInfo.reserveAmount
+				minPossibleStake + networkInfo.reserveAmount + ysFees
 			) {
 				setStatus("error");
 				setTitleColor("red.500");
@@ -47,14 +48,14 @@ const LowBalanceAlert = ({
 							minPossibleStake * Math.pow(10, networkInfo.decimalPlaces)
 						),
 						networkInfo
-					)}. We additionally require users to keep 
+					)}. We additionally require users to keep a minimum of
 					${formatCurrency.methods.formatAmount(
 						Math.trunc(
 							networkInfo.reserveAmount *
 								Math.pow(10, networkInfo.decimalPlaces)
 						),
 						networkInfo
-					)} as a reserve in their accounts. `
+					)} as a reserve in their accounts when they start staking. `
 				);
 				setPopoverContent(
 					`This is to ensure that you have a
@@ -87,30 +88,23 @@ const LowBalanceAlert = ({
 				);
 			} else if (
 				amount >
-				totalPossibleStakingAmount - networkInfo.reserveAmount
+				totalPossibleStakingAmount - networkInfo.reserveAmount - ysFees
 			) {
 				setStatus("error");
 				setTitleColor("red.500");
 				setTitle("Insufficient Balance");
 				setDescriptionColor("red.500");
 				setDescription(
-					`Your inputted amount is more than your available free
-					account balance of ${formatCurrency.methods.formatAmount(
-						Math.trunc(
-							totalPossibleStakingAmount *
-								Math.pow(10, networkInfo.decimalPlaces)
-						),
-						networkInfo
-					)} minus ${formatCurrency.methods.formatAmount(
+					`Your account balance falls too low. Please account for the recommended ${formatCurrency.methods.formatAmount(
 						Math.trunc(
 							networkInfo.reserveAmount *
 								Math.pow(10, networkInfo.decimalPlaces)
 						),
 						networkInfo
-					)}. Press the max
+					)} reserve amount for new stakers and the Yieldscan .125% fee. Press the max
 					icon to autofill the maximum amount. `
 				);
-				setPopoverContent(`The subtracted
+				setPopoverContent(`The
 					${formatCurrency.methods.formatAmount(
 						Math.trunc(
 							networkInfo.reserveAmount *
@@ -149,8 +143,11 @@ const LowBalanceAlert = ({
 				);
 				setPopoverContent(null);
 			} else if (
-				isSameStashController &&
-				totalAvailableStakingAmount < networkInfo.reserveAmount / 2
+				(isSameStashController &&
+					totalAvailableStakingAmount <
+						networkInfo.reserveAmount / 2 + ysFees) ||
+				(!isSameStashController &&
+					totalAvailableStakingAmount < networkInfo.reserveAmount / 2)
 			) {
 				setStatus("error");
 				setTitleColor("red.500");
@@ -159,7 +156,9 @@ const LowBalanceAlert = ({
 				setDescription(
 					`You need an additional ${formatCurrency.methods.formatAmount(
 						Math.trunc(
-							(networkInfo.reserveAmount - totalAvailableStakingAmount) *
+							(networkInfo.reserveAmount +
+								ysFees -
+								totalAvailableStakingAmount) *
 								Math.pow(10, networkInfo.decimalPlaces)
 						),
 						networkInfo
@@ -168,7 +167,7 @@ const LowBalanceAlert = ({
 				setPopoverContent(`This is to ensure that you have a
 							decent amount of funds in your
 							account to pay transaction fees for claiming rewards, unbonding
-							funds, changing on-chain staking preferences, etc.`);
+							funds, changing on-chain staking preferences and the Yieldscan .125% fee for this transaction`);
 			} else if (
 				isSameStashController &&
 				totalAvailableStakingAmount < networkInfo.reserveAmount

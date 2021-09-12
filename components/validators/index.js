@@ -590,6 +590,7 @@ const Validators = () => {
 				isSameStashController={
 					selectedAccount?.address === controllerAccount?.address
 				}
+				ysFees={ysFees}
 			/>
 			<ValidatorsResult
 				stakingAmount={amount}

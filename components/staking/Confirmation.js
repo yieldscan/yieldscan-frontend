@@ -277,7 +277,37 @@ const Confirmation = ({
 							</p> */}
 								</div>
 							</div>
+							<div className="flex justify-between mt-4">
+								<div className="text-xs text-gray-700 flex items-center">
+									<p>Yieldscan .125% Fee</p>
+									<HelpPopover
+										content={
+											<p className="text-xs text-white">
+												This fee is used to pay for the costs of building and
+												running Yieldscan. Its charged on the staking amount.
+											</p>
+										}
+									/>
+								</div>
 
+								<div className="flex flex-col">
+									{ysFees !== 0 ? (
+										<div>
+											<p className="text-gray-700 text-sm font-semibold text-right">
+												{formatCurrency.methods.formatAmount(
+													Math.trunc(ysFees),
+													networkInfo
+												)}
+											</p>
+											{/* <p className="text-xs text-right text-gray-600">
+									${subFeeCurrency.toFixed(2)}
+								</p> */}
+										</div>
+									) : (
+										<Spinner />
+									)}
+								</div>
+							</div>
 							<div className="flex justify-between mt-4">
 								<div className="text-xs text-gray-700 flex items-center">
 									<p>Transaction Fee</p>
@@ -286,7 +316,6 @@ const Confirmation = ({
 											<p className="text-xs text-white">
 												This fee is used to pay for the resources used for
 												processing the transaction on the blockchain network.
-												YieldScan doesn’t profit from this fee in any way.
 											</p>
 										}
 									/>

@@ -246,8 +246,7 @@ const StopStaking = ({ networkInfo, transactionFee }) => (
 					content={
 						<p className="text-xs text-white">
 							This fee is used to pay for the resources used for processing the
-							transaction on the blockchain network. YieldScan doesn’t profit
-							from this fee in any way.
+							transaction on the blockchain network.
 						</p>
 					}
 				/>

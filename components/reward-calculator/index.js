@@ -489,6 +489,7 @@ const RewardCalculatorPage = () => {
 									: 0
 							}
 							controllerAccount={controllerAccount}
+							ysFees={ysFees}
 						/>
 					)}
 					{selectedAccount && (
@@ -557,6 +558,7 @@ const RewardCalculatorPage = () => {
 									balances={balances}
 									simulationChecked={simulationChecked}
 									stakingInfo={stakingInfo}
+									ysFees={ysFees}
 								/>
 							</div>
 							<div className="flex mt-8 items-center">

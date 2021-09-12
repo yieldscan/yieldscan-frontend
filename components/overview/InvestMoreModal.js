@@ -223,15 +223,14 @@ const YieldScanFees = ({ networkInfo, transactionFee, ysFees }) => (
 		<div className="flex justify-between p-2">
 			<div className="text-xs text-gray-700 flex items-center">
 				<p>Yieldscan .125% Fee</p>
-				{/* <HelpPopover
+				<HelpPopover
 					content={
 						<p className="text-xs text-white">
-							This fee is used to pay for the resources used for processing the
-							transaction on the blockchain network. YieldScan doesn’t profit
-							from this fee in any way.
+							This fee is used to pay for the costs of building and running
+							Yieldscan. Its charged on the staking amount.
 						</p>
 					}
-				/> */}
+				/>
 			</div>
 			<div className="flex flex-col">
 				{ysFees !== 0 ? (
@@ -255,8 +254,7 @@ const YieldScanFees = ({ networkInfo, transactionFee, ysFees }) => (
 					content={
 						<p className="text-xs text-white">
 							This fee is used to pay for the resources used for processing the
-							transaction on the blockchain network. YieldScan doesn’t profit
-							from this fee in any way.
+							transaction on the blockchain network.
 						</p>
 					}
 				/>
@@ -579,7 +577,8 @@ const InvestMoreModal = withSlideIn(
 			} else if (
 				amount >
 					balance.availableBalance / Math.pow(10, networkInfo.decimalPlaces) -
-						networkInfo.reserveAmount ||
+						networkInfo.reserveAmount / 2 +
+						ysFees ||
 				stakingInfo?.stakingLedger.active /
 					Math.pow(10, networkInfo.decimalPlaces) +
 					amount <
@@ -867,8 +866,9 @@ const InvestMoreModal = withSlideIn(
 															{minPossibleStake} {networkInfo.denom} minimum
 															staking threshold mandated by the{" "}
 															{networkInfo.name} network or the free balance in
-															your account falls below the recommended{" "}
-															{networkInfo.reserveAmount} {networkInfo.denom}.{" "}
+															your account falls below the recommended minimum
+															of {networkInfo.reserveAmount / 2}{" "}
+															{networkInfo.denom}.{" "}
 															<Popover trigger="hover" usePortal>
 																<PopoverTrigger>
 																	<span className="underline cursor-help">
@@ -884,8 +884,8 @@ const InvestMoreModal = withSlideIn(
 																	<PopoverArrow />
 																	<PopoverBody>
 																		<span className="text-white text-xs">
-																			The recommended{" "}
-																			{networkInfo.reserveAmount}{" "}
+																			The recommended minimum of{" "}
+																			{networkInfo.reserveAmount / 2}{" "}
 																			{networkInfo.denom} account balance is to
 																			ensure that you have a decent amount of
 																			funds in your account to pay transaction
@@ -902,12 +902,12 @@ const InvestMoreModal = withSlideIn(
 													amount >
 														balance?.availableBalance /
 															Math.pow(10, networkInfo.decimalPlaces) -
-															networkInfo.reserveAmount && (
+															networkInfo.reserveAmount / 2 +
+															ysFees && (
 														<div className="rounded-lg px-5 py-2 text-sm bg-red-200 text-red-600 mb-4">
 															<span>
 																Insufficient Balance: We cannot stake this
-																amount as it crosses the maximum available
-																balance for staking in your account.{" "}
+																amount as it leaves you account balance too low.{" "}
 															</span>
 														</div>
 													)
