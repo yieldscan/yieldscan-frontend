@@ -40,11 +40,22 @@ We are always working on improving our codebase, and welcome any suggestions or 
 
 Important packages:
 
-- [components/overview](https://github.com/yieldscan/yieldscan-frontend/tree/master/components/overview): User profile dashboard module. Overview page displays staked amount, nominated validators and estimated APY, it also handles bond-extra, rebond and withdraw operations for the nominator/user.
-- [components/reward-calculator](https://github.com/yieldscan/yieldscan-frontend/tree/master/components/reward-calculator): Reward calulator module. Reward calculator page displays different estimated max yields based on risk-score.
-- [components/staking](https://github.com/yieldscan/yieldscan-frontend/tree/master/components/staking): Staking module. This module handles different staking flows for different cases.
+- [components/overview](https://github.com/yieldscan/yieldscan-frontend/tree/master/components/overview): User profile dashboard. This displays staked amount, nominated validators and estimated APY, it also handles bond-extra, rebond and withdraw operations for the nominator/user:
 
-- [components/validators](https://github.com/yieldscan/yieldscan-frontend/tree/master/components/overview): validators page module.
+  - [InvestMoreModal](https://github.com/yieldscan/yieldscan-frontend/tree/master/components/overview/InvestMoreModal.js): Handles the bond extra operation.
+  - [WithdrawModal](https://github.com/yieldscan/yieldscan-frontend/tree/master/components/overview/WithdrawModal.js): Handles the chill and unbonding operations.
+  - [RedeemUnbonded](https://github.com/yieldscan/yieldscan-frontend/tree/master/components/overview/RedeemUnbonded.js): Handles the withdraw unbonded operation.
+  - [ReBondModal](https://github.com/yieldscan/yieldscan-frontend/tree/master/components/overview/ReBondModal.js): Handles the rebonding the unbonded amount operations.
+
+- [components/reward-calculator](https://github.com/yieldscan/yieldscan-frontend/tree/master/components/reward-calculator): Provides user with the auto-generated validator sets of low, medium and high risks depending on the calculated estimated staking returns and risk-scores.
+
+- [components/staking](https://github.com/yieldscan/yieldscan-frontend/tree/master/components/staking): This module handles different staking flows for different cases:
+
+  - [StakeToEarn](): Distinct stash controller.
+  - [Confirmation](): Same stash controller.
+  - [SecureStakeToEarn](): For onboarding new users to the best practices in the ecosystem.
+
+- [components/validators](https://github.com/yieldscan/yieldscan-frontend/tree/master/components/overview): This is for DYOR users for selecting the validators for staking based on different validator stats.
 
 ### Pre-requisites
 
