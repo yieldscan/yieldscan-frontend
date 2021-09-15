@@ -94,11 +94,13 @@ Important packages:
 
   Useful resources:
 
-  - [Amplitude](https://amplitude.com/)
+  - [Fathom](https://usefathom.com/)
   - [Metomic](https://metomic.io/)
   - [Sentry](https://sentry.io/)
 
 - Run the development server:
+
+  Note: Make sure [api](https://github.com/yieldscan/yieldscan-backend-api) and [crawler](https://github.com/yieldscan/yieldscan-backend-crawler) services are up and running
 
   ```bash
   yarn dev
