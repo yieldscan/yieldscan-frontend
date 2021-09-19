@@ -484,6 +484,7 @@ const InvestMoreModal = withSlideIn(
 		minPossibleStake,
 		ysFees,
 		setYsFees,
+		controllerAccount,
 	}) => {
 		const toast = useToast();
 		const { coinGeckoPriceUSD } = useCoinGeckoPriceUSD();
@@ -507,7 +508,6 @@ const InvestMoreModal = withSlideIn(
 		const [closeOnOverlayClick, setCloseOnOverlayClick] = useState(true);
 		const [calculationDisabled, setCalculationDisabled] = useState(true);
 		const [isLast, setIsLast] = useState(true);
-		const [totalTransactionFee, setTotalTransactionFee] = useState(0);
 		const [totalStakingAmount, setTotalStakingAmount] = useState(
 			() =>
 				stakingInfo.stakingLedger.active /
@@ -520,19 +520,37 @@ const InvestMoreModal = withSlideIn(
 
 		const updateTransactionData = (
 			stashId,
+			controllerId,
+			injectorId,
+			transactionType,
+			sourcePage,
+			walletType,
+			ysFees,
+			ysFeesAddress,
+			ysFeesRatio,
+			ysFeesPaid,
 			network,
 			alreadyBonded,
-			stakeAmount,
-			tranHash,
+			stake,
+			transactionHash,
 			successful
 		) => {
 			axios
 				.put(`${networkInfo.network}/user/transaction/update`, {
 					stashId: stashId,
+					controllerId: controllerId,
+					injectorId: injectorId,
+					transactionType: transactionType,
+					sourcePage: sourcePage,
+					walletType: walletType,
+					ysFees: ysFees,
+					ysFeesAddress: ysFeesAddress,
+					ysFeesRatio: ysFeesRatio,
+					ysFeesPaid: ysFeesPaid,
 					network: network,
 					alreadyBonded: alreadyBonded,
-					stake: stakeAmount,
-					transactionHash: tranHash,
+					stake: stake,
+					transactionHash: transactionHash,
 					successful: successful,
 				})
 				.then(() => {
@@ -635,19 +653,57 @@ const InvestMoreModal = withSlideIn(
 
 					if (status === 0) {
 						track(goalCodes.OVERVIEW.BOND_EXTRA_SUCCESSFUL);
-						if (isLast) {
-							updateTransactionData(
-								selectedAccount?.address,
-								networkInfo.network,
-								stakingInfo.stakingLedger.active /
-									Math.pow(10, networkInfo.decimalPlaces),
-								stakingInfo.stakingLedger.active /
-									Math.pow(10, networkInfo.decimalPlaces) +
-									amount,
-								tranHash,
-								true
-							);
-						}
+						updateTransactionData(
+							selectedAccount?.address,
+							controllerAccount?.address,
+							selectedAccount?.address,
+							isLedger
+								? stepperTransactions[stepperIndex]["transactionType"]
+								: stepperTransactions.length === 0
+								? stepperTransactions[0]["transactionType"]
+								: "batchAll" +
+								  stepperTransactions.reduce(
+										(a, b) => "-" + a.transactionType + "-" + b.transactionType
+								  ),
+							"overview",
+							isLedger ? "ledger" : "polkadotjs",
+							ysFees > 0 &&
+								networkInfo?.feesAddress &&
+								(stepperTransactions[stepperIndex]["transactionType"] ==
+									"yieldscanFees" ||
+									!isLedger)
+								? ysFees / Math.pow(10, networkInfo.decimalPlaces)
+								: 0,
+							ysFees > 0 &&
+								networkInfo?.feesAddress &&
+								(stepperTransactions[stepperIndex]["transactionType"] ==
+									"yieldscanFees" ||
+									!isLedger)
+								? networkInfo?.feesAddress
+								: "null",
+							ysFees > 0 &&
+								networkInfo?.feesAddress &&
+								(stepperTransactions[stepperIndex]["transactionType"] ==
+									"yieldscanFees" ||
+									!isLedger)
+								? networkInfo?.feesRatio
+								: 0,
+							ysFees > 0 &&
+								networkInfo?.feesAddress &&
+								(stepperTransactions[stepperIndex]["transactionType"] ==
+									"yieldscanFees" ||
+									!isLedger)
+								? true
+								: false,
+							networkInfo.network,
+							stakingInfo.stakingLedger.active /
+								Math.pow(10, networkInfo.decimalPlaces),
+							stakingInfo.stakingLedger.active /
+								Math.pow(10, networkInfo.decimalPlaces) +
+								amount,
+							tranHash,
+							true
+						);
 						setIsSuccessful(true);
 						setStakingEvent(
 							isLast
@@ -675,6 +731,41 @@ const InvestMoreModal = withSlideIn(
 							track(goalCodes.OVERVIEW.BOND_EXTRA_UNSUCCESSFUL);
 							updateTransactionData(
 								selectedAccount?.address,
+								controllerAccount?.address,
+								selectedAccount?.address,
+								isLedger
+									? stepperTransactions[stepperIndex]["transactionType"]
+									: stepperTransactions.length === 0
+									? stepperTransactions[0]["transactionType"]
+									: "batchAll" +
+									  stepperTransactions.reduce(
+											(a, b) =>
+												"-" + a.transactionType + "-" + b.transactionType
+									  ),
+								"overview",
+								isLedger ? "ledger" : "polkadotjs",
+								ysFees > 0 &&
+									networkInfo?.feesAddress &&
+									(stepperTransactions[stepperIndex]["transactionType"] ==
+										"yieldscanFees" ||
+										!isLedger)
+									? ysFees / Math.pow(10, networkInfo.decimalPlaces)
+									: 0,
+								ysFees > 0 &&
+									networkInfo?.feesAddress &&
+									(stepperTransactions[stepperIndex]["transactionType"] ==
+										"yieldscanFees" ||
+										!isLedger)
+									? networkInfo?.feesAddress
+									: "null",
+								ysFees > 0 &&
+									networkInfo?.feesAddress &&
+									(stepperTransactions[stepperIndex]["transactionType"] ==
+										"yieldscanFees" ||
+										!isLedger)
+									? networkInfo?.feesRatio
+									: 0,
+								false,
 								networkInfo.network,
 								stakingInfo.stakingLedger.active /
 									Math.pow(10, networkInfo.decimalPlaces),
@@ -817,7 +908,6 @@ const InvestMoreModal = withSlideIn(
 				setTransactions([..._transactions]);
 				setInjectorAccount(substrateStashId);
 				setTransactionFee(() => fee.partialFee.toNumber());
-				setTotalTransactionFee(transactionFee * 2.5); // hack approximation to ensure ample fees even in the case of multistep unbond
 			}
 		}, [stepperTransactions, stepperIndex, isLedger]);
 

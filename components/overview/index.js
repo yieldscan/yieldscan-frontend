@@ -326,6 +326,7 @@ const Overview = () => {
 					minPossibleStake={minPossibleStake}
 					ysFees={ysFees}
 					setYsFees={setYsFees}
+					controllerAccount={controllerAccount}
 				/>
 			)}
 			{reBondModalOpen && (

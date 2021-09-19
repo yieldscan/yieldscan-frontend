@@ -507,19 +507,37 @@ const WithdrawModal = withSlideIn(
 
 		const updateTransactionData = (
 			stashId,
+			controllerId,
+			injectorId,
+			transactionType,
+			sourcePage,
+			walletType,
+			ysFees,
+			ysFeesAddress,
+			ysFeesRatio,
+			ysFeesPaid,
 			network,
 			alreadyBonded,
-			stakeAmount,
-			tranHash,
+			stake,
+			transactionHash,
 			successful
 		) => {
 			axios
 				.put(`${networkInfo.network}/user/transaction/update`, {
 					stashId: stashId,
+					controllerId: controllerId,
+					injectorId: injectorId,
+					transactionType: transactionType,
+					sourcePage: sourcePage,
+					walletType: walletType,
+					ysFees: ysFees,
+					ysFeesAddress: ysFeesAddress,
+					ysFeesRatio: ysFeesRatio,
+					ysFeesPaid: ysFeesPaid,
 					network: network,
 					alreadyBonded: alreadyBonded,
-					stake: stakeAmount,
-					transactionHash: tranHash,
+					stake: stake,
+					transactionHash: transactionHash,
 					successful: successful,
 				})
 				.then(() => {
@@ -594,7 +612,13 @@ const WithdrawModal = withSlideIn(
 				setCalculationDisabled(true);
 			} else setCalculationDisabled(false);
 		}, [amount]);
-
+		stepperTransactions &&
+			console.log(
+				"batchAll" +
+					stepperTransactions.reduce(
+						(a, b) => "-" + a.transactionType + "-" + b.transactionType
+					)
+			);
 		const onConfirm = () => {
 			setUpdatingFunds(true);
 			setCloseOnOverlayClick(false);
@@ -630,19 +654,34 @@ const WithdrawModal = withSlideIn(
 
 					if (status === 0) {
 						track(goalCodes.OVERVIEW.UNBOND_SUCCESSFUL);
-						if (isLast) {
-							updateTransactionData(
-								selectedAccount?.address,
-								networkInfo.network,
-								stakingInfo.stakingLedger.active /
-									Math.pow(10, networkInfo.decimalPlaces),
-								stakingInfo.stakingLedger.active /
-									Math.pow(10, networkInfo.decimalPlaces) +
-									amount,
-								tranHash,
-								true
-							);
-						}
+						updateTransactionData(
+							selectedAccount?.address,
+							injectorAccount,
+							injectorAccount,
+							isLedger
+								? stepperTransactions[stepperIndex]["transactionType"]
+								: stepperTransactions.length === 0
+								? stepperTransactions[0]["transactionType"]
+								: "batchAll" +
+								  stepperTransactions.reduce(
+										(a, b) => "-" + a.transactionType + "-" + b.transactionType
+								  ),
+							"overview",
+							isLedger ? "ledger" : "polkadotjs",
+							0,
+							"null",
+							0,
+							false,
+							networkInfo.network,
+							stakingInfo.stakingLedger.active /
+								Math.pow(10, networkInfo.decimalPlaces),
+							stakingInfo.stakingLedger.active /
+								Math.pow(10, networkInfo.decimalPlaces) -
+								amount,
+							tranHash,
+							true
+						);
+
 						setIsSuccessful(true);
 						setStakingEvent(
 							isLast
@@ -668,19 +707,34 @@ const WithdrawModal = withSlideIn(
 						}
 						if (message !== "Cancelled") {
 							track(goalCodes.OVERVIEW.UNBOND_UNSUCCESSFUL);
-							if (isLast) {
-								updateTransactionData(
-									selectedAccount?.address,
-									networkInfo.network,
-									stakingInfo.stakingLedger.active /
-										Math.pow(10, networkInfo.decimalPlaces),
-									stakingInfo.stakingLedger.active /
-										Math.pow(10, networkInfo.decimalPlaces) +
-										amount,
-									tranHash,
-									false
-								);
-							}
+							updateTransactionData(
+								selectedAccount?.address,
+								injectorAccount,
+								injectorAccount,
+								isLedger
+									? stepperTransactions[stepperIndex]["transactionType"]
+									: stepperTransactions.length === 0
+									? stepperTransactions[0]["transactionType"]
+									: "batchAll" +
+									  stepperTransactions.reduce(
+											(a, b) =>
+												"-" + a.transactionType + "-" + b.transactionType
+									  ),
+								"overview",
+								isLedger ? "ledger" : "polkadotjs",
+								0,
+								"null",
+								0,
+								false,
+								networkInfo.network,
+								stakingInfo.stakingLedger.active /
+									Math.pow(10, networkInfo.decimalPlaces),
+								stakingInfo.stakingLedger.active /
+									Math.pow(10, networkInfo.decimalPlaces) -
+									amount,
+								tranHash,
+								false
+							);
 							setIsSuccessful(false);
 							setStakingEvent("Investing more failed!");
 							setTimeout(() => {
