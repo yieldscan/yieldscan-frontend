@@ -661,10 +661,10 @@ const InvestMoreModal = withSlideIn(
 								? stepperTransactions[stepperIndex]["transactionType"]
 								: stepperTransactions.length === 0
 								? stepperTransactions[0]["transactionType"]
-								: "batchAll" +
-								  stepperTransactions.reduce(
-										(a, b) => "-" + a.transactionType + "-" + b.transactionType
-								  ),
+								: "batchAll-" +
+								  stepperTransactions
+										.map((transaction) => transaction.transactionType)
+										.join("-"),
 							"overview",
 							isLedger ? "ledger" : "polkadotjs",
 							ysFees > 0 &&
@@ -737,11 +737,10 @@ const InvestMoreModal = withSlideIn(
 									? stepperTransactions[stepperIndex]["transactionType"]
 									: stepperTransactions.length === 0
 									? stepperTransactions[0]["transactionType"]
-									: "batchAll" +
-									  stepperTransactions.reduce(
-											(a, b) =>
-												"-" + a.transactionType + "-" + b.transactionType
-									  ),
+									: "batchAll-" +
+									  stepperTransactions
+											.map((transaction) => transaction.transactionType)
+											.join("-"),
 								"overview",
 								isLedger ? "ledger" : "polkadotjs",
 								ysFees > 0 &&

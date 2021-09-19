@@ -234,10 +234,10 @@ const Staking = () => {
 								? stepperTransactions[currentStep]["transactionType"]
 								: stepperTransactions.length === 0
 								? stepperTransactions[0]["transactionType"]
-								: "batchAll" +
-								  stepperTransactions.reduce(
-										(a, b) => "-" + a.transactionType + "-" + b.transactionType
-								  ),
+								: "batchAll-" +
+								  stepperTransactions
+										.map((transaction) => transaction.transactionType)
+										.join("-"),
 							sourcePage,
 							isLedger ? "ledger" : "polkadotjs",
 							ysFees > 0 &&
@@ -298,10 +298,10 @@ const Staking = () => {
 								? stepperTransactions[currentStep]["transactionType"]
 								: stepperTransactions.length === 0
 								? stepperTransactions[0]["transactionType"]
-								: "batchAll" +
-								  stepperTransactions.reduce(
-										(a, b) => "-" + a.transactionType + "-" + b.transactionType
-								  ),
+								: "batchAll-" +
+								  stepperTransactions
+										.map((transaction) => transaction.transactionType)
+										.join("-"),
 							sourcePage,
 							isLedger ? "ledger" : "polkadotjs",
 							ysFees > 0 &&
@@ -427,10 +427,10 @@ const Staking = () => {
 							? stepperTransactions[currentStep - 1]["transactionType"]
 							: stepperTransactions.length === 0
 							? stepperTransactions[0]["transactionType"]
-							: "batchAll" +
-							  stepperTransactions.reduce(
-									(a, b) => "-" + a.transactionType + "-" + b.transactionType
-							  ),
+							: "batchAll-" +
+							  stepperTransactions
+									.map((transaction) => transaction.transactionType)
+									.join("-"),
 						sourcePage,
 						isLedger ? "ledger" : "polkadotjs",
 						ysFees > 0 &&
@@ -477,10 +477,10 @@ const Staking = () => {
 							? stepperTransactions[currentStep - 1]["transactionType"]
 							: stepperTransactions.length === 0
 							? stepperTransactions[0]["transactionType"]
-							: "batchAll" +
-							  stepperTransactions.reduce(
-									(a, b) => "-" + a.transactionType + "-" + b.transactionType
-							  ),
+							: "batchAll-" +
+							  stepperTransactions
+									.map((transaction) => transaction.transactionType)
+									.join("-"),
 						sourcePage,
 						isLedger ? "ledger" : "polkadotjs",
 						ysFees > 0 &&
