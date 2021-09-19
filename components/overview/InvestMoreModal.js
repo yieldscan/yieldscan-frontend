@@ -741,7 +741,7 @@ const InvestMoreModal = withSlideIn(
 									  stepperTransactions
 											.map((transaction) => transaction.transactionType)
 											.join("-"),
-								"overview",
+								"/overview",
 								isLedger ? "ledger" : "polkadotjs",
 								ysFees > 0 &&
 									networkInfo?.feesAddress &&
