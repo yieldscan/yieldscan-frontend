@@ -42,6 +42,7 @@ import {
 	useAccountsBalances,
 	usePolkadotApi,
 	useStakingPath,
+	useSourcePage,
 } from "@lib/store";
 import calculateReward from "@lib/calculate-reward";
 import ValidatorsResult from "./ValidatorsResult";
@@ -85,6 +86,7 @@ const Validators = () => {
 	const { validatorMap, setValidatorMap } = useValidatorData();
 	const { isLowBalanceOpen, toggleIsLowBalanceOpen } = useLowBalancePopover();
 	const { transactionHash, setTransactionHash } = useTransactionHash();
+	const { sourcePage, setSourcePage } = useSourcePage();
 	const { isOpen, onClose, onToggle } = useDisclosure();
 	const { apiInstance } = usePolkadotApi();
 	const [errorFetching, setErrorFetching] = useState(false);
@@ -431,6 +433,7 @@ const Validators = () => {
 		updateTransactionState(Events.INTENT_STAKING);
 		setTransactionHash(null);
 		setStakingPath(null);
+		setSourcePage("/validators");
 
 		if (
 			controllerAccount &&

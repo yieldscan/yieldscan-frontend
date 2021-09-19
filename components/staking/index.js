@@ -13,6 +13,7 @@ import {
 	useSelectedAccountInfo,
 	useIsNewSetup,
 	useStakingPath,
+	useSourcePage,
 } from "@lib/store";
 import { useRouter } from "next/router";
 import { getNetworkInfo } from "yieldscan.config";
@@ -53,6 +54,7 @@ const Staking = () => {
 	const { balances, stakingInfo, stakingLedgerInfo } = useSelectedAccountInfo();
 	const { isAuthPopoverOpen, toggleIsAuthPopoverOpen, close } =
 		useAuthPopover();
+	const { sourcePage, setSourcePage } = useSourcePage();
 	const {
 		isStepperSigningPopoverOpen,
 		toggleIsStepperSigningPopoverOpen,
@@ -71,6 +73,10 @@ const Staking = () => {
 	const stakingAmount = get(transactionState, "stakingAmount", 0);
 	const [adjustedStakingAmount, setAdjustedStakingAmount] = useState(null);
 	const [unadjustedStakingAmount, setUnadjustedStakingAmount] = useState(null);
+	const [isLedger, setIsLedger] = useState();
+	const [currentStep, setCurrentStep] = useState(() =>
+		confirmedControllerAccount && selected ? 2 : 0
+	);
 
 	const [controllerStashInfo, setControllerStashInfo] = useState(
 		() => accountsControllerStashInfo[selectedAccount?.address]
@@ -105,19 +111,37 @@ const Staking = () => {
 
 	const updateTransactionData = (
 		stashId,
+		controllerId,
+		injectorId,
+		transactionType,
+		sourcePage,
+		walletType,
+		ysFees,
+		ysFeesAddress,
+		ysFeesRatio,
+		ysFeesPaid,
 		network,
 		alreadyBonded,
-		stakeAmount,
-		tranHash,
+		stake,
+		transactionHash,
 		successful
 	) => {
 		axios
 			.put(`${networkInfo.network}/user/transaction/update`, {
 				stashId: stashId,
+				controllerId: controllerId,
+				injectorId: injectorId,
+				transactionType: transactionType,
+				sourcePage: sourcePage,
+				walletType: walletType,
+				ysFees: ysFees,
+				ysFeesAddress: ysFeesAddress,
+				ysFeesRatio: ysFeesRatio,
+				ysFeesPaid: ysFeesPaid,
 				network: network,
 				alreadyBonded: alreadyBonded,
-				stake: stakeAmount,
-				transactionHash: tranHash,
+				stake: stake,
+				transactionHash: transactionHash,
 				successful: successful,
 			})
 			.then(() => {
@@ -204,6 +228,46 @@ const Staking = () => {
 					initialStakingPath !== "transfer" &&
 						updateTransactionData(
 							selectedAccount?.address,
+							controllerAccount?.address,
+							injectorAccount,
+							isLedger
+								? stepperTransactions[currentStep]["transactionType"]
+								: stepperTransactions.length === 0
+								? stepperTransactions[0]["transactionType"]
+								: "batchAll" +
+								  stepperTransactions.reduce(
+										(a, b) => "-" + a.transactionType + "-" + b.transactionType
+								  ),
+							sourcePage,
+							isLedger ? "ledger" : "polkadotjs",
+							ysFees > 0 &&
+								networkInfo?.feesAddress &&
+								(stepperTransactions[currentStep]["transactionType"] ==
+									"yieldscanFees" ||
+									!isLedger)
+								? ysFees / Math.pow(10, networkInfo.decimalPlaces)
+								: 0,
+							ysFees > 0 &&
+								networkInfo?.feesAddress &&
+								(stepperTransactions[currentStep]["transactionType"] ==
+									"yieldscanFees" ||
+									!isLedger)
+								? networkInfo?.feesAddress
+								: "null",
+							ysFees > 0 &&
+								networkInfo?.feesAddress &&
+								(stepperTransactions[currentStep]["transactionType"] ==
+									"yieldscanFees" ||
+									!isLedger)
+								? networkInfo?.feesRatio
+								: 0,
+							ysFees > 0 &&
+								networkInfo?.feesAddress &&
+								(stepperTransactions[currentStep]["transactionType"] ==
+									"yieldscanFees" ||
+									!isLedger)
+								? true
+								: false,
 							networkInfo.network,
 							parseInt(stakingInfo.stakingLedger.active) /
 								Math.pow(10, networkInfo.decimalPlaces),
@@ -228,6 +292,40 @@ const Staking = () => {
 
 						updateTransactionData(
 							selectedAccount?.address,
+							controllerAccount?.address,
+							injectorAccount,
+							isLedger
+								? stepperTransactions[currentStep]["transactionType"]
+								: stepperTransactions.length === 0
+								? stepperTransactions[0]["transactionType"]
+								: "batchAll" +
+								  stepperTransactions.reduce(
+										(a, b) => "-" + a.transactionType + "-" + b.transactionType
+								  ),
+							sourcePage,
+							isLedger ? "ledger" : "polkadotjs",
+							ysFees > 0 &&
+								networkInfo?.feesAddress &&
+								(stepperTransactions[currentStep]["transactionType"] ==
+									"yieldscanFees" ||
+									!isLedger)
+								? ysFees / Math.pow(10, networkInfo.decimalPlaces)
+								: 0,
+							ysFees > 0 &&
+								networkInfo?.feesAddress &&
+								(stepperTransactions[currentStep]["transactionType"] ==
+									"yieldscanFees" ||
+									!isLedger)
+								? networkInfo?.feesAddress
+								: "null",
+							ysFees > 0 &&
+								networkInfo?.feesAddress &&
+								(stepperTransactions[currentStep]["transactionType"] ==
+									"yieldscanFees" ||
+									!isLedger)
+								? networkInfo?.feesRatio
+								: 0,
+							false,
 							networkInfo.network,
 							parseInt(stakingInfo.stakingLedger.active) /
 								Math.pow(10, networkInfo.decimalPlaces),
@@ -320,6 +418,102 @@ const Staking = () => {
 					isClosable: true,
 					duration: 7000,
 				});
+				if (status === 0) {
+					updateTransactionData(
+						selectedAccount?.address,
+						controllerAccount?.address,
+						injectorAccount,
+						isLedger
+							? stepperTransactions[currentStep - 1]["transactionType"]
+							: stepperTransactions.length === 0
+							? stepperTransactions[0]["transactionType"]
+							: "batchAll" +
+							  stepperTransactions.reduce(
+									(a, b) => "-" + a.transactionType + "-" + b.transactionType
+							  ),
+						sourcePage,
+						isLedger ? "ledger" : "polkadotjs",
+						ysFees > 0 &&
+							networkInfo?.feesAddress &&
+							(stepperTransactions[currentStep - 1]["transactionType"] ==
+								"yieldscanFees" ||
+								!isLedger)
+							? ysFees / Math.pow(10, networkInfo.decimalPlaces)
+							: 0,
+						ysFees > 0 &&
+							networkInfo?.feesAddress &&
+							(stepperTransactions[currentStep - 1]["transactionType"] ==
+								"yieldscanFees" ||
+								!isLedger)
+							? networkInfo?.feesAddress
+							: "null",
+						ysFees > 0 &&
+							networkInfo?.feesAddress &&
+							(stepperTransactions[currentStep - 1]["transactionType"] ==
+								"yieldscanFees" ||
+								!isLedger)
+							? networkInfo?.feesRatio
+							: 0,
+						ysFees > 0 &&
+							networkInfo?.feesAddress &&
+							(stepperTransactions[currentStep - 1]["transactionType"] ==
+								"yieldscanFees" ||
+								!isLedger)
+							? true
+							: false,
+						networkInfo.network,
+						parseInt(stakingInfo.stakingLedger.active) /
+							Math.pow(10, networkInfo.decimalPlaces),
+						stakingAmount,
+						tranHash,
+						true
+					);
+				} else if (status !== 0 && message !== "Cancelled") {
+					updateTransactionData(
+						selectedAccount?.address,
+						controllerAccount?.address,
+						injectorAccount,
+						isLedger
+							? stepperTransactions[currentStep - 1]["transactionType"]
+							: stepperTransactions.length === 0
+							? stepperTransactions[0]["transactionType"]
+							: "batchAll" +
+							  stepperTransactions.reduce(
+									(a, b) => "-" + a.transactionType + "-" + b.transactionType
+							  ),
+						sourcePage,
+						isLedger ? "ledger" : "polkadotjs",
+						ysFees > 0 &&
+							networkInfo?.feesAddress &&
+							(stepperTransactions[currentStep - 1]["transactionType"] ==
+								"yieldscanFees" ||
+								!isLedger)
+							? ysFees / Math.pow(10, networkInfo.decimalPlaces)
+							: 0,
+						ysFees > 0 &&
+							networkInfo?.feesAddress &&
+							(stepperTransactions[currentStep - 1]["transactionType"] ==
+								"yieldscanFees" ||
+								!isLedger)
+							? networkInfo?.feesAddress
+							: "null",
+						ysFees > 0 &&
+							networkInfo?.feesAddress &&
+							(stepperTransactions[currentStep - 1]["transactionType"] ==
+								"yieldscanFees" ||
+								!isLedger)
+							? networkInfo?.feesRatio
+							: 0,
+						false,
+						networkInfo.network,
+						parseInt(stakingInfo.stakingLedger.active) /
+							Math.pow(10, networkInfo.decimalPlaces),
+						stakingAmount,
+						tranHash,
+						false
+					);
+				}
+
 				if (isLast) {
 					if (status === 0) {
 						setSuccessHeading("Congratulations");
@@ -335,15 +529,6 @@ const Staking = () => {
 						const successMessage = "You’ve successfully staked your funds...";
 						setStakingEvent(successMessage);
 						setIsSuccessful(true);
-						updateTransactionData(
-							selectedAccount?.address,
-							networkInfo.network,
-							parseInt(stakingInfo.stakingLedger.active) /
-								Math.pow(10, networkInfo.decimalPlaces),
-							stakingAmount,
-							tranHash,
-							true
-						);
 					} else {
 						if (message !== "Cancelled") {
 							if (initialStakingPath === "express") {
@@ -354,15 +539,6 @@ const Staking = () => {
 								track(goalCodes.STAKING.DISTINCT.UNSUCCESSFUL);
 							}
 
-							updateTransactionData(
-								selectedAccount?.address,
-								networkInfo.network,
-								parseInt(stakingInfo.stakingLedger.active) /
-									Math.pow(10, networkInfo.decimalPlaces),
-								stakingAmount,
-								tranHash,
-								false
-							);
 							setStakingEvent("Transaction failed");
 							setLoaderError(true);
 
@@ -389,15 +565,6 @@ const Staking = () => {
 						}, 5000);
 					} else {
 						if (message !== "Cancelled") {
-							// updateTransactionData(
-							// 	selectedAccount?.address,
-							// 	networkInfo.network,
-							// 	parseInt(stakingInfo.stakingLedger.active) /
-							// 		Math.pow(10, networkInfo.decimalPlaces),
-							// 	stakingAmount,
-							// 	tranHash,
-							// 	false
-							// );
 							setStakingPath = "loading";
 							closeModal();
 							setStakingEvent("Transaction failed");
@@ -578,6 +745,7 @@ const Staking = () => {
 					selectedValidators={selectedValidators}
 					ysFees={ysFees}
 					stepperTransact={stepperTransact}
+					setIsLedger={setIsLedger}
 				/>
 			)}
 			{transactionHash && isSuccessful && initialStakingPath !== "transfer" && (
@@ -686,6 +854,8 @@ const Staking = () => {
 					setAdjustedStakingAmount={setAdjustedStakingAmount}
 					unadjustedStakingAmount={unadjustedStakingAmount}
 					setUnadjustedStakingAmount={setUnadjustedStakingAmount}
+					currentStep={currentStep}
+					setCurrentStep={setCurrentStep}
 				/>
 			) : stakingPath === "express" ? (
 				<Confirmation

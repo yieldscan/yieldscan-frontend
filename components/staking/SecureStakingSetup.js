@@ -47,10 +47,9 @@ const SecureStakingSetup = ({
 	setAdjustedStakingAmount,
 	unadjustedStakingAmount,
 	setUnadjustedStakingAmount,
+	currentStep,
+	setCurrentStep,
 }) => {
-	const [currentStep, setCurrentStep] = useState(() =>
-		confirmedControllerAccount && selected ? 2 : 0
-	);
 	const [isStashPopoverOpen, setIsStashPopoverOpen] = useState(false);
 
 	const incrementCurrentStep = () => setCurrentStep((step) => step + 1);

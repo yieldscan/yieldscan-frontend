@@ -26,6 +26,7 @@ import {
 	useIsNewSetup,
 	useSelectedAccountInfo,
 	useStakingPath,
+	useSourcePage,
 } from "@lib/store";
 import { get, isNil, mapValues, keyBy, cloneDeep, debounce } from "lodash";
 import calculateReward from "@lib/calculate-reward";
@@ -96,7 +97,7 @@ const RewardCalculatorPage = () => {
 	const { setHeaderLoading } = useHeaderLoading();
 	const { isInElection } = useNetworkElection();
 	const { setIsNewSetup } = useIsNewSetup();
-
+	const { sourcePage, setSourcePage } = useSourcePage();
 	const { accountsStakingInfo } = useAccountsStakingInfo();
 	const { accountsBalances } = useAccountsBalances();
 
@@ -227,6 +228,7 @@ const RewardCalculatorPage = () => {
 		updateTransactionState(Events.INTENT_STAKING);
 		setTransactionHash(null);
 		setStakingPath(null);
+		setSourcePage("/reward-calculator");
 
 		if (
 			controllerAccount &&
