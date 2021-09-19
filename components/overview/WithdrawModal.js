@@ -612,13 +612,6 @@ const WithdrawModal = withSlideIn(
 				setCalculationDisabled(true);
 			} else setCalculationDisabled(false);
 		}, [amount]);
-		stepperTransactions &&
-			console.log(
-				"batchAll" +
-					stepperTransactions.reduce(
-						(a, b) => "-" + a.transactionType + "-" + b.transactionType
-					)
-			);
 		const onConfirm = () => {
 			setUpdatingFunds(true);
 			setCloseOnOverlayClick(false);
