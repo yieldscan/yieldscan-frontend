@@ -230,42 +230,40 @@ const Staking = () => {
 							selectedAccount?.address,
 							controllerAccount?.address,
 							injectorAccount,
-							isLedger
-								? stepperTransactions[currentStep]["transactionType"]
-								: stepperTransactions.length === 0
-								? stepperTransactions[0]["transactionType"]
-								: "batchAll-" +
-								  stepperTransactions
-										.map((transaction) => transaction.transactionType)
-										.join("-"),
+							!isLedger && stepperTransactions.length > 0
+								? "batchAll-" +
+										stepperTransactions
+											.map((transaction) => transaction.transactionType)
+											.join("-")
+								: stepperTransactions[0]["transactionType"],
 							sourcePage,
 							isLedger ? "ledger" : "polkadotjs",
 							ysFees > 0 &&
 								networkInfo?.feesAddress &&
-								(stepperTransactions[currentStep]["transactionType"] ==
-									"yieldscanFees" ||
-									!isLedger)
+								stepperTransactions.some(
+									(a) => a.transactionType === "yieldscanFees"
+								)
 								? ysFees / Math.pow(10, networkInfo.decimalPlaces)
 								: 0,
 							ysFees > 0 &&
 								networkInfo?.feesAddress &&
-								(stepperTransactions[currentStep]["transactionType"] ==
-									"yieldscanFees" ||
-									!isLedger)
+								stepperTransactions.some(
+									(a) => a.transactionType === "yieldscanFees"
+								)
 								? networkInfo?.feesAddress
 								: "null",
 							ysFees > 0 &&
 								networkInfo?.feesAddress &&
-								(stepperTransactions[currentStep]["transactionType"] ==
-									"yieldscanFees" ||
-									!isLedger)
+								stepperTransactions.some(
+									(a) => a.transactionType === "yieldscanFees"
+								)
 								? networkInfo?.feesRatio
 								: 0,
 							ysFees > 0 &&
 								networkInfo?.feesAddress &&
-								(stepperTransactions[currentStep]["transactionType"] ==
-									"yieldscanFees" ||
-									!isLedger)
+								stepperTransactions.some(
+									(a) => a.transactionType === "yieldscanFees"
+								)
 								? true
 								: false,
 							networkInfo.network,
@@ -294,35 +292,33 @@ const Staking = () => {
 							selectedAccount?.address,
 							controllerAccount?.address,
 							injectorAccount,
-							isLedger
-								? stepperTransactions[currentStep]["transactionType"]
-								: stepperTransactions.length === 0
-								? stepperTransactions[0]["transactionType"]
-								: "batchAll-" +
-								  stepperTransactions
-										.map((transaction) => transaction.transactionType)
-										.join("-"),
+							!isLedger && stepperTransactions.length > 0
+								? "batchAll-" +
+										stepperTransactions
+											.map((transaction) => transaction.transactionType)
+											.join("-")
+								: stepperTransactions[0]["transactionType"],
 							sourcePage,
 							isLedger ? "ledger" : "polkadotjs",
 							ysFees > 0 &&
 								networkInfo?.feesAddress &&
-								(stepperTransactions[currentStep]["transactionType"] ==
-									"yieldscanFees" ||
-									!isLedger)
+								stepperTransactions.some(
+									(a) => a.transactionType === "yieldscanFees"
+								)
 								? ysFees / Math.pow(10, networkInfo.decimalPlaces)
 								: 0,
 							ysFees > 0 &&
 								networkInfo?.feesAddress &&
-								(stepperTransactions[currentStep]["transactionType"] ==
-									"yieldscanFees" ||
-									!isLedger)
+								stepperTransactions.some(
+									(a) => a.transactionType === "yieldscanFees"
+								)
 								? networkInfo?.feesAddress
 								: "null",
 							ysFees > 0 &&
 								networkInfo?.feesAddress &&
-								(stepperTransactions[currentStep]["transactionType"] ==
-									"yieldscanFees" ||
-									!isLedger)
+								stepperTransactions.some(
+									(a) => a.transactionType === "yieldscanFees"
+								)
 								? networkInfo?.feesRatio
 								: 0,
 							false,
@@ -368,6 +364,7 @@ const Staking = () => {
 
 	const stepperTransact = (
 		_transaction,
+		stepTransactions,
 		injector,
 		isLast,
 		closeModal,
@@ -376,8 +373,8 @@ const Staking = () => {
 		setLoader,
 		stepperSuccessMessage,
 		setSuccess,
-		currentStep,
-		setCurrentStep
+		stepperIndex,
+		setStepperIndex
 	) => {
 		setLoading(true);
 		const handlers = {
@@ -423,40 +420,33 @@ const Staking = () => {
 						selectedAccount?.address,
 						controllerAccount?.address,
 						injectorAccount,
-						isLedger
-							? stepperTransactions[currentStep - 1]["transactionType"]
-							: stepperTransactions.length === 0
-							? stepperTransactions[0]["transactionType"]
-							: "batchAll-" +
-							  stepperTransactions
-									.map((transaction) => transaction.transactionType)
-									.join("-"),
+						stepTransactions[stepperIndex - 1]["transactionType"],
 						sourcePage,
 						isLedger ? "ledger" : "polkadotjs",
 						ysFees > 0 &&
 							networkInfo?.feesAddress &&
-							(stepperTransactions[currentStep - 1]["transactionType"] ==
+							(stepTransactions[stepperIndex - 1]["transactionType"] ==
 								"yieldscanFees" ||
 								!isLedger)
 							? ysFees / Math.pow(10, networkInfo.decimalPlaces)
 							: 0,
 						ysFees > 0 &&
 							networkInfo?.feesAddress &&
-							(stepperTransactions[currentStep - 1]["transactionType"] ==
+							(stepTransactions[stepperIndex - 1]["transactionType"] ==
 								"yieldscanFees" ||
 								!isLedger)
 							? networkInfo?.feesAddress
 							: "null",
 						ysFees > 0 &&
 							networkInfo?.feesAddress &&
-							(stepperTransactions[currentStep - 1]["transactionType"] ==
+							(stepTransactions[stepperIndex - 1]["transactionType"] ==
 								"yieldscanFees" ||
 								!isLedger)
 							? networkInfo?.feesRatio
 							: 0,
 						ysFees > 0 &&
 							networkInfo?.feesAddress &&
-							(stepperTransactions[currentStep - 1]["transactionType"] ==
+							(stepTransactions[stepperIndex - 1]["transactionType"] ==
 								"yieldscanFees" ||
 								!isLedger)
 							? true
@@ -473,33 +463,26 @@ const Staking = () => {
 						selectedAccount?.address,
 						controllerAccount?.address,
 						injectorAccount,
-						isLedger
-							? stepperTransactions[currentStep - 1]["transactionType"]
-							: stepperTransactions.length === 0
-							? stepperTransactions[0]["transactionType"]
-							: "batchAll-" +
-							  stepperTransactions
-									.map((transaction) => transaction.transactionType)
-									.join("-"),
+						stepTransactions[stepperIndex - 1]["transactionType"],
 						sourcePage,
 						isLedger ? "ledger" : "polkadotjs",
 						ysFees > 0 &&
 							networkInfo?.feesAddress &&
-							(stepperTransactions[currentStep - 1]["transactionType"] ==
+							(stepTransactions[stepperIndex - 1]["transactionType"] ==
 								"yieldscanFees" ||
 								!isLedger)
 							? ysFees / Math.pow(10, networkInfo.decimalPlaces)
 							: 0,
 						ysFees > 0 &&
 							networkInfo?.feesAddress &&
-							(stepperTransactions[currentStep - 1]["transactionType"] ==
+							(stepTransactions[stepperIndex - 1]["transactionType"] ==
 								"yieldscanFees" ||
 								!isLedger)
 							? networkInfo?.feesAddress
 							: "null",
 						ysFees > 0 &&
 							networkInfo?.feesAddress &&
-							(stepperTransactions[currentStep - 1]["transactionType"] ==
+							(stepTransactions[stepperIndex - 1]["transactionType"] ==
 								"yieldscanFees" ||
 								!isLedger)
 							? networkInfo?.feesRatio
@@ -513,7 +496,7 @@ const Staking = () => {
 						false
 					);
 				}
-
+				setStepperIndex(stepperIndex + 1);
 				if (isLast) {
 					if (status === 0) {
 						setSuccessHeading("Congratulations");
@@ -558,7 +541,6 @@ const Staking = () => {
 						setEvent(stepperSuccessMessage);
 						setSuccess(true);
 						setTimeout(() => {
-							setCurrentStep(currentStep + 1);
 							setLoader(false);
 							setSuccess(false);
 							setLoading(false);

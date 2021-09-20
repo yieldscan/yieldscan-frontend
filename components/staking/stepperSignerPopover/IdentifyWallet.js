@@ -3,7 +3,7 @@ import Image from "next/image";
 const IdentifyWallet = ({
 	onConfirm,
 	closeStepperSignerPopover,
-	incrementCurrentStep,
+	incrementStepperIndex,
 	setIsLedger,
 }) => {
 	return (
@@ -31,7 +31,7 @@ const IdentifyWallet = ({
 					className="w-full flex rounded-lg border items-center shadow-md hover:shadow-lg p-8 transform hover:scale-102"
 					onClick={() => {
 						setIsLedger(true);
-						incrementCurrentStep();
+						incrementStepperIndex();
 					}}
 				>
 					<div className="w-full flex-1 flex flex-row items-center text-left space-x-6">

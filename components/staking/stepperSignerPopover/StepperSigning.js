@@ -332,7 +332,7 @@ const StepperSigning = ({
 	closeStepperSignerPopover,
 	stakingPath,
 	stepperTransactions,
-	currentStep,
+	stepperIndex,
 	transaction,
 	injectorAccount,
 	transactionFee,
@@ -340,7 +340,7 @@ const StepperSigning = ({
 	apiInstance,
 	networkInfo,
 	transactionType,
-	incrementCurrentStep,
+	incrementStepperIndex,
 	ysFees,
 }) => {
 	return (
@@ -357,10 +357,10 @@ const StepperSigning = ({
 							)}
 						</div>
 						<div className="w-1/3 flex justify-center">
-							{currentStep <= index + 1 ? (
+							{stepperIndex <= index + 1 ? (
 								<div
 									className={`h-8 w-8 border-2 ${
-										index + 1 === currentStep
+										index + 1 === stepperIndex
 											? "border-teal-500 text-teal-500"
 											: "border-gray-500 text-gray-500"
 									} rounded-full flex items-center text-lg justify-center`}
@@ -391,8 +391,8 @@ const StepperSigning = ({
 					>
 						<p
 							className={`w-full text-center text-sm ${
-								currentStep <= index ? "text-gray-500" : "text-teal-500"
-							} ${currentStep !== index + 1 && "font-light"} `}
+								stepperIndex <= index ? "text-gray-500" : "text-teal-500"
+							} ${stepperIndex !== index + 1 && "font-light"} `}
 						>
 							{a?.transactionHeading}
 						</p>
@@ -402,7 +402,7 @@ const StepperSigning = ({
 			{transactionType === "bond" || transactionType === "bondExtra" ? (
 				<LockFunds
 					networkInfo={networkInfo}
-					amount={stepperTransactions[currentStep - 1]?.stakingAmount}
+					amount={stepperTransactions[stepperIndex - 1]?.stakingAmount}
 					transactionFee={transactionFee}
 					ysFees={ysFees}
 				/>
@@ -416,7 +416,7 @@ const StepperSigning = ({
 				<AddFundsToController
 					networkInfo={networkInfo}
 					controllerTransferAmount={
-						stepperTransactions[currentStep - 1]?.controllerTransferAmount
+						stepperTransactions[stepperIndex - 1]?.controllerTransferAmount
 					}
 					transactionFee={transactionFee}
 				/>

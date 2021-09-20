@@ -39,10 +39,10 @@ const StepperSigningPopover = ({
 	stepperTransact,
 	setIsLedger,
 }) => {
-	const [currentStep, setCurrentStep] = useState(0);
+	const [stepperIndex, setStepperIndex] = useState(0);
 
-	const incrementCurrentStep = () => setCurrentStep((step) => step + 1);
-	const decrementCurrentStep = () => setCurrentStep((step) => step - 1);
+	const incrementStepperIndex = () => setStepperIndex((step) => step + 1);
+	const decrementStepperIndex = () => setStepperIndex((step) => step - 1);
 	const [stepTransactions, setStepTransactions] = useState([]);
 	const [transaction, setTransaction] = useState(null);
 	const [transactionFee, setTransactionFee] = useState(0);
@@ -54,7 +54,7 @@ const StepperSigningPopover = ({
 	const [stepperSuccessMessage, setStepperSuccessMessage] = useState("");
 
 	useEffect(() => {
-		setStepTransactions(() => [...stepperTransactions]);
+		stepperTransactions && setStepTransactions(() => [...stepperTransactions]);
 	}, []);
 
 	useEffect(async () => {
@@ -63,134 +63,134 @@ const StepperSigningPopover = ({
 		setInjectorAccount(null);
 		setStepperSuccessMessage("");
 		if (
-			currentStep > 0 &&
-			stepTransactions[currentStep - 1]?.transactionType === "bond"
+			stepperIndex > 0 &&
+			stepTransactions[stepperIndex - 1]?.transactionType === "bond"
 		) {
 			const _transaction = [];
 			_transaction.push(
 				apiInstance.tx.staking.bond(
-					stepTransactions[currentStep - 1]?.substrateControllerId,
-					stepTransactions[currentStep - 1]?.stakingAmount,
-					stepTransactions[currentStep - 1]?.rewardDestination
+					stepTransactions[stepperIndex - 1]?.substrateControllerId,
+					stepTransactions[stepperIndex - 1]?.stakingAmount,
+					stepTransactions[stepperIndex - 1]?.rewardDestination
 				)
 			);
 
 			const fee = await _transaction[0]?.paymentInfo(
-				stepTransactions[currentStep - 1]?.injectorAccount
+				stepTransactions[stepperIndex - 1]?.injectorAccount
 			);
 			setTransaction([..._transaction]);
 			setStepperSuccessMessage("Successfully locked!");
-			setInjectorAccount(stepTransactions[currentStep - 1]?.injectorAccount);
+			setInjectorAccount(stepTransactions[stepperIndex - 1]?.injectorAccount);
 			setTransactionFee(() => fee.partialFee.toNumber());
 		} else if (
-			currentStep > 0 &&
-			stepTransactions[currentStep - 1]?.transactionType === "bondExtra"
+			stepperIndex > 0 &&
+			stepTransactions[stepperIndex - 1]?.transactionType === "bondExtra"
 		) {
 			const _transaction = [];
 			_transaction.push(
 				apiInstance.tx.staking.bondExtra(
-					stepTransactions[currentStep - 1]?.stakingAmount
+					stepTransactions[stepperIndex - 1]?.stakingAmount
 				)
 			);
 
 			const fee = await _transaction[0]?.paymentInfo(
-				stepTransactions[currentStep - 1]?.injectorAccount
+				stepTransactions[stepperIndex - 1]?.injectorAccount
 			);
 			setTransaction([..._transaction]);
 			setStepperSuccessMessage("Successfully locked!");
-			setInjectorAccount(stepTransactions[currentStep - 1]?.injectorAccount);
+			setInjectorAccount(stepTransactions[stepperIndex - 1]?.injectorAccount);
 			setTransactionFee(() => fee.partialFee.toNumber());
 		} else if (
-			currentStep > 0 &&
-			stepTransactions[currentStep - 1]?.transactionType === "nominate"
+			stepperIndex > 0 &&
+			stepTransactions[stepperIndex - 1]?.transactionType === "nominate"
 		) {
 			const _transaction = [];
 			_transaction.push(
 				apiInstance.tx.staking.nominate(
-					stepTransactions[currentStep - 1]?.nominatedValidators
+					stepTransactions[stepperIndex - 1]?.nominatedValidators
 				)
 			);
 
 			const fee = await _transaction[0]?.paymentInfo(
-				stepTransactions[currentStep - 1]?.injectorAccount
+				stepTransactions[stepperIndex - 1]?.injectorAccount
 			);
 			setTransaction([..._transaction]);
 			setStepperSuccessMessage("Successfully nominated!");
-			setInjectorAccount(stepTransactions[currentStep - 1]?.injectorAccount);
+			setInjectorAccount(stepTransactions[stepperIndex - 1]?.injectorAccount);
 			setTransactionFee(() => fee.partialFee.toNumber());
 		} else if (
-			currentStep > 0 &&
-			stepTransactions[currentStep - 1]?.transactionType ===
+			stepperIndex > 0 &&
+			stepTransactions[stepperIndex - 1]?.transactionType ===
 				"controllerTransfer"
 		) {
 			const _transaction = [];
 			_transaction.push(
 				apiInstance.tx.balances.transferKeepAlive(
-					stepTransactions[currentStep - 1]?.substrateControllerId,
-					stepTransactions[currentStep - 1]?.controllerTransferAmount
+					stepTransactions[stepperIndex - 1]?.substrateControllerId,
+					stepTransactions[stepperIndex - 1]?.controllerTransferAmount
 				)
 			);
 
 			const fee = await _transaction[0]?.paymentInfo(
-				stepTransactions[currentStep - 1]?.injectorAccount
+				stepTransactions[stepperIndex - 1]?.injectorAccount
 			);
 			setTransaction([..._transaction]);
 			setStepperSuccessMessage("Successfully transfered funds to controller!");
-			setInjectorAccount(stepTransactions[currentStep - 1]?.injectorAccount);
+			setInjectorAccount(stepTransactions[stepperIndex - 1]?.injectorAccount);
 			setTransactionFee(() => fee.partialFee.toNumber());
 		} else if (
-			currentStep > 0 &&
-			stepTransactions[currentStep - 1]?.transactionType === "setController"
+			stepperIndex > 0 &&
+			stepTransactions[stepperIndex - 1]?.transactionType === "setController"
 		) {
 			const _transaction = [];
 			_transaction.push(
 				apiInstance.tx.staking.setController(
-					stepTransactions[currentStep - 1]?.substrateControllerId
+					stepTransactions[stepperIndex - 1]?.substrateControllerId
 				)
 			);
 
 			const fee = await _transaction[0]?.paymentInfo(
-				stepTransactions[currentStep - 1]?.injectorAccount
+				stepTransactions[stepperIndex - 1]?.injectorAccount
 			);
 			setTransaction([..._transaction]);
 			setStepperSuccessMessage("Controller successfully set!");
-			setInjectorAccount(stepTransactions[currentStep - 1]?.injectorAccount);
+			setInjectorAccount(stepTransactions[stepperIndex - 1]?.injectorAccount);
 			setTransactionFee(() => fee.partialFee.toNumber());
 		} else if (
-			currentStep > 0 &&
-			stepTransactions[currentStep - 1]?.transactionType === "yieldscanFees"
+			stepperIndex > 0 &&
+			stepTransactions[stepperIndex - 1]?.transactionType === "yieldscanFees"
 		) {
 			const _transaction = [];
 			_transaction.push(
 				apiInstance.tx.balances.transferKeepAlive(
-					stepTransactions[currentStep - 1]?.injectorAccount,
-					stepTransactions[currentStep - 1]?.ysFees
+					stepTransactions[stepperIndex - 1]?.injectorAccount,
+					stepTransactions[stepperIndex - 1]?.ysFees
 				)
 			);
 
 			const fee = await _transaction[0]?.paymentInfo(
-				stepTransactions[currentStep - 1]?.injectorAccount
+				stepTransactions[stepperIndex - 1]?.injectorAccount
 			);
 
 			setTransaction([..._transaction]);
 			setStepperSuccessMessage("Yieldscan Fees Successfully Paid");
-			setInjectorAccount(stepTransactions[currentStep - 1]?.injectorAccount);
+			setInjectorAccount(stepTransactions[stepperIndex - 1]?.injectorAccount);
 			setTransactionFee(() => fee.partialFee.toNumber());
 		}
-	}, [stepTransactions, currentStep]);
+	}, [stepTransactions, stepperIndex]);
 
 	return (
 		<Modal
 			isOpen={isStepperSigningPopoverOpen}
 			onClose={closeStepperSignerPopover}
 			isCentered
-			size={currentStep > 0 ? "2xl" : "lg"}
-			closeOnEsc={loading || currentStep > 1 ? false : true}
-			closeOnOverlayClick={loading || currentStep > 1 ? false : true}
+			size={stepperIndex > 0 ? "2xl" : "lg"}
+			closeOnEsc={loading || stepperIndex > 1 ? false : true}
+			closeOnOverlayClick={loading || stepperIndex > 1 ? false : true}
 		>
 			<ModalOverlay />
 			<ModalContent rounded="lg" {...styles} py={4}>
-				{!loading && currentStep < 2 && (
+				{!loading && stepperIndex < 2 && (
 					<ModalCloseButton
 						onClick={closeStepperSignerPopover}
 						boxShadow="0 0 0 0 #fff"
@@ -215,11 +215,11 @@ const StepperSigningPopover = ({
 								</div>
 							</div>
 						</div>
-					) : currentStep === 0 ? (
+					) : stepperIndex === 0 ? (
 						<IdentifyWallet
 							onConfirm={onConfirm}
 							closeStepperSignerPopover={closeStepperSignerPopover}
-							incrementCurrentStep={incrementCurrentStep}
+							incrementStepperIndex={incrementStepperIndex}
 							setIsLedger={setIsLedger}
 						/>
 					) : (
@@ -227,22 +227,23 @@ const StepperSigningPopover = ({
 							onConfirm={() =>
 								stepperTransact(
 									transaction,
+									stepTransactions,
 									injectorAccount,
-									currentStep === stepTransactions?.length,
+									stepperIndex === stepTransactions?.length,
 									closeStepperSignerPopover,
 									setLoading,
 									setEvent,
 									setLoader,
 									stepperSuccessMessage,
 									setSuccess,
-									currentStep,
-									setCurrentStep
+									stepperIndex,
+									setStepperIndex
 								)
 							}
 							closeStepperSignerPopover={closeStepperSignerPopover}
 							stakingPath={stakingPath}
 							stepperTransactions={stepTransactions}
-							currentStep={currentStep}
+							stepperIndex={stepperIndex}
 							transaction={transaction}
 							injectorAccount={injectorAccount}
 							transactionFee={transactionFee}
@@ -251,9 +252,9 @@ const StepperSigningPopover = ({
 							networkInfo={networkInfo}
 							ysFees={ysFees}
 							transactionType={
-								stepTransactions[currentStep - 1]?.transactionType
+								stepTransactions[stepperIndex - 1]?.transactionType
 							}
-							incrementCurrentStep={incrementCurrentStep}
+							incrementStepperIndex={incrementStepperIndex}
 						/>
 					)}
 				</ModalBody>
