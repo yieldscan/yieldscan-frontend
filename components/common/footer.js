@@ -69,7 +69,7 @@ const Footer = () => {
 							<FaDiscord className="h-6 w-6" />
 						</a>
 						
-						<a href="hmailto:contact@yieldscan.app" className="text-gray-500 hover:text-gray-600">
+						<a href="mailto:contact@yieldscan.app" className="text-gray-500 hover:text-gray-600">
 							<span className="sr-only">Email</span>
 							<FaEnvelope className="h-6 w-6" />
 						</a>
