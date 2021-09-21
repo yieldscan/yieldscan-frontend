@@ -243,7 +243,7 @@ const About = () => {
 					Looking to build the future?
 				</p>
 				<Link
-					href="/careers"
+					href="https://www.notion.so/Careers-at-YieldScan-aea97220f05b4362be6cd18d49217f7a"
 					className="min-w-max-content"
 					color="teal.500"
 					backgroundColor="white"
@@ -254,7 +254,6 @@ const About = () => {
 					px={12}
 					_hover={{ bg: "white", transform: "scale(1.03)" }}
 					_focus={{ boxShadow: "none" }}
-					isExternal
 				>
 					See careers
 				</Link>

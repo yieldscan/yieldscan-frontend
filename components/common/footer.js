@@ -29,7 +29,7 @@ const Footer = () => {
 						</div>
 
 						<div className="px-5 py-2">
-							<Link href="/careers">
+							<Link href="https://www.notion.so/Careers-at-YieldScan-aea97220f05b4362be6cd18d49217f7a">
 								<a className="text-base text-gray-500 hover:text-gray-900">
 									Jobs
 								</a>
