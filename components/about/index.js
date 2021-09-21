@@ -238,22 +238,27 @@ const About = () => {
 					))}
 				</Flex>
 			</Stack>
-			<div className="w-screen bg-teal-500 py-8 flex justify-center items-center mt-32">
-				<p className="text-2xl text-white mr-8">
-					Looking to build the future?
-				</p>
+			
+			<div className="w-full px-24 rounded-xl bg-gray-100 pt-10 pb-12 flex justify-between items-center mt-32">
+				<span className="pr-16">
+					<h1 className="text-4xl font-semibold text-gray-700 mr-8">
+						Looking to build the future?
+					</h1>
+					<p className="text-gray-700 text-lg">
+						We're always looking for talented individuals to join us.
+					</p>
+				</span>
 				<Link
 					href="https://www.notion.so/Careers-at-YieldScan-aea97220f05b4362be6cd18d49217f7a"
-					className="min-w-max-content"
-					color="teal.500"
-					backgroundColor="white"
-					rounded="md"
+					className="shadow-teal min-w-max-content"
+					color="white"
+					backgroundColor="teal.500"
+					rounded="full"
 					fontWeight="normal"
 					fontSize="lg"
-					py={2}
-					px={12}
-					_hover={{ bg: "white", transform: "scale(1.03)" }}
-					_focus={{ boxShadow: "none" }}
+					py={6}
+					px={20}
+					_hover={{ bg: "teal.400", transform: "scale(1.03)" }}
 				>
 					See careers
 				</Link>
