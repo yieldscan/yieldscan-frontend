@@ -51,7 +51,7 @@ const Testimonials = () => {
 			<h1 className="text-3xl text-gray-700 font-bold text-center mb-16">
 				See what our users are saying
 			</h1>
-			<Marquee velocity={isPaused ? 0 : 30}>
+			<Marquee id="testimonials" velocity={isPaused ? 0 : 100}>
 				{testimonialData.map(({ name, avatar, designation, comment }) => (
 					<Box
 						key={name}
@@ -61,7 +61,7 @@ const Testimonials = () => {
 						maxW={400}
 						textAlign="center"
 						rounded={20}
-						className="shadow-custom"
+						className="shadow-custom h-full"
 						border="1px solid #E2ECF9"
 						onPointerOver={() => setIsPaused(true)}
 						onPointerLeave={() => setIsPaused(false)}
