@@ -195,8 +195,8 @@ const About = () => {
 			<h1 className="text-5xl text-gray-700 font-bold text-center">
 				We are creators
 			</h1>
-			<Text maxW="56ch" mx="auto" fontSize="lg" color="gray.600">
-				We find joy in making products that create magical experiences for those who use it.
+			<Text maxW="48ch" mx="auto" fontSize="lg" textAlign="center" color="gray.600">
+				Our joy lies in making things that catalyze human progress.<br /> We strive to spark magical emotions that transcend rationality for those who use our products.
 			</Text>
 			<h1 className="text-3xl text-gray-700 font-bold text-center mt-20 mb-16">
 				💪🏻 Core team
