@@ -1,4 +1,4 @@
-import { Box, FormLabel, Skeleton } from "@chakra-ui/core";
+import { Box, FormLabel, Skeleton, VisuallyHidden } from "@chakra-ui/core";
 import axios from "@lib/axios";
 import calculateReward from "@lib/calculate-reward";
 import {
@@ -123,7 +123,7 @@ const EarningsOutput = ({ inputValue, networkInfo }) => {
 	}, [inputValue, selectedValidators]);
 
 	return (
-		<Box minW={320} maxW={500}>
+		<Box minW={320} maxW={500} display={{ base: "hidden", md: "block" }}>
 			<div>
 				<FormLabel fontSize="xs" className="text-gray-700">
 					You could be earning

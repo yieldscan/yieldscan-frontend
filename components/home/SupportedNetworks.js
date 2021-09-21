@@ -6,7 +6,7 @@ const supportedNetworks = ["kusama", "polkadot"];
 const SupportedNetworks = () => {
 	return (
 		<Fragment>
-			<h1 className="text-3xl text-gray-700 font-bold text-center mb-16">
+			<h1 className="text-2xl md:text-3xl text-gray-700 font-bold text-center mb-16">
 				Networks you can start investing in now
 			</h1>
 			<div className="flex justify-center">

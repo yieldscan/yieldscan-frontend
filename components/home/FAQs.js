@@ -12,7 +12,7 @@ import {
 const FAQs = () => {
 	return (
 		<Box mt={16} w="full">
-			<h1 className="text-3xl text-gray-700 font-bold text-center">
+			<h1 className="text-2xl md:text-3xl text-gray-700 font-bold text-center">
 				Frequently Asked Questions
 			</h1>
 			<p className="text-gray-600 mb-16 text-center">

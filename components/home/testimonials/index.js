@@ -47,11 +47,11 @@ const Testimonials = () => {
 	const [isPaused, setIsPaused] = useState(false);
 
 	return (
-		<Box py={20} my={16}>
-			<h1 className="text-3xl text-gray-700 font-bold text-center mb-16">
-				See what our users are saying
+		<Box py={20} my={16} maxW="100%">
+			<h1 className="text-2xl md:text-3xl text-gray-700 font-bold text-center mb-16">
+				See what our users say
 			</h1>
-			<Marquee id="testimonials" velocity={isPaused ? 0 : 100}>
+			<Marquee velocity={isPaused ? 0 : 30}>
 				{testimonialData.map(({ name, avatar, designation, comment }) => (
 					<Box
 						key={name}

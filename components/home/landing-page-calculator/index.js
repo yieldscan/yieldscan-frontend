@@ -81,10 +81,10 @@ const LandingPageCalculator = ({
 				setStakingAmount(inputValue);
 				router.push({ pathname: "/reward-calculator" });
 			}}
-			className="w-full max-w-65-rem"
+			className="w-full max-w-4xl"
 		>
-			<div className="flex items-center justify-between mt-16 mb-8 flex-wrap">
-				<div>
+			<div className="flex items-center justify-between mt-8 md:mt-16 mb-8 flex-wrap">
+				<div className="w-full md:w-auto">
 					<div>
 						<FormLabel fontSize="xs" className="text-gray-700">
 							Network
@@ -113,7 +113,7 @@ const LandingPageCalculator = ({
 										px={6}
 										mt={2}
 										mb={4}
-										mr={4}
+										mr={{ base: 0, md: 4 }}
 										maxW={500}
 										placeholder={`0`}
 										value={value}
@@ -123,8 +123,8 @@ const LandingPageCalculator = ({
 											String(inputValue).length > 18
 												? "md"
 												: String(inputValue).length > 15
-												? "lg"
-												: "xl"
+													? "lg"
+													: "xl"
 										}
 										fontWeight="medium"
 										variant="filled"
@@ -144,7 +144,7 @@ const LandingPageCalculator = ({
 							</p>
 						</InputGroup>
 					</div>
-					<div>
+					<div className="hidden md:block">
 						<FormLabel fontSize="xs" className="text-gray-700" mt={8}>
 							About the network
 						</FormLabel>
@@ -172,6 +172,7 @@ const LandingPageCalculator = ({
 					minH={300}
 					borderRightWidth={1}
 					borderColor="gray-300"
+					display={{ base: "none", md: "block" }}
 				/>
 				<EarningsOutput networkInfo={networkInfo} inputValue={inputValue} />
 			</div>
