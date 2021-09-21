@@ -1,7 +1,7 @@
 import React from "react";
 const PrivacyComponent = () => (
 	<React.Fragment>
-		<h1 class="text-lg" id="privacy-policy-for-yieldscan-onrender-com">
+		<h1 className="text-lg" id="privacy-policy-for-yieldscan-onrender-com">
 			Privacy Policy for yieldscan.onrender.com
 		</h1>
 		<p>
@@ -21,12 +21,12 @@ const PrivacyComponent = () => (
 			and/or collect in YieldScan. This policy is not applicable to any
 			information collected offline or via channels other than this website.
 		</p>
-		<h1 class="text-lg" id="consent">Consent</h1>
+		<h1 className="text-lg" id="consent">Consent</h1>
 		<p>
 			By using our website, you hereby consent to our Privacy Policy and agree
 			to its terms.
 		</p>
-		<h1 class="text-lg" id="information-we-collect">Information we collect</h1>
+		<h1 className="text-lg" id="information-we-collect">Information we collect</h1>
 		<p>
 			The personal information that you are asked to provide, and the reasons
 			why you are asked to provide it, will be made clear to you at the point we
@@ -38,7 +38,7 @@ const PrivacyComponent = () => (
 			message and/or attachments you may send us, and any other information you
 			may choose to provide.
 		</p>
-		<h1 class="text-lg" id="how-we-use-your-information">How we use your information</h1>
+		<h1 className="text-lg" id="how-we-use-your-information">How we use your information</h1>
 		<p>We use the information we collect in various ways, including to:</p>
 		<ul>
 			<li>Provide, operate, and maintain our website</li>
@@ -54,7 +54,7 @@ const PrivacyComponent = () => (
 			<li>Send you emails</li>
 			<li>Find and prevent fraud</li>
 		</ul>
-		<h1 class="text-lg" id="log-files">Log Files</h1>
+		<h1 className="text-lg" id="log-files">Log Files</h1>
 		<p>
 			YieldScan follows a standard procedure of using log files. These files log
 			visitors when they visit websites. All hosting companies do this and a
@@ -66,7 +66,7 @@ const PrivacyComponent = () => (
 			analyzing trends, administering the site, tracking users&#39; movement on
 			the website, and gathering demographic information.
 		</p>
-		<h1 class="text-lg" id="cookies-and-web-beacons">Cookies and Web Beacons</h1>
+		<h1 className="text-lg" id="cookies-and-web-beacons">Cookies and Web Beacons</h1>
 		<p>
 			Like any other website, YieldScan uses &#39;cookies&#39;. These cookies
 			are used to store information including visitors&#39; preferences, and the
@@ -81,7 +81,7 @@ const PrivacyComponent = () => (
 			</a>
 			.
 		</p>
-		<h1 class="text-lg" id="ccpa-privacy-rights">CCPA Privacy Rights</h1>
+		<h1 className="text-lg" id="ccpa-privacy-rights">CCPA Privacy Rights</h1>
 		<p>
 			Under the CCPA, among other rights, California consumers have the right
 			to:
@@ -106,7 +106,7 @@ const PrivacyComponent = () => (
 			we have one month to respond to you. If you would like to exercise any of
 			these rights, please contact us.
 		</p>
-		<h1 class="text-lg" id="gdpr-data-protection-rights">GDPR Data Protection Rights</h1>
+		<h1 className="text-lg" id="gdpr-data-protection-rights">GDPR Data Protection Rights</h1>
 		<p>
 			We would like to make sure you are fully aware of all of your data
 			protection rights. Every user is entitled to the following:
@@ -144,7 +144,7 @@ const PrivacyComponent = () => (
 			If you make a request, we have one month to respond to you. If you would
 			like to exercise any of these rights, please contact us.
 		</p>
-		<h1 class="text-lg" id="children-s-information">Children&#39;s Information</h1>
+		<h1 className="text-lg" id="children-s-information">Children&#39;s Information</h1>
 		<p>
 			Another part of our priority is adding protection for children while using
 			the internet. We encourage parents and guardians to observe, participate
