@@ -13,7 +13,6 @@ import {
 	Stack,
 	Text,
 } from "@chakra-ui/core";
-import Footer from "@components/common/footer";
 import {
 	FaGithub,
 	FaGlobe,
@@ -32,7 +31,7 @@ const members = [
 		blog: "https://saumyakaran.com/",
 		url: "https://github.com/saumyakaran",
 		linked_in: "skrn",
-		role: "Project Lead",
+		role: "Co-founder, CEO",
 	},
 	{
 		avatar_url: "/images/team/sahil-nanda.png",
@@ -41,7 +40,7 @@ const members = [
 		name: "Sahil Nanda",
 		url: "https://github.com/sahilnanda1995",
 		linked_in: "sahil-nanda-8b1b88143",
-		role: "Lead Researcher & Product Engineer",
+		role: "Co-founder, CTO",
 	},
 	{
 		avatar_url: "/images/team/prastut-kumar.png",
@@ -52,7 +51,15 @@ const members = [
 		blog: "https://prastutkumar.com/",
 		url: "https://github.com/prastut",
 		linked_in: "prastut",
-		role: "Advisor",
+		role: "Co-founder, Head of Strategy",
+	},
+	{
+		bio:
+			"aspiring flat-earther • trying not to sleep walk through life • dropped on the head as an infant",
+		name: "Suryansh Singh",
+		twitter_username: "surpsi",
+		url: "https://github.com/Lord-of-Codes",
+		role: "Strategist",
 	},
 ];
 
@@ -184,25 +191,13 @@ const Contributor = ({ contributor }) => {
 const About = () => {
 	return (
 		<div className="pt-24 w-full min-h-full px-4 sm:px-8 md:px-12 lg:px-20 xl:px-32 flex flex-col items-center">
-			<h1 className="text-6xl">🏗</h1>
+			<h1 className="text-6xl">👨‍💻👩‍💻</h1>
 			<h1 className="text-5xl text-gray-700 font-bold text-center">
-				We are BUIDL-ers
+				We are creators
 			</h1>
 			<Text maxW="56ch" mx="auto" fontSize="lg" color="gray.600">
-				We like building, especially to help humanity get to the future faster.
+				We find joy in making products that create magical experiences for those who use it.
 			</Text>
-			<p className="inline-flex items-center font-medium text-gray-700 text-xs mt-6">
-				Project YieldScan's team is a part of{" "}
-				<Link
-					href="https://buidllabs.io/"
-					textDecor="underline"
-					color="teal.500"
-					ml={1}
-					isExternal
-				>
-					BUIDL Labs
-				</Link>
-			</p>
 			<h1 className="text-3xl text-gray-700 font-bold text-center mt-20 mb-16">
 				💪🏻 Core team
 			</h1>
@@ -248,7 +243,7 @@ const About = () => {
 					Looking to build the future?
 				</p>
 				<Link
-					href="https://buidllabs.io/careers/"
+					href="/careers"
 					className="min-w-max-content"
 					color="teal.500"
 					backgroundColor="white"
@@ -302,7 +297,6 @@ const About = () => {
 					</p>
 				</div>
 			</div>
-			<Footer />
 		</div>
 	);
 };

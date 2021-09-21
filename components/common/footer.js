@@ -1,8 +1,6 @@
 import { useAccounts, useHeaderLoading } from "@lib/store";
-import Link from "next/link";
 import React from "react";
-import { FaDiscord, FaTelegram } from "react-icons/fa";
-import { IoIosMail } from "react-icons/io";
+import { FaDiscord, FaEnvelope, FaGithub, FaTelegram, FaTwitter } from "react-icons/fa";
 
 const Footer = () => {
 	const { accountInfoLoading } = useAccounts();
@@ -10,61 +8,71 @@ const Footer = () => {
 	return (
 		!accountInfoLoading &&
 		!headerLoading && (
-			<footer className="w-full mb-12 px-8">
-				<hr className="border border-gray-200 my-8" />{" "}
-				<div className="flex justify-between text-gray-600 px-8">
-					<p>
-						Made with ❤️ by{" "}
-						<a
-							href="https://buidllabs.io"
-							className="underline hover:text-teal-500"
-							target="_blank"
-							rel="noreferrer"
-						>
-							BUIDL Labs
+			<footer className="bg-white">
+				<div className="max-w-7xl mx-auto py-12 px-4 overflow-hidden sm:px-6 lg:px-8">
+					<nav className="-mx-5 -my-2 flex flex-wrap justify-center" aria-label="Footer">
+						<div className="px-5 py-2">
+							<a href="/about" className="text-base text-gray-500 hover:text-gray-900">
+								About
+							</a>
+						</div>
+
+						<div className="px-5 py-2">
+							<a href="https://medium.com/yieldscan" className="text-base text-gray-500 hover:text-gray-900" target="_blank">
+								Blog
+							</a>
+						</div>
+
+						<div className="px-5 py-2">
+							<a href="/careers" className="text-base text-gray-500 hover:text-gray-900">
+								Jobs
+							</a>
+						</div>
+
+						<div className="px-5 py-2">
+							<a href="/privacy" className="text-base text-gray-500 hover:text-gray-900">
+								Privacy
+							</a>
+						</div>
+
+						<div className="px-5 py-2">
+							<a href="/terms" className="text-base text-gray-500 hover:text-gray-900">
+								Terms
+							</a>
+						</div>
+
+						<div className="px-5 py-2">
+							<a href="/disclaimer" className="text-base text-gray-500 hover:text-gray-900">
+								Disclaimer
+							</a>
+						</div>
+					</nav>
+					<div className="mt-8 flex justify-center space-x-6">
+
+						<a href="https://twitter.com/yieldscan" className="text-gray-500 hover:text-gray-600">
+							<span className="sr-only">Twitter</span>
+							<FaTwitter className="h-6 w-6" />
 						</a>
-					</p>
-					<div className="flex items-center flex-wrap">
-						<div>
-							<Link href="/about">
-								<a className="mr-8 hover:text-teal-500">About Us</a>
-							</Link>
-							<Link href="/privacy">
-								<a className="mr-8 hover:text-teal-500">Privacy</a>
-							</Link>
-							<Link href="/terms">
-								<a className="mr-8 hover:text-teal-500">Terms</a>
-							</Link>
-							<Link href="/disclaimer">
-								<a className="mr-12 hover:text-teal-500">Disclaimer</a>
-							</Link>
-						</div>
-						<div className="flex">
-							<a
-								target="_blank"
-								href="https://discord.gg/5Dggqx8"
-								className="mr-8 hover:text-teal-500"
-								rel="noreferrer"
-							>
-								<FaDiscord size="24px" />
-							</a>
-							<a
-								target="_blank"
-								rel="noreferrer"
-								href="https://t.me/yieldscan"
-								className="mr-8 hover:text-teal-500"
-							>
-								<FaTelegram size="24px" />
-							</a>
-							<a
-								href="mailto:karan@buidllabs.io"
-								target="_blank"
-								rel="noreferrer"
-								className="hover:text-teal-500"
-							>
-								<IoIosMail size="24px" />
-							</a>
-						</div>
+
+						<a href="https://github.com/yieldscan" className="text-gray-500 hover:text-gray-600">
+							<span className="sr-only">GitHub</span>
+							<FaGithub className="h-6 w-6" />
+						</a>
+
+						<a href="https://t.me/yieldscan" className="text-gray-500 hover:text-gray-600">
+							<span className="sr-only">Telegram</span>
+							<FaTelegram className="h-6 w-6" />
+						</a>
+
+						<a href="https://discord.gg/5Dggqx8" className="text-gray-500 hover:text-gray-600">
+							<span className="sr-only">Discord</span>
+							<FaDiscord className="h-6 w-6" />
+						</a>
+						
+						<a href="hmailto:contact@yieldscan.app" className="text-gray-500 hover:text-gray-600">
+							<span className="sr-only">Email</span>
+							<FaEnvelope className="h-6 w-6" />
+						</a>
 					</div>
 				</div>
 			</footer>

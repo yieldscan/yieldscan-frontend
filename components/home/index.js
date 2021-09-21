@@ -1,7 +1,6 @@
 import React from "react";
 import { Box, Button, Image, Link } from "@chakra-ui/core";
 import { Link as ScrollLink, animateScroll as scroll } from "react-scroll";
-import Footer from "@components/common/footer";
 import {
 	useTransaction,
 	useSelectedNetwork,
@@ -49,13 +48,11 @@ const HomePage = () => {
 	return (
 		<div className="pt-12 w-full min-h-full px-4 sm:px-8 md:px-12 lg:px-20 xl:px-32 flex flex-col items-center">
 			<button
-				className={`fixed bottom-0 z-20 mb-24 px-4 py-2 bg-gray-700 rounded-full text-white flex items-center justify-center transition ease-in-out duration-500 ${
-					showScroll ? "opacity-75 hover:opacity-100" : "opacity-0"
-				}`}
+				className={`fixed bottom-0 right-0 z-20 mb-24 mr-12 px-4 py-4 bg-gray-700 rounded-full text-white flex items-center justify-center transition ease-in-out duration-500 ${showScroll ? "opacity-75 hover:opacity-100" : "opacity-0"
+					}`}
 				onClick={scrollToTop}
 			>
-				<ArrowUp className="mr-2" />
-				Scroll to top
+				<ArrowUp />
 			</button>
 			<div className="w-full max-w-65-rem">
 				<h1 className="text-4xl text-gray-700 font-bold text-center">
@@ -161,7 +158,6 @@ const HomePage = () => {
 					</p>
 				</div>
 			</div>
-			<Footer />
 		</div>
 	);
 };
