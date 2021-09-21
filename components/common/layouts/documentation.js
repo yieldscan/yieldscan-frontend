@@ -11,7 +11,7 @@ const WithDocumentationLayout = (children) => {
 	return <div>
 		<Header isBase />
 		<div className="flex justify-center w-full">
-			<div className="max-w-5xl">{children()}</div>
+			<div className="max-w-5xl px-6">{children()}</div>
 		</div>
 		<Footer />
 	</div>

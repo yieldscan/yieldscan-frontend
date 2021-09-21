@@ -238,13 +238,13 @@ const About = () => {
 					))}
 				</Flex>
 			</Stack>
-			
-			<div className="w-full px-24 rounded-xl bg-gray-100 pt-10 pb-12 flex justify-between items-center mt-32">
-				<span className="pr-16">
-					<h1 className="text-4xl font-semibold text-gray-700 mr-8">
+
+			<div className="w-full px-8 md:px-24 rounded-xl bg-gray-100 pt-10 pb-12 flex justify-between items-center mt-32 flex-wrap max-w-6xl">
+				<span className="pr-0 xl:pr-16">
+					<h1 className="text-2xl md:text-4xl font-semibold text-gray-700 mr-0 xl:mr-8">
 						Looking to build the future?
 					</h1>
-					<p className="text-gray-700 text-lg">
+					<p className="text-gray-700 text-lg mb-8 xl:mb-0">
 						We're always looking for talented individuals to join us.
 					</p>
 				</span>
@@ -263,12 +263,13 @@ const About = () => {
 					See careers
 				</Link>
 			</div>
-			<div className="max-w-65-rem mb-32">
-				<h1 className="text-3xl text-gray-700 font-bold text-center mt-32 mb-16">
+
+			<div className="max-w-4xl mb-32">
+				<h1 className="text-2xl md:text-3xl text-gray-700 font-bold text-center mt-20 mb-16">
 					We’re backed by the best
 				</h1>
-				<div className="flex items-center justify-between">
-					<div className="w-1/3">
+				<div className="flex items-center justify-between flex-wrap">
+					<div className="w-full lg:w-1/3 flex justify-center lg:block">
 						<Image
 							src="/images/web3foundation_grants_badge_black.png"
 							alt="Web3 Foundation Grants Badge"
@@ -282,8 +283,9 @@ const About = () => {
 						minH={300}
 						borderRightWidth={1}
 						borderColor="gray-300"
+						display={{ base: "none", lg: "block" }}
 					/>
-					<p className="w-1/3 text-gray-700">
+					<p className="w-full lg:w-1/3 text-gray-700 mt-8 lg:mt-0 text-center lg:text-left">
 						YieldScan is funded by{" "}
 						<span className="font-semibold">Web3 Foundation</span> under{" "}
 						<span className="font-semibold">Wave 6</span> of the General Grants
