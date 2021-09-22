@@ -1,5 +1,5 @@
 import dynamic from "next/dynamic";
-import withDocumentationLayout from "@components/common/layouts/documentation";
+import WithDocumentationLayout from "@components/common/layouts/documentation";
 
 const Page = dynamic(
 	() => import("@components/common/page").then((mod) => mod.default),
@@ -13,7 +13,7 @@ const DisclaimerComponent = dynamic(
 );
 
 const Privacy = () => (
-	<Page title="Legal Disclaimer" layoutProvider={withDocumentationLayout}>
+	<Page title="Legal Disclaimer" layoutProvider={WithDocumentationLayout}>
 		{() => <DisclaimerComponent />}
 	</Page>
 );

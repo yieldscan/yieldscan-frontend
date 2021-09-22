@@ -48,7 +48,7 @@ const SocialProofStats = ({ networkInfo }) => {
 			</h3>
 		</div>
 	) : (
-		<div className="flex w-full max-w-65-rem mt-32 flex-wrap justify-between">
+		<div className="flex w-full max-w-4xl mt-32 flex-wrap justify-center lg:justify-between">
 			<StatCard
 				stat={
 					loading || isNaN(nominatorsData.stats.totalAmountStaked) ? (

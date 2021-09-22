@@ -13,7 +13,6 @@ import {
 	Stack,
 	Text,
 } from "@chakra-ui/core";
-import Footer from "@components/common/footer";
 import {
 	FaGithub,
 	FaGlobe,
@@ -32,7 +31,7 @@ const members = [
 		blog: "https://saumyakaran.com/",
 		url: "https://github.com/saumyakaran",
 		linked_in: "skrn",
-		role: "Project Lead",
+		role: "Co-founder, CEO",
 	},
 	{
 		avatar_url: "/images/team/sahil-nanda.png",
@@ -41,7 +40,7 @@ const members = [
 		name: "Sahil Nanda",
 		url: "https://github.com/sahilnanda1995",
 		linked_in: "sahil-nanda-8b1b88143",
-		role: "Lead Researcher & Product Engineer",
+		role: "Co-founder, CTO",
 	},
 	{
 		avatar_url: "/images/team/prastut-kumar.png",
@@ -52,7 +51,15 @@ const members = [
 		blog: "https://prastutkumar.com/",
 		url: "https://github.com/prastut",
 		linked_in: "prastut",
-		role: "Advisor",
+		role: "Co-founder, Head of Strategy",
+	},
+	{
+		bio:
+			"aspiring flat-earther • trying not to sleep walk through life • dropped on the head as an infant",
+		name: "Suryansh Singh",
+		twitter_username: "surpsi",
+		url: "https://github.com/Lord-of-Codes",
+		role: "Strategist",
 	},
 ];
 
@@ -184,25 +191,13 @@ const Contributor = ({ contributor }) => {
 const About = () => {
 	return (
 		<div className="pt-24 w-full min-h-full px-4 sm:px-8 md:px-12 lg:px-20 xl:px-32 flex flex-col items-center">
-			<h1 className="text-6xl">🏗</h1>
+			<h1 className="text-6xl">👨‍💻👩‍💻</h1>
 			<h1 className="text-5xl text-gray-700 font-bold text-center">
-				We are BUIDL-ers
+				We are creators
 			</h1>
-			<Text maxW="56ch" mx="auto" fontSize="lg" color="gray.600">
-				We like building, especially to help humanity get to the future faster.
+			<Text maxW="48ch" mx="auto" fontSize="lg" textAlign="center" color="gray.600">
+				Our joy lies in making things that catalyze human progress.<br /> We strive to spark magical emotions that transcend rationality for those who use our products.
 			</Text>
-			<p className="inline-flex items-center font-medium text-gray-700 text-xs mt-6">
-				Project YieldScan's team is a part of{" "}
-				<Link
-					href="https://buidllabs.io/"
-					textDecor="underline"
-					color="teal.500"
-					ml={1}
-					isExternal
-				>
-					BUIDL Labs
-				</Link>
-			</p>
 			<h1 className="text-3xl text-gray-700 font-bold text-center mt-20 mb-16">
 				💪🏻 Core team
 			</h1>
@@ -243,33 +238,38 @@ const About = () => {
 					))}
 				</Flex>
 			</Stack>
-			<div className="w-screen bg-teal-500 py-8 flex justify-center items-center mt-32">
-				<p className="text-2xl text-white mr-8">
-					Looking to build the future?
-				</p>
+
+			<div className="w-full px-8 md:px-24 rounded-xl bg-gray-100 pt-10 pb-12 flex justify-between items-center mt-32 flex-wrap max-w-6xl">
+				<span className="pr-0 xl:pr-16">
+					<h1 className="text-2xl md:text-4xl font-semibold text-gray-700 mr-0 xl:mr-8">
+						Looking to build the future?
+					</h1>
+					<p className="text-gray-700 text-lg mb-8 xl:mb-0">
+						We're always looking for talented individuals to join us.
+					</p>
+				</span>
 				<Link
-					href="https://buidllabs.io/careers/"
-					className="min-w-max-content"
-					color="teal.500"
-					backgroundColor="white"
-					rounded="md"
+					href="https://www.notion.so/Careers-at-YieldScan-aea97220f05b4362be6cd18d49217f7a"
+					className="shadow-teal min-w-max-content"
+					color="white"
+					backgroundColor="teal.500"
+					rounded="full"
 					fontWeight="normal"
 					fontSize="lg"
-					py={2}
-					px={12}
-					_hover={{ bg: "white", transform: "scale(1.03)" }}
-					_focus={{ boxShadow: "none" }}
-					isExternal
+					py={6}
+					px={20}
+					_hover={{ bg: "teal.400", transform: "scale(1.03)" }}
 				>
 					See careers
 				</Link>
 			</div>
-			<div className="max-w-65-rem mb-32">
-				<h1 className="text-3xl text-gray-700 font-bold text-center mt-32 mb-16">
+
+			<div className="max-w-4xl mb-32">
+				<h1 className="text-2xl md:text-3xl text-gray-700 font-bold text-center mt-20 mb-16">
 					We’re backed by the best
 				</h1>
-				<div className="flex items-center justify-between">
-					<div className="w-1/3">
+				<div className="flex items-center justify-between flex-wrap">
+					<div className="w-full lg:w-1/3 flex justify-center lg:block">
 						<Image
 							src="/images/web3foundation_grants_badge_black.png"
 							alt="Web3 Foundation Grants Badge"
@@ -283,8 +283,9 @@ const About = () => {
 						minH={300}
 						borderRightWidth={1}
 						borderColor="gray-300"
+						display={{ base: "none", lg: "block" }}
 					/>
-					<p className="w-1/3 text-gray-700">
+					<p className="w-full lg:w-1/3 text-gray-700 mt-8 lg:mt-0 text-center lg:text-left">
 						YieldScan is funded by{" "}
 						<span className="font-semibold">Web3 Foundation</span> under{" "}
 						<span className="font-semibold">Wave 6</span> of the General Grants
@@ -302,7 +303,6 @@ const About = () => {
 					</p>
 				</div>
 			</div>
-			<Footer />
 		</div>
 	);
 };
