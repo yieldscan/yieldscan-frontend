@@ -56,12 +56,12 @@ const links = [
 const UnsupportedDeviceScreen = () => (
 	<div className="bg-white">
 		<main className="max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8">
-			<div className="flex-shrink-0 pt-16">
+			<div className="flex-shrink-0 pt-16 flex justify-center">
 				<Image
 					src="/images/yieldscan-logo.svg"
 					alt="Yieldscan Logo"
-					width="32"
-					height="32"
+					width="64"
+					height="64"
 				/>
 			</div>
 			<div className="max-w-xl mx-auto py-16 sm:py-24">
