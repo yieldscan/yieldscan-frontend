@@ -18,6 +18,7 @@ const Header = dynamic(
 
 import { getNetworkInfo } from "yieldscan.config";
 import { Box, Flex } from "@chakra-ui/core";
+import Footer from "../footer";
 
 const WithBaseLayout = (children) => {
 	const { apiInstance, setApiInstance } = usePolkadotApi();
@@ -44,7 +45,7 @@ const WithBaseLayout = (children) => {
 		<Flex h="100%" w="100%" flexDirection="column">
 			<Header isBase />
 			<Box flex={1}>{children()}</Box>
-			{/* <div className="min-h-full h-fit-content w-full"></div> */}
+			<Footer />
 		</Flex>
 	);
 };

@@ -1,5 +1,5 @@
 import dynamic from 'next/dynamic';
-import withDocumentationLayout from '@components/common/layouts/documentation';
+import WithDocumentationLayout from '@components/common/layouts/documentation';
 
 const Page = dynamic(
   () => import('@components/common/page').then(mod => mod.default),
@@ -12,7 +12,7 @@ const TermsComponent = dynamic(
 );
 
 const Terms = () => (
-    <Page title="Terms of service" layoutProvider={withDocumentationLayout}>
+  <Page title="Terms of service" layoutProvider={WithDocumentationLayout}>
     {() => <TermsComponent />}
   </Page>
 );

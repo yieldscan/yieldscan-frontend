@@ -7,16 +7,15 @@ const Header = dynamic(
 	{ ssr: false }
 );
 
-const withDocumentationLayout = (children) => {
-	return () => (
-		<div>
-			<Header isBase />
-			<div className="flex justify-center w-full">
-				<div className="documentation">{children()}</div>
-			</div>
-			<Footer />
+const WithDocumentationLayout = (children) => {
+	return <div>
+		<Header isBase />
+		<div className="flex justify-center w-full">
+			<div className="max-w-5xl px-6">{children()}</div>
 		</div>
-	);
+		<Footer />
+	</div>
+
 };
 
-export default withDocumentationLayout;
+export default WithDocumentationLayout;

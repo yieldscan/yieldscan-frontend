@@ -13,7 +13,7 @@ const YieldScanLogo = () => {
 					width="40"
 					height="40"
 				/>
-				<span className="ml-2 font-medium flex items-center">
+				<span className="ml-2 font-medium hidden md:flex items-center">
 					YieldScan
 					<Badge
 						ml={2}

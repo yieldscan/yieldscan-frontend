@@ -3,13 +3,13 @@ import Link from "next/link";
 
 const TermsComponent = () => (
 	<React.Fragment>
-		<h1 id="terms-of-service-of-https-yieldscan-onrender-com">
+		<h1 className="text-3xl font-bold mt-8 mb-3" id="terms-of-service-of-https-yieldscan-onrender-com">
 			Terms of Service of{" "}
-			<a href="https://yieldscan.app">https://yieldscan.app</a>
+			<a className="underline" href="https://yieldscan.app">https://yieldscan.app</a>
 		</h1>
-		<p>
+		<p className="mb-4">
 			YieldScan (&quot;Us&quot; or &quot;We&quot;) provides the{" "}
-			<a href="https://yieldscan.app">https://yieldscan.app</a> website and
+			<a className="underline" href="https://yieldscan.app">https://yieldscan.app</a> website and
 			various related services (collectively, the &quot;Website&quot;) to you,
 			the User, subject to your compliance with all the terms, conditions, and
 			notices contained or referenced herein (the &quot;Terms of Service&quot;),
@@ -24,26 +24,26 @@ const TermsComponent = () => (
 			</Link>
 			&quot;.
 		</p>
-		<p>
+		<p className="mb-4">
 			In addition, when using particular services or materials on this Website,
 			Users shall be subject to any posted rules applicable to such services or
 			materials that may contain terms and conditions in addition to those in
 			these Terms of Service. All such guidelines or rules are hereby
 			incorporated by reference into these Terms of Service.
 		</p>
-		<p>
+		<p className="mb-4">
 			These Terms of Service are effective as of September 9th, 2020. We
 			expressly reserve the right to change these Terms of Service from time to
 			time without notice to you. You acknowledge and agree that it is your
 			responsibility to review this Website and these Terms of Service from time
 			to time and to familiarize yourself with any modifications.
 		</p>
-		<p>
+		<p className="mb-4">
 			Your continued use of this Website after such modifications will
 			constitute acknowledgement of the modified Terms of Service and agreement
 			to abide and be bound by the modified Terms of Service.
 		</p>
-		<p>
+		<p className="mb-4">
 			We reserve the sole right to either modify or discontinue the Website,
 			including any of the Website’s features, at any time with or without
 			notice to you. We will not be liable to you or any third party should we
@@ -51,8 +51,8 @@ const TermsComponent = () => (
 			then-current services on this Website shall also be subject to these Terms
 			of Service.
 		</p>
-		<h1 id="conduct-on-website">Conduct on Website</h1>
-		<p>
+		<h1 className="text-xl font-bold mt-8 mb-3" id="conduct-on-website">Conduct on Website</h1>
+		<p className="mb-4">
 			Your use of the Website is subject to all applicable laws and regulations,
 			and you are solely responsible for the substance of your communications
 			through the Website. By posting information in or otherwise using any
@@ -63,8 +63,8 @@ const TermsComponent = () => (
 			text, communications, software, images, sounds, data, or other information
 			— that:
 		</p>
-		<ul>
-			<li>
+		<ul className="list-outside list-disc pl-5 my-4">
+			<li className="mb-2">
 				Is unlawful, threatening, abusive, harassing, defamatory, libellous,
 				deceptive, fraudulent, invasive of another’s privacy, tortious, contains
 				explicit or graphic descriptions or accounts of sexual acts (including
@@ -72,33 +72,33 @@ const TermsComponent = () => (
 				directed at another individual or group of individuals), or otherwise
 				violates our rules or policies
 			</li>
-			<li>
+			<li className="mb-2">
 				Victimizes, harasses, degrades, or intimidates an individual or group of
 				individuals on the basis of religion, gender, sexual orientation, race,
 				ethnicity, age, or disability
 			</li>
-			<li>
+			<li className="mb-2">
 				Infringes on any patent, trademark, trade secret, copyright, right of
 				publicity, or other proprietary right of any party
 			</li>
-			<li>
+			<li className="mb-2">
 				Constitutes unauthorized or unsolicited advertising, junk or bulk email
 				(also known as &quot;spamming&quot;), chain letters, any other form of
 				unauthorized solicitation, or any form of lottery or gambling
 			</li>
-			<li>
+			<li className="mb-2">
 				Contains software viruses or any other computer code, files, or programs
 				that are designed or intended to disrupt, damage, or limit the
 				functioning of any software, hardware, or telecommunications equipment
 				or to damage or obtain unauthorized access to any data or other
 				information of any third party
 			</li>
-			<li>
+			<li className="mb-2">
 				Impersonates any person or entity, including any of our employees or
 				representatives
 			</li>
 		</ul>
-		<p>
+		<p className="mb-4">
 			We neither endorse nor assume any liability for the contents of any
 			material uploaded or submitted by third party users of the Website. We
 			generally do not pre-screen, monitor, or edit the content posted by users
@@ -112,7 +112,7 @@ const TermsComponent = () => (
 			hereby consent to such removal and waive any claim against us arising out
 			of such removal of content.
 		</p>
-		<p>
+		<p className="mb-4">
 			You agree that we may at any time, and at our sole discretion, terminate
 			your membership, account, or other affiliation with our site without prior
 			notice to you for violating any of the above provisions. In addition, you
@@ -121,14 +121,14 @@ const TermsComponent = () => (
 			law enforcement authorities in investigating suspected criminal
 			violations.
 		</p>
-		<h1 id="third-party-websites">Third Party Websites</h1>
-		<p>
+		<h1 className="text-xl font-bold mt-8 mb-3" id="third-party-websites">Third Party Websites</h1>
+		<p className="mb-4">
 			This site may link you to other sites on the Internet or otherwise include
 			references to information, documents, software, materials and/or services
 			provided by other parties. These sites may contain information or material
 			that some people may find inappropriate or offensive.
 		</p>
-		<p>
+		<p className="mb-4">
 			These other sites and parties are not under our control, and you
 			acknowledge that we are not responsible for the accuracy, copyright
 			compliance, legality, decency, or any other aspect of the content of such
@@ -138,8 +138,8 @@ const TermsComponent = () => (
 			endorsement of, or association with, the Website or party by us, or any
 			warranty of any kind, either express or implied.
 		</p>
-		<h1 id="intellectual-property">Intellectual Property</h1>
-		<p>
+		<h1 className="text-xl font-bold mt-8 mb-3" id="intellectual-property">Intellectual Property</h1>
+		<p className="mb-4">
 			All custom graphics, icons, logos, and service names used on the Website
 			are registered trademarks, service marks, and/or artwork held under
 			copyright of YieldScan or its Affiliates. All other marks are property of
@@ -147,8 +147,8 @@ const TermsComponent = () => (
 			right to use any trademark, service mark, logo, and/or the name or trade
 			names of YieldScan or its Affiliates.
 		</p>
-		<h1 id="disclaimer-of-warranties">Disclaimer of Warranties</h1>
-		<p>
+		<h1 className="text-xl font-bold mt-8 mb-3" id="disclaimer-of-warranties">Disclaimer of Warranties</h1>
+		<p className="mb-4">
 			Content available through this Website often represents the opinions and
 			judgments of an information provider, site user, or other person or entity
 			not connected with us. We do not endorse, nor are we responsible for the
@@ -158,7 +158,7 @@ const TermsComponent = () => (
 			on various sections of this Website for further information, which
 			policies are incorporated by reference into these Terms of Service.
 		</p>
-		<p>
+		<p className="mb-4">
 			You understand and agree that temporary interruptions of the services
 			available through this Website may occur as normal events. You further
 			understand and agree that we have no control over third party networks you
@@ -166,14 +166,14 @@ const TermsComponent = () => (
 			and disruption of other network transmissions are completely beyond our
 			control.
 		</p>
-		<p>
+		<p className="mb-4">
 			You understand and agree that the services available on this Website are
 			provided &quot;AS IS&quot; and that we assume no responsibility for the
 			timeliness, deletion, mis-delivery or failure to store any user
 			communications or personalization settings.
 		</p>
-		<h1 id="international-use">International Use</h1>
-		<p>
+		<h1 className="text-xl font-bold mt-8 mb-3" id="international-use">International Use</h1>
+		<p className="mb-4">
 			Although this Website may be accessible worldwide, we make no
 			representation that materials on this Website are appropriate or available
 			for use in locations outside the United States, and accessing them from
@@ -183,8 +183,8 @@ const TermsComponent = () => (
 			for any product, service, and/or information made in connection with this
 			Website is void where prohibited.
 		</p>
-		<h1 id="termination">Termination</h1>
-		<p>
+		<h1 className="text-xl font-bold mt-8 mb-3" id="termination">Termination</h1>
+		<p className="mb-4">
 			You agree that we may, in our sole discretion, terminate or suspend your
 			access to all or part of the Website with or without notice and for any
 			reason, including, without limitation, breach of these Terms of Service.
@@ -192,7 +192,7 @@ const TermsComponent = () => (
 			terminating your relationship and may be referred to appropriate law
 			enforcement authorities.
 		</p>
-		<p>
+		<p className="mb-4">
 			Upon termination or suspension, regardless of the reasons therefore, your
 			right to use the services available on this Website immediately ceases,
 			and you acknowledge and agree that we may immediately deactivate or delete
@@ -202,14 +202,14 @@ const TermsComponent = () => (
 			any termination or suspension or any other actions taken by us in
 			connection with such termination or suspension.
 		</p>
-		<h1 id="governing-law">Governing Law</h1>
-		<p>
+		<h1 className="text-xl font-bold mt-8 mb-3" id="governing-law">Governing Law</h1>
+		<p className="mb-4">
 			These Terms of Service and any dispute or claim arising out of, or related
 			to them, shall be governed by and construed in accordance with the
 			internal laws of the country of India without giving effect to any choice
 			or conflict of law provision or rule.
 		</p>
-		<p>
+		<p className="mb-4">
 			Any legal suit, action or proceeding arising out of, or related to, these
 			Terms of Service or the Website shall be instituted exclusively in the
 			federal courts of the country of India.

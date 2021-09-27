@@ -37,7 +37,7 @@ const SideMenuFooter = () => {
 					<FaTelegram size="24px" className="mr-2" />
 				</a>
 				<a
-					href="mailto:karan@buidllabs.io"
+					href="mailto:contact@yieldscan.app"
 					target="_blank"
 					rel="noreferrer"
 					className="hover:text-teal-500"

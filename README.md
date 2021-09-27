@@ -78,11 +78,11 @@ Important packages:
 
   ```env
   # Main API endpoint
-  NEXT_PUBLIC_API_BASE_URL="<base-url-of-deployed/local-api>/api"
-  # example: NEXT_PUBLIC_API_BASE_URL="http://localhost:5000/api"
+  NEXT_PUBLIC_API_BASE_URL="http://localhost:5000/api"
+  # or NEXT_PUBLIC_API_BASE_URL="<base-url-of-deployed/local-api>/api"
 
-  # Manage Testnets
-  NEXT_PUBLIC_TESTNETS_ENABLED=true # if true westend will be enabled
+  # Manage Testnets, if true westend will be enabled
+  NEXT_PUBLIC_TESTNETS_ENABLED=true
 
   # Network Endpoints
   NEXT_PUBLIC_POLKADOT="wss://polkadot.api.onfinality.io/public-ws"
@@ -94,11 +94,13 @@ Important packages:
 
   Useful resources:
 
-  - [Amplitude](https://amplitude.com/)
+  - [Fathom](https://usefathom.com/)
   - [Metomic](https://metomic.io/)
   - [Sentry](https://sentry.io/)
 
 - Run the development server:
+
+  Note: Make sure [api](https://github.com/yieldscan/yieldscan-backend-api) and [crawler](https://github.com/yieldscan/yieldscan-backend-crawler) services are up and running
 
   ```bash
   yarn dev
