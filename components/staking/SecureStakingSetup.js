@@ -49,6 +49,10 @@ const SecureStakingSetup = ({
 	setUnadjustedStakingAmount,
 	currentStep,
 	setCurrentStep,
+	isExistingUser,
+	hasSubscription,
+	currentDate,
+	lastDiscountDate,
 }) => {
 	const [isStashPopoverOpen, setIsStashPopoverOpen] = useState(false);
 
@@ -359,6 +363,10 @@ const SecureStakingSetup = ({
 						handleOnClickBackToSettinUpYourController={
 							handleOnClickBackToSettinUpYourController
 						}
+						isExistingUser={isExistingUser}
+						hasSubscription={hasSubscription}
+						currentDate={currentDate}
+						lastDiscountDate={lastDiscountDate}
 					/>
 				)}
 			</div>

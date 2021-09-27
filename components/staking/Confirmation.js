@@ -27,6 +27,10 @@ const Confirmation = ({
 	stakingAmount,
 	selectedValidators,
 	setStepperTransactions,
+	isExistingUser,
+	hasSubscription,
+	currentDate,
+	lastDiscountDate,
 }) => {
 	const [showValidators, setShowValidators] = useState(false);
 	// const [showAdvPrefs, setShowAdvPrefs] = useState(false);
@@ -278,20 +282,36 @@ const Confirmation = ({
 								</div>
 							</div>
 							<div className="flex justify-between mt-4">
-								<div className="text-xs text-gray-700 flex items-center">
-									<p>Yieldscan .125% Fee</p>
-									<HelpPopover
-										content={
-											<p className="text-xs text-white">
-												This fee is used to pay for the costs of building and
-												running Yieldscan. Its charged on the staking amount.
-											</p>
-										}
-									/>
-								</div>
+								{ysFees !== 0 && (
+									<div className="text-xs text-gray-700 flex items-center">
+										<p>
+											Yieldscan Fee{" "}
+											{isExistingUser &&
+												!hasSubscription &&
+												currentDate <= lastDiscountDate &&
+												"(50% off)"}
+										</p>
+										<HelpPopover
+											content={
+												<p className="text-xs text-white">
+													This fee is used to pay for the costs of building and
+													running Yieldscan. Its charged on the staking amount.{" "}
+													{isExistingUser &&
+														currentDate <= lastDiscountDate && (
+															<span className="font-semibold">
+																You have been given a 50% discount because you
+																staked with Yieldscan on or before 15th
+																September 2021.{" "}
+															</span>
+														)}
+												</p>
+											}
+										/>
+									</div>
+								)}
 
 								<div className="flex flex-col">
-									{ysFees !== 0 ? (
+									{ysFees !== 0 && (
 										<div>
 											<p className="text-gray-700 text-sm font-semibold text-right">
 												{formatCurrency.methods.formatAmount(
@@ -299,12 +319,7 @@ const Confirmation = ({
 													networkInfo
 												)}
 											</p>
-											{/* <p className="text-xs text-right text-gray-600">
-									${subFeeCurrency.toFixed(2)}
-								</p> */}
 										</div>
-									) : (
-										<Spinner />
 									)}
 								</div>
 							</div>

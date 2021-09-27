@@ -20,6 +20,7 @@ import {
 	useAccountsBalances,
 	useAccountsStakingInfo,
 	useSelectedAccountInfo,
+	useIsExistingUser,
 } from "@lib/store";
 import { useWalletConnect } from "@components/wallet-connect";
 import { isNil } from "lodash";
@@ -53,6 +54,7 @@ const Overview = () => {
 	const { accountsBalances } = useAccountsBalances();
 	const { accountsStakingInfo } = useAccountsStakingInfo();
 	const { balances, stakingInfo } = useSelectedAccountInfo();
+	const { isExistingUser } = useIsExistingUser();
 	const toast = useToast();
 	const [loading, setLoading] = useState(true);
 	const [nominationsLoading, setNominationsLoading] = useState(true); // work-around :(
@@ -327,6 +329,7 @@ const Overview = () => {
 					ysFees={ysFees}
 					setYsFees={setYsFees}
 					controllerAccount={controllerAccount}
+					isExistingUser={isExistingUser}
 				/>
 			)}
 			{reBondModalOpen && (

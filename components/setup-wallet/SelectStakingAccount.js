@@ -5,6 +5,7 @@ import addToLocalStorage from "@lib/addToLocalStorage";
 import { useEffect, useState } from "react";
 import { isNil } from "lodash";
 import { track, goalCodes } from "@lib/analytics";
+import axios from "@lib/axios";
 
 const SelectStakingAccount = ({
 	networkInfo,
@@ -12,12 +13,20 @@ const SelectStakingAccount = ({
 	accountsBalances,
 	accountsControllerStashInfo,
 	setSelectedAccount,
+	setIsExistingUser,
 }) => {
 	const router = useRouter();
 	const onAccountSelected = (account) => {
 		setSelectedAccount(account);
 		addToLocalStorage(networkInfo.network, "selectedAccount", account.address);
 		track(goalCodes.GLOBAL.ACCOUNT_SELECTED);
+
+		axios
+			.get(`/${networkInfo.network}/user/existing-user/${account.address}`)
+			.then(({ data }) => {
+				setIsExistingUser(data.isExistingUser);
+			});
+
 		router.back();
 	};
 

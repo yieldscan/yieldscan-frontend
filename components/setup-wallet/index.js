@@ -12,6 +12,7 @@ import {
 	useSelectedAccount,
 	useSelectedNetwork,
 	useWalletConnectState,
+	useIsExistingUser,
 } from "@lib/store";
 import { getNetworkInfo } from "yieldscan.config";
 import SelectStakingAccount from "./SelectStakingAccount";
@@ -27,6 +28,7 @@ const SetupWallet = () => {
 	const { accountsBalances } = useAccountsBalances();
 	const { accountsControllerStashInfo } = useAccountsControllerStashInfo();
 	const { walletConnectState } = useWalletConnectState();
+	const { isExistingUser, setIsExistingUser } = useIsExistingUser;
 	const networkInfo = getNetworkInfo(selectedNetwork);
 
 	const [connectExtensionCheck, setConnectExtensionCheck] = useState(false);
@@ -224,6 +226,7 @@ const SetupWallet = () => {
 				accountsBalances={accountsBalances}
 				accountsControllerStashInfo={accountsControllerStashInfo}
 				setSelectedAccount={setSelectedAccount}
+				setIsExistingUser={setIsExistingUser}
 			/>
 		</div>
 	) : (
@@ -242,6 +245,7 @@ const SetupWallet = () => {
 				walletConnectState={walletConnectState}
 				setCurrentStep={setCurrentStep}
 				setConnectExtensionCheck={setConnectExtensionCheck}
+				setIsExistingUser={setIsExistingUser}
 			/>
 		</div>
 	);

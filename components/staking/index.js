@@ -14,6 +14,8 @@ import {
 	useIsNewSetup,
 	useStakingPath,
 	useSourcePage,
+	useHasSubscription,
+	useIsExistingUser,
 } from "@lib/store";
 import { useRouter } from "next/router";
 import { getNetworkInfo } from "yieldscan.config";
@@ -60,6 +62,8 @@ const Staking = () => {
 		toggleIsStepperSigningPopoverOpen,
 		closeStepperSignerPopover,
 	} = useStepperSigningPopover();
+	const { isExistingUser, setIsExistingUser } = useIsExistingUser();
+	const { hasSubscription, setHasSubscription } = useHasSubscription();
 
 	const [initialStakingPath, setInitialStakingPath] = useState(stakingPath);
 	const [transactions, setTransactions] = useState(null);
@@ -83,6 +87,8 @@ const Staking = () => {
 	);
 
 	const [ysFees, setYsFees] = useState(0);
+	const [stepperTransactNominateHash, setStepperTransactNominateHash] =
+		useState(null);
 
 	const [controllerAccount, setControllerAccount] = useState(() =>
 		isNil(stakingInfo?.controllerId)
@@ -104,10 +110,11 @@ const Staking = () => {
 
 	const [confirmedControllerAccount, setConfirmedControllerAccount] =
 		useState(null);
-
 	const [controllerTransferAmount, setControllerTransferAmount] = useState(0);
-
 	const [transferFundsAmount, setTransferFundsAmount] = useState(0);
+
+	const [currentDate, setCurrentDate] = useState(null);
+	const [lastDiscountDate, setLastDiscountDate] = useState(null);
 
 	const updateTransactionData = (
 		stashId,
@@ -458,6 +465,23 @@ const Staking = () => {
 						tranHash,
 						true
 					);
+					if (
+						stepTransactions[stepperIndex - 1]["transactionType"] == "nominate"
+					) {
+						setStepperTransactNominateHash(tranHash);
+					}
+					if (
+						stepTransactions[stepperIndex - 1]["transactionType"] ==
+						"yieldscanFees"
+					) {
+						axios.put(
+							`${networkInfo.network}/user/transaction/update-fees-status`,
+							{
+								transactionHash: tranHash,
+								ysFeesPaid: true,
+							}
+						);
+					}
 				} else if (status !== 0 && message !== "Cancelled") {
 					updateTransactionData(
 						selectedAccount?.address,
@@ -573,18 +597,35 @@ const Staking = () => {
 			}
 		);
 	};
-
 	useEffect(() => {
-		if (networkInfo?.feesEnabled) {
-			setYsFees(() =>
-				Math.trunc(
-					stakingAmount *
-						networkInfo.feesRatio *
-						Math.pow(10, networkInfo.decimalPlaces)
-				)
-			);
+		if (
+			networkInfo?.feesEnabled &&
+			hasSubscription === false &&
+			isExistingUser !== null
+		) {
+			setLastDiscountDate(() => new Date("31 Dec 2021 23:59:59 UTC"));
+			setCurrentDate(() => new Date().getTime());
+
+			if (isExistingUser && currentDate <= lastDiscountDate) {
+				setYsFees(() =>
+					Math.trunc(
+						stakingAmount *
+							networkInfo.feesRatio *
+							Math.pow(10, networkInfo.decimalPlaces) *
+							0.5
+					)
+				);
+			} else {
+				setYsFees(() =>
+					Math.trunc(
+						stakingAmount *
+							networkInfo.feesRatio *
+							Math.pow(10, networkInfo.decimalPlaces)
+					)
+				);
+			}
 		} else setYsFees(0);
-	}, [networkInfo, stakingAmount]);
+	}, [networkInfo, stakingAmount, hasSubscription, isExistingUser]);
 
 	useEffect(async () => {
 		if (apiInstance) {
@@ -692,6 +733,16 @@ const Staking = () => {
 			return () => clearTimeout(confettiClear);
 		}
 	}, [transactionHash, isSuccessful]);
+
+	useEffect(() => {
+		axios
+			.get(
+				`/${networkInfo.network}/user/fees-sub-status/${selectedAccount.address}`
+			)
+			.then(({ data }) => {
+				setHasSubscription(!data.isFirstTime);
+			});
+	}, [selectedAccount, networkInfo]);
 
 	return isNil(transactionState) || isNil(selectedAccount) ? (
 		<div className="w-full h-full flex justify-center items-center max-h-full">
@@ -838,6 +889,10 @@ const Staking = () => {
 					setUnadjustedStakingAmount={setUnadjustedStakingAmount}
 					currentStep={currentStep}
 					setCurrentStep={setCurrentStep}
+					isExistingUser={isExistingUser}
+					hasSubscription={hasSubscription}
+					currentDate={currentDate}
+					lastDiscountDate={lastDiscountDate}
 				/>
 			) : stakingPath === "express" ? (
 				<Confirmation
@@ -856,6 +911,10 @@ const Staking = () => {
 					stakingAmount={stakingAmount}
 					selectedValidators={selectedValidators}
 					setStepperTransactions={setStepperTransactions}
+					isExistingUser={isExistingUser}
+					hasSubscription={hasSubscription}
+					currentDate={currentDate}
+					lastDiscountDate={lastDiscountDate}
 				/>
 			) : stakingPath === "distinct" ? (
 				<StakeToEarn
@@ -876,6 +935,10 @@ const Staking = () => {
 					stakingAmount={stakingAmount}
 					selectedValidators={selectedValidators}
 					setStepperTransactions={setStepperTransactions}
+					isExistingUser={isExistingUser}
+					hasSubscription={hasSubscription}
+					currentDate={currentDate}
+					lastDiscountDate={lastDiscountDate}
 				/>
 			) : (
 				<></>

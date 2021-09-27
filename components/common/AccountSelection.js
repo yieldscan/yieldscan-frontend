@@ -5,6 +5,7 @@ import PopoverAccountSelection from "./PopoverAccountSelection";
 import { useRouter } from "next/router";
 import { Circle } from "react-feather";
 import { track, goalCodes } from "@lib/analytics";
+import axios from "@lib/axios";
 
 const AccountSelection = ({
 	accounts,
@@ -18,6 +19,7 @@ const AccountSelection = ({
 	isSetUp,
 	setIsStashPopoverOpen,
 	setSelectedAccount,
+	setIsExistingUser,
 }) => {
 	const router = useRouter();
 	const handleOnClick = (account) => {
@@ -26,6 +28,12 @@ const AccountSelection = ({
 		addToLocalStorage(networkInfo.network, "selectedAccount", account.address);
 		track(goalCodes.GLOBAL.ACCOUNT_SELECTED);
 		setIsStashPopoverOpen(false);
+
+		axios
+			.get(`/${networkInfo.network}/user/existing-user/${account.address}`)
+			.then(({ data }) => {
+				setIsExistingUser(data.isExistingUser);
+			});
 	};
 	const handleOnClickSetUp = () => {
 		router.push("/setup-wallet");

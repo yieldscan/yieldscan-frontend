@@ -27,6 +27,7 @@ import {
 	usePolkadotApi,
 	useSelectedAccount,
 	useWalletConnectState,
+	useIsExistingUser,
 } from "@lib/store";
 import getFromLocalStorage from "@lib/getFromLocalStorage";
 import addToLocalStorage from "@lib/addToLocalStorage";
@@ -39,6 +40,7 @@ import {
 } from "@lib/analytics";
 import { setCookie } from "nookies";
 import { useRouter } from "next/router";
+import axios from "@lib/axios";
 
 const useWalletConnect = create((set) => ({
 	isOpen: false,
@@ -68,6 +70,7 @@ const WalletConnectPopover = ({ styles, networkInfo, isSetUp }) => {
 	const { walletConnectState, setWalletConnectState } = useWalletConnectState();
 	const { accounts, setAccounts } = useAccounts();
 	const { selectedAccount, setSelectedAccount } = useSelectedAccount();
+	const { setIsExistingUser } = useIsExistingUser();
 	const { accountsBalances } = useAccountsBalances();
 	const { apiInstance } = usePolkadotApi();
 	const { accountsControllerStashInfo } = useAccountsControllerStashInfo();
@@ -189,6 +192,7 @@ const WalletConnectPopover = ({ styles, networkInfo, isSetUp }) => {
 				});
 				setSelectedAccount(null);
 				addToLocalStorage(networkInfo.network, "selectedAccount", null);
+				setIsExistingUser(null);
 			} else {
 				accounts
 					.filter(
@@ -206,6 +210,14 @@ const WalletConnectPopover = ({ styles, networkInfo, isSetUp }) => {
 							"selectedAccount",
 							account.address
 						);
+						axios
+							.get(
+								`/${networkInfo.network}/user/existing-user/${account.address}`
+							)
+							.then(({ data }) => {
+								setIsExistingUser(data.isExistingUser);
+							});
+
 						if (typeof window !== undefined) {
 							trackEvent(Events.ACCOUNT_SELECTED, {
 								path: window.location.pathname,
@@ -255,6 +267,12 @@ const WalletConnectPopover = ({ styles, networkInfo, isSetUp }) => {
 		});
 		setSelectedAccount(account);
 		addToLocalStorage(networkInfo.network, "selectedAccount", account.address);
+
+		axios
+			.get(`/${networkInfo.network}/user/existing-user/${account.address}`)
+			.then(({ data }) => {
+				setIsExistingUser(data.isExistingUser);
+			});
 	};
 
 	return (

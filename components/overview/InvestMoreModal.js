@@ -218,22 +218,43 @@ const BondExtra = ({
 	);
 };
 
-const YieldScanFees = ({ networkInfo, transactionFee, ysFees }) => (
+const YieldScanFees = ({
+	networkInfo,
+	transactionFee,
+	ysFees,
+	currentDate,
+	lastDiscountDate,
+	isExistingUser,
+}) => (
 	<div className="w-full flex flex-col space-x-2">
 		<div className="flex justify-between p-2">
 			<div className="text-xs text-gray-700 flex items-center">
-				<p>Yieldscan .125% Fee</p>
-				<HelpPopover
-					content={
-						<p className="text-xs text-white">
-							This fee is used to pay for the costs of building and running
-							Yieldscan. Its charged on the staking amount.
+				{ysFees !== 0 && (
+					<div className="text-xs text-gray-700 flex items-center">
+						<p>
+							Yieldscan Fee{" "}
+							{isExistingUser && currentDate <= lastDiscountDate && "(50% off)"}
 						</p>
-					}
-				/>
+						<HelpPopover
+							content={
+								<p className="text-xs text-white">
+									This fee is used to pay for the costs of building and running
+									Yieldscan. Its charged on the amount by which your stake is
+									being increased.{" "}
+									{isExistingUser && currentDate <= lastDiscountDate && (
+										<span className="font-semibold">
+											You have been given a 50% discount because you staked with
+											Yieldscan on or before 15th September 2021.{" "}
+										</span>
+									)}
+								</p>
+							}
+						/>
+					</div>
+				)}
 			</div>
 			<div className="flex flex-col">
-				{ysFees !== 0 ? (
+				{ysFees !== 0 && (
 					<div>
 						<p className="text-gray-700 text-sm font-semibold text-right">
 							{formatCurrency.methods.formatAmount(
@@ -242,8 +263,6 @@ const YieldScanFees = ({ networkInfo, transactionFee, ysFees }) => (
 							)}
 						</p>
 					</div>
-				) : (
-					<Spinner />
 				)}
 			</div>
 		</div>
@@ -309,6 +328,9 @@ const StepperSigning = ({
 	networkInfo,
 	api,
 	ysFees,
+	currentDate,
+	lastDiscountDate,
+	isExistingUser,
 }) => {
 	return (
 		<div className="w-full flex flex-col justify-center items-center space-y-4 p-4">
@@ -383,6 +405,9 @@ const StepperSigning = ({
 					networkInfo={networkInfo}
 					transactionFee={transactionFee}
 					ysFees={ysFees}
+					currentDate={currentDate}
+					lastDiscountDate={lastDiscountDate}
+					isExistingUser={isExistingUser}
 				/>
 			)}
 			<div className="mt-4 w-full text-center">
@@ -485,6 +510,7 @@ const InvestMoreModal = withSlideIn(
 		ysFees,
 		setYsFees,
 		controllerAccount,
+		isExistingUser,
 	}) => {
 		const toast = useToast();
 		const { coinGeckoPriceUSD } = useCoinGeckoPriceUSD();
@@ -517,6 +543,8 @@ const InvestMoreModal = withSlideIn(
 		const [totalStakingAmountFiat, setTotalStakingAmountFiat] = useState(0);
 		const [validatorsLoading, setValidatorsLoading] = useState(true);
 		const [errMessage, setErrMessage] = useState();
+		const [currentDate, setCurrentDate] = useState(null);
+		const [lastDiscountDate, setLastDiscountDate] = useState(null);
 
 		const updateTransactionData = (
 			stashId,
@@ -607,16 +635,30 @@ const InvestMoreModal = withSlideIn(
 		}, [amount]);
 
 		useEffect(() => {
-			if (networkInfo?.feesEnabled) {
-				setYsFees(() =>
-					Math.trunc(
-						amount *
-							networkInfo.feesRatio *
-							Math.pow(10, networkInfo.decimalPlaces)
-					)
-				);
+			if (networkInfo?.feesEnabled && isExistingUser !== null) {
+				setLastDiscountDate(() => new Date("31 Dec 2021 23:59:59 UTC"));
+				setCurrentDate(() => new Date().getTime());
+
+				if (isExistingUser && currentDate <= lastDiscountDate) {
+					setYsFees(() =>
+						Math.trunc(
+							amount *
+								networkInfo.feesRatio *
+								Math.pow(10, networkInfo.decimalPlaces) *
+								0.5
+						)
+					);
+				} else {
+					setYsFees(() =>
+						Math.trunc(
+							amount *
+								networkInfo.feesRatio *
+								Math.pow(10, networkInfo.decimalPlaces)
+						)
+					);
+				}
 			} else setYsFees(0);
-		}, [networkInfo, amount]);
+		}, [networkInfo, amount, isExistingUser]);
 
 		const onConfirm = () => {
 			setUpdatingFunds(true);
@@ -1081,6 +1123,9 @@ const InvestMoreModal = withSlideIn(
 									onConfirm={onConfirm}
 									transactionFee={transactionFee}
 									ysFees={ysFees}
+									currentDate={currentDate}
+									lastDiscountDate={lastDiscountDate}
+									isExistingUser={isExistingUser}
 								/>
 							) : (
 								currentStep === 2 &&
@@ -1096,6 +1141,10 @@ const InvestMoreModal = withSlideIn(
 										api={apiInstance}
 										onConfirm={onConfirm}
 										transactionFee={transactionFee}
+										ysFees={ysFees}
+										isExistingUser={isExistingUser}
+										currentDate={currentDate}
+										lastDiscountDate={lastDiscountDate}
 									/>
 								)
 							)}

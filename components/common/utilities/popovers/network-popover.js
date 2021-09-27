@@ -23,6 +23,7 @@ import {
 	useAccountsControllerStashInfo,
 	useSelectedAccountInfo,
 	useNetworkElection,
+	useIsExistingUser,
 } from "@lib/store";
 import { setCookie } from "nookies";
 import { useState } from "react";
@@ -38,6 +39,7 @@ const NetworkPopover = ({ isExpanded, hasBorder }) => {
 	const { setTransactionHash } = useTransactionHash();
 	const { setNominatorsData, setNomLoading } = useNominatorsData();
 	const { setCouncilMembers, setCouncilLoading } = useCouncil();
+	const { setIsExistingUser } = useIsExistingUser();
 	const { setAccounts } = useAccounts();
 	const { setAccountsBalances } = useAccountsBalances();
 	const { apiInstance } = usePolkadotApi();
@@ -85,6 +87,7 @@ const NetworkPopover = ({ isExpanded, hasBorder }) => {
 			setCoinGeckoPriceUSD(null);
 			setNomMinStake(null);
 			setSelectedNetwork(to);
+			setIsExistingUser(null);
 		}
 		setIsNetworkOpen(!isNetworkOpen);
 	};
