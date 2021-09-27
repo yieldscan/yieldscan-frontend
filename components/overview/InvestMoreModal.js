@@ -703,7 +703,7 @@ const InvestMoreModal = withSlideIn(
 							selectedAccount?.address,
 							isLedger
 								? stepperTransactions[stepperIndex]["transactionType"]
-								: stepperTransactions.length === 0
+								: stepperTransactions.length === 1
 								? stepperTransactions[0]["transactionType"]
 								: "batchAll-" +
 								  stepperTransactions
@@ -762,6 +762,7 @@ const InvestMoreModal = withSlideIn(
 								.put(
 									`${networkInfo.network}/user/transaction/update-fees-status`,
 									{
+										network: networkInfo.network,
 										transactionHash: stepperTransactBondExtraHash,
 										ysFees: ysFees / Math.pow(10, networkInfo.decimalPlaces),
 										ysFeesAddress: networkInfo?.feesAddress,
@@ -806,7 +807,7 @@ const InvestMoreModal = withSlideIn(
 								selectedAccount?.address,
 								isLedger
 									? stepperTransactions[stepperIndex]["transactionType"]
-									: stepperTransactions.length === 0
+									: stepperTransactions.length === 1
 									? stepperTransactions[0]["transactionType"]
 									: "batchAll-" +
 									  stepperTransactions

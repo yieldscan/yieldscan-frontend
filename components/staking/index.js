@@ -237,7 +237,7 @@ const Staking = () => {
 							selectedAccount?.address,
 							controllerAccount?.address,
 							injectorAccount,
-							!isLedger && stepperTransactions.length > 0
+							!isLedger && stepperTransactions.length > 1
 								? "batchAll-" +
 										stepperTransactions
 											.map((transaction) => transaction.transactionType)
@@ -299,7 +299,7 @@ const Staking = () => {
 							selectedAccount?.address,
 							controllerAccount?.address,
 							injectorAccount,
-							!isLedger && stepperTransactions.length > 0
+							!isLedger && stepperTransactions.length > 1
 								? "batchAll-" +
 										stepperTransactions
 											.map((transaction) => transaction.transactionType)
@@ -478,6 +478,7 @@ const Staking = () => {
 							.put(
 								`${networkInfo.network}/user/transaction/update-fees-status`,
 								{
+									network: networkInfo.network,
 									transactionHash: stepperTransactNominateHash,
 									ysFees: ysFees / Math.pow(10, networkInfo.decimalPlaces),
 									ysFeesAddress: networkInfo?.feesAddress,

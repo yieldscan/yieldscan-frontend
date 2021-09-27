@@ -653,7 +653,7 @@ const WithdrawModal = withSlideIn(
 							injectorAccount,
 							isLedger
 								? stepperTransactions[stepperIndex]["transactionType"]
-								: stepperTransactions.length === 0
+								: stepperTransactions.length === 1
 								? stepperTransactions[0]["transactionType"]
 								: "batchAll-" +
 								  stepperTransactions
@@ -706,7 +706,7 @@ const WithdrawModal = withSlideIn(
 								injectorAccount,
 								isLedger
 									? stepperTransactions[stepperIndex]["transactionType"]
-									: stepperTransactions.length === 0
+									: stepperTransactions.length === 1
 									? stepperTransactions[0]["transactionType"]
 									: "batchAll-" +
 									  stepperTransactions
