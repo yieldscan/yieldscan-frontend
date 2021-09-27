@@ -474,16 +474,22 @@ const Staking = () => {
 						stepTransactions[stepperIndex - 1]["transactionType"] ==
 						"yieldscanFees"
 					) {
-						axios.put(
-							`${networkInfo.network}/user/transaction/update-fees-status`,
-							{
-								transactionHash: stepperTransactNominateHash,
-								ysFees: ysFees / Math.pow(10, networkInfo.decimalPlaces),
-								ysFeesAddress: networkInfo?.feesAddress,
-								ysFeesRatio: networkInfo?.feesRatio,
-								ysFeesPaid: true,
-							}
-						);
+						axios
+							.put(
+								`${networkInfo.network}/user/transaction/update-fees-status`,
+								{
+									transactionHash: stepperTransactNominateHash,
+									ysFees: ysFees / Math.pow(10, networkInfo.decimalPlaces),
+									ysFeesAddress: networkInfo?.feesAddress,
+									ysFeesRatio: networkInfo?.feesRatio,
+									ysFeesPaid: true,
+								}
+							)
+							.then(() => {
+								console.info(
+									"successfully updated the nominate transaction with yieldscan fees info"
+								);
+							});
 					}
 				} else if (status !== 0 && message !== "Cancelled") {
 					updateTransactionData(

@@ -545,6 +545,8 @@ const InvestMoreModal = withSlideIn(
 		const [errMessage, setErrMessage] = useState();
 		const [currentDate, setCurrentDate] = useState(null);
 		const [lastDiscountDate, setLastDiscountDate] = useState(null);
+		const [stepperTransactBondExtraHash, setStepperTransactBondExtraHash] =
+			useState(null);
 
 		const updateTransactionData = (
 			stashId,
@@ -746,6 +748,33 @@ const InvestMoreModal = withSlideIn(
 							tranHash,
 							true
 						);
+						if (
+							stepperTransactions[stepperIndex]["transactionType"] ==
+							"bondExtra"
+						) {
+							setStepperTransactBondExtraHash(tranHash);
+						}
+						if (
+							stepperTransactions[stepperIndex]["transactionType"] ==
+							"yieldscanFees"
+						) {
+							axios
+								.put(
+									`${networkInfo.network}/user/transaction/update-fees-status`,
+									{
+										transactionHash: stepperTransactBondExtraHash,
+										ysFees: ysFees / Math.pow(10, networkInfo.decimalPlaces),
+										ysFeesAddress: networkInfo?.feesAddress,
+										ysFeesRatio: networkInfo?.feesRatio,
+										ysFeesPaid: true,
+									}
+								)
+								.then(() => {
+									console.info(
+										"successfully updated the bondExtra transaction with yieldscan fees info"
+									);
+								});
+						}
 						setIsSuccessful(true);
 						setStakingEvent(
 							isLast
