@@ -477,7 +477,10 @@ const Staking = () => {
 						axios.put(
 							`${networkInfo.network}/user/transaction/update-fees-status`,
 							{
-								transactionHash: tranHash,
+								transactionHash: stepperTransactNominateHash,
+								ysFees: ysFees / Math.pow(10, networkInfo.decimalPlaces),
+								ysFeesAddress: networkInfo?.feesAddress,
+								ysFeesRatio: networkInfo?.feesRatio,
 								ysFeesPaid: true,
 							}
 						);
@@ -740,7 +743,7 @@ const Staking = () => {
 				`/${networkInfo.network}/user/fees-sub-status/${selectedAccount.address}`
 			)
 			.then(({ data }) => {
-				setHasSubscription(!data.isFirstTime);
+				setHasSubscription(data.subscriptionActive);
 			});
 	}, [selectedAccount, networkInfo]);
 
