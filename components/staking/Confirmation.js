@@ -377,12 +377,7 @@ const Confirmation = ({
 						<div className="mt-4 w-full text-center">
 							<NextButton
 								onClick={toggleIsAuthPopoverOpen}
-								disabled={
-									transactionFee === 0 ||
-									(ysFees === 0 &&
-										networkInfo?.feesEnabled &&
-										networkInfo?.feesAddress)
-								}
+								disabled={transactionFee === 0}
 							>
 								Stake Now
 							</NextButton>
