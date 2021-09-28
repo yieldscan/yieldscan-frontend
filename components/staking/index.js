@@ -490,6 +490,11 @@ const Staking = () => {
 								console.info(
 									"successfully updated the nominate transaction with yieldscan fees info"
 								);
+							}).catch((err) => {
+								console.error(err);
+								console.error(
+									"unable to update the nominate transaction with yieldscan fees info"
+								);
 							});
 					}
 				} else if (status !== 0 && message !== "Cancelled") {

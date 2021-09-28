@@ -376,7 +376,7 @@ const RewardCalculatorPage = () => {
 				Math.trunc(
 					amount *
 						Math.pow(10, networkInfo.decimalPlaces) *
-						Number(networkInfo.feesRatio)
+						networkInfo.feesRatio
 				)
 			);
 		} else setYsFees(0);
