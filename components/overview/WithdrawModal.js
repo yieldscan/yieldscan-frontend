@@ -402,7 +402,7 @@ const IdentifyWallet = ({ setIsLedger, setCurrentStep }) => {
 				</p>
 				<a
 					className="w-full text-sm text-center text-gray-700 font-semibold underline cursor-pointer px-2"
-					href="https://intercom.help/yieldscan/en/articles/5353515-how-to-check-which-accounts-on-polkadot-js-wallet-are-imported-through-a-hardware-wallet"
+					href="https://help.yieldscan.app/en/articles/5353515-how-to-check-which-accounts-on-polkadot-js-wallet-are-imported-through-a-hardware-wallet"
 					target="_blank"
 					rel="noreferrer"
 				>

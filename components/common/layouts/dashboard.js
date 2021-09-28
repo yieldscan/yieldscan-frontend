@@ -31,7 +31,7 @@ const links = [
 		title: "Help center",
 		description: "Find answers, tips, and other important info",
 		icon: BookOpen,
-		url: "https://intercom.help/yieldscan/",
+		url: "https://help.yieldscan.app/",
 	},
 	{
 		title: "Contact us",
