@@ -280,6 +280,13 @@ const Staking = () => {
 							tranHash,
 							true
 						);
+					if (
+						stepperTransactions.some(
+							(a) => a.transactionType === "yieldscanFees"
+						)
+					) {
+						setHasSubscription(true);
+					}
 				} else {
 					if (message !== "Cancelled" && initialStakingPath === "transfer") {
 						track(goalCodes.STAKING.TRANSFER.UNSUCCESSFUL);
@@ -434,6 +441,8 @@ const Staking = () => {
 							networkInfo?.feesAddress &&
 							(stepTransactions[stepperIndex - 1]["transactionType"] ==
 								"yieldscanFees" ||
+								stepTransactions[stepperIndex - 1]["transactionType"] ==
+									"nominate" ||
 								!isLedger)
 							? ysFees / Math.pow(10, networkInfo.decimalPlaces)
 							: 0,
@@ -441,6 +450,8 @@ const Staking = () => {
 							networkInfo?.feesAddress &&
 							(stepTransactions[stepperIndex - 1]["transactionType"] ==
 								"yieldscanFees" ||
+								stepTransactions[stepperIndex - 1]["transactionType"] ==
+									"nominate" ||
 								!isLedger)
 							? networkInfo?.feesAddress
 							: "null",
@@ -448,6 +459,8 @@ const Staking = () => {
 							networkInfo?.feesAddress &&
 							(stepTransactions[stepperIndex - 1]["transactionType"] ==
 								"yieldscanFees" ||
+								stepTransactions[stepperIndex - 1]["transactionType"] ==
+									"nominate" ||
 								!isLedger)
 							? networkInfo?.feesRatio
 							: 0,
@@ -490,13 +503,16 @@ const Staking = () => {
 								console.info(
 									"successfully updated the nominate transaction with yieldscan fees info"
 								);
-							}).catch((err) => {
+							})
+							.catch((err) => {
 								console.error(err);
 								console.error(
 									"unable to update the nominate transaction with yieldscan fees info"
 								);
 							});
+						setHasSubscription(true);
 					}
+					setStepperIndex(stepperIndex + 1);
 				} else if (status !== 0 && message !== "Cancelled") {
 					updateTransactionData(
 						selectedAccount?.address,
@@ -509,6 +525,8 @@ const Staking = () => {
 							networkInfo?.feesAddress &&
 							(stepTransactions[stepperIndex - 1]["transactionType"] ==
 								"yieldscanFees" ||
+								stepTransactions[stepperIndex - 1]["transactionType"] ==
+									"nominate" ||
 								!isLedger)
 							? ysFees / Math.pow(10, networkInfo.decimalPlaces)
 							: 0,
@@ -516,6 +534,8 @@ const Staking = () => {
 							networkInfo?.feesAddress &&
 							(stepTransactions[stepperIndex - 1]["transactionType"] ==
 								"yieldscanFees" ||
+								stepTransactions[stepperIndex - 1]["transactionType"] ==
+									"nominate" ||
 								!isLedger)
 							? networkInfo?.feesAddress
 							: "null",
@@ -523,6 +543,8 @@ const Staking = () => {
 							networkInfo?.feesAddress &&
 							(stepTransactions[stepperIndex - 1]["transactionType"] ==
 								"yieldscanFees" ||
+								stepTransactions[stepperIndex - 1]["transactionType"] ==
+									"nominate" ||
 								!isLedger)
 							? networkInfo?.feesRatio
 							: 0,
@@ -535,7 +557,6 @@ const Staking = () => {
 						false
 					);
 				}
-				setStepperIndex(stepperIndex + 1);
 				if (isLast) {
 					if (status === 0) {
 						setSuccessHeading("Congratulations");
