@@ -25,6 +25,10 @@ const SelectStakingAccount = ({
 			.get(`/${networkInfo.network}/user/existing-user/${account.address}`)
 			.then(({ data }) => {
 				setIsExistingUser(data.isExistingUser);
+			})
+			.catch((e) => {
+				console.error(e);
+				console.error("unable to get existing user info");
 			});
 
 		router.back();

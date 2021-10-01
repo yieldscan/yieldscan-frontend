@@ -777,6 +777,10 @@ const Staking = () => {
 			)
 			.then(({ data }) => {
 				setHasSubscription(data.subscriptionActive);
+			})
+			.catch((err) => {
+				console.error(err);
+				console.error("unable to get fee subscription status");
 			});
 	}, [selectedAccount, networkInfo]);
 

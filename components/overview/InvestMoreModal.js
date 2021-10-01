@@ -774,6 +774,12 @@ const InvestMoreModal = withSlideIn(
 									console.info(
 										"successfully updated the bondExtra transaction with yieldscan fees info"
 									);
+								})
+								.catch((e) => {
+									console.error(e);
+									console.error(
+										"unable to update the ysFeesPaid status in bondExtra transaction"
+									);
 								});
 						}
 						setIsSuccessful(true);

@@ -216,6 +216,10 @@ const WalletConnectPopover = ({ styles, networkInfo, isSetUp }) => {
 							)
 							.then(({ data }) => {
 								setIsExistingUser(data.isExistingUser);
+							})
+							.catch((err) => {
+								console.error(err);
+								console.error("unable to get existing user status");
 							});
 
 						if (typeof window !== undefined) {
@@ -272,6 +276,10 @@ const WalletConnectPopover = ({ styles, networkInfo, isSetUp }) => {
 			.get(`/${networkInfo.network}/user/existing-user/${account.address}`)
 			.then(({ data }) => {
 				setIsExistingUser(data.isExistingUser);
+			})
+			.catch((err) => {
+				console.error(err);
+				console.error("unable to get existing user status");
 			});
 	};
 
