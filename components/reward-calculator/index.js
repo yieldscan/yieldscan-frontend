@@ -23,7 +23,6 @@ import {
 	useAccountsBalances,
 	useAccountsStakingInfo,
 	usePolkadotApi,
-	useIsNewSetup,
 	useSelectedAccountInfo,
 	useStakingPath,
 	useSourcePage,
@@ -34,8 +33,6 @@ import getTransactionFee from "@lib/getTransactionFee";
 import {
 	Alert,
 	AlertDescription,
-	AlertIcon,
-	AlertTitle,
 	Modal,
 	ModalBody,
 	ModalCloseButton,
@@ -50,12 +47,9 @@ import {
 	Spinner,
 	useDisclosure,
 } from "@chakra-ui/core";
-import Routes from "@lib/routes";
 import { trackEvent, Events, track, goalCodes } from "@lib/analytics";
 import { getNetworkInfo } from "yieldscan.config";
-import { HelpCircle, AlertCircle, AlertTriangle } from "react-feather";
-import MinStakeAlert from "./MinStakeAlert";
-import { BottomNextButton } from "@components/common/BottomButton";
+import { HelpCircle, AlertTriangle } from "react-feather";
 import {
 	LowBalancePopover,
 	useLowBalancePopover,
@@ -74,7 +68,7 @@ const RewardCalculatorPage = () => {
 	const router = useRouter();
 	const { selectedNetwork } = useSelectedNetwork();
 	const networkInfo = getNetworkInfo(selectedNetwork);
-	const { transactionHash, setTransactionHash } = useTransactionHash();
+	const { setTransactionHash } = useTransactionHash();
 	const { coinGeckoPriceUSD } = useCoinGeckoPriceUSD();
 	const { toggle } = useWalletConnect();
 	const {
@@ -96,8 +90,7 @@ const RewardCalculatorPage = () => {
 	const { apiInstance } = usePolkadotApi();
 	const { setHeaderLoading } = useHeaderLoading();
 	const { isInElection } = useNetworkElection();
-	const { setIsNewSetup } = useIsNewSetup();
-	const { sourcePage, setSourcePage } = useSourcePage();
+	const { setSourcePage } = useSourcePage();
 	const { accountsStakingInfo } = useAccountsStakingInfo();
 	const { accountsBalances } = useAccountsBalances();
 
@@ -146,11 +139,6 @@ const RewardCalculatorPage = () => {
 		() => accountsBalances[controllerAccount?.address]
 	);
 
-	const onAdvancedSelection = () => {
-		updateTransactionState(Events.INTENT_ADVANCED_SELECTION);
-		router.push(`${Routes.VALIDATORS}?advanced=true`);
-	};
-
 	const updateTransactionState = (eventType = "") => {
 		let _returns = get(result, "returns"),
 			_yieldPercentage = get(result, "yieldPercentage");
@@ -189,10 +177,6 @@ const RewardCalculatorPage = () => {
 		});
 	};
 
-	// const totalBondedAmount =
-	// 	parseInt(get(stakingInfo, "stakingLedger.total", 0)) /
-	// 	Math.pow(10, networkInfo.decimalPlaces);
-
 	const activeBondedAmount =
 		parseInt(get(stakingInfo, "stakingLedger.active", 0)) /
 		Math.pow(10, networkInfo.decimalPlaces);
@@ -224,7 +208,7 @@ const RewardCalculatorPage = () => {
 				: true
 			: false;
 
-	const toStaking = async () => {
+	const toStaking = () => {
 		updateTransactionState(Events.INTENT_STAKING);
 		setTransactionHash(null);
 		setStakingPath(null);
@@ -769,31 +753,6 @@ const HelpPopover = ({
 				<PopoverBody>{content}</PopoverBody>
 			</PopoverContent>
 		</Popover>
-	);
-};
-
-const SetupAccountsAlert = () => {
-	const router = useRouter();
-	const { setIsNewSetup } = useIsNewSetup();
-	return (
-		<div className="flex flex-row justify-between items-center bg-gray-200 text-xs text-gray-700 p-2 px-4 rounded-lg">
-			<div className="flex flex-row space-x-2">
-				<AlertCircle size={18} />
-				<p>
-					<span className="font-semibold">Setup required:</span> We found some
-					new accounts in your wallet. You need to setup your accounts before
-					you can use them to stake.
-				</p>
-			</div>
-			<BottomNextButton
-				onClick={() => {
-					setIsNewSetup(true);
-					router.push("/setup-accounts");
-				}}
-			>
-				Setup accounts
-			</BottomNextButton>
-		</div>
 	);
 };
 
