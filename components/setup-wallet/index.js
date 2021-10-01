@@ -28,7 +28,7 @@ const SetupWallet = () => {
 	const { accountsBalances } = useAccountsBalances();
 	const { accountsControllerStashInfo } = useAccountsControllerStashInfo();
 	const { walletConnectState } = useWalletConnectState();
-	const { isExistingUser, setIsExistingUser } = useIsExistingUser;
+	const { setIsExistingUser } = useIsExistingUser;
 	const networkInfo = getNetworkInfo(selectedNetwork);
 
 	const [connectExtensionCheck, setConnectExtensionCheck] = useState(false);
@@ -245,7 +245,6 @@ const SetupWallet = () => {
 				walletConnectState={walletConnectState}
 				setCurrentStep={setCurrentStep}
 				setConnectExtensionCheck={setConnectExtensionCheck}
-				setIsExistingUser={setIsExistingUser}
 			/>
 		</div>
 	);
