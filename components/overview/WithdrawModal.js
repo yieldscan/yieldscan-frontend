@@ -6,11 +6,8 @@ import {
 	ModalContent,
 	ModalBody,
 	ModalCloseButton,
-	ModalHeader,
 	Spinner,
 	useToast,
-	Input,
-	Button,
 	Popover,
 	PopoverTrigger,
 	PopoverContent,
@@ -20,22 +17,16 @@ import {
 } from "@chakra-ui/core";
 import withSlideIn from "@components/common/withSlideIn";
 import { decodeAddress, encodeAddress } from "@polkadot/util-crypto";
-import RiskTag from "@components/reward-calculator/RiskTag";
-import { random, get, noop, isNil } from "lodash";
-import calculateReward from "@lib/calculate-reward";
+import { isNil } from "lodash";
 import formatCurrency from "@lib/format-currency";
-import updateFunds from "@lib/polkadot/update-funds";
-import { usePolkadotApi, useAccounts, useCoinGeckoPriceUSD } from "@lib/store";
-import { ArrowRight, Check, ExternalLink } from "react-feather";
-import Routes from "@lib/routes";
-import Identicon from "@components/common/Identicon";
+import { useCoinGeckoPriceUSD } from "@lib/store";
+import { ArrowRight, Check } from "react-feather";
 import ChainErrorPage from "@components/overview/ChainErrorPage";
 import SuccessfullyBonded from "@components/overview/SuccessfullyBonded";
 import AmountInput from "./AmountInput";
 import axios from "@lib/axios";
 import AmountConfirmation from "./AmountConfirmation";
 import { track, goalCodes } from "@lib/analytics";
-import { network } from "yieldscan.config";
 import signAndSend from "@lib/signAndSend";
 import Image from "next/image";
 import { NextButton } from "@components/common/BottomButton";
@@ -45,36 +36,14 @@ const StepperAmountConfirmation = ({
 	amount,
 	subCurrency,
 	type,
-	api,
 	stakingInfo,
 	networkInfo,
-	onConfirm,
 	transactionFee,
 }) => {
 	const { coinGeckoPriceUSD } = useCoinGeckoPriceUSD();
 	const [subFeeCurrency, setSubFeeCurrency] = useState();
 	const [totalAmount, setTotalAmount] = useState(0);
 	const [totalAmountFiat, setTotalAmountFiat] = useState(0);
-
-	// useEffect(() => {
-	// 	if (!transactionFee) {
-	// 		getUpdateFundsTransactionFee(
-	// 			stashId,
-	// 			amount,
-	// 			type,
-	// 			stakingInfo.stakingLedger.active /
-	// 				Math.pow(10, networkInfo.decimalPlaces),
-	// 			api,
-	// 			networkInfo
-	// 		).then((data) => {
-	// 			if (type == "unbond") {
-	// 				data.partialFee !== undefined
-	// 					? setTransactionFee(data.partialFee.toNumber())
-	// 					: setTransactionFee(0);
-	// 			} else setTransactionFee(data);
-	// 		});
-	// 	}
-	// }, [amount, stashId, networkInfo, type]);
 
 	useEffect(() => {
 		if (transactionFee) {
@@ -151,12 +120,6 @@ const StepperAmountConfirmation = ({
 					</div>
 				</div>
 			</div>
-			{/* <button
-				className="mt-8 px-24 py-4 bg-teal-500 text-white rounded-lg"
-				onClick={handlePopoverClose}
-			>
-				Back to Dashboard
-			</button> */}
 			<div className="w-full mt-8">
 				<div className="flex justify-between">
 					<p className="text-gray-700 text-xs">Additional Investment Amount</p>
@@ -373,8 +336,6 @@ const StepperSigning = ({
 					stashId={stashId}
 					stakingInfo={stakingInfo}
 					networkInfo={networkInfo}
-					api={api}
-					onConfirm={onConfirm}
 					transactionFee={transactionFee}
 				/>
 			)}
@@ -558,23 +519,6 @@ const WithdrawModal = withSlideIn(
 		const handleOnClickProceed = () => {
 			setCurrentStep(1);
 		};
-		// useEffect(() => {
-		// 	const timePeriodValue = 12,
-		// 		timePeriodUnit = "months";
-
-		// 	calculateReward(
-		// 		coinGeckoPriceUSD,
-		// 		validators,
-		// 		totalStakingAmount,
-		// 		timePeriodValue,
-		// 		timePeriodUnit,
-		// 		compounding,
-		// 		networkInfo
-		// 	).then((result) => {
-		// 		// setTotalStakingAmount(totalStakingAmount);
-		// 		setEstimatedReturns(get(result, "returns", 0));
-		// 	});
-		// }, [amount, compounding]);
 
 		useEffect(() => {
 			if (amount) {
