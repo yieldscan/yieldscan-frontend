@@ -674,7 +674,9 @@ const InvestMoreModal = withSlideIn(
 								(stepperTransactions[stepperIndex]["transactionType"] ==
 									"yieldscanFees" ||
 									!isLedger)
-								? networkInfo?.feesRatio
+								? isExistingUser && currentDate <= lastDiscountDate
+									? networkInfo.feesRatio / 2
+									: networkInfo.feesRatio
 								: 0,
 							ysFees > 0 &&
 								networkInfo?.feesAddress &&
@@ -781,7 +783,9 @@ const InvestMoreModal = withSlideIn(
 									(stepperTransactions[stepperIndex]["transactionType"] ==
 										"yieldscanFees" ||
 										!isLedger)
-									? networkInfo?.feesRatio
+									? isExistingUser && currentDate <= lastDiscountDate
+										? networkInfo.feesRatio / 2
+										: networkInfo.feesRatio
 									: 0,
 								false,
 								networkInfo.network,

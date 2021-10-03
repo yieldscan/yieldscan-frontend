@@ -265,7 +265,9 @@ const Staking = () => {
 								stepperTransactions.some(
 									(a) => a.transactionType === "yieldscanFees"
 								)
-								? networkInfo?.feesRatio
+								? isExistingUser && currentDate <= lastDiscountDate
+									? networkInfo.feesRatio / 2
+									: networkInfo.feesRatio
 								: 0,
 							ysFees > 0 &&
 								networkInfo?.feesAddress &&
@@ -333,7 +335,9 @@ const Staking = () => {
 								stepperTransactions.some(
 									(a) => a.transactionType === "yieldscanFees"
 								)
-								? networkInfo?.feesRatio
+								? isExistingUser && currentDate <= lastDiscountDate
+									? networkInfo.feesRatio / 2
+									: networkInfo.feesRatio
 								: 0,
 							false,
 							networkInfo.network,
@@ -462,7 +466,9 @@ const Staking = () => {
 								stepTransactions[stepperIndex - 1]["transactionType"] ==
 									"nominate" ||
 								!isLedger)
-							? networkInfo?.feesRatio
+							? isExistingUser && currentDate <= lastDiscountDate
+								? networkInfo.feesRatio / 2
+								: networkInfo.feesRatio
 							: 0,
 						ysFees > 0 &&
 							networkInfo?.feesAddress &&
@@ -546,7 +552,9 @@ const Staking = () => {
 								stepTransactions[stepperIndex - 1]["transactionType"] ==
 									"nominate" ||
 								!isLedger)
-							? networkInfo?.feesRatio
+							? isExistingUser && currentDate <= lastDiscountDate
+								? networkInfo.feesRatio / 2
+								: networkInfo.feesRatio
 							: 0,
 						false,
 						networkInfo.network,
