@@ -62,7 +62,7 @@ const Staking = () => {
 		toggleIsStepperSigningPopoverOpen,
 		closeStepperSignerPopover,
 	} = useStepperSigningPopover();
-	const { isExistingUser, setIsExistingUser } = useIsExistingUser();
+	const { isExistingUser } = useIsExistingUser();
 	const { hasSubscription, setHasSubscription } = useHasSubscription();
 
 	const [initialStakingPath, setInitialStakingPath] = useState(stakingPath);
@@ -661,7 +661,13 @@ const Staking = () => {
 				);
 			}
 		} else setYsFees(0);
-	}, [networkInfo, stakingAmount, hasSubscription, isExistingUser]);
+	}, [
+		networkInfo,
+		stakingAmount,
+		hasSubscription,
+		isExistingUser,
+		selectedAccount,
+	]);
 
 	useEffect(async () => {
 		if (apiInstance) {
@@ -769,20 +775,6 @@ const Staking = () => {
 			return () => clearTimeout(confettiClear);
 		}
 	}, [transactionHash, isSuccessful]);
-
-	useEffect(() => {
-		axios
-			.get(
-				`/${networkInfo.network}/user/fees-sub-status/${selectedAccount.address}`
-			)
-			.then(({ data }) => {
-				setHasSubscription(data.subscriptionActive);
-			})
-			.catch((err) => {
-				console.error(err);
-				console.error("unable to get fee subscription status");
-			});
-	}, [selectedAccount, networkInfo]);
 
 	return isNil(transactionState) || isNil(selectedAccount) ? (
 		<div className="w-full h-full flex justify-center items-center max-h-full">

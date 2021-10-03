@@ -2,14 +2,19 @@ import { HelpCircle, ChevronDown, Minus } from "react-feather";
 import { Collapse, Skeleton } from "@chakra-ui/core";
 import { useCoinGeckoPriceUSD } from "@lib/store";
 import { useState } from "react";
-import { track, goalCodes} from "@lib/analytics";
+import { track, goalCodes } from "@lib/analytics";
 import formatCurrency from "@lib/format-currency";
+import { HelpPopover } from "@components/reward-calculator";
 
 const EstimatedFeesCard = ({
 	result,
 	networkInfo,
 	transactionFees,
 	ysFees,
+	hasSubscription,
+	isExistingUser,
+	currentDate,
+	lastDiscountDate,
 }) => {
 	// const { coinGeckoPriceUSD } = useCoinGeckoPriceUSD();
 	// const returns = {
@@ -23,7 +28,7 @@ const EstimatedFeesCard = ({
 	const [showFeesBreakUp, setShowFeesBreakUp] = useState(false);
 
 	const handleShowFeesToggle = () => {
-		if(!showFeesBreakUp)
+		if (!showFeesBreakUp)
 			track(goalCodes.REWARD_CALCULATOR.CHECKED_FEE_BREAKUP);
 		setShowFeesBreakUp((state) => !state);
 	};
@@ -44,7 +49,7 @@ const EstimatedFeesCard = ({
 							}`}
 						/>
 					</button>
-					{transactionFees > 0 && (ysFees > 0 || !networkInfo.feesEnabled) ? (
+					{transactionFees > 0 && (ysFees > 0 || hasSubscription) ? (
 						<p>
 							{formatCurrency.methods.formatAmount(
 								ysFees + transactionFees,
@@ -76,12 +81,31 @@ const EstimatedFeesCard = ({
 							</Skeleton>
 						)}
 					</div>
-					{networkInfo.feesEnabled && (
+					{networkInfo.feesEnabled && hasSubscription === false && (
 						<div className="flex flex-row text-gray-600 text-sm justify-between items-center">
-							<div className="flex flex-row items-center space-x-2">
-								<Minus size={18} className="mb-1" />
-								<p>YieldScan</p>
+							<div className="flex flex-row justify-between items-center">
+								<div className="flex flex-row items-center space-x-2">
+									<Minus size={18} className="mb-1" />
+									<p>
+										{" "}
+										Yieldscan Fee{" "}
+										{isExistingUser &&
+											currentDate <= lastDiscountDate &&
+											"(50% off)"}
+									</p>
+								</div>
+								{isExistingUser && currentDate <= lastDiscountDate && (
+									<HelpPopover
+										content={
+											<p className="text-xs text-white">
+												You have been given a 50% discount because you staked
+												with Yieldscan on or before 15th September 2021.{" "}
+											</p>
+										}
+									/>
+								)}
 							</div>
+
 							{ysFees > 0 ? (
 								<p>
 									{formatCurrency.methods.formatAmount(ysFees, networkInfo)}

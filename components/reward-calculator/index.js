@@ -26,6 +26,8 @@ import {
 	useSelectedAccountInfo,
 	useStakingPath,
 	useSourcePage,
+	useHasSubscription,
+	useIsExistingUser,
 } from "@lib/store";
 import { get, isNil, mapValues, keyBy, cloneDeep, debounce } from "lodash";
 import calculateReward from "@lib/calculate-reward";
@@ -71,6 +73,8 @@ const RewardCalculatorPage = () => {
 	const { setTransactionHash } = useTransactionHash();
 	const { coinGeckoPriceUSD } = useCoinGeckoPriceUSD();
 	const { toggle } = useWalletConnect();
+	const { hasSubscription, setHasSubscription } = useHasSubscription();
+	const { isExistingUser } = useIsExistingUser();
 	const {
 		isOpen: isRiskGlossaryOpen,
 		onClose: onRiskGlossaryClose,
@@ -139,6 +143,8 @@ const RewardCalculatorPage = () => {
 		() => accountsBalances[controllerAccount?.address]
 	);
 
+	const [currentDate, setCurrentDate] = useState(null);
+	const [lastDiscountDate, setLastDiscountDate] = useState(null);
 	const updateTransactionState = (eventType = "") => {
 		let _returns = get(result, "returns"),
 			_yieldPercentage = get(result, "yieldPercentage");
@@ -285,6 +291,22 @@ const RewardCalculatorPage = () => {
 	}, [selectedNetwork, apiInstance]);
 
 	useEffect(() => {
+		setHasSubscription(null);
+		axios
+			.get(
+				`/${networkInfo.network}/user/fees-sub-status/${selectedAccount?.address}`
+			)
+			.then(({ data }) => {
+				console.log(data);
+				setHasSubscription(data.subscriptionActive);
+			})
+			.catch((err) => {
+				console.error(err);
+				console.error("unable to get fee subscription status");
+			});
+	}, [selectedAccount?.address, networkInfo]);
+
+	useEffect(() => {
 		if (!validatorRiskSets) {
 			setLoading(true);
 			setHeaderLoading(true);
@@ -355,16 +377,34 @@ const RewardCalculatorPage = () => {
 	}, [selectedAccount?.address]);
 
 	useEffect(() => {
-		if (networkInfo.feesEnabled) {
-			setYsFees(() =>
-				Math.trunc(
-					amount *
-						Math.pow(10, networkInfo.decimalPlaces) *
-						networkInfo.feesRatio
-				)
-			);
+		if (
+			networkInfo?.feesEnabled &&
+			hasSubscription === false &&
+			isExistingUser !== null
+		) {
+			setLastDiscountDate(() => new Date("31 Dec 2021 23:59:59 UTC"));
+			setCurrentDate(() => new Date().getTime());
+
+			if (isExistingUser && currentDate <= lastDiscountDate) {
+				setYsFees(() =>
+					Math.trunc(
+						amount *
+							networkInfo.feesRatio *
+							Math.pow(10, networkInfo.decimalPlaces) *
+							0.5
+					)
+				);
+			} else {
+				setYsFees(() =>
+					Math.trunc(
+						amount *
+							networkInfo.feesRatio *
+							Math.pow(10, networkInfo.decimalPlaces)
+					)
+				);
+			}
 		} else setYsFees(0);
-	}, [amount, networkInfo]);
+	}, [networkInfo, amount, hasSubscription, isExistingUser, selectedAccount]);
 
 	useEffect(async () => {
 		setTransactionFees(0);
@@ -650,6 +690,10 @@ const RewardCalculatorPage = () => {
 								transactionFees={transactionFees}
 								ysFees={ysFees}
 								networkInfo={networkInfo}
+								hasSubscription={hasSubscription}
+								isExistingUser={isExistingUser}
+								currentDate={currentDate}
+								lastDiscountDate={lastDiscountDate}
 							/>
 						)}
 					</div>
