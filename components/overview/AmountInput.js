@@ -1,6 +1,5 @@
 import { InputGroup, Input, InputRightElement } from "@chakra-ui/core";
 import formatCurrency from "@lib/format-currency";
-import { useAccounts } from "@lib/store";
 import { isNil } from "lodash";
 import { useState, useEffect } from "react";
 
