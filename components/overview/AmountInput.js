@@ -15,9 +15,12 @@ const AmountInputDefault = ({
 }) => {
 	const maxAmount =
 		type === "bond"
-			? availableBalance - networkInfo.reserveAmount < 0
+			? availableBalance - networkInfo.reserveAmount / 2 < 0
 				? 0
-				: Math.trunc(availableBalance - networkInfo.reserveAmount)
+				: Math.trunc(
+						(availableBalance - networkInfo.reserveAmount / 2) *
+							Math.pow(10, networkInfo.decimalPlaces)
+				  ) / Math.pow(10, networkInfo.decimalPlaces)
 			: type === "unbond"
 			? bonded
 			: totalUnbonding;
