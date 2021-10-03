@@ -37,6 +37,7 @@ const StepperSigningPopover = ({
 	selectedValidators,
 	ysFees,
 	stepperTransact,
+	isLedger,
 	setIsLedger,
 }) => {
 	const [stepperIndex, setStepperIndex] = useState(0);
@@ -220,6 +221,7 @@ const StepperSigningPopover = ({
 							onConfirm={onConfirm}
 							closeStepperSignerPopover={closeStepperSignerPopover}
 							incrementStepperIndex={incrementStepperIndex}
+							isLedger={isLedger}
 							setIsLedger={setIsLedger}
 						/>
 					) : (

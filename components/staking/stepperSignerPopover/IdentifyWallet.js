@@ -4,6 +4,7 @@ const IdentifyWallet = ({
 	onConfirm,
 	closeStepperSignerPopover,
 	incrementStepperIndex,
+	isLedger,
 	setIsLedger,
 }) => {
 	return (
@@ -55,7 +56,7 @@ const IdentifyWallet = ({
 					className="w-full flex rounded-lg border items-center shadow-md hover:shadow-lg p-8 transform hover:scale-102"
 					onClick={() => {
 						setIsLedger(false);
-						onConfirm();
+						onConfirm(false);
 						closeStepperSignerPopover();
 					}}
 				>

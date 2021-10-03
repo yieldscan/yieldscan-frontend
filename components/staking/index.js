@@ -158,8 +158,7 @@ const Staking = () => {
 				console.info("unable to update transaction info");
 			});
 	};
-
-	const transact = () => {
+	const transact = (isLedger) => {
 		const from = senderAccount?.address;
 		const to = controllerAccount?.address;
 		setStakingPath("loading");
@@ -237,7 +236,7 @@ const Staking = () => {
 							selectedAccount?.address,
 							controllerAccount?.address,
 							injectorAccount,
-							!isLedger && stepperTransactions.length > 1
+							isLedger === false && stepperTransactions.length > 1
 								? "batchAll-" +
 										stepperTransactions
 											.map((transaction) => transaction.transactionType)
@@ -301,12 +300,11 @@ const Staking = () => {
 						} else if (initialStakingPath === "distinct") {
 							track(goalCodes.STAKING.DISTINCT.UNSUCCESSFUL);
 						}
-
 						updateTransactionData(
 							selectedAccount?.address,
 							controllerAccount?.address,
 							injectorAccount,
-							!isLedger && stepperTransactions.length > 1
+							isLedger === false && stepperTransactions.length > 1
 								? "batchAll-" +
 										stepperTransactions
 											.map((transaction) => transaction.transactionType)
@@ -607,7 +605,7 @@ const Staking = () => {
 						}, 5000);
 					} else {
 						if (message !== "Cancelled") {
-							setStakingPath = "loading";
+							setStakingPath("loading");
 							closeModal();
 							setStakingEvent("Transaction failed");
 							setLoaderError(true);
@@ -801,7 +799,7 @@ const Staking = () => {
 				<StepperSigningPopover
 					isStepperSigningPopoverOpen={isStepperSigningPopoverOpen}
 					networkInfo={networkInfo}
-					onConfirm={() => transact()}
+					onConfirm={(isLedger) => transact(isLedger)}
 					closeStepperSignerPopover={closeStepperSignerPopover}
 					transactions={transactions}
 					stakingPath={stakingPath}
@@ -810,6 +808,7 @@ const Staking = () => {
 					selectedValidators={selectedValidators}
 					ysFees={ysFees}
 					stepperTransact={stepperTransact}
+					isLedger={isLedger}
 					setIsLedger={setIsLedger}
 				/>
 			)}
