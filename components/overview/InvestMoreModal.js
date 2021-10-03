@@ -712,7 +712,12 @@ const InvestMoreModal = withSlideIn(
 										transactionHash: stepperTransactBondExtraHash,
 										ysFees: ysFees / Math.pow(10, networkInfo.decimalPlaces),
 										ysFeesAddress: networkInfo?.feesAddress,
-										ysFeesRatio: networkInfo?.feesRatio,
+										ysFeesRatio:
+											ysFees > 0
+												? isExistingUser && currentDate <= lastDiscountDate
+													? networkInfo.feesRatio / 2
+													: networkInfo.feesRatio
+												: 0,
 										ysFeesPaid: true,
 									}
 								)
