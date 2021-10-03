@@ -124,7 +124,7 @@ const SelectControllerAccount = ({
 						(controllerTransferAmount +
 							networkInfo.reserveAmount *
 								Math.pow(10, networkInfo.decimalPlaces)) >=
-						minPossibleStake &&
+						minPossibleStake * Math.pow(10, networkInfo.decimalPlaces) &&
 					balances?.freeBalance.toNumber() -
 						(controllerTransferAmount + transactionFee) >=
 						apiInstance?.consts.balances.existentialDeposit.toNumber()
@@ -142,6 +142,9 @@ const SelectControllerAccount = ({
 		selected?.address,
 		JSON.stringify(accountsBalances[selected?.address]),
 		controllerTransferAmount,
+		networkInfo,
+		minPossibleStake,
+		stakingAmount,
 	]);
 	return (
 		<div className="space-y-4">
