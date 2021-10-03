@@ -656,7 +656,7 @@ const WithdrawModal = withSlideIn(
 									  stepperTransactions
 											.map((transaction) => transaction.transactionType)
 											.join("-"),
-								"overview",
+								"/overview",
 								isLedger ? "ledger" : "polkadotjs",
 								0,
 								"null",
