@@ -115,8 +115,12 @@ const data = [
 	{
 		id: 5,
 		question: "What are your fees?",
-		answer:
-			"As of right now, YieldScan is 100% free to use. If this changes in the future, then the fees would be displayed on the confirmation page before sending your transaction.",
+		answer: "Details about our pricing can be found on our fees announcement",
+		link: {
+			url: "https://blog.yieldscan.app/were-adjusting-our-pricing-starting-october-5th-1f85c23e4ffc",
+			content: "article.",
+			isExternal: true,
+		},
 	},
 	{
 		id: 6,
