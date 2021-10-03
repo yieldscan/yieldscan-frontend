@@ -70,6 +70,9 @@ const Overview = () => {
 	const handleValToggle = () => setShowValidators(!showValidators);
 	const [selectedTab, setSelectedTab] = useState(Tabs.NOMINATIONS);
 	const [ysFees, setYsFees] = useState(0);
+	const [lastDiscountDate, setLastDiscountDate] = useState(
+		networkInfo?.lastDiscountDate
+	);
 	const [controllerAccount, setControllerAccount] = useState(() =>
 		accountsStakingInfo[selectedAccount?.address]?.controllerId
 			? accounts?.filter(
@@ -213,6 +216,10 @@ const Overview = () => {
 	]);
 
 	useEffect(() => {
+		setLastDiscountDate(networkInfo?.lastDiscountDate);
+	}, [networkInfo]);
+
+	useEffect(() => {
 		if (stakingInfo?.accountId.toString() !== selectedAccount?.address) {
 			setControllerBalances(null);
 		}
@@ -329,6 +336,7 @@ const Overview = () => {
 					setYsFees={setYsFees}
 					controllerAccount={controllerAccount}
 					isExistingUser={isExistingUser}
+					lastDiscountDate={lastDiscountDate}
 				/>
 			)}
 			{reBondModalOpen && (

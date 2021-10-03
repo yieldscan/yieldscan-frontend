@@ -153,7 +153,9 @@ const Validators = () => {
 	const [transactionFees, setTransactionFees] = useState();
 
 	const [currentDate, setCurrentDate] = useState(null);
-	const [lastDiscountDate, setLastDiscountDate] = useState(null);
+	const [lastDiscountDate, setLastDiscountDate] = useState(
+		networkInfo?.lastDiscountDate
+	);
 
 	const [controllerAccount, setControllerAccount] = useState(() =>
 		accountsStakingInfo[selectedAccount?.address]?.controllerId
@@ -242,7 +244,6 @@ const Validators = () => {
 			hasSubscription === false &&
 			isExistingUser !== null
 		) {
-			setLastDiscountDate(() => new Date("31 Dec 2021 23:59:59 UTC"));
 			setCurrentDate(() => new Date().getTime());
 
 			if (isExistingUser && currentDate <= lastDiscountDate) {
@@ -431,6 +432,10 @@ const Validators = () => {
 		selectedValidatorsMap,
 		compounding,
 	]);
+
+	useEffect(() => {
+		setLastDiscountDate(networkInfo?.lastDiscountDate);
+	}, [networkInfo]);
 
 	const updateTransactionState = (eventType = "") => {
 		let _returns = get(result, "returns"),

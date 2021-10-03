@@ -18,6 +18,9 @@ export const networks = [
 		feesRatio: isNil(process.env.NEXT_PUBLIC_POLKADOT_FEES_RATIO)
 			? 0
 			: JSON.parse(process.env.NEXT_PUBLIC_POLKADOT_FEES_RATIO),
+		lastDiscountDate: isNil(process?.env?.NEXT_PUBLIC_LAST_DISCOUNT_DATE)
+			? new Date("1 Jan 1990 00:00:00 UTC")
+			: new Date(process?.env?.NEXT_PUBLIC_LAST_DISCOUNT_DATE),
 		twitterUrl: "@Polkadot",
 		addressPrefix: 0,
 		nodeWs: process.env.NEXT_PUBLIC_POLKADOT,
@@ -42,6 +45,9 @@ export const networks = [
 		feesRatio: isNil(process?.env?.NEXT_PUBLIC_KUSAMA_FEES_RATIO)
 			? 0
 			: JSON.parse(process.env.NEXT_PUBLIC_KUSAMA_FEES_RATIO),
+		lastDiscountDate: isNil(process?.env?.NEXT_PUBLIC_LAST_DISCOUNT_DATE)
+			? new Date("1 Jan 1990 00:00:00 UTC")
+			: new Date(process?.env?.NEXT_PUBLIC_LAST_DISCOUNT_DATE),
 		twitterUrl: "@kusamanetwork",
 		coinGeckoDenom: "kusama",
 		decimalPlaces: 12,
@@ -68,6 +74,9 @@ export const networks = [
 		feesRatio: isNil(process?.env?.NEXT_PUBLIC_WESTEND_FEES_RATIO)
 			? 0
 			: JSON.parse(process.env.NEXT_PUBLIC_WESTEND_FEES_RATIO),
+		lastDiscountDate: isNil(process?.env?.NEXT_PUBLIC_LAST_DISCOUNT_DATE)
+			? new Date("1 Jan 1990 00:00:00 UTC")
+			: new Date(process?.env?.NEXT_PUBLIC_LAST_DISCOUNT_DATE),
 		twitterUrl: "@westend",
 		coinGeckoDenom: undefined,
 		decimalPlaces: 12,

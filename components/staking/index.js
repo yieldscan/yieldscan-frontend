@@ -114,7 +114,9 @@ const Staking = () => {
 	const [transferFundsAmount, setTransferFundsAmount] = useState(0);
 
 	const [currentDate, setCurrentDate] = useState(null);
-	const [lastDiscountDate, setLastDiscountDate] = useState(null);
+	const [lastDiscountDate, setLastDiscountDate] = useState(
+		networkInfo?.lastDiscountDate
+	);
 
 	const updateTransactionData = (
 		stashId,
@@ -637,7 +639,6 @@ const Staking = () => {
 			hasSubscription === false &&
 			isExistingUser !== null
 		) {
-			setLastDiscountDate(() => new Date("31 Dec 2021 23:59:59 UTC"));
 			setCurrentDate(() => new Date().getTime());
 
 			if (isExistingUser && currentDate <= lastDiscountDate) {
@@ -733,6 +734,10 @@ const Staking = () => {
 				: setControllerTransferAmount(0);
 		}
 	}, [selected?.address, JSON.stringify(accountsBalances[selected?.address])]);
+
+	useEffect(() => {
+		setLastDiscountDate(networkInfo?.lastDiscountDate);
+	}, [networkInfo]);
 
 	useEffect(() => {
 		if (stakingPath === "transfer" && controllerBalances) {

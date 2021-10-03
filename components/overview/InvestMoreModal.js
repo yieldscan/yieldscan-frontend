@@ -462,6 +462,7 @@ const InvestMoreModal = withSlideIn(
 		setYsFees,
 		controllerAccount,
 		isExistingUser,
+		lastDiscountDate,
 	}) => {
 		const toast = useToast();
 		const { coinGeckoPriceUSD } = useCoinGeckoPriceUSD();
@@ -493,7 +494,6 @@ const InvestMoreModal = withSlideIn(
 
 		const [errMessage, setErrMessage] = useState();
 		const [currentDate, setCurrentDate] = useState(null);
-		const [lastDiscountDate, setLastDiscountDate] = useState(null);
 		const [stepperTransactBondExtraHash, setStepperTransactBondExtraHash] =
 			useState(null);
 
@@ -586,7 +586,6 @@ const InvestMoreModal = withSlideIn(
 
 		useEffect(() => {
 			if (networkInfo?.feesEnabled && isExistingUser !== null) {
-				setLastDiscountDate(() => new Date("31 Dec 2021 23:59:59 UTC"));
 				setCurrentDate(() => new Date().getTime());
 
 				if (isExistingUser && currentDate <= lastDiscountDate) {
@@ -1045,6 +1044,9 @@ const InvestMoreModal = withSlideIn(
 														totalUnbondingFiat={totalUnbondingFiat}
 														type={type}
 														onChange={setAmount}
+														isExistingUser={isExistingUser}
+														currentDate={currentDate}
+														lastDiscountDate={lastDiscountDate}
 													/>
 												</div>
 											</div>
