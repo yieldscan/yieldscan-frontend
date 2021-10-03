@@ -1,4 +1,3 @@
-// TODO: Cleanup this: remove unused variables and effects
 import { useState, useEffect } from "react";
 import {
 	Modal,
@@ -6,11 +5,8 @@ import {
 	ModalContent,
 	ModalBody,
 	ModalCloseButton,
-	ModalHeader,
 	Spinner,
 	useToast,
-	Input,
-	Button,
 	Popover,
 	PopoverTrigger,
 	PopoverContent,
@@ -22,34 +18,24 @@ import { NextButton } from "@components/common/BottomButton";
 import { HelpPopover } from "@components/reward-calculator";
 import withSlideIn from "@components/common/withSlideIn";
 import { decodeAddress, encodeAddress } from "@polkadot/util-crypto";
-import RiskTag from "@components/reward-calculator/RiskTag";
-import { random, get, noop, isNil } from "lodash";
-import calculateReward from "@lib/calculate-reward";
+import { isNil } from "lodash";
 import formatCurrency from "@lib/format-currency";
-import updateFunds from "@lib/polkadot/update-funds";
-import { usePolkadotApi, useAccounts, useCoinGeckoPriceUSD } from "@lib/store";
-import { ArrowRight, Check, ExternalLink } from "react-feather";
-import Routes from "@lib/routes";
-import Identicon from "@components/common/Identicon";
+import { useCoinGeckoPriceUSD } from "@lib/store";
+import { ArrowRight, Check } from "react-feather";
 import ChainErrorPage from "@components/overview/ChainErrorPage";
 import SuccessfullyBonded from "@components/overview/SuccessfullyBonded";
 import AmountInput from "./AmountInput";
 import axios from "@lib/axios";
 import AmountConfirmation from "./AmountConfirmation";
 import { track, goalCodes } from "@lib/analytics";
-import { network } from "yieldscan.config";
 import signAndSend from "@lib/signAndSend";
-import YieldScanApp from "pages/_app";
 import Image from "next/image";
 
 const BondExtra = ({
 	amount,
 	subCurrency,
-	type,
-	api,
 	stakingInfo,
 	networkInfo,
-	onConfirm,
 	transactionFee,
 }) => {
 	const { coinGeckoPriceUSD } = useCoinGeckoPriceUSD();
@@ -74,17 +60,11 @@ const BondExtra = ({
 
 	useEffect(() => {
 		if (!totalAmount) {
-			type === "bond" || type == "rebond"
-				? setTotalAmount(
-						amount +
-							stakingInfo.stakingLedger.active /
-								Math.pow(10, networkInfo.decimalPlaces)
-				  )
-				: setTotalAmount(
-						stakingInfo.stakingLedger.active /
-							Math.pow(10, networkInfo.decimalPlaces) -
-							amount
-				  );
+			setTotalAmount(
+				amount +
+					stakingInfo.stakingLedger.active /
+						Math.pow(10, networkInfo.decimalPlaces)
+			);
 		}
 	}, [amount, stakingInfo]);
 
@@ -132,31 +112,18 @@ const BondExtra = ({
 					</div>
 				</div>
 			</div>
-			{/* <button
-				className="mt-8 px-24 py-4 bg-teal-500 text-white rounded-lg"
-				onClick={handlePopoverClose}
-			>
-				Back to Dashboard
-			</button> */}
 			<div className="w-full mt-8">
 				<div className="flex justify-between">
 					<p className="text-gray-700 text-xs">Additional Investment Amount</p>
 					<div className="flex flex-col">
 						<p className="text-sm text-right">
-							{type === "bond" || type == "rebond"
-								? formatCurrency.methods.formatAmount(
-										Math.trunc(amount * 10 ** networkInfo.decimalPlaces),
-										networkInfo
-								  )
-								: formatCurrency.methods.formatAmount(0, networkInfo)}
+							{formatCurrency.methods.formatAmount(
+								Math.trunc(amount * 10 ** networkInfo.decimalPlaces),
+								networkInfo
+							)}
 						</p>
 						<p className="text-xs text-right text-gray-600">
-							$
-							{Number(
-								type === "bond" || type == "rebond"
-									? amount * coinGeckoPriceUSD
-									: 0
-							).toFixed(2)}
+							${Number(amount * coinGeckoPriceUSD).toFixed(2)}
 						</p>
 					</div>
 				</div>
@@ -189,23 +156,15 @@ const BondExtra = ({
 					{transactionFee > 0 ? (
 						<div className="flex flex-col">
 							<p className="text-lg text-right font-bold">
-								{type === "bond" || type == "rebond"
-									? formatCurrency.methods.formatAmount(
-											Math.trunc(amount * 10 ** networkInfo.decimalPlaces) +
-												transactionFee,
-											networkInfo
-									  )
-									: formatCurrency.methods.formatAmount(
-											Math.trunc(transactionFee),
-											networkInfo
-									  )}
+								{formatCurrency.methods.formatAmount(
+									Math.trunc(amount * 10 ** networkInfo.decimalPlaces) +
+										transactionFee,
+									networkInfo
+								)}
 							</p>
 							{!isNil(subFeeCurrency) && (
 								<p className="text-sm text-right text-gray-600 font-medium">
-									$
-									{type === "bond" || type == "rebond"
-										? (subCurrency + subFeeCurrency).toFixed(2)
-										: subFeeCurrency.toFixed(2)}
+									${(subCurrency + subFeeCurrency).toFixed(2)}
 								</p>
 							)}
 						</div>
@@ -304,9 +263,6 @@ const YieldScanFees = ({
 							networkInfo
 						)}
 					</p>
-					{/* <p className="text-sm text-right text-gray-600 font-medium">
-	${(subCurrency + subFeeCurrency).toFixed(2)}
-</p> */}
 				</div>
 			) : (
 				<Spinner />
@@ -392,12 +348,9 @@ const StepperSigning = ({
 				<BondExtra
 					amount={amount}
 					subCurrency={subCurrency}
-					type={type}
 					stashId={stashId}
 					stakingInfo={stakingInfo}
 					networkInfo={networkInfo}
-					api={api}
-					onConfirm={onConfirm}
 					transactionFee={transactionFee}
 				/>
 			) : (
@@ -497,11 +450,9 @@ const IdentifyWallet = ({ setIsLedger, setCurrentStep }) => {
 
 const InvestMoreModal = withSlideIn(
 	({
-		styles,
 		type = "bond",
 		apiInstance,
 		close,
-		nominations,
 		selectedAccount,
 		balance,
 		stakingInfo,
@@ -527,8 +478,8 @@ const InvestMoreModal = withSlideIn(
 		const [transactions, setTransactions] = useState(null);
 		const [injectorAccount, setInjectorAccount] = useState(null);
 		const [transactionFee, setTransactionFee] = useState(0);
-		const [totalUnbonding, setTotalUnbonding] = useState();
-		const [totalUnbondingFiat, setTotalUnbondingFiat] = useState();
+		const [totalUnbonding] = useState();
+		const [totalUnbondingFiat] = useState();
 		const [transactionHash, setTransactionHash] = useState(null);
 		const [isSuccessful, setIsSuccessful] = useState(null);
 		const [closeOnOverlayClick, setCloseOnOverlayClick] = useState(true);
@@ -540,8 +491,6 @@ const InvestMoreModal = withSlideIn(
 				Math.pow(10, networkInfo.decimalPlaces)
 		);
 
-		const [totalStakingAmountFiat, setTotalStakingAmountFiat] = useState(0);
-		const [validatorsLoading, setValidatorsLoading] = useState(true);
 		const [errMessage, setErrMessage] = useState();
 		const [currentDate, setCurrentDate] = useState(null);
 		const [lastDiscountDate, setLastDiscountDate] = useState(null);
@@ -616,7 +565,6 @@ const InvestMoreModal = withSlideIn(
 
 		useEffect(() => {
 			setSubCurrency(amount * coinGeckoPriceUSD);
-			setTotalStakingAmountFiat(totalStakingAmount * coinGeckoPriceUSD);
 		}, [amount, totalStakingAmount]);
 
 		useEffect(() => {
@@ -679,9 +627,6 @@ const InvestMoreModal = withSlideIn(
 					});
 				},
 				onSuccessfullSigning: (hash) => {
-					// setProcessComplete(true);
-					// setStakingLoading(false);
-					// setCloseOnOverlayClick(true);
 					setTransactionHash(hash.message);
 				},
 				onFinish: (status, message, eventLogs, tranHash) => {
@@ -796,9 +741,6 @@ const InvestMoreModal = withSlideIn(
 							setIsSuccessful(null);
 							setCloseOnOverlayClick(true);
 						}, 5000);
-						// setProcessComplete(true);
-						// setUpdatingFunds(false);
-						// setCloseOnOverlayClick(true);
 					} else {
 						if (message === "Cancelled") {
 							setUpdatingFunds(false);
@@ -876,8 +818,6 @@ const InvestMoreModal = withSlideIn(
 		useEffect(async () => {
 			setStepperTransactions(null);
 			if (!isNil(stakingInfo)) {
-				// setTransactionFee(0);
-				// setInjectorAccount(null);
 				const substrateStashId = encodeAddress(
 					decodeAddress(selectedAccount?.address),
 					42
@@ -999,11 +939,6 @@ const InvestMoreModal = withSlideIn(
 			>
 				<ModalOverlay />
 				<ModalContent rounded="lg">
-					{/* {!updatingFunds && !processComplete && !chainError && (
-						<ModalHeader>
-							<h1>{title}</h1>
-						</ModalHeader>
-					)} */}
 					{closeOnOverlayClick && (
 						<ModalCloseButton
 							onClick={handlePopoverClose}

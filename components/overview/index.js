@@ -320,7 +320,6 @@ const Overview = () => {
 					apiInstance={apiInstance}
 					isOpen={investMoreModalOpen}
 					close={closeInvestMoreModal}
-					nominations={allNominations}
 					selectedAccount={selectedAccount}
 					balance={balances}
 					stakingInfo={stakingInfo}
