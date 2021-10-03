@@ -302,10 +302,10 @@ const StepperSigning = ({
 							)}
 						</div>
 						<div className="w-1/3 flex justify-center">
-							{currentStep <= index + 2 ? (
+							{currentStep <= index ? (
 								<div
 									className={`h-8 w-8 border-2 ${
-										index + 2 === currentStep
+										index === currentStep
 											? "border-teal-500 text-teal-500"
 											: "border-gray-500 text-gray-500"
 									} rounded-full flex items-center text-lg justify-center`}
@@ -336,7 +336,7 @@ const StepperSigning = ({
 					>
 						<p
 							className={`w-full text-center text-sm ${
-								currentStep <= index ? "text-gray-500" : "text-teal-500"
+								currentStep + 1 <= index ? "text-gray-500" : "text-teal-500"
 							} ${currentStep !== index + 1 && "font-light"} `}
 						>
 							{a?.transactionHeading}

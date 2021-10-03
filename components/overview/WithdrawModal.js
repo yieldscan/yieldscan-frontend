@@ -315,7 +315,7 @@ const StepperSigning = ({
 					>
 						<p
 							className={`w-full text-center text-sm ${
-								currentStep <= index ? "text-gray-500" : "text-teal-500"
+								currentStep < index ? "text-gray-500" : "text-teal-500"
 							} ${currentStep !== index + 1 && "font-light"} `}
 						>
 							{a?.transactionHeading}
