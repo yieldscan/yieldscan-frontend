@@ -3,14 +3,14 @@ import formatCurrency from "@lib/format-currency";
 import { isNil } from "lodash";
 import { useState, useEffect } from "react";
 
-const AmountInputDefault = ({
+const AmountInput = ({
+	value,
 	bonded,
 	type,
-	value,
 	totalUnbonding,
 	availableBalance,
-	onChange,
 	networkInfo,
+	onChange,
 	isExistingUser,
 	currentDate,
 	lastDiscountDate,
@@ -109,28 +109,6 @@ const AmountInputDefault = ({
 				</span>
 			</InputRightElement>
 		</InputGroup>
-	);
-};
-
-const AmountInput = ({
-	value,
-	bonded,
-	type,
-	totalUnbonding,
-	availableBalance,
-	networkInfo,
-	onChange,
-}) => {
-	return (
-		<AmountInputDefault
-			value={value}
-			bonded={bonded}
-			type={type}
-			onChange={onChange}
-			availableBalance={availableBalance}
-			totalUnbonding={totalUnbonding}
-			networkInfo={networkInfo}
-		/>
 	);
 };
 
