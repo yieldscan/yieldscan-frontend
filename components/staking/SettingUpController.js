@@ -372,7 +372,6 @@ const StepsArr = ({
 			setAdjustedStakingAmount={setAdjustedStakingAmount}
 			unadjustedStakingAmount={unadjustedStakingAmount}
 			setUnadjustedStakingAmount={setUnadjustedStakingAmount}
-			ysFees={ysFees}
 		/>
 	);
 };
@@ -490,7 +489,6 @@ const SettingUpController = ({
 									setAdjustedStakingAmount={setAdjustedStakingAmount}
 									unadjustedStakingAmount={unadjustedStakingAmount}
 									setUnadjustedStakingAmount={setUnadjustedStakingAmount}
-									ysFees={ysFees}
 								/>
 							</Collapse>
 						</div>
