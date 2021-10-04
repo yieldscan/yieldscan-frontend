@@ -1053,9 +1053,7 @@ const InvestMoreModal = withSlideIn(
 														totalUnbondingFiat={totalUnbondingFiat}
 														type={type}
 														onChange={setAmount}
-														isExistingUser={isExistingUser}
-														currentDate={currentDate}
-														lastDiscountDate={lastDiscountDate}
+														ysFees={ysFees}
 													/>
 												</div>
 											</div>

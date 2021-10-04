@@ -95,6 +95,7 @@ const SelectControllerAccount = ({
 	setAdjustedStakingAmount,
 	unadjustedStakingAmount,
 	setUnadjustedStakingAmount,
+	ysFees,
 }) => {
 	const activeBondedAmount =
 		parseInt(get(stakingInfo, "stakingLedger.active", 0)) /
@@ -117,21 +118,24 @@ const SelectControllerAccount = ({
 						Math.trunc(
 							stakingAmount * Math.pow(10, networkInfo.decimalPlaces)
 						) +
+						ysFees +
 						networkInfo.reserveAmount * Math.pow(10, networkInfo.decimalPlaces)
 			) {
 				if (
 					balances?.availableBalance.toNumber() -
 						(controllerTransferAmount +
+							ysFees +
 							networkInfo.reserveAmount *
 								Math.pow(10, networkInfo.decimalPlaces)) >=
 						minPossibleStake * Math.pow(10, networkInfo.decimalPlaces) &&
 					balances?.freeBalance.toNumber() -
-						(controllerTransferAmount + transactionFee) >=
+						(controllerTransferAmount + ysFees + transactionFee) >=
 						apiInstance?.consts.balances.existentialDeposit.toNumber()
 				) {
 					setAdjustedStakingAmount(
 						balances?.availableBalance.toNumber() -
 							(controllerTransferAmount +
+								ysFees +
 								networkInfo.reserveAmount *
 									Math.pow(10, networkInfo.decimalPlaces))
 					);
@@ -145,6 +149,7 @@ const SelectControllerAccount = ({
 		networkInfo,
 		minPossibleStake,
 		stakingAmount,
+		ysFees,
 	]);
 	return (
 		<div className="space-y-4">
@@ -367,6 +372,7 @@ const StepsArr = ({
 			setAdjustedStakingAmount={setAdjustedStakingAmount}
 			unadjustedStakingAmount={unadjustedStakingAmount}
 			setUnadjustedStakingAmount={setUnadjustedStakingAmount}
+			ysFees={ysFees}
 		/>
 	);
 };
@@ -484,6 +490,7 @@ const SettingUpController = ({
 									setAdjustedStakingAmount={setAdjustedStakingAmount}
 									unadjustedStakingAmount={unadjustedStakingAmount}
 									setUnadjustedStakingAmount={setUnadjustedStakingAmount}
+									ysFees={ysFees}
 								/>
 							</Collapse>
 						</div>

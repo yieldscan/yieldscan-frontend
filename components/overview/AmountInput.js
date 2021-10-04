@@ -11,30 +11,13 @@ const AmountInput = ({
 	availableBalance,
 	networkInfo,
 	onChange,
-	isExistingUser,
-	currentDate,
-	lastDiscountDate,
+	ysfees,
 }) => {
 	const maxAmount =
 		type === "bond"
-			? availableBalance - networkInfo.reserveAmount / 2 < 0
+			? availableBalance - ysfees < networkInfo.reserveAmount / 2
 				? 0
-				: networkInfo?.feesEnabled
-				? isExistingUser && currentDate <= lastDiscountDate
-					? Math.trunc(
-							((availableBalance - networkInfo.reserveAmount / 2) /
-								(1 + networkInfo.feesRatio * 0.5)) *
-								Math.pow(10, networkInfo.decimalPlaces)
-					  ) / Math.pow(10, networkInfo.decimalPlaces)
-					: Math.trunc(
-							((availableBalance - networkInfo.reserveAmount / 2) /
-								(1 + networkInfo.feesRatio)) *
-								Math.pow(10, networkInfo.decimalPlaces)
-					  ) / Math.pow(10, networkInfo.decimalPlaces)
-				: Math.trunc(
-						(availableBalance - networkInfo.reserveAmount / 2) *
-							Math.pow(10, networkInfo.decimalPlaces)
-				  ) / Math.pow(10, networkInfo.decimalPlaces)
+				: availableBalance - ysfees
 			: type === "unbond"
 			? bonded
 			: totalUnbonding;

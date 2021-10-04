@@ -526,10 +526,11 @@ const Validators = () => {
 			  transactionFees > 0
 				? activeBondedAmount === 0
 					? totalPossibleStakingAmount <
-					  minPossibleStake + networkInfo.reserveAmount
+					  minPossibleStake + networkInfo.reserveAmount + ysFees
 						? true
 						: amount >= minPossibleStake &&
-						  amount <= totalPossibleStakingAmount - networkInfo.reserveAmount
+						  amount <=
+								totalPossibleStakingAmount - networkInfo.reserveAmount - ysFees
 						? false
 						: true
 					: activeBondedAmount >= minPossibleStake
@@ -546,8 +547,7 @@ const Validators = () => {
 			  stakingInfo
 			? setAmount(
 					Math.trunc(
-						((totalAvailableStakingAmount - networkInfo.reserveAmount) /
-							(1 + networkInfo.feesRatio)) *
+						(totalAvailableStakingAmount - networkInfo.reserveAmount - ysFees) *
 							Math.pow(10, networkInfo.decimalPlaces)
 					) / Math.pow(10, networkInfo.decimalPlaces)
 			  )

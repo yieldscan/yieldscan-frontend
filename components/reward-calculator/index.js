@@ -204,10 +204,11 @@ const RewardCalculatorPage = () => {
 			  transactionFees > 0
 				? activeBondedAmount === 0
 					? totalPossibleStakingAmount <
-					  minPossibleStake + networkInfo.reserveAmount
+					  minPossibleStake + networkInfo.reserveAmount + ysFees
 						? true
 						: amount >= minPossibleStake &&
-						  amount <= totalPossibleStakingAmount - networkInfo.reserveAmount
+						  amount <=
+								totalPossibleStakingAmount - networkInfo.reserveAmount - ysFees
 						? false
 						: true
 					: activeBondedAmount >= minPossibleStake
@@ -428,6 +429,7 @@ const RewardCalculatorPage = () => {
 	}, [stakingInfo, amount, selectedAccount, apiInstance, ysFees]);
 
 	useEffect(() => {
+		console.log("gg");
 		activeBondedAmount > 0
 			? setAmount(activeBondedAmount)
 			: totalAvailableStakingAmount - networkInfo.reserveAmount > 0 &&
@@ -435,8 +437,7 @@ const RewardCalculatorPage = () => {
 			  stakingInfo
 			? setAmount(
 					Math.trunc(
-						((totalAvailableStakingAmount - networkInfo.reserveAmount) /
-							(1 + Number(networkInfo.feesRatio))) *
+						(totalAvailableStakingAmount - networkInfo.reserveAmount - ysFees) *
 							Math.pow(10, networkInfo.decimalPlaces)
 					) / Math.pow(10, networkInfo.decimalPlaces)
 			  )
@@ -452,6 +453,7 @@ const RewardCalculatorPage = () => {
 		activeBondedAmount,
 		stakingInfo,
 		balances,
+		ysFees,
 	]);
 
 	return loading || isNil(apiInstance) ? (

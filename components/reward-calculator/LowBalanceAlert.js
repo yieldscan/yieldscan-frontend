@@ -52,7 +52,7 @@ const LowBalanceAlert = ({
 						networkInfo
 					)}. ${
 						networkInfo.feesEnabled
-							? "Please also be informed that we have started charging a .125% fee. "
+							? "Please also be informed that we have started charging fees for using Yieldscan. "
 							: ""
 					}
 					We additionally require users to keep a minimum of
@@ -111,7 +111,7 @@ const LowBalanceAlert = ({
 						),
 						networkInfo
 					)} reserve amount for new stakers ${
-						networkInfo.feesEnabled ? "and the Yieldscan .125% fee." : "."
+						networkInfo.feesEnabled ? "and Yieldscan's fee." : "."
 					} Press the max
 					icon to autofill the maximum amount. `
 				);
@@ -179,7 +179,7 @@ const LowBalanceAlert = ({
 							account to pay transaction fees for claiming rewards, unbonding
 							funds, changing on-chain staking preferences ${
 								networkInfo.feesEnabled
-									? "and the Yieldscan .125% fee for this transaction."
+									? "and Yieldscan's fee for this transaction."
 									: "etc."
 							}`);
 			} else if (
