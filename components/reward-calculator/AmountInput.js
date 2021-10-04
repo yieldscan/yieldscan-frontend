@@ -33,10 +33,10 @@ const AmountInputDefault = memo(
 			availableBalance <= networkInfo.reserveAmount
 				? bonded
 				: Math.trunc(
-						(bonded + availableBalance - networkInfo.reserveAmount) *
-							10 ** networkInfo.decimalPlaces
-				  ) /
-						10 ** networkInfo.decimalPlaces,
+						((bonded + availableBalance - networkInfo.reserveAmount) /
+							(1 + networkInfo.feesRatio)) *
+							Math.pow(10, networkInfo.decimalPlaces)
+				  ) / Math.pow(10, networkInfo.decimalPlaces),
 			0
 		);
 

@@ -47,10 +47,13 @@ const SecureStakingSetup = ({
 	setAdjustedStakingAmount,
 	unadjustedStakingAmount,
 	setUnadjustedStakingAmount,
+	currentStep,
+	setCurrentStep,
+	isExistingUser,
+	hasSubscription,
+	currentDate,
+	lastDiscountDate,
 }) => {
-	const [currentStep, setCurrentStep] = useState(() =>
-		confirmedControllerAccount && selected ? 2 : 0
-	);
 	const [isStashPopoverOpen, setIsStashPopoverOpen] = useState(false);
 
 	const incrementCurrentStep = () => setCurrentStep((step) => step + 1);
@@ -220,13 +223,20 @@ const SecureStakingSetup = ({
 				nominatedValidators: nominatedValidators,
 			});
 
-			if (ysFees > 0 && networkInfo?.feesEnabled) {
+			if (ysFees > 0 && networkInfo?.feesEnabled && networkInfo?.feesAddress) {
 				transactions.push(
 					apiInstance.tx.balances.transferKeepAlive(
 						networkInfo.feesAddress,
 						ysFees
 					)
 				);
+				stepperTransactions.push({
+					transactionType: "yieldscanFees",
+					transactionHeading: "Pay Yieldscan Fees",
+					injectorAccount: substrateSelectedControllerId,
+					ysFees: ysFees,
+					substrateControllerId: substrateStashId,
+				});
 			}
 
 			const fee =
@@ -353,6 +363,10 @@ const SecureStakingSetup = ({
 						handleOnClickBackToSettinUpYourController={
 							handleOnClickBackToSettinUpYourController
 						}
+						isExistingUser={isExistingUser}
+						hasSubscription={hasSubscription}
+						currentDate={currentDate}
+						lastDiscountDate={lastDiscountDate}
 					/>
 				)}
 			</div>

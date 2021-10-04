@@ -20,6 +20,7 @@ import {
 	useAccountsBalances,
 	useAccountsStakingInfo,
 	useSelectedAccountInfo,
+	useIsExistingUser,
 } from "@lib/store";
 import { useWalletConnect } from "@components/wallet-connect";
 import { isNil } from "lodash";
@@ -53,6 +54,7 @@ const Overview = () => {
 	const { accountsBalances } = useAccountsBalances();
 	const { accountsStakingInfo } = useAccountsStakingInfo();
 	const { balances, stakingInfo } = useSelectedAccountInfo();
+	const { isExistingUser } = useIsExistingUser();
 	const toast = useToast();
 	const [loading, setLoading] = useState(true);
 	const [nominationsLoading, setNominationsLoading] = useState(true); // work-around :(
@@ -67,6 +69,10 @@ const Overview = () => {
 	const [validatorsLoading, setValidatorsLoading] = useState(true);
 	const handleValToggle = () => setShowValidators(!showValidators);
 	const [selectedTab, setSelectedTab] = useState(Tabs.NOMINATIONS);
+	const [ysFees, setYsFees] = useState(0);
+	const [lastDiscountDate, setLastDiscountDate] = useState(
+		networkInfo?.lastDiscountDate
+	);
 	const [controllerAccount, setControllerAccount] = useState(() =>
 		accountsStakingInfo[selectedAccount?.address]?.controllerId
 			? accounts?.filter(
@@ -210,6 +216,10 @@ const Overview = () => {
 	]);
 
 	useEffect(() => {
+		setLastDiscountDate(networkInfo?.lastDiscountDate);
+	}, [networkInfo]);
+
+	useEffect(() => {
 		if (stakingInfo?.accountId.toString() !== selectedAccount?.address) {
 			setControllerBalances(null);
 		}
@@ -317,12 +327,16 @@ const Overview = () => {
 					apiInstance={apiInstance}
 					isOpen={investMoreModalOpen}
 					close={closeInvestMoreModal}
-					nominations={allNominations}
 					selectedAccount={selectedAccount}
 					balance={balances}
 					stakingInfo={stakingInfo}
 					networkInfo={networkInfo}
 					minPossibleStake={minPossibleStake}
+					ysFees={ysFees}
+					setYsFees={setYsFees}
+					controllerAccount={controllerAccount}
+					isExistingUser={isExistingUser}
+					lastDiscountDate={lastDiscountDate}
 				/>
 			)}
 			{reBondModalOpen && (

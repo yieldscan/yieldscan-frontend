@@ -17,6 +17,7 @@ import {
 	useAccountsStakingInfo,
 	useAccountsStakingLedgerInfo,
 	useAccountsControllerStashInfo,
+	useIsExistingUser,
 } from "@lib/store";
 import { isNil } from "lodash";
 import { Settings, Menu } from "react-feather";
@@ -68,6 +69,7 @@ const Header = ({ isBase, isSetUp, isWalletSetUp }) => {
 	const { accounts, setAccounts } = useAccounts();
 	const { selectedAccount, setSelectedAccount } = useSelectedAccount();
 	const { accountsBalances, setAccountsBalances } = useAccountsBalances();
+	const { setIsExistingUser } = useIsExistingUser();
 	const { accountsStakingInfo, setAccountsStakingInfo } =
 		useAccountsStakingInfo();
 	const { accountsStakingLedgerInfo, setAccountsStakingLedgerInfo } =
@@ -128,6 +130,7 @@ const Header = ({ isBase, isSetUp, isWalletSetUp }) => {
 			setCoinGeckoPriceUSD(null);
 			setNomMinStake(null);
 			setSelectedNetwork(to);
+			setIsExistingUser(null);
 			track(goalCodes.GLOBAL.NETWORK_SWITCHED);
 		}
 		setIsNetworkOpen(!isNetworkOpen);
@@ -315,6 +318,7 @@ const Header = ({ isBase, isSetUp, isWalletSetUp }) => {
 								setTransactionHash={(info) => setTransactionHash(info)}
 								setIsStashPopoverOpen={(info) => setIsStashPopoverOpen(info)}
 								setSelectedAccount={(info) => setSelectedAccount(info)}
+								setIsExistingUser={setIsExistingUser}
 							/>
 						</div>
 						<div className="relative col-span-1">

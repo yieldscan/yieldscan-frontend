@@ -31,8 +31,7 @@ const LockFunds = ({ networkInfo, amount, transactionFee, ysFees }) => {
 						content={
 							<p className="text-xs text-white">
 								This fee is used to pay for the resources used for processing
-								the transaction on the blockchain network. YieldScan doesn’t
-								profit from this fee in any way.
+								the transaction on the blockchain network.
 							</p>
 						}
 					/>
@@ -102,8 +101,7 @@ const AddFundsToController = ({
 						content={
 							<p className="text-xs text-white">
 								This fee is used to pay for the resources used for processing
-								the transaction on the blockchain network. YieldScan doesn’t
-								profit from this fee in any way.
+								the transaction on the blockchain network.
 							</p>
 						}
 					/>
@@ -133,6 +131,69 @@ const AddFundsToController = ({
 					<p className="text-gray-700 text-lg text-right font-bold">
 						{formatCurrency.methods.formatAmount(
 							Math.trunc(controllerTransferAmount + transactionFee),
+							networkInfo
+						)}
+					</p>
+					{/* <p className="text-sm text-right text-gray-600 font-medium">
+	${(subCurrency + subFeeCurrency).toFixed(2)}
+</p> */}
+				</div>
+			</div>
+		</div>
+	);
+};
+
+const YieldscanFees = ({ networkInfo, transactionFee, ysFees }) => {
+	return (
+		<div className="w-full px-4">
+			<div className="flex justify-between mt-4">
+				<p className="text-gray-700 text-xs">Yieldscan Fees Amount</p>
+				<div className="flex flex-col">
+					<p className="text-gray-700 text-sm font-semibold text-right">
+						{formatCurrency.methods.formatAmount(ysFees, networkInfo)}
+					</p>
+					{/* <p className="text-xs text-right text-gray-600">
+		${subCurrency.toFixed(2)}
+	</p> */}
+				</div>
+			</div>
+			<div className="flex justify-between mt-4">
+				<div className="text-xs text-gray-700 flex items-center">
+					<p>Transaction Fee</p>
+					<HelpPopover
+						content={
+							<p className="text-xs text-white">
+								This fee is used to pay for the resources used for processing
+								the transaction on the blockchain network.
+							</p>
+						}
+					/>
+				</div>
+				<div className="flex flex-col">
+					{transactionFee !== 0 ? (
+						<div>
+							<p className="text-gray-700 text-sm font-semibold text-right">
+								{formatCurrency.methods.formatAmount(
+									Math.trunc(transactionFee),
+									networkInfo
+								)}
+							</p>
+							{/* <p className="text-xs text-right text-gray-600">
+			${subFeeCurrency.toFixed(2)}
+		</p> */}
+						</div>
+					) : (
+						<Spinner />
+					)}
+				</div>
+			</div>
+			<Divider my={6} />
+			<div className="flex justify-between">
+				<p className="text-gray-700 text-base font-semibold">Total Amount</p>
+				<div className="flex flex-col">
+					<p className="text-gray-700 text-lg text-right font-bold">
+						{formatCurrency.methods.formatAmount(
+							Math.trunc(ysFees + transactionFee),
 							networkInfo
 						)}
 					</p>
@@ -175,8 +236,7 @@ const ValidatorsList = ({
 					content={
 						<p className="text-xs text-white">
 							This fee is used to pay for the resources used for processing the
-							transaction on the blockchain network. YieldScan doesn’t profit
-							from this fee in any way.
+							transaction on the blockchain network.
 						</p>
 					}
 				/>
@@ -226,8 +286,7 @@ const SetControllerAccount = ({ networkInfo, transactionFee }) => (
 					content={
 						<p className="text-xs text-white">
 							This fee is used to pay for the resources used for processing the
-							transaction on the blockchain network. YieldScan doesn’t profit
-							from this fee in any way.
+							transaction on the blockchain network.
 						</p>
 					}
 				/>
@@ -273,7 +332,7 @@ const StepperSigning = ({
 	closeStepperSignerPopover,
 	stakingPath,
 	stepperTransactions,
-	currentStep,
+	stepperIndex,
 	transaction,
 	injectorAccount,
 	transactionFee,
@@ -281,7 +340,7 @@ const StepperSigning = ({
 	apiInstance,
 	networkInfo,
 	transactionType,
-	incrementCurrentStep,
+	incrementStepperIndex,
 	ysFees,
 }) => {
 	return (
@@ -298,10 +357,10 @@ const StepperSigning = ({
 							)}
 						</div>
 						<div className="w-1/3 flex justify-center">
-							{currentStep <= index + 1 ? (
+							{stepperIndex <= index + 1 ? (
 								<div
 									className={`h-8 w-8 border-2 ${
-										index + 1 === currentStep
+										index + 1 === stepperIndex
 											? "border-teal-500 text-teal-500"
 											: "border-gray-500 text-gray-500"
 									} rounded-full flex items-center text-lg justify-center`}
@@ -332,8 +391,8 @@ const StepperSigning = ({
 					>
 						<p
 							className={`w-full text-center text-sm ${
-								currentStep <= index ? "text-gray-500" : "text-teal-500"
-							} ${currentStep !== index + 1 && "font-light"} `}
+								stepperIndex <= index ? "text-gray-500" : "text-teal-500"
+							} ${stepperIndex !== index + 1 && "font-light"} `}
 						>
 							{a?.transactionHeading}
 						</p>
@@ -343,7 +402,7 @@ const StepperSigning = ({
 			{transactionType === "bond" || transactionType === "bondExtra" ? (
 				<LockFunds
 					networkInfo={networkInfo}
-					amount={stepperTransactions[currentStep - 1]?.stakingAmount}
+					amount={stepperTransactions[stepperIndex - 1]?.stakingAmount}
 					transactionFee={transactionFee}
 					ysFees={ysFees}
 				/>
@@ -357,7 +416,7 @@ const StepperSigning = ({
 				<AddFundsToController
 					networkInfo={networkInfo}
 					controllerTransferAmount={
-						stepperTransactions[currentStep - 1]?.controllerTransferAmount
+						stepperTransactions[stepperIndex - 1]?.controllerTransferAmount
 					}
 					transactionFee={transactionFee}
 				/>
@@ -365,6 +424,12 @@ const StepperSigning = ({
 				<SetControllerAccount
 					networkInfo={networkInfo}
 					transactionFee={transactionFee}
+				/>
+			) : transactionType === "yieldscanFees" ? (
+				<YieldscanFees
+					networkInfo={networkInfo}
+					transactionFee={transactionFee}
+					ysFees={ysFees}
 				/>
 			) : (
 				<></>

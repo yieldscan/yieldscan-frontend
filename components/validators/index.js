@@ -42,6 +42,9 @@ import {
 	useAccountsBalances,
 	usePolkadotApi,
 	useStakingPath,
+	useSourcePage,
+	useHasSubscription,
+	useIsExistingUser,
 } from "@lib/store";
 import calculateReward from "@lib/calculate-reward";
 import ValidatorsResult from "./ValidatorsResult";
@@ -85,8 +88,11 @@ const Validators = () => {
 	const { validatorMap, setValidatorMap } = useValidatorData();
 	const { isLowBalanceOpen, toggleIsLowBalanceOpen } = useLowBalancePopover();
 	const { transactionHash, setTransactionHash } = useTransactionHash();
+	const { sourcePage, setSourcePage } = useSourcePage();
 	const { isOpen, onClose, onToggle } = useDisclosure();
 	const { apiInstance } = usePolkadotApi();
+	const { hasSubscription, setHasSubscription } = useHasSubscription();
+	const { isExistingUser } = useIsExistingUser();
 	const [errorFetching, setErrorFetching] = useState(false);
 	const { isStakingPathPopoverOpen, toggleIsStakingPathPopoverOpen } =
 		useStakingPathPopover();
@@ -145,6 +151,11 @@ const Validators = () => {
 	const [controllerUnavailable, setControllerUnavailable] = useState();
 	const [ysFees, setYsFees] = useState();
 	const [transactionFees, setTransactionFees] = useState();
+
+	const [currentDate, setCurrentDate] = useState(null);
+	const [lastDiscountDate, setLastDiscountDate] = useState(
+		networkInfo?.lastDiscountDate
+	);
 
 	const [controllerAccount, setControllerAccount] = useState(() =>
 		accountsStakingInfo[selectedAccount?.address]?.controllerId
@@ -212,16 +223,48 @@ const Validators = () => {
 	}, [selectedValidatorsMap]);
 
 	useEffect(() => {
-		if (networkInfo.feesEnabled) {
-			setYsFees(() =>
-				Math.trunc(
-					amount *
-						Math.pow(10, networkInfo.decimalPlaces) *
-						networkInfo.feesRatio
-				)
-			);
+		setHasSubscription(null);
+		axios
+			.get(
+				`/${networkInfo.network}/user/fees-sub-status/${selectedAccount?.address}`
+			)
+			.then(({ data }) => {
+				setHasSubscription(data.subscriptionActive);
+			})
+			.catch((err) => {
+				console.error(err);
+				console.error("unable to get fee subscription status");
+			});
+	}, [selectedAccount?.address, networkInfo]);
+
+	useEffect(() => {
+		if (
+			networkInfo?.feesEnabled &&
+			hasSubscription === false &&
+			isExistingUser !== null
+		) {
+			setCurrentDate(() => new Date().getTime());
+
+			if (isExistingUser && currentDate <= lastDiscountDate) {
+				setYsFees(() =>
+					Math.trunc(
+						amount *
+							networkInfo.feesRatio *
+							Math.pow(10, networkInfo.decimalPlaces) *
+							0.5
+					)
+				);
+			} else {
+				setYsFees(() =>
+					Math.trunc(
+						amount *
+							networkInfo.feesRatio *
+							Math.pow(10, networkInfo.decimalPlaces)
+					)
+				);
+			}
 		} else setYsFees(0);
-	}, [amount, networkInfo]);
+	}, [networkInfo, amount, hasSubscription, isExistingUser, selectedAccount]);
 
 	useEffect(async () => {
 		setTransactionFees(0);
@@ -389,6 +432,10 @@ const Validators = () => {
 		compounding,
 	]);
 
+	useEffect(() => {
+		setLastDiscountDate(networkInfo?.lastDiscountDate);
+	}, [networkInfo]);
+
 	const updateTransactionState = (eventType = "") => {
 		let _returns = get(result, "returns"),
 			_yieldPercentage = get(result, "yieldPercentage");
@@ -431,6 +478,7 @@ const Validators = () => {
 		updateTransactionState(Events.INTENT_STAKING);
 		setTransactionHash(null);
 		setStakingPath(null);
+		setSourcePage("/validators");
 
 		if (
 			controllerAccount &&
@@ -477,10 +525,11 @@ const Validators = () => {
 			  transactionFees > 0
 				? activeBondedAmount === 0
 					? totalPossibleStakingAmount <
-					  minPossibleStake + networkInfo.reserveAmount
+					  minPossibleStake + networkInfo.reserveAmount + ysFees
 						? true
 						: amount >= minPossibleStake &&
-						  amount <= totalPossibleStakingAmount - networkInfo.reserveAmount
+						  amount <=
+								totalPossibleStakingAmount - networkInfo.reserveAmount - ysFees
 						? false
 						: true
 					: activeBondedAmount >= minPossibleStake
@@ -497,10 +546,9 @@ const Validators = () => {
 			  stakingInfo
 			? setAmount(
 					Math.trunc(
-						(totalAvailableStakingAmount - networkInfo.reserveAmount) *
-							10 ** networkInfo.decimalPlaces
-					) /
-						10 ** networkInfo.decimalPlaces
+						(totalAvailableStakingAmount - networkInfo.reserveAmount - ysFees) *
+							Math.pow(10, networkInfo.decimalPlaces)
+					) / Math.pow(10, networkInfo.decimalPlaces)
 			  )
 			: selectedAccount &&
 			  totalPossibleStakingAmount === 0 &&
@@ -590,6 +638,7 @@ const Validators = () => {
 				isSameStashController={
 					selectedAccount?.address === controllerAccount?.address
 				}
+				ysFees={ysFees}
 			/>
 			<ValidatorsResult
 				stakingAmount={amount}

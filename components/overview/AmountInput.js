@@ -1,23 +1,40 @@
 import { InputGroup, Input, InputRightElement } from "@chakra-ui/core";
 import formatCurrency from "@lib/format-currency";
-import { useAccounts } from "@lib/store";
 import { isNil } from "lodash";
 import { useState, useEffect } from "react";
 
-const AmountInputDefault = ({
+const AmountInput = ({
+	value,
 	bonded,
 	type,
-	value,
 	totalUnbonding,
 	availableBalance,
-	onChange,
 	networkInfo,
+	onChange,
+	isExistingUser,
+	currentDate,
+	lastDiscountDate,
 }) => {
 	const maxAmount =
 		type === "bond"
-			? availableBalance - networkInfo.reserveAmount < 0
+			? availableBalance - networkInfo.reserveAmount / 2 < 0
 				? 0
-				: Math.trunc(availableBalance - networkInfo.reserveAmount)
+				: networkInfo?.feesEnabled
+				? isExistingUser && currentDate <= lastDiscountDate
+					? Math.trunc(
+							((availableBalance - networkInfo.reserveAmount / 2) /
+								(1 + networkInfo.feesRatio * 0.5)) *
+								Math.pow(10, networkInfo.decimalPlaces)
+					  ) / Math.pow(10, networkInfo.decimalPlaces)
+					: Math.trunc(
+							((availableBalance - networkInfo.reserveAmount / 2) /
+								(1 + networkInfo.feesRatio)) *
+								Math.pow(10, networkInfo.decimalPlaces)
+					  ) / Math.pow(10, networkInfo.decimalPlaces)
+				: Math.trunc(
+						(availableBalance - networkInfo.reserveAmount / 2) *
+							Math.pow(10, networkInfo.decimalPlaces)
+				  ) / Math.pow(10, networkInfo.decimalPlaces)
 			: type === "unbond"
 			? bonded
 			: totalUnbonding;
@@ -92,28 +109,6 @@ const AmountInputDefault = ({
 				</span>
 			</InputRightElement>
 		</InputGroup>
-	);
-};
-
-const AmountInput = ({
-	value,
-	bonded,
-	type,
-	totalUnbonding,
-	availableBalance,
-	networkInfo,
-	onChange,
-}) => {
-	return (
-		<AmountInputDefault
-			value={value}
-			bonded={bonded}
-			type={type}
-			onChange={onChange}
-			availableBalance={availableBalance}
-			totalUnbonding={totalUnbonding}
-			networkInfo={networkInfo}
-		/>
 	);
 };
 

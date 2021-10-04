@@ -6,6 +6,8 @@ import { useCoinGeckoPriceUSD } from "@lib/store";
 import getUpdateFundsTransactionFee from "@lib/getUpdateFundsTransactionFee";
 import { isNil } from "lodash";
 import { NextButton } from "@components/common/BottomButton";
+import { HelpPopover } from "@components/reward-calculator";
+
 const AmountConfirmation = ({
 	stashId,
 	amount,
@@ -16,6 +18,10 @@ const AmountConfirmation = ({
 	networkInfo,
 	onConfirm,
 	transactionFee,
+	ysFees = 0,
+	isExistingUser,
+	currentDate,
+	lastDiscountDate,
 }) => {
 	const { coinGeckoPriceUSD } = useCoinGeckoPriceUSD();
 	const [subFeeCurrency, setSubFeeCurrency] = useState();
@@ -147,8 +153,60 @@ const AmountConfirmation = ({
 					</div>
 				</div>
 				<div className="flex justify-between mt-4">
-					<p className="text-gray-700 text-xs">Transaction Fee</p>
+					{type === "bond" && ysFees !== 0 && (
+						<div className="text-xs text-gray-700 flex items-center">
+							<p>
+								Yieldscan Fee{" "}
+								{isExistingUser &&
+									currentDate <= lastDiscountDate &&
+									"(50% off)"}
+							</p>
+							<HelpPopover
+								content={
+									<p className="text-xs text-white">
+										This fee is used to pay for the costs of building and
+										running Yieldscan. Its charged on the amount by which your
+										stake is being increased.{" "}
+										{isExistingUser && currentDate <= lastDiscountDate && (
+											<span className="font-semibold">
+												You have been given a 50% discount because you staked
+												with Yieldscan on or before 15th September 2021.{" "}
+											</span>
+										)}
+									</p>
+								}
+							/>
+						</div>
+					)}
 
+					<div className="flex flex-col">
+						{type === "bond" && ysFees !== 0 && (
+							<div>
+								<p className="text-sm text-right">
+									{formatCurrency.methods.formatAmount(
+										Math.trunc(ysFees),
+										networkInfo
+									)}
+								</p>
+								<p className="text-xs text-right text-gray-600">
+									${Number(ysFees * coinGeckoPriceUSD).toFixed(2)}
+								</p>
+							</div>
+						)}
+					</div>
+				</div>
+				<div className="flex justify-between mt-4">
+					<div className="text-xs text-gray-700 flex items-center">
+						<p>Transaction Fee</p>
+						<HelpPopover
+							content={
+								<p className="text-xs text-white">
+									This fee is used to pay for the resources used for processing
+									the transaction on the blockchain network.
+								</p>
+							}
+						/>
+					</div>
 					<div className="flex flex-col">
 						{transactionFee > 0 ? (
 							<div>
@@ -178,7 +236,8 @@ const AmountConfirmation = ({
 								{type === "bond" || type == "rebond"
 									? formatCurrency.methods.formatAmount(
 											Math.trunc(amount * 10 ** networkInfo.decimalPlaces) +
-												transactionFee,
+												transactionFee +
+												ysFees,
 											networkInfo
 									  )
 									: formatCurrency.methods.formatAmount(

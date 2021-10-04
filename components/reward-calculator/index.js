@@ -23,9 +23,11 @@ import {
 	useAccountsBalances,
 	useAccountsStakingInfo,
 	usePolkadotApi,
-	useIsNewSetup,
 	useSelectedAccountInfo,
 	useStakingPath,
+	useSourcePage,
+	useHasSubscription,
+	useIsExistingUser,
 } from "@lib/store";
 import { get, isNil, mapValues, keyBy, cloneDeep, debounce } from "lodash";
 import calculateReward from "@lib/calculate-reward";
@@ -33,8 +35,6 @@ import getTransactionFee from "@lib/getTransactionFee";
 import {
 	Alert,
 	AlertDescription,
-	AlertIcon,
-	AlertTitle,
 	Modal,
 	ModalBody,
 	ModalCloseButton,
@@ -49,12 +49,9 @@ import {
 	Spinner,
 	useDisclosure,
 } from "@chakra-ui/core";
-import Routes from "@lib/routes";
 import { trackEvent, Events, track, goalCodes } from "@lib/analytics";
 import { getNetworkInfo } from "yieldscan.config";
-import { HelpCircle, AlertCircle, AlertTriangle } from "react-feather";
-import MinStakeAlert from "./MinStakeAlert";
-import { BottomNextButton } from "@components/common/BottomButton";
+import { HelpCircle, AlertTriangle } from "react-feather";
 import {
 	LowBalancePopover,
 	useLowBalancePopover,
@@ -73,9 +70,11 @@ const RewardCalculatorPage = () => {
 	const router = useRouter();
 	const { selectedNetwork } = useSelectedNetwork();
 	const networkInfo = getNetworkInfo(selectedNetwork);
-	const { transactionHash, setTransactionHash } = useTransactionHash();
+	const { setTransactionHash } = useTransactionHash();
 	const { coinGeckoPriceUSD } = useCoinGeckoPriceUSD();
 	const { toggle } = useWalletConnect();
+	const { hasSubscription, setHasSubscription } = useHasSubscription();
+	const { isExistingUser } = useIsExistingUser();
 	const {
 		isOpen: isRiskGlossaryOpen,
 		onClose: onRiskGlossaryClose,
@@ -95,8 +94,7 @@ const RewardCalculatorPage = () => {
 	const { apiInstance } = usePolkadotApi();
 	const { setHeaderLoading } = useHeaderLoading();
 	const { isInElection } = useNetworkElection();
-	const { setIsNewSetup } = useIsNewSetup();
-
+	const { setSourcePage } = useSourcePage();
 	const { accountsStakingInfo } = useAccountsStakingInfo();
 	const { accountsBalances } = useAccountsBalances();
 
@@ -145,11 +143,10 @@ const RewardCalculatorPage = () => {
 		() => accountsBalances[controllerAccount?.address]
 	);
 
-	const onAdvancedSelection = () => {
-		updateTransactionState(Events.INTENT_ADVANCED_SELECTION);
-		router.push(`${Routes.VALIDATORS}?advanced=true`);
-	};
-
+	const [currentDate, setCurrentDate] = useState(null);
+	const [lastDiscountDate, setLastDiscountDate] = useState(
+		networkInfo?.lastDiscountDate
+	);
 	const updateTransactionState = (eventType = "") => {
 		let _returns = get(result, "returns"),
 			_yieldPercentage = get(result, "yieldPercentage");
@@ -188,10 +185,6 @@ const RewardCalculatorPage = () => {
 		});
 	};
 
-	// const totalBondedAmount =
-	// 	parseInt(get(stakingInfo, "stakingLedger.total", 0)) /
-	// 	Math.pow(10, networkInfo.decimalPlaces);
-
 	const activeBondedAmount =
 		parseInt(get(stakingInfo, "stakingLedger.active", 0)) /
 		Math.pow(10, networkInfo.decimalPlaces);
@@ -211,10 +204,11 @@ const RewardCalculatorPage = () => {
 			  transactionFees > 0
 				? activeBondedAmount === 0
 					? totalPossibleStakingAmount <
-					  minPossibleStake + networkInfo.reserveAmount
+					  minPossibleStake + networkInfo.reserveAmount + ysFees
 						? true
 						: amount >= minPossibleStake &&
-						  amount <= totalPossibleStakingAmount - networkInfo.reserveAmount
+						  amount <=
+								totalPossibleStakingAmount - networkInfo.reserveAmount - ysFees
 						? false
 						: true
 					: activeBondedAmount >= minPossibleStake
@@ -223,10 +217,11 @@ const RewardCalculatorPage = () => {
 				: true
 			: false;
 
-	const toStaking = async () => {
+	const toStaking = () => {
 		updateTransactionState(Events.INTENT_STAKING);
 		setTransactionHash(null);
 		setStakingPath(null);
+		setSourcePage("/reward-calculator");
 
 		if (
 			controllerAccount &&
@@ -299,6 +294,25 @@ const RewardCalculatorPage = () => {
 	}, [selectedNetwork, apiInstance]);
 
 	useEffect(() => {
+		setLastDiscountDate(networkInfo?.lastDiscountDate);
+	}, [networkInfo]);
+
+	useEffect(() => {
+		setHasSubscription(null);
+		axios
+			.get(
+				`/${networkInfo.network}/user/fees-sub-status/${selectedAccount?.address}`
+			)
+			.then(({ data }) => {
+				setHasSubscription(data.subscriptionActive);
+			})
+			.catch((err) => {
+				console.error(err);
+				console.error("unable to get fee subscription status");
+			});
+	}, [selectedAccount?.address, networkInfo]);
+
+	useEffect(() => {
 		if (!validatorRiskSets) {
 			setLoading(true);
 			setHeaderLoading(true);
@@ -369,16 +383,33 @@ const RewardCalculatorPage = () => {
 	}, [selectedAccount?.address]);
 
 	useEffect(() => {
-		if (networkInfo.feesEnabled) {
-			setYsFees(() =>
-				Math.trunc(
-					amount *
-						Math.pow(10, networkInfo.decimalPlaces) *
-						networkInfo.feesRatio
-				)
-			);
+		if (
+			networkInfo?.feesEnabled &&
+			hasSubscription === false &&
+			isExistingUser !== null
+		) {
+			setCurrentDate(() => new Date().getTime());
+
+			if (isExistingUser && currentDate <= lastDiscountDate) {
+				setYsFees(() =>
+					Math.trunc(
+						amount *
+							networkInfo.feesRatio *
+							Math.pow(10, networkInfo.decimalPlaces) *
+							0.5
+					)
+				);
+			} else {
+				setYsFees(() =>
+					Math.trunc(
+						amount *
+							networkInfo.feesRatio *
+							Math.pow(10, networkInfo.decimalPlaces)
+					)
+				);
+			}
 		} else setYsFees(0);
-	}, [amount, networkInfo]);
+	}, [networkInfo, amount, hasSubscription, isExistingUser, selectedAccount]);
 
 	useEffect(async () => {
 		setTransactionFees(0);
@@ -405,10 +436,9 @@ const RewardCalculatorPage = () => {
 			  stakingInfo
 			? setAmount(
 					Math.trunc(
-						(totalAvailableStakingAmount - networkInfo.reserveAmount) *
-							10 ** networkInfo.decimalPlaces
-					) /
-						10 ** networkInfo.decimalPlaces
+						(totalAvailableStakingAmount - networkInfo.reserveAmount - ysFees) *
+							Math.pow(10, networkInfo.decimalPlaces)
+					) / Math.pow(10, networkInfo.decimalPlaces)
 			  )
 			: selectedAccount &&
 			  totalPossibleStakingAmount === 0 &&
@@ -422,6 +452,7 @@ const RewardCalculatorPage = () => {
 		activeBondedAmount,
 		stakingInfo,
 		balances,
+		ysFees,
 	]);
 
 	return loading || isNil(apiInstance) ? (
@@ -489,6 +520,7 @@ const RewardCalculatorPage = () => {
 									: 0
 							}
 							controllerAccount={controllerAccount}
+							ysFees={ysFees}
 						/>
 					)}
 					{selectedAccount && (
@@ -542,6 +574,7 @@ const RewardCalculatorPage = () => {
 											isSameStashController={
 												selectedAccount?.address === controllerAccount?.address
 											}
+											ysFees={ysFees}
 										/>
 									)}
 								<h3 className="text-gray-700 text-xs mb-2">
@@ -557,6 +590,7 @@ const RewardCalculatorPage = () => {
 									balances={balances}
 									simulationChecked={simulationChecked}
 									stakingInfo={stakingInfo}
+									ysFees={ysFees}
 								/>
 							</div>
 							<div className="flex mt-8 items-center">
@@ -661,6 +695,10 @@ const RewardCalculatorPage = () => {
 								transactionFees={transactionFees}
 								ysFees={ysFees}
 								networkInfo={networkInfo}
+								hasSubscription={hasSubscription}
+								isExistingUser={isExistingUser}
+								currentDate={currentDate}
+								lastDiscountDate={lastDiscountDate}
 							/>
 						)}
 					</div>
@@ -764,31 +802,6 @@ const HelpPopover = ({
 				<PopoverBody>{content}</PopoverBody>
 			</PopoverContent>
 		</Popover>
-	);
-};
-
-const SetupAccountsAlert = () => {
-	const router = useRouter();
-	const { setIsNewSetup } = useIsNewSetup();
-	return (
-		<div className="flex flex-row justify-between items-center bg-gray-200 text-xs text-gray-700 p-2 px-4 rounded-lg">
-			<div className="flex flex-row space-x-2">
-				<AlertCircle size={18} />
-				<p>
-					<span className="font-semibold">Setup required:</span> We found some
-					new accounts in your wallet. You need to setup your accounts before
-					you can use them to stake.
-				</p>
-			</div>
-			<BottomNextButton
-				onClick={() => {
-					setIsNewSetup(true);
-					router.push("/setup-accounts");
-				}}
-			>
-				Setup accounts
-			</BottomNextButton>
-		</div>
 	);
 };
 

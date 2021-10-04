@@ -81,19 +81,37 @@ const ReBondModal = withSlideIn(
 
 		const updateTransactionData = (
 			stashId,
+			controllerId,
+			injectorId,
+			transactionType,
+			sourcePage,
+			walletType,
+			ysFees,
+			ysFeesAddress,
+			ysFeesRatio,
+			ysFeesPaid,
 			network,
 			alreadyBonded,
-			stakeAmount,
-			tranHash,
+			stake,
+			transactionHash,
 			successful
 		) => {
 			axios
 				.put(`${networkInfo.network}/user/transaction/update`, {
 					stashId: stashId,
+					controllerId: controllerId,
+					injectorId: injectorId,
+					transactionType: transactionType,
+					sourcePage: sourcePage,
+					walletType: walletType,
+					ysFees: ysFees,
+					ysFeesAddress: ysFeesAddress,
+					ysFeesRatio: ysFeesRatio,
+					ysFeesPaid: ysFeesPaid,
 					network: network,
 					alreadyBonded: alreadyBonded,
-					stake: stakeAmount,
-					transactionHash: tranHash,
+					stake: stake,
+					transactionHash: transactionHash,
 					successful: successful,
 				})
 				.then(() => {
@@ -190,6 +208,15 @@ const ReBondModal = withSlideIn(
 						track(goalCodes.OVERVIEW.REBOND_SUCCESSFUL);
 						updateTransactionData(
 							selectedAccount?.address,
+							injectorAccount,
+							injectorAccount,
+							"rebond",
+							"/overview",
+							"null",
+							0,
+							"null",
+							0,
+							false,
 							networkInfo.network,
 							stakingInfo.stakingLedger.active /
 								Math.pow(10, networkInfo.decimalPlaces),
@@ -219,6 +246,15 @@ const ReBondModal = withSlideIn(
 							track(goalCodes.OVERVIEW.REBOND_UNSUCCESSFUL);
 							updateTransactionData(
 								selectedAccount?.address,
+								injectorAccount,
+								injectorAccount,
+								"rebond",
+								"/overview",
+								"null",
+								0,
+								"null",
+								0,
+								false,
 								networkInfo.network,
 								stakingInfo.stakingLedger.active /
 									Math.pow(10, networkInfo.decimalPlaces),
@@ -339,8 +375,9 @@ const ReBondModal = withSlideIn(
 																{minPossibleStake} {networkInfo.denom} minimum
 																staking threshold mandated by the{" "}
 																{networkInfo.name} network or the free balance
-																in your account falls below the recommended{" "}
-																{networkInfo.reserveAmount} {networkInfo.denom}.{" "}
+																in your account falls below the recommended
+																minimum of {networkInfo.reserveAmount / 2}{" "}
+																{networkInfo.denom}.{" "}
 																<Popover trigger="hover" usePortal>
 																	<PopoverTrigger>
 																		<span className="underline cursor-help">
@@ -356,8 +393,8 @@ const ReBondModal = withSlideIn(
 																		<PopoverArrow />
 																		<PopoverBody>
 																			<span className="text-white text-xs">
-																				The recommended{" "}
-																				{networkInfo.reserveAmount}{" "}
+																				The recommended minimum{" "}
+																				{networkInfo.reserveAmount / 2}{" "}
 																				{networkInfo.denom} account balance is
 																				to ensure that you have a decent amount
 																				of funds in your account to pay

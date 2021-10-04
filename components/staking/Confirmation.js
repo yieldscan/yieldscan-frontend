@@ -27,6 +27,10 @@ const Confirmation = ({
 	stakingAmount,
 	selectedValidators,
 	setStepperTransactions,
+	isExistingUser,
+	hasSubscription,
+	currentDate,
+	lastDiscountDate,
 }) => {
 	const [showValidators, setShowValidators] = useState(false);
 	// const [showAdvPrefs, setShowAdvPrefs] = useState(false);
@@ -111,13 +115,20 @@ const Confirmation = ({
 				nominatedValidators: nominatedValidators,
 			});
 
-			if (ysFees > 0 && networkInfo?.feesEnabled) {
+			if (ysFees > 0 && networkInfo?.feesEnabled && networkInfo?.feesAddress) {
 				transactions.push(
 					apiInstance.tx.balances.transferKeepAlive(
 						networkInfo.feesAddress,
 						ysFees
 					)
 				);
+				stepperTransactions.push({
+					transactionType: "yieldscanFees",
+					transactionHeading: "Pay Yieldscan Fees",
+					injectorAccount: substrateStashId,
+					ysFees: ysFees,
+					substrateControllerId: substrateStashId,
+				});
 			}
 
 			const fee =
@@ -270,7 +281,48 @@ const Confirmation = ({
 							</p> */}
 								</div>
 							</div>
+							<div className="flex justify-between mt-4">
+								{ysFees !== 0 && (
+									<div className="text-xs text-gray-700 flex items-center">
+										<p>
+											Yieldscan Fee{" "}
+											{isExistingUser &&
+												!hasSubscription &&
+												currentDate <= lastDiscountDate &&
+												"(50% off)"}
+										</p>
+										<HelpPopover
+											content={
+												<p className="text-xs text-white">
+													This fee is used to pay for the costs of building and
+													running Yieldscan. Its charged on the staking amount.{" "}
+													{isExistingUser &&
+														currentDate <= lastDiscountDate && (
+															<span className="font-semibold">
+																You have been given a 50% discount because you
+																staked with Yieldscan on or before 15th
+																September 2021.{" "}
+															</span>
+														)}
+												</p>
+											}
+										/>
+									</div>
+								)}
 
+								<div className="flex flex-col">
+									{ysFees !== 0 && (
+										<div>
+											<p className="text-gray-700 text-sm font-semibold text-right">
+												{formatCurrency.methods.formatAmount(
+													Math.trunc(ysFees),
+													networkInfo
+												)}
+											</p>
+										</div>
+									)}
+								</div>
+							</div>
 							<div className="flex justify-between mt-4">
 								<div className="text-xs text-gray-700 flex items-center">
 									<p>Transaction Fee</p>
@@ -279,7 +331,6 @@ const Confirmation = ({
 											<p className="text-xs text-white">
 												This fee is used to pay for the resources used for
 												processing the transaction on the blockchain network.
-												YieldScan doesn’t profit from this fee in any way.
 											</p>
 										}
 									/>
