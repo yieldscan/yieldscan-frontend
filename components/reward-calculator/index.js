@@ -429,7 +429,6 @@ const RewardCalculatorPage = () => {
 	}, [stakingInfo, amount, selectedAccount, apiInstance, ysFees]);
 
 	useEffect(() => {
-		console.log("gg");
 		activeBondedAmount > 0
 			? setAmount(activeBondedAmount)
 			: totalAvailableStakingAmount - networkInfo.reserveAmount > 0 &&

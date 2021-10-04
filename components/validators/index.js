@@ -229,7 +229,6 @@ const Validators = () => {
 				`/${networkInfo.network}/user/fees-sub-status/${selectedAccount?.address}`
 			)
 			.then(({ data }) => {
-				console.log(data);
 				setHasSubscription(data.subscriptionActive);
 			})
 			.catch((err) => {

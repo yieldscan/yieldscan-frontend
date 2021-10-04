@@ -11,13 +11,14 @@ const AmountInput = ({
 	availableBalance,
 	networkInfo,
 	onChange,
-	ysfees,
 }) => {
 	const maxAmount =
 		type === "bond"
-			? availableBalance - ysfees < networkInfo.reserveAmount / 2
+			? availableBalance / (1 + networkInfo.feesRatio) <
+			  networkInfo.reserveAmount / 2
 				? 0
-				: availableBalance - ysfees
+				: availableBalance / (1 + networkInfo.feesRatio) -
+				  networkInfo.reserveAmount / 2
 			: type === "unbond"
 			? bonded
 			: totalUnbonding;
