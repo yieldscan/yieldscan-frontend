@@ -429,30 +429,51 @@ const RewardCalculatorPage = () => {
 	}, [stakingInfo, amount, selectedAccount, apiInstance, ysFees]);
 
 	useEffect(() => {
-		activeBondedAmount > 0
-			? setAmount(activeBondedAmount)
-			: totalAvailableStakingAmount - networkInfo.reserveAmount > 0 &&
-			  balances &&
-			  stakingInfo
-			? setAmount(
-					Math.trunc(
-						(totalAvailableStakingAmount - networkInfo.reserveAmount - ysFees) *
-							Math.pow(10, networkInfo.decimalPlaces)
-					) / Math.pow(10, networkInfo.decimalPlaces)
-			  )
-			: selectedAccount &&
-			  totalPossibleStakingAmount === 0 &&
-			  balances &&
-			  stakingInfo
-			? setAmount(0)
-			: setAmount(1000);
+		if (isExistingUser !== null && hasSubscription !== null) {
+			activeBondedAmount > 0
+				? setAmount(activeBondedAmount)
+				: totalAvailableStakingAmount - networkInfo.reserveAmount > 0 &&
+				  balances &&
+				  stakingInfo
+				? networkInfo.feesEnabled && hasSubscription === false
+					? isExistingUser && currentDate <= lastDiscountDate
+						? setAmount(
+								Math.trunc(
+									((totalAvailableStakingAmount - networkInfo.reserveAmount) /
+										(1 + networkInfo.feesRatio * 0.5)) *
+										Math.pow(10, networkInfo.decimalPlaces)
+								) / Math.pow(10, networkInfo.decimalPlaces)
+						  )
+						: setAmount(
+								Math.trunc(
+									((totalAvailableStakingAmount - networkInfo.reserveAmount) /
+										(1 + networkInfo.feesRatio)) *
+										Math.pow(10, networkInfo.decimalPlaces)
+								) / Math.pow(10, networkInfo.decimalPlaces)
+						  )
+					: setAmount(
+							Math.trunc(
+								(totalAvailableStakingAmount -
+									networkInfo.reserveAmount *
+										Math.pow(10, networkInfo.decimalPlaces)) /
+									Math.pow(10, networkInfo.decimalPlaces)
+							)
+					  )
+				: selectedAccount &&
+				  totalPossibleStakingAmount === 0 &&
+				  balances &&
+				  stakingInfo
+				? setAmount(0)
+				: setAmount(1000);
+		}
 	}, [
 		totalAvailableStakingAmount,
 		selectedAccount,
 		activeBondedAmount,
 		stakingInfo,
 		balances,
-		ysFees,
+		isExistingUser,
+		hasSubscription,
 	]);
 
 	return loading || isNil(apiInstance) ? (
@@ -575,6 +596,8 @@ const RewardCalculatorPage = () => {
 												selectedAccount?.address === controllerAccount?.address
 											}
 											ysFees={ysFees}
+											isExistingUser={isExistingUser}
+											hasSubscription={hasSubscription}
 										/>
 									)}
 								<h3 className="text-gray-700 text-xs mb-2">
@@ -591,6 +614,10 @@ const RewardCalculatorPage = () => {
 									simulationChecked={simulationChecked}
 									stakingInfo={stakingInfo}
 									ysFees={ysFees}
+									isExistingUser={isExistingUser}
+									currentDate={currentDate}
+									lastDiscountDate={lastDiscountDate}
+									hasSubscription={hasSubscription}
 								/>
 							</div>
 							<div className="flex mt-8 items-center">

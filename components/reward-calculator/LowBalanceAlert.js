@@ -22,6 +22,8 @@ const LowBalanceAlert = ({
 	controllerUnavailable,
 	isSameStashController,
 	ysFees,
+	isExistingUser,
+	hasSubscription,
 }) => {
 	const [status, setStatus] = useState();
 	const [title, setTitle] = useState();
@@ -202,7 +204,9 @@ const LowBalanceAlert = ({
 		}
 	});
 
-	return !status ? null : (
+	return !status ||
+		isExistingUser === null ||
+		hasSubscription === null ? null : (
 		<Alert
 			status={status}
 			rounded="md"
