@@ -54,7 +54,7 @@ const AmountInputDefault = memo(
 		}, [bonded]);
 
 		const handleChange = (value) => {
-			onChange(value);
+			onChange(Number(value));
 			setInputValue(value);
 			trackRewardCalculatedEvent({
 				investmentAmount: `${value} ${networkInfo.denom}`,
@@ -85,14 +85,16 @@ const AmountInputDefault = memo(
 							pr={inputValue === maxAmount ? 8 : 24}
 							textOverflow="ellipsis"
 							placeholder="0"
-							value={inputValue}
+							value={inputValue === 0 ? "" : inputValue}
 							onChange={(e) => {
 								const { value } = e.target;
 								handleChange(value);
 							}}
 							border="none"
 							fontSize="lg"
-							isInvalid={isNil(value?.currency) || value.currency === ""}
+							isInvalid={
+								isNil(value?.currency) || typeof value.currency === "string"
+							}
 							errorBorderColor="crimson"
 							isDisabled={!isEditable}
 							backgroundColor={!isEditable && "gray.200"}

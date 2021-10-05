@@ -452,7 +452,7 @@ const RewardCalculatorPage = () => {
 		activeBondedAmount,
 		stakingInfo,
 		balances,
-		ysFees,
+		// ysFees,
 	]);
 
 	return loading || isNil(apiInstance) ? (
