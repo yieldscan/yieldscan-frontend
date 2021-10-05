@@ -43,8 +43,17 @@ const LowBalanceAlert = ({
 				setStatus("error");
 				setTitleColor("red.500");
 				setDescriptionColor("red.500");
-				setTitle("Account Balance insufficient to begin staking");
+				setTitle("Insufficient balance:");
 				setDescription(
+					`You need at least ${formatCurrency.methods.formatAmount(
+						Math.trunc(
+							(minPossibleStake + networkInfo.reserveAmount) *
+								Math.pow(10, networkInfo.decimalPlaces)
+						),
+						networkInfo
+					)} to proceed.`
+				);
+				setPopoverContent(
 					`The ${networkInfo.name} network has a minimum staking
 					threshold of 
 					${formatCurrency.methods.formatAmount(
@@ -65,12 +74,6 @@ const LowBalanceAlert = ({
 						),
 						networkInfo
 					)} as a reserve in their accounts when they start staking.`
-				);
-				setPopoverContent(
-					`This is to ensure that you have a
-					decent amount of funds in your
-					account to pay transaction fees for claiming rewards, unbonding
-					funds, changing on-chain staking preferences, etc.`
 				);
 			} else if (amount < minPossibleStake) {
 				setStatus("error");
