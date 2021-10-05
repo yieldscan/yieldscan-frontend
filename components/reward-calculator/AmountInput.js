@@ -23,22 +23,49 @@ const AmountInputDefault = memo(
 		trackRewardCalculatedEvent,
 		coinGeckoPriceUSD,
 		simulationChecked,
+		isExistingUser,
+		currentDate,
+		lastDiscountDate,
+		hasSubscription,
 	}) => {
 		const router = useRouter();
 		// const initiallyEditable =
 		// 	bonded === undefined ? true : bonded == 0 ? true : false;
 		const [isEditable, setIsEditable] = useState(true);
 		const [inputValue, setInputValue] = useState(value.currency);
-		const maxAmount = Math.max(
-			availableBalance <= networkInfo.reserveAmount
-				? bonded
-				: Math.trunc(
-						((bonded + availableBalance - networkInfo.reserveAmount) /
-							(1 + networkInfo.feesRatio)) *
-							Math.pow(10, networkInfo.decimalPlaces)
-				  ) / Math.pow(10, networkInfo.decimalPlaces),
-			0
-		);
+		const [maxAmount, setMaxAmount] = useState(1000);
+
+		useEffect(() => {
+			setMaxAmount(
+				Math.max(
+					bonded > 0
+						? bonded
+						: networkInfo.feesEnabled && hasSubscription === false
+						? isExistingUser && currentDate <= lastDiscountDate
+							? Math.trunc(
+									((availableBalance - networkInfo.reserveAmount) /
+										(1 + networkInfo.feesRatio * 0.5)) *
+										Math.pow(10, networkInfo.decimalPlaces)
+							  ) / Math.pow(10, networkInfo.decimalPlaces)
+							: Math.trunc(
+									((availableBalance - networkInfo.reserveAmount) /
+										(1 + networkInfo.feesRatio)) *
+										Math.pow(10, networkInfo.decimalPlaces)
+							  ) / Math.pow(10, networkInfo.decimalPlaces)
+						: Math.trunc(
+								(availableBalance - networkInfo.reserveAmount) *
+									Math.pow(10, networkInfo.decimalPlaces)
+						  ) / Math.pow(10, networkInfo.decimalPlaces),
+					0
+				)
+			);
+		}, [
+			isExistingUser,
+			hasSubscription,
+			availableBalance,
+			lastDiscountDate,
+			bonded,
+		]);
 
 		useEffect(() => {
 			const initiallyEditable =
@@ -54,7 +81,7 @@ const AmountInputDefault = memo(
 		}, [bonded]);
 
 		const handleChange = (value) => {
-			onChange(value);
+			onChange(Number(value));
 			setInputValue(value);
 			trackRewardCalculatedEvent({
 				investmentAmount: `${value} ${networkInfo.denom}`,
@@ -85,14 +112,16 @@ const AmountInputDefault = memo(
 							pr={inputValue === maxAmount ? 8 : 24}
 							textOverflow="ellipsis"
 							placeholder="0"
-							value={inputValue}
+							value={inputValue === 0 ? "" : inputValue}
 							onChange={(e) => {
 								const { value } = e.target;
 								handleChange(value);
 							}}
 							border="none"
 							fontSize="lg"
-							isInvalid={isNil(value?.currency) || value.currency === ""}
+							isInvalid={
+								isNil(value?.currency) || typeof value.currency === "string"
+							}
 							errorBorderColor="crimson"
 							isDisabled={!isEditable}
 							backgroundColor={!isEditable && "gray.200"}
@@ -283,6 +312,10 @@ const AmountInput = memo(
 		balances,
 		simulationChecked,
 		stakingInfo,
+		isExistingUser,
+		currentDate,
+		lastDiscountDate,
+		hasSubscription,
 	}) => {
 		const { selectedAccount } = useSelectedAccount();
 		const { coinGeckoPriceUSD } = useCoinGeckoPriceUSD();
@@ -299,7 +332,10 @@ const AmountInput = memo(
 					onChange={onChange}
 				/>
 			): ( */}
-				{stakingInfo && balances ? (
+				{stakingInfo &&
+				balances &&
+				isExistingUser !== null &&
+				hasSubscription !== null ? (
 					<AmountInputDefault
 						value={value}
 						selectedAccount={selectedAccount}
@@ -320,6 +356,10 @@ const AmountInput = memo(
 						trackRewardCalculatedEvent={trackRewardCalculatedEvent}
 						coinGeckoPriceUSD={coinGeckoPriceUSD}
 						simulationChecked={simulationChecked}
+						isExistingUser={isExistingUser}
+						currentDate={currentDate}
+						lastDiscountDate={lastDiscountDate}
+						hasSubscription={hasSubscription}
 					/>
 				) : (
 					<AmountInputAccountInfoLoading
