@@ -539,24 +539,52 @@ const Validators = () => {
 			: false;
 
 	useEffect(() => {
-		activeBondedAmount > 0
-			? setAmount(activeBondedAmount)
-			: totalAvailableStakingAmount - networkInfo.reserveAmount > 0 &&
-			  balances &&
-			  stakingInfo
-			? setAmount(
-					Math.trunc(
-						(totalAvailableStakingAmount - networkInfo.reserveAmount - ysFees) *
-							Math.pow(10, networkInfo.decimalPlaces)
-					) / Math.pow(10, networkInfo.decimalPlaces)
-			  )
-			: selectedAccount &&
-			  totalPossibleStakingAmount === 0 &&
-			  balances &&
-			  stakingInfo
-			? setAmount(0)
-			: setAmount(1000);
-	}, [totalAvailableStakingAmount, selectedAccount, activeBondedAmount]);
+		if (isExistingUser !== null && hasSubscription !== null) {
+			activeBondedAmount > 0
+				? setAmount(activeBondedAmount)
+				: totalAvailableStakingAmount - networkInfo.reserveAmount > 0 &&
+				  balances &&
+				  stakingInfo
+				? networkInfo.feesEnabled && hasSubscription === false
+					? isExistingUser && currentDate <= lastDiscountDate
+						? setAmount(
+								Math.trunc(
+									((totalAvailableStakingAmount - networkInfo.reserveAmount) /
+										(1 + networkInfo.feesRatio * 0.5)) *
+										Math.pow(10, networkInfo.decimalPlaces)
+								) / Math.pow(10, networkInfo.decimalPlaces)
+						  )
+						: setAmount(
+								Math.trunc(
+									((totalAvailableStakingAmount - networkInfo.reserveAmount) /
+										(1 + networkInfo.feesRatio)) *
+										Math.pow(10, networkInfo.decimalPlaces)
+								) / Math.pow(10, networkInfo.decimalPlaces)
+						  )
+					: setAmount(
+							Math.trunc(
+								(totalAvailableStakingAmount -
+									networkInfo.reserveAmount *
+										Math.pow(10, networkInfo.decimalPlaces)) /
+									Math.pow(10, networkInfo.decimalPlaces)
+							)
+					  )
+				: selectedAccount &&
+				  totalPossibleStakingAmount === 0 &&
+				  balances &&
+				  stakingInfo
+				? setAmount(0)
+				: setAmount(1000);
+		}
+	}, [
+		totalAvailableStakingAmount,
+		selectedAccount,
+		activeBondedAmount,
+		stakingInfo,
+		balances,
+		isExistingUser,
+		hasSubscription,
+	]);
 
 	return loading || !apiInstance ? (
 		<div className="flex-center w-full h-full">
@@ -639,6 +667,10 @@ const Validators = () => {
 					selectedAccount?.address === controllerAccount?.address
 				}
 				ysFees={ysFees}
+				isExistingUser={isExistingUser}
+				currentDate={currentDate}
+				lastDiscountDate={lastDiscountDate}
+				hasSubscription={hasSubscription}
 			/>
 			<ValidatorsResult
 				stakingAmount={amount}
