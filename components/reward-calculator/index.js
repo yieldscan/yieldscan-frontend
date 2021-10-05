@@ -204,11 +204,10 @@ const RewardCalculatorPage = () => {
 			  transactionFees > 0
 				? activeBondedAmount === 0
 					? totalPossibleStakingAmount <
-					  minPossibleStake + networkInfo.reserveAmount + ysFees
+					  minPossibleStake + networkInfo.reserveAmount
 						? true
 						: amount >= minPossibleStake &&
-						  amount <=
-								totalPossibleStakingAmount - networkInfo.reserveAmount - ysFees
+						  amount <= totalPossibleStakingAmount - networkInfo.reserveAmount
 						? false
 						: true
 					: activeBondedAmount >= minPossibleStake
