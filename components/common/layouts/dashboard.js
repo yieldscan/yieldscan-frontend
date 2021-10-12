@@ -66,7 +66,7 @@ const UnsupportedDeviceScreen = () => (
 			</div>
 			<div className="max-w-xl mx-auto py-16 sm:py-24">
 				<div className="text-center">
-					<p className="text-sm font-semibold text-teal-600 dark:text-teal-500 uppercase tracking-wide">
+					<p className="text-sm font-semibold text-teal-600 dark:text-teal-700 uppercase tracking-wide">
 						Device not supported
 					</p>
 					<h1 className="mt-2 text-4xl font-extrabold text-gray-900 dark:text-white tracking-tight sm:text-5xl">
