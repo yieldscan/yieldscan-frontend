@@ -91,7 +91,7 @@ const SetupWallet = () => {
 								className="rounded-lg font-medium w-full py-3 bg-teal-500 text-white"
 								onClick={() =>
 									window?.open(
-										"https://intercom.help/yieldscan/en/articles/5341271-take-your-first-steps-choose-your-wallet-create-your-crypto-account-and-add-funds",
+										"https://help.yieldscan.app/en/articles/5341271-take-your-first-steps-choose-your-wallet-create-your-crypto-account-and-add-funds",
 										"_blank"
 									)
 								}
@@ -161,7 +161,7 @@ const SetupWallet = () => {
 							className="w-full flex rounded-lg border items-center shadow-md hover:shadow-lg p-8 transform hover:scale-102"
 							onClick={() =>
 								window?.open(
-									"https://intercom.help/yieldscan/en/articles/5428867-i-have-my-funds-on-an-exchange-how-can-i-stake-with-yieldscan",
+									"https://help.yieldscan.app/en/articles/5428867-i-have-my-funds-on-an-exchange-how-can-i-stake-with-yieldscan",
 									"_blank"
 								)
 							}
@@ -192,7 +192,7 @@ const SetupWallet = () => {
 						<div className="flex flex-row rounded-lg bg-gray-200 items-center text-sm justify-center p-4 px-6 space-x-4 shadow-md">
 							<a
 								className="text-gray-700 hover:underline"
-								href="https://intercom.help/yieldscan/en/articles/5353506-my-account-is-not-showing-i-can-t-find-my-account-in-the-list"
+								href="https://help.yieldscan.app/en/articles/5353506-my-account-is-not-showing-i-can-t-find-my-account-in-the-list"
 								target="_blank"
 								rel="noreferrer"
 							>
@@ -200,7 +200,7 @@ const SetupWallet = () => {
 							</a>
 							<a
 								className="text-gray-600 hover:underline"
-								href="https://intercom.help/yieldscan/en/articles/5528915-which-wallets-are-supported"
+								href="https://help.yieldscan.app/en/articles/5528915-which-wallets-are-supported"
 								target="_blank"
 								rel="noreferrer"
 							>

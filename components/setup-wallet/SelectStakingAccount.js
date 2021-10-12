@@ -89,7 +89,7 @@ const SelectStakingAccount = ({
 						className="underline text-teal-500 cursor-pointer"
 						onClick={() =>
 							window?.open(
-								"https://intercom.help/yieldscan/en/articles/5353506-my-account-is-not-showing-i-can-t-find-my-account-in-the-list",
+								"https://help.yieldscan.app/en/articles/5353506-my-account-is-not-showing-i-can-t-find-my-account-in-the-list",
 								"_blank"
 							)
 						}
