@@ -88,7 +88,7 @@ const AllNominations = ({ nominations = [], networkInfo }) => {
 			))}
 			{!nominations.length && (
 				<div className="mt-5">
-					<span className="text-xl font-thin text-gray-700">
+					<span className="text-xl font-extralight text-gray-700">
 						No Nominations!
 					</span>
 				</div>

@@ -54,7 +54,7 @@ const links = [
 ];
 
 const UnsupportedDeviceScreen = () => (
-	<div className="bg-white">
+	<div className="bg-white dark:bg-gray-900">
 		<main className="max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8">
 			<div className="flex-shrink-0 pt-16 flex justify-center">
 				<Image
@@ -66,24 +66,24 @@ const UnsupportedDeviceScreen = () => (
 			</div>
 			<div className="max-w-xl mx-auto py-16 sm:py-24">
 				<div className="text-center">
-					<p className="text-sm font-semibold text-teal-600 uppercase tracking-wide">
+					<p className="text-sm font-semibold text-teal-600 dark:text-teal-500 uppercase tracking-wide">
 						Device not supported
 					</p>
-					<h1 className="mt-2 text-4xl font-extrabold text-gray-900 tracking-tight sm:text-5xl">
+					<h1 className="mt-2 text-4xl font-extrabold text-gray-900 dark:text-white tracking-tight sm:text-5xl">
 						This page isn't supported on your device.
 					</h1>
-					<p className="mt-2 text-lg text-gray-600">
+					<p className="mt-2 text-lg text-gray-600 dark:text-gray-400">
 						The page you are looking for is not available on your device. To
 						continue, please visit the page using a laptop or desktop computer.
 					</p>
 				</div>
 				<div className="mt-12">
-					<h2 className="text-sm font-semibold text-gray-600 tracking-wide uppercase">
+					<h2 className="text-sm font-semibold text-gray-600 dark:text-gray-400 tracking-wide uppercase">
 						Helpful resources
 					</h2>
 					<ul
 						role="list"
-						className="mt-4 border-t border-b border-gray-200 divide-y divide-gray-200"
+						className="mt-4 border-t border-b border-gray-200 divide-y divide-gray-200 dark:divide-gray-800 dark:border-gray-800"
 					>
 						{links.map((link, linkIdx) => (
 							<li
@@ -99,7 +99,7 @@ const UnsupportedDeviceScreen = () => (
 									</span>
 								</div>
 								<div className="min-w-0 flex-1">
-									<h3 className="text-base font-medium text-gray-900">
+									<h3 className="text-base font-medium text-gray-900 dark:text-white">
 										<span className="rounded-sm focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-teal-500">
 											<a href={link.url} className="focus:outline-none">
 												<span className="absolute inset-0" aria-hidden="true" />
@@ -107,11 +107,13 @@ const UnsupportedDeviceScreen = () => (
 											</a>
 										</span>
 									</h3>
-									<p className="text-base text-gray-600">{link.description}</p>
+									<p className="text-base text-gray-600 dark:text-gray-400">
+										{link.description}
+									</p>
 								</div>
 								<div className="flex-shrink-0 self-center">
 									<ChevronRight
-										className="h-5 w-5 text-gray-400"
+										className="h-5 w-5 text-gray-400 dark:text-gray-600"
 										aria-hidden="true"
 									/>
 								</div>
@@ -120,7 +122,7 @@ const UnsupportedDeviceScreen = () => (
 					</ul>
 					<div className="mt-8">
 						<Link href="/">
-							<a className="text-base font-medium text-teal-600 hover:text-teal-500">
+							<a className="text-base font-medium text-teal-600 hover:text-teal-500 dark:text-teal-700 dark:hover:text-teal-400">
 								Or go back home<span aria-hidden="true"> &rarr;</span>
 							</a>
 						</Link>

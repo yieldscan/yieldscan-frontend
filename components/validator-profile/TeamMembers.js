@@ -9,7 +9,12 @@ const TeamMembers = ({ members = [] }) => {
 					{members.map((member, index) => (
 						<div
 							key={index}
-							onClick={() => window.open(`https://twitter.com/${member.twitter.slice(1)}`, '_blank')}
+							onClick={() =>
+								window.open(
+									`https://twitter.com/${member.twitter.slice(1)}`,
+									"_blank"
+								)
+							}
 							className="m-2 w-48 h-56 p-5 cursor-pointer rounded-lg border border-gray-300 flex-center flex-col"
 						>
 							<Avatar mb="1rem" />
@@ -24,7 +29,7 @@ const TeamMembers = ({ members = [] }) => {
 				</div>
 			) : (
 				<div className="flex-center">
-					<h1 className="text-2xl font-thin">No Members.</h1>
+					<h1 className="text-2xl font-extralight">No Members.</h1>
 				</div>
 			)}
 		</div>
