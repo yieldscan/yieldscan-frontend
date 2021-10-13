@@ -145,7 +145,6 @@ const SetupWallet = () => {
 										width="80"
 										height="80"
 										alt="Math Wallet Icon"
-										className="bg-black rounded-full"
 									/>
 									<div className="flex flex-col text-left">
 										<h2 className="text-lg font-semibold">
@@ -203,12 +202,12 @@ const SetupWallet = () => {
 								/>
 								<div className="flex flex-col text-left">
 									<h2 className="text-lg font-semibold">
-										{"Transfer from an exchange"}
+										Transfer from an exchange
 									</h2>
 									<p className="text-gray-600 text-sm max-w-md">
-										{
-											"Have your crypto stored on a centralized exchange like Coinbase, Binance or Kraken? Choose this option to learn how to get started with staking on yieldscan"
-										}
+										Have your crypto stored on a centralized exchange like
+										Coinbase, Binance or Kraken? Choose this option to learn how
+										to get started with staking on yieldscan
 									</p>
 								</div>
 							</div>
