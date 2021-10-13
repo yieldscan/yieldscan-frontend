@@ -213,11 +213,11 @@ const Header = ({ isBase, isSetUp, isWalletSetUp }) => {
 
 	return (
 		<div
-			className={`header w-full flex items-center justify-center md:justify-between text-gray-700 ${
+			className={`header w-full flex items-center justify-center md:justify-between text-gray-700 dark:text-white ${
 				!isBase
-					? "border border-bottom border-gray-200"
+					? "border border-bottom border-gray-200 dark:border-gray-700"
 					: "max-w-4xl xl:px-0"
-			} bg-white px-3 md:px-8 py-8 h-12 mx-auto`}
+			} bg-white dark:bg-gray-900 px-3 md:px-8 py-8 h-12 mx-auto`}
 		>
 			{/* Wallet Connect */}
 			{!isBase &&
@@ -296,7 +296,7 @@ const Header = ({ isBase, isSetUp, isWalletSetUp }) => {
 			{isBase ? (
 				// Home page dashboard button
 				<Link href={Routes.OVERVIEW}>
-					<a className="hidden md:inline border border-gray-200 rounded-full py-2 px-4">
+					<a className="hidden md:inline border border-gray-200 dark:border-gray-700 rounded-full py-2 px-4">
 						Dashboard
 					</a>
 				</Link>

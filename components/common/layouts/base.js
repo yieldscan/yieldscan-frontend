@@ -42,11 +42,11 @@ const WithBaseLayout = (children) => {
 	}, [networkInfo]);
 
 	return (
-		<Flex h="100%" w="100%" flexDirection="column">
+		<div className="bg-white dark:bg-gray-900 flex flex-col" h="100%" w="100%">
 			<Header isBase />
 			<Box flex={1}>{children()}</Box>
 			<Footer />
-		</Flex>
+		</div>
 	);
 };
 

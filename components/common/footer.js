@@ -9,20 +9,20 @@ const Footer = () => {
 	return (
 		!accountInfoLoading &&
 		!headerLoading && (
-			<footer className="bg-white">
+			<footer className="bg-white dark:bg-gray-900">
 				<div className="max-w-7xl mx-auto py-12 px-4 overflow-hidden sm:px-6 lg:px-8">
 					<nav className="-mx-5 -my-2 flex flex-wrap justify-center" aria-label="Footer">
 						<div className="px-5 py-2">
 							<Link href="/about">
-								<a className="text-base text-gray-500 hover:text-gray-900">
+								<a className="text-base text-gray-500 hover:text-gray-900 dark:hover:text-gray-300">
 									About
 								</a>
 							</Link>
 						</div>
 
 						<div className="px-5 py-2">
-							<Link href="https://medium.com/yieldscan">
-								<a className="text-base text-gray-500 hover:text-gray-900" target="_blank">
+							<Link href="https://blog.yieldscan.app/">
+								<a className="text-base text-gray-500 hover:text-gray-900 dark:hover:text-gray-300" target="_blank">
 									Blog
 								</a>
 							</Link>
@@ -30,7 +30,7 @@ const Footer = () => {
 
 						<div className="px-5 py-2">
 							<Link href="https://www.notion.so/Careers-at-YieldScan-aea97220f05b4362be6cd18d49217f7a">
-								<a className="text-base text-gray-500 hover:text-gray-900">
+								<a className="text-base text-gray-500 hover:text-gray-900 dark:hover:text-gray-300">
 									Jobs
 								</a>
 							</Link>
@@ -38,7 +38,7 @@ const Footer = () => {
 
 						<div className="px-5 py-2">
 							<Link href="/privacy">
-								<a className="text-base text-gray-500 hover:text-gray-900">
+								<a className="text-base text-gray-500 hover:text-gray-900 dark:hover:text-gray-300">
 									Privacy
 								</a>
 							</Link>
@@ -46,7 +46,7 @@ const Footer = () => {
 
 						<div className="px-5 py-2">
 							<Link href="/terms">
-								<a className="text-base text-gray-500 hover:text-gray-900">
+								<a className="text-base text-gray-500 hover:text-gray-900 dark:hover:text-gray-300">
 									Terms
 								</a>
 							</Link>
@@ -54,7 +54,7 @@ const Footer = () => {
 
 						<div className="px-5 py-2">
 							<Link href="/disclaimer">
-								<a className="text-base text-gray-500 hover:text-gray-900">
+								<a className="text-base text-gray-500 hover:text-gray-900 dark:hover:text-gray-300">
 									Disclaimer
 								</a>
 							</Link>
@@ -63,35 +63,35 @@ const Footer = () => {
 					<div className="mt-8 flex justify-center space-x-6">
 
 						<Link href="https://twitter.com/yieldscan">
-							<a className="text-gray-500 hover:text-gray-600">
+							<a className="text-gray-500 hover:text-gray-600 dark:hover:text-gray-300">
 								<span className="sr-only">Twitter</span>
 								<FaTwitter className="h-6 w-6" />
 							</a>
 						</Link>
 
 						<Link href="https://github.com/yieldscan">
-							<a className="text-gray-500 hover:text-gray-600">
+							<a className="text-gray-500 hover:text-gray-600 dark:hover:text-gray-300">
 								<span className="sr-only">GitHub</span>
 								<FaGithub className="h-6 w-6" />
 							</a>
 						</Link>
 
 						<Link href="https://t.me/yieldscan">
-							<a className="text-gray-500 hover:text-gray-600">
+							<a className="text-gray-500 hover:text-gray-600 dark:hover:text-gray-300">
 								<span className="sr-only">Telegram</span>
 								<FaTelegram className="h-6 w-6" />
 							</a>
 						</Link>
 
 						<Link href="https://discord.gg/5Dggqx8">
-							<a className="text-gray-500 hover:text-gray-600">
+							<a className="text-gray-500 hover:text-gray-600 dark:hover:text-gray-300">
 								<span className="sr-only">Discord</span>
 								<FaDiscord className="h-6 w-6" />
 							</a>
 						</Link>
 
 						<Link href="mailto:contact@yieldscan.app">
-							<a className="text-gray-500 hover:text-gray-600">
+							<a className="text-gray-500 hover:text-gray-600 dark:hover:text-gray-300">
 								<span className="sr-only">Email</span>
 								<FaEnvelope className="h-6 w-6" />
 							</a>

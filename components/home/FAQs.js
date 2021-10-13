@@ -12,10 +12,10 @@ import {
 const FAQs = () => {
 	return (
 		<Box mt={16} w="full">
-			<h1 className="text-2xl md:text-3xl text-gray-700 font-bold text-center">
+			<h1 className="text-2xl md:text-3xl text-gray-700 dark:text-white font-bold text-center">
 				Frequently Asked Questions
 			</h1>
-			<p className="text-gray-600 mb-16 text-center">
+			<p className="text-gray-600 dark:text-gray-400 mb-16 text-center">
 				Can’t find what you were looking for?{" "}
 				<Link
 					_hover={{ textDecor: "none" }}
@@ -45,7 +45,7 @@ const FAQs = () => {
 								<Heading
 									as="h5"
 									size="md"
-									className="text-gray-700"
+									className="text-gray-700 dark:text-white"
 									fontWeight="normal"
 									textAlign="left"
 								>
@@ -54,7 +54,11 @@ const FAQs = () => {
 							</Box>
 							<AccordionIcon />
 						</AccordionHeader>
-						<AccordionPanel pt={4} pb={12} className="text-gray-700">
+						<AccordionPanel
+							pt={4}
+							pb={12}
+							className="text-gray-700 dark:text-white"
+						>
 							{data.answer}{" "}
 							{data.link !== undefined ? (
 								<Link
