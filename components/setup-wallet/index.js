@@ -51,6 +51,10 @@ const SetupWallet = () => {
 	useEffect(() => {
 		setHasExtension(has(window?.injectedWeb3, "polkadot-js"));
 	}, []);
+	
+	useEffect(() => {
+		setHasMathWallet(has(window?.injectedWeb3, "mathwallet"));
+	}, []);
 
 	useEffect(() => {
 		walletConnectState === "connected" &&
