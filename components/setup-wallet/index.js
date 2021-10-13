@@ -39,6 +39,10 @@ const SetupWallet = () => {
 		has(window?.injectedWeb3, "polkadot-js")
 	);
 
+	const [hasMathWallet, setHasMathWallet] = useState(
+		has(window?.injectedWeb3, "mathwallet")
+	);
+
 	const handleOnClickConnectPolkadotExtension = () => {
 		walletConnectState !== "connected" && toggle();
 		setConnectExtensionCheck(true);
@@ -120,12 +124,36 @@ const SetupWallet = () => {
 									/>
 									<div className="flex flex-col text-left">
 										<h2 className="text-lg font-semibold">
-											{"Connect using polkadot{.js} wallet"}
+											Connect using polkadot&#123;.js&#125; wallet
 										</h2>
 										<p className="text-gray-600 text-sm max-w-md">
-											{
-												"Polkadot{.js} wallet is a free-to-use browser extension that generates and holds your accounts"
-											}
+											Polkadot&#123;.js&#125; wallet is a free-to-use browser
+											extension that generates and holds your accounts 
+										</p>
+									</div>
+								</div>
+							</button>
+						)}
+						{hasMathWallet && (
+							<button
+								className="w-full flex rounded-lg border items-center shadow-md hover:shadow-lg p-8 transform hover:scale-102"
+								onClick={handleOnClickConnectPolkadotExtension}
+							>
+								<div className="w-full flex-1 flex flex-row items-center text-left space-x-6">
+									<Image
+										src="/images/mathwallet.svg"
+										width="80"
+										height="80"
+										alt="Math Wallet Icon"
+										className="bg-black rounded-full"
+									/>
+									<div className="flex flex-col text-left">
+										<h2 className="text-lg font-semibold">
+											Connect using Math Wallet
+										</h2>
+										<p className="text-gray-600 text-sm max-w-md">
+											Math Wallet is a third party, multi-platform crypto wallet
+											that generates and holds your accounts
 										</p>
 									</div>
 								</div>
@@ -147,12 +175,12 @@ const SetupWallet = () => {
 								/>
 								<div className="flex flex-col text-left">
 									<h2 className="text-lg font-semibold">
-										{"Connect using a Ledger hardware wallet"}
+										Connect using a Ledger hardware wallet
 									</h2>
 									<p className="text-gray-600 text-sm max-w-md">
-										{
-											"Ledger wallets are dedicated hardware devices that securely store your accounts, isolated from your easy-to-hack computer"
-										}
+										Ledger wallets are dedicated hardware devices that securely
+										store your accounts, isolated from your easy-to-hack
+										computer
 									</p>
 								</div>
 							</div>
