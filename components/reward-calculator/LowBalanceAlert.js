@@ -140,7 +140,7 @@ const LowBalanceAlert = ({
 				setTitle("Insufficient Balance");
 				setDescriptionColor("red.500");
 				setDescription(
-					`Your active bonded amount is less than min allowed staking amount of ${formatCurrency.methods.formatAmount(
+					`Your active bonded amount is less than minimum allowed staking amount of ${formatCurrency.methods.formatAmount(
 						Math.trunc(
 							minPossibleStake * Math.pow(10, networkInfo.decimalPlaces)
 						),
@@ -173,7 +173,7 @@ const LowBalanceAlert = ({
 				setDescription(
 					`You need an additional ${formatCurrency.methods.formatAmount(
 						Math.trunc(
-							(networkInfo.reserveAmount + totalAvailableStakingAmount) *
+							(networkInfo.reserveAmount - totalAvailableStakingAmount) *
 								Math.pow(10, networkInfo.decimalPlaces)
 						) + ysFees,
 						networkInfo

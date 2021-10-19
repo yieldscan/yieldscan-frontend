@@ -1,4 +1,3 @@
-// TODO: Cleanup this: remove unused variables and effects
 import { useState, useEffect } from "react";
 import {
 	Modal,
@@ -223,9 +222,6 @@ const StopStaking = ({ networkInfo, transactionFee }) => (
 								networkInfo
 							)}
 						</p>
-						{/* <p className="text-xs text-right text-gray-600">
-			${subFeeCurrency.toFixed(2)}
-		</p> */}
 					</div>
 				) : (
 					<Spinner />
@@ -243,9 +239,6 @@ const StopStaking = ({ networkInfo, transactionFee }) => (
 							networkInfo
 						)}
 					</p>
-					{/* <p className="text-sm text-right text-gray-600 font-medium">
-	${(subCurrency + subFeeCurrency).toFixed(2)}
-</p> */}
 				</div>
 			) : (
 				<Spinner />
@@ -265,7 +258,6 @@ const StepperSigning = ({
 	stashId,
 	stakingInfo,
 	networkInfo,
-	api,
 }) => {
 	return (
 		<div className="w-full flex flex-col justify-center items-center space-y-4 p-4">
@@ -573,9 +565,6 @@ const WithdrawModal = withSlideIn(
 					});
 				},
 				onSuccessfullSigning: (hash) => {
-					// setProcessComplete(true);
-					// setStakingLoading(false);
-					// setCloseOnOverlayClick(true);
 					setTransactionHash(hash.message);
 				},
 				onFinish: (status, message, eventLogs, tranHash) => {
@@ -633,9 +622,6 @@ const WithdrawModal = withSlideIn(
 							setIsSuccessful(null);
 							setCloseOnOverlayClick(true);
 						}, 5000);
-						// setProcessComplete(true);
-						// setUpdatingFunds(false);
-						// setCloseOnOverlayClick(true);
 					} else {
 						if (message === "Cancelled") {
 							setUpdatingFunds(false);
@@ -695,8 +681,6 @@ const WithdrawModal = withSlideIn(
 		useEffect(async () => {
 			setStepperTransactions(null);
 			if (!isNil(stakingInfo)) {
-				// setTransactionFee(0);
-				// setInjectorAccount(null);
 				const substrateControllerId = encodeAddress(
 					decodeAddress(stakingInfo?.controllerId),
 					42
@@ -716,7 +700,6 @@ const WithdrawModal = withSlideIn(
 					stakingInfo?.nominators &&
 					stakingInfo?.nominators.length > 0
 				) {
-					// _transactions.push(apiInstance.tx.staking.chill());
 					_transactions.push({
 						transactionType: "chill",
 						transactionHeading: "Stop staking(chill)",
@@ -725,7 +708,6 @@ const WithdrawModal = withSlideIn(
 					});
 				}
 
-				// _transactions.push(apiInstance.tx.staking.unbond(rawAmount));
 				_transactions.push({
 					transactionType: "unbond",
 					transactionHeading: "Unbond funds",
@@ -734,16 +716,7 @@ const WithdrawModal = withSlideIn(
 					substrateControllerId: substrateControllerId,
 				});
 
-				// const fee =
-				// 	_transactions.length > 1
-				// 		? await apiInstance.tx.utility
-				// 				.batchAll(_transactions)
-				// 				.paymentInfo(substrateControllerId)
-				// 		: await _transactions[0].paymentInfo(substrateControllerId);
-
 				setStepperTransactions([..._transactions]);
-				// setInjectorAccount(substrateControllerId);
-				// setTransactionFee(() => fee.partialFee.toNumber());
 			}
 		}, [amount]);
 
@@ -821,11 +794,6 @@ const WithdrawModal = withSlideIn(
 			>
 				<ModalOverlay />
 				<ModalContent rounded="lg">
-					{/* {!updatingFunds && !processComplete && !chainError && (
-						<ModalHeader>
-							<h1>{title}</h1>
-						</ModalHeader>
-					)} */}
 					{closeOnOverlayClick && (
 						<ModalCloseButton
 							onClick={handlePopoverClose}
@@ -901,7 +869,7 @@ const WithdrawModal = withSlideIn(
 													(networkInfo.reserveAmount / 2) *
 														Math.pow(10, networkInfo.decimalPlaces) +
 														apiInstance?.consts.balances.existentialDeposit.toNumber() >
-														controllerBalances.availableBalance && (
+														controllerBalances.freeBalance && (
 														<div className="rounded-lg px-5 py-2 text-sm bg-red-200 text-red-600 mb-4">
 															<span>
 																{isSameStashController
@@ -954,7 +922,6 @@ const WithdrawModal = withSlideIn(
 												} mt-40 mb-40 text-white`}
 												onClick={handleOnClickProceed}
 												disabled={calculationDisabled}
-												// isLoading={updatingFunds}
 											>
 												Proceed
 											</button>
