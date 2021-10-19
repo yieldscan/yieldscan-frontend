@@ -527,11 +527,26 @@ const Validators = () => {
 					? totalPossibleStakingAmount <
 					  minPossibleStake + networkInfo.reserveAmount
 						? true
+						: networkInfo.feesEnabled && hasSubscription === false
+						? isExistingUser && currentDate <= lastDiscountDate
+							? amount >= minPossibleStake &&
+							  amount <=
+									(totalPossibleStakingAmount - networkInfo.reserveAmount) /
+										(1 + networkInfo.feesRatio * 0.5)
+								? false
+								: true
+							: amount >= minPossibleStake &&
+							  amount <=
+									(totalPossibleStakingAmount - networkInfo.reserveAmount) /
+										(1 + networkInfo.feesRatio)
+							? false
+							: true
 						: amount >= minPossibleStake &&
 						  amount <= totalPossibleStakingAmount - networkInfo.reserveAmount
 						? false
 						: true
-					: activeBondedAmount >= minPossibleStake
+					: activeBondedAmount >= minPossibleStake &&
+					  totalAvailableStakingAmount >= networkInfo.reserveAmount / 2
 					? false
 					: true
 				: true
