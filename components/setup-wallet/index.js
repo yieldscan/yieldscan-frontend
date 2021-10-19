@@ -39,6 +39,10 @@ const SetupWallet = () => {
 		has(window?.injectedWeb3, "polkadot-js")
 	);
 
+	const [hasMathWallet, setHasMathWallet] = useState(
+		has(window?.injectedWeb3, "mathwallet")
+	);
+
 	const handleOnClickConnectPolkadotExtension = () => {
 		walletConnectState !== "connected" && toggle();
 		setConnectExtensionCheck(true);
@@ -46,6 +50,10 @@ const SetupWallet = () => {
 
 	useEffect(() => {
 		setHasExtension(has(window?.injectedWeb3, "polkadot-js"));
+	}, []);
+	
+	useEffect(() => {
+		setHasMathWallet(has(window?.injectedWeb3, "mathwallet"));
 	}, []);
 
 	useEffect(() => {
@@ -91,7 +99,7 @@ const SetupWallet = () => {
 								className="rounded-lg font-medium w-full py-3 bg-teal-500 text-white"
 								onClick={() =>
 									window?.open(
-										"https://intercom.help/yieldscan/en/articles/5341271-take-your-first-steps-choose-your-wallet-create-your-crypto-account-and-add-funds",
+										"https://help.yieldscan.app/en/articles/5341271-take-your-first-steps-choose-your-wallet-create-your-crypto-account-and-add-funds",
 										"_blank"
 									)
 								}
@@ -120,12 +128,35 @@ const SetupWallet = () => {
 									/>
 									<div className="flex flex-col text-left">
 										<h2 className="text-lg font-semibold">
-											{"Connect using polkadot{.js} wallet"}
+											Connect using polkadot&#123;.js&#125; wallet
 										</h2>
 										<p className="text-gray-600 text-sm max-w-md">
-											{
-												"Polkadot{.js} wallet is a free-to-use browser extension that generates and holds your accounts"
-											}
+											Polkadot&#123;.js&#125; wallet is a free-to-use browser
+											extension that generates and holds your accounts 
+										</p>
+									</div>
+								</div>
+							</button>
+						)}
+						{hasMathWallet && (
+							<button
+								className="w-full flex rounded-lg border items-center shadow-md hover:shadow-lg p-8 transform hover:scale-102"
+								onClick={handleOnClickConnectPolkadotExtension}
+							>
+								<div className="w-full flex-1 flex flex-row items-center text-left space-x-6">
+									<Image
+										src="/images/mathwallet.svg"
+										width="80"
+										height="80"
+										alt="Math Wallet Icon"
+									/>
+									<div className="flex flex-col text-left">
+										<h2 className="text-lg font-semibold">
+											Connect using Math Wallet
+										</h2>
+										<p className="text-gray-600 text-sm max-w-md">
+											Math Wallet is a third party, multi-platform crypto wallet
+											that generates and holds your accounts
 										</p>
 									</div>
 								</div>
@@ -147,12 +178,12 @@ const SetupWallet = () => {
 								/>
 								<div className="flex flex-col text-left">
 									<h2 className="text-lg font-semibold">
-										{"Connect using a Ledger hardware wallet"}
+										Connect using a Ledger hardware wallet
 									</h2>
 									<p className="text-gray-600 text-sm max-w-md">
-										{
-											"Ledger wallets are dedicated hardware devices that securely store your accounts, isolated from your easy-to-hack computer"
-										}
+										Ledger wallets are dedicated hardware devices that securely
+										store your accounts, isolated from your easy-to-hack
+										computer
 									</p>
 								</div>
 							</div>
@@ -161,7 +192,7 @@ const SetupWallet = () => {
 							className="w-full flex rounded-lg border items-center shadow-md hover:shadow-lg p-8 transform hover:scale-102"
 							onClick={() =>
 								window?.open(
-									"https://intercom.help/yieldscan/en/articles/5428867-i-have-my-funds-on-an-exchange-how-can-i-stake-with-yieldscan",
+									"https://help.yieldscan.app/en/articles/5428867-i-have-my-funds-on-an-exchange-how-can-i-stake-with-yieldscan",
 									"_blank"
 								)
 							}
@@ -175,12 +206,12 @@ const SetupWallet = () => {
 								/>
 								<div className="flex flex-col text-left">
 									<h2 className="text-lg font-semibold">
-										{"Transfer from an exchange"}
+										Transfer from an exchange
 									</h2>
 									<p className="text-gray-600 text-sm max-w-md">
-										{
-											"Have your crypto stored on a centralized exchange like Coinbase, Binance or Kraken? Choose this option to learn how to get started with staking on yieldscan"
-										}
+										Have your crypto stored on a centralized exchange like
+										Coinbase, Binance or Kraken? Choose this option to learn how
+										to get started with staking on yieldscan
 									</p>
 								</div>
 							</div>
@@ -192,7 +223,7 @@ const SetupWallet = () => {
 						<div className="flex flex-row rounded-lg bg-gray-200 items-center text-sm justify-center p-4 px-6 space-x-4 shadow-md">
 							<a
 								className="text-gray-700 hover:underline"
-								href="https://intercom.help/yieldscan/en/articles/5353506-my-account-is-not-showing-i-can-t-find-my-account-in-the-list"
+								href="https://help.yieldscan.app/en/articles/5353506-my-account-is-not-showing-i-can-t-find-my-account-in-the-list"
 								target="_blank"
 								rel="noreferrer"
 							>
@@ -200,7 +231,7 @@ const SetupWallet = () => {
 							</a>
 							<a
 								className="text-gray-600 hover:underline"
-								href="https://intercom.help/yieldscan/en/articles/5528915-which-wallets-are-supported"
+								href="https://help.yieldscan.app/en/articles/5528915-which-wallets-are-supported"
 								target="_blank"
 								rel="noreferrer"
 							>
