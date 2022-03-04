@@ -42,6 +42,10 @@ const SetupWallet = () => {
 	const [hasMathWallet, setHasMathWallet] = useState(
 		has(window?.injectedWeb3, "mathwallet")
 	);
+	
+	const [hasTalismanWallet, setHasTalismanWallet] = useState(
+		has(window?.injectedWeb3, "talisman")
+	);
 
 	const handleOnClickConnectPolkadotExtension = () => {
 		walletConnectState !== "connected" && toggle();
@@ -54,6 +58,10 @@ const SetupWallet = () => {
 	
 	useEffect(() => {
 		setHasMathWallet(has(window?.injectedWeb3, "mathwallet"));
+	}, []);
+	
+	useEffect(() => {
+		setHasTalismanWallet(has(window?.injectedWeb3, "talisman"));
 	}, []);
 
 	useEffect(() => {
@@ -133,6 +141,30 @@ const SetupWallet = () => {
 										<p className="text-gray-600 text-sm max-w-md">
 											Polkadot&#123;.js&#125; wallet is a free-to-use browser
 											extension that generates and holds your accounts 
+										</p>
+									</div>
+								</div>
+							</button>
+						)}
+						{hasTalismanWallet && (
+							<button
+								className="w-full flex rounded-lg border items-center shadow-md hover:shadow-lg p-8 transform hover:scale-102"
+								onClick={handleOnClickConnectPolkadotExtension}
+							>
+								<div className="w-full flex-1 flex flex-row items-center text-left space-x-6">
+									<Image
+										src="/images/talisman-icon-red-white.svg"
+										width="80"
+										height="80"
+										alt="Talisman Wallet Icon"
+									/>
+									<div className="flex flex-col text-left">
+										<h2 className="text-lg font-semibold">
+											Connect using Talisman
+										</h2>
+										<p className="text-gray-600 text-sm max-w-md">
+											Talisman is a third party crypto wallet
+											that generates and holds your accounts
 										</p>
 									</div>
 								</div>
