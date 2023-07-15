@@ -91,7 +91,6 @@ const Confirmation = ({
 			} else {
 				transactions.push(
 					apiInstance.tx.staking.bond(
-						substrateStashId,
 						amount,
 						transactionState.rewardDestination
 					)
