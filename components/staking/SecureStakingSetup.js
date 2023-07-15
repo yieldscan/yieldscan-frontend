@@ -168,7 +168,6 @@ const SecureStakingSetup = ({
 			if (isNil(stakingInfo?.controllerId)) {
 				transactions.push(
 					apiInstance.tx.staking.bond(
-						substrateStashId,
 						amount,
 						transactionState.rewardDestination
 					)
